@@ -1,0 +1,161 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (61.164.42.155:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 10 Nov 2018 00:52:16 -0000
+Received: from icoremail.net (unknown [209.85.210.170])
+	by mail-app2 (Coremail) with SMTP id by_KCgDHH3qjbOVbY1BnAQ--.31159S3;
+	Fri, 09 Nov 2018 19:16:52 +0800 (CST)
+Received: from mail-pf1-f170.google.com (unknown [209.85.210.170])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwBX0EyebOVbcEgiAA--.1893S3;
+	Fri, 09 Nov 2018 19:16:46 +0800 (CST)
+Received: by mail-pf1-f170.google.com with SMTP id y18-v6so810274pfn.1
+        for <xuliker@zju.edu.cn>; Fri, 09 Nov 2018 03:16:46 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :date:from:to:cc:subject:message-id:in-reply-to:references
+         :organization:mime-version:content-transfer-encoding:sender
+         :precedence:list-id;
+        bh=N7x4qGnBqAkzYJITJ1IB+Yoyr8c6nxzmlG/l09LrMxM=;
+        b=n/107FB3sTb7/+dieuUPWdsrs/gxrtpEp8+fAmy6xXcKX94KMDWfq6jcxhsvPFmPbs
+         hIrCJxrQ9a0x751YXhFO9AjmQHMixn4hsbkJ6x/xiv6p7gKtVVV8z6Ub/1Liz06MF100
+         HRbrQURwg1ImghOChOJicRHJibAItp8bQNW+1NI8cJn+UBdfveP4OHaxKTGKzE+zrdoP
+         P1nevycucVsn1klc/NahHfmw20g1cevVRw6ee4nn5TezbjTj1KjdNGJcMz6HQ5JLBU+t
+         VZpl5E1saIIDuykV4Lu2+F4R7dBIOmbzzjy8ZwbynwkODSnzDlVv3Q0ncwBlGyZzWNTB
+         GsCA==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=redhat.com
+X-Gm-Message-State: AGRZ1gK7hAOV25+6Z3QsIYkszdNozHG3QRSrNIY3ZLnU0Yom+r2a5HXk
+	c5dLRp6QB+CY5oT+pMu6YUNPFL7lfcmgYMvxoYCqsnZCtbXkP6jlyA==
+X-Received: by 2002:a63:bc02:: with SMTP id q2mr2732665pge.116.1541762206296;
+        Fri, 09 Nov 2018 03:16:46 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp72523pjt;
+        Fri, 9 Nov 2018 03:16:45 -0800 (PST)
+X-Google-Smtp-Source: AJdET5d+95xvFVAnnTVXxukGBe20cku08GA/U7o9PseHaJ5Og/c0RpvkIJtZ9mWtEEP68KeCiWSK
+X-Received: by 2002:a63:c746:: with SMTP id v6-v6mr7255090pgg.108.1541762205367;
+        Fri, 09 Nov 2018 03:16:45 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1541762205; cv=none;
+        d=google.com; s=arc-20160816;
+        b=c89DCpzkYcjuBhi6Muk4NaphS8FIJcPx7hPy0eBcGFFSp1I/B0tFR5TGVanLVZPv2U
+         I5oSUnXPfBMSSlLRoptUGIyxovjYnz/14YX8ZtU4i0E4ceRbz7CYQwU+FM6NyhPAWJUD
+         AMfT9zyRbG4sXN9jx0JYSz3mxeIig+0lUIEQCXzKaP1WzY5nntkxqRWkBt3imAOJdSWc
+         eAEXZcmUvvGmnDm1f1MKltp5sRttE1KuMsV0OLWW5dCEwa2FtmaRfgDX1umdZYG8GnTx
+         F/h/M0+9laaX5bUx9N9gcwoJ/9J94quq6PgmcaqjO/ShYHB5NDNqOf7HOPrFGSLdc8mu
+         TLPw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:content-transfer-encoding:mime-version
+         :organization:references:in-reply-to:message-id:subject:cc:to:from
+         :date;
+        bh=N7x4qGnBqAkzYJITJ1IB+Yoyr8c6nxzmlG/l09LrMxM=;
+        b=U8T2UgsCYbvGGN8VMDw59CUpF4eyUkaDEtxJpGNS/0QxYByz2RpNl4XEsk0kVz23NR
+         jI2btFyh1IGK5LDzhcM0obAh3xBYU91CQtJu4uBiUN+UgadLdmOdKjo65F/2Lga6/U1I
+         415GLs5pTYPnnOyGGwzbMDBwo0BQxp589WbiCzYsQ6IIfgzw6mFew6r9536aFyjDDejI
+         S6cod3lzduz6Ekmpg3uCoyAqQ0QXBHZfNEoIBGnwzO9nl8puzgH0pA3ZDXkOEH/omoXh
+         kyI5589l+PyWglu98gMtATDN2PGo8/oOQCteLAPa4Ls9Y4zlyln1KXWQMZWRC3dgH0Z8
+         XZDQ==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=redhat.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id g9-v6si6836518pge.245.2018.11.09.03.16.30;
+        Fri, 09 Nov 2018 03:16:45 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1727758AbeKIU4g (ORCPT <rfc822;fanshuming2011@gmail.com>
+        + 99 others); Fri, 9 Nov 2018 15:56:36 -0500
+Received: from mx1.redhat.com ([209.132.183.28]:49154 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727532AbeKIU4f (ORCPT <rfc822;kvm@vger.kernel.org>);
+        Fri, 9 Nov 2018 15:56:35 -0500
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id A39EB3001FDE;
+        Fri,  9 Nov 2018 11:16:26 +0000 (UTC)
+Received: from gondolin (dhcp-192-213.str.redhat.com [10.33.192.213])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 51B8562473;
+        Fri,  9 Nov 2018 11:16:25 +0000 (UTC)
+Date: Fri, 9 Nov 2018 12:16:23 +0100
+From: Cornelia Huck <cohuck@redhat.com>
+To: Pierre Morel <pmorel@linux.ibm.com>
+Cc: pasic@linux.vnet.ibm.com, farman@linux.ibm.com,
+        linux-s390@vger.kernel.org, kvm@vger.kernel.org
+Subject: Re: [PATCH v2 2/2] vfio: ccw: Register mediated device once all
+ structures are initialized
+Message-ID: <20181109121623.1e32a93a.cohuck@redhat.com>
+In-Reply-To: <1540487720-11634-3-git-send-email-pmorel@linux.ibm.com>
+References: <1540487720-11634-1-git-send-email-pmorel@linux.ibm.com>
+        <1540487720-11634-3-git-send-email-pmorel@linux.ibm.com>
+Organization: Red Hat GmbH
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.45]); Fri, 09 Nov 2018 11:16:26 +0000 (UTC)
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwBX0EyebOVbcEgiAA--.1893S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvdXoWrKr1xCrWxXw43Cry5try3XFb_yoWktwc_Ww
+	4rXr9Ivr4Ygrna9F4fGFy3ZrWj9w1UWa1IvrnrtrnrG3yDJws8ZFs29r4fGw47G393ZFn8
+	Zrs3Wr1F9r15WjkaLaAFLSUrUUUUUb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAU7a7-sFnT
+	9fnUUIcSsGvfJTRUUUbD8YjsxI4VWxJwAYFVCjjxCrM7AC8VAFwI0_Jr0_Gr1l1IIY67AE
+	w4v_Jr0_Jr4l8cAvFVAK0II2c7xJM28CjxkF64kEwVA0rcxSw2x7M28EF7xvwVC0I7IYx2
+	IY67AKxVW7JVWDJwA2z4x0Y4vE2Ix0cI8IcVCY1x0267AKxVWxJVW8Jr1l84ACjcxK6I8E
+	87Iv67AKxVW0oVCq3wA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_GcCE3s1le2I262IYc4CY6c
+	8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_Jr0_
+	Jr4lYx0Ex4A2jsIE14v26r4j6F4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvEwIxGrw
+	CjxxvEa2IrMxkF7I0Ew4C26cxK6c8Ij28IcwCY1Ik26cxK6xAEc7vF6xCjj44lc2xSY4AK
+	6IIF6r4kMxkI7II2jI8vz4vEwIxGrwCYIxAIcVC0I7IYx2IY67AKxVW5JVW7JwCYIxAIcV
+	C0I7IYx2IY6xkF7I0E14v26r4j6F4UMxvI42IY6I8E87Iv67AKxVW0oVCq3wCYIxAIcVC2
+	z280aVCY1x0267AKxVW0oVCq3wCF04k20xvY0x0EwIxGrwCF04k20xvEw4C26cxK6c8Ij2
+	8IcwCF72vE77IF4wCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v26r1j6r18
+	MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_JF0_Jw1lIxkGc2Ij64vIr4
+	1lIxAIcVCF04k26cxKx2IYs7xG6r4j6FyUYxBIdaVFxhVjvjDU0xZFpf9x07bnHUDUUUUU
+	=
+
+On Thu, 25 Oct 2018 19:15:20 +0200
+Pierre Morel <pmorel@linux.ibm.com> wrote:
+
+> Let's register the mediated device when all the data structures
+> which could be used are initialized.
+> 
+> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+> Reviewed-by: Eric Farman <farman@linux.ibm.com>
+> ---
+>  drivers/s390/cio/vfio_ccw_drv.c | 8 ++++----
+>  1 file changed, 4 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
+> index f47d16b5810b..33fd53f49bf2 100644
+> --- a/drivers/s390/cio/vfio_ccw_drv.c
+> +++ b/drivers/s390/cio/vfio_ccw_drv.c
+> @@ -134,14 +134,14 @@ static int vfio_ccw_sch_probe(struct subchannel *sch)
+>  	if (ret)
+>  		goto out_free;
+>  
+> -	ret = vfio_ccw_mdev_reg(sch);
+> -	if (ret)
+> -		goto out_disable;
+> -
+>  	INIT_WORK(&private->io_work, vfio_ccw_sch_io_todo);
+>  	atomic_set(&private->avail, 1);
+>  	private->state = VFIO_CCW_STATE_STANDBY;
+>  
+> +	ret = vfio_ccw_mdev_reg(sch);
+> +	if (ret)
+> +		goto out_disable;
+> +
+>  	return 0;
+>  
+>  out_disable:
+
+This patch looks fine, but ISTR that Halil was unhappy with the patch
+description.
+
+Any opinion on that? I'd like to queue this for 4.20.

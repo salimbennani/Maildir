@@ -1,0 +1,482 @@
+Return-Path: <xen-devel-bounces@lists.xenproject.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 15 Nov 2018 00:44:10 -0000
+Received: from icoremail.net (unknown [209.85.215.172])
+	by mail-app2 (Coremail) with SMTP id by_KCgCn31ztuOxbJiKUAQ--.44441S3;
+	Thu, 15 Nov 2018 08:08:14 +0800 (CST)
+Received: from mail-pg1-f172.google.com (unknown [209.85.215.172])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwB3XEjnuOxblchAAA--.1347S3;
+	Thu, 15 Nov 2018 08:08:07 +0800 (CST)
+Received: by mail-pg1-f172.google.com with SMTP id w7so8104393pgp.13
+        for <xuliker@zju.edu.cn>; Wed, 14 Nov 2018 16:08:07 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:delivered-to:dkim-signature:mime-version
+         :references:in-reply-to:from:date:message-id:to:subject:precedence
+         :list-id:list-unsubscribe:list-post:list-help:list-subscribe:cc
+         :errors-to:sender;
+        bh=izFBI7LAh7cHxE5mk3SB5OOOsslq/X1KJuA6/XGH4ZE=;
+        b=YFrVWtg/9E43S8ENuB4NmqeWlOg+TXKDvv2qLPck9FClNFvzdDASxSdddN7jKrAXQN
+         vPT6A+vbgearrhU/L+w+7KVPWepE6EJJ3WS/qBhvslr1YsxjGFHsygwhpL0a9GnaY7wH
+         IdP3UtIkNHivFBCLnMRWmOId99M/NB+FjFs4woSSJQ1kK9FKK3Q1+f4rcyuwnnqkY2pb
+         E8i3Ufqm/BXIav9GTAO6UKqhRVVOCl8/aww5EtDRcv7b0WrVVYxVySuLeAZ0YI+7hOZN
+         XqfHeuLGItmh33VBpEeYjUOZ1W/w4ztkog62WdL7LuYv3O20hJ45cRpolx/c6xCad9wv
+         c76A==
+X-Gm-Message-State: AGRZ1gI7MnZG+Cb5W6djgYBkAY69zA+uMuGLHxYSorddmAXQ7lqTmm2N
+	2WWTOlVV551lAziIYwkxJ1AnscIfCjdydYMfhmCKoinEWSyYB5K7nA==
+X-Received: by 2002:a63:1d10:: with SMTP id d16-v6mr3604073pgd.228.1542240486943;
+        Wed, 14 Nov 2018 16:08:06 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp6478835pjt;
+        Wed, 14 Nov 2018 16:08:05 -0800 (PST)
+X-Google-Smtp-Source: AJdET5fx0xzWMxQ9jgJZB8pviJoUQT0tiBZADEDYlj6SZ6YcfElr3c0k4zy9V16vwnMhnd6JLaS6
+X-Received: by 2002:a81:5c44:: with SMTP id q65-v6mr3777055ywb.465.1542240485696;
+        Wed, 14 Nov 2018 16:08:05 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542240485; cv=none;
+        d=google.com; s=arc-20160816;
+        b=l/LMI0pliejYZhIG7+gCW93p3JXeY/UXkEtgwDZ+yGIUJGyPNgzlYTVAhWFiqu8W1X
+         meIu+nghzXppIwHmMVJjUGuWiNAYVqjxQYw12h6sjP+Hqr+P0B7GE2k6bfmhcKMl/7ob
+         bt6OIHMUEUfT0VCQZqYZgU8af6rQjxWV2BbMnCOpfA+VUWbkM6zRXQRqlhjPA8kX61wT
+         I7J0oHj58nqrd+H/kB0+xlqASTX70DSheS+KGudUrzvMii/19OhkzyTdhI48d2kbzpXI
+         D+Tr20ZMsQkmxEHP6zlrADE1WNQcbxCmL6mJOvQT9dSfNxB/6u/mJmveF2rX2bgATUEr
+         SdyA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=sender:errors-to:cc:list-subscribe:list-help:list-post
+         :list-unsubscribe:list-id:precedence:subject:to:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=izFBI7LAh7cHxE5mk3SB5OOOsslq/X1KJuA6/XGH4ZE=;
+        b=LvwBtVJhQ1L/DjfgM4LVdmYWjLJtf+dIOnzfFQFLuJFC7vM+uGZqESQQgSoN9abE3B
+         bJjBWYyDsP3wI8u/X+AayzaHuhtwh0ancUwTyl0mkbphNsqe4Gr6a7qkCt3G2J6/Y6Iq
+         /CBn3wuDsBXoVO26GTtq4i0/8C17zwgz+ez0t7aGl+8wZrlRkSgzcYHMHHTRxxmMUnxm
+         gF+0vNHPiNqEEl7qpykhFku75Dubf5pkO2acVOgI8KnyC9kZd+rnQgERp3lQaSSHTnk5
+         2kU+hpnR8cwfTxSQpl9t5JCD/s02N/DtM+3LCLe5jSXWC1FIjwI2o1WRS+9EomJ6rLOs
+         Javg==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=neutral (body hash did not verify) header.i=@gmail.com header.s=20161025 header.b=ILEOiY4q;
+       spf=pass (google.com: best guess record for domain of xen-devel-bounces@lists.xenproject.org designates 192.237.175.120 as permitted sender) smtp.mailfrom=xen-devel-bounces@lists.xenproject.org;
+       dmarc=fail (p=NONE sp=QUARANTINE dis=NONE) header.from=gmail.com
+Received: from lists.xenproject.org (lists.xenproject.org. [192.237.175.120])
+        by mx.google.com with ESMTPS id n20si5801251ywn.59.2018.11.14.16.08.05
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Wed, 14 Nov 2018 16:08:05 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of xen-devel-bounces@lists.xenproject.org designates 192.237.175.120 as permitted sender) client-ip=192.237.175.120;
+Received: from localhost ([127.0.0.1] helo=lists.xenproject.org)
+	by lists.xenproject.org with esmtp (Exim 4.89)
+	(envelope-from <xen-devel-bounces@lists.xenproject.org>)
+	id 1gN5Ah-0003D0-PH; Thu, 15 Nov 2018 00:06:11 +0000
+Received: from us1-rack-dfw2.inumbo.com ([104.130.134.6])
+ by lists.xenproject.org with esmtp (Exim 4.89) (envelope-from
+ <srs0=mzf2=n2=gmail.com=julien.grall@srs-us1.protection.inumbo.net>)
+ id 1gN5Ag-0003Cm-Ei
+ for xen-devel@lists.xenproject.org; Thu, 15 Nov 2018 00:06:10 +0000
+X-Inumbo-ID: 40de21a3-e86a-11e8-9a16-bc764e045a96
+Received: from mail-vs1-xe34.google.com (unknown [2607:f8b0:4864:20::e34])
+ by us1-rack-dfw2.inumbo.com (Halon) with ESMTPS
+ id 40de21a3-e86a-11e8-9a16-bc764e045a96;
+ Thu, 15 Nov 2018 00:06:09 +0000 (UTC)
+Received: by mail-vs1-xe34.google.com with SMTP id x64so10666502vsa.5
+ for <xen-devel@lists.xenproject.org>; Wed, 14 Nov 2018 16:06:08 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+ h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+ :cc; bh=zWnog72W8+RO99rYqBrzi0aRN/e+MAhwd4m6IV66p3c=;
+ b=ILEOiY4qq2KuQzm/XbfbFPP3VxxbY0LMSbdaAXbBuwx78pwz7sj+8jdADwUxthqh2A
+ 6twH6B5VA4caY6l+v3WVuUtTSR0j5/TH+2tmJ8xdll8jtWkZN/+4CYGA+4oiNgLwAlA9
+ hBxWq4NSvjKjbXG/qbMBZR1pi/JSoQpFAQsjHJREma6AP3cnAxEYAH8jKybQMsS+h4Pw
+ wdVhoSjCJubNrA8/0rPBWUDcm/Mk5wFCIq3DW56Z3rwgkGmEE3P5wOhmdtSJi7Zh4oe8
+ G4FcEPPYgKCGs6gU7CySXzVWX0bOmZWmXh7KmvkvSvZWCMjON3+22zSQEjC+r7kG67k/
+ HX4A==
+X-Received: by 2002:a67:2603:: with SMTP id m3mr1812234vsm.160.1542240368050; 
+ Wed, 14 Nov 2018 16:06:08 -0800 (PST)
+MIME-Version: 1.0
+References: <1542022244-22977-1-git-send-email-mirela.simonovic@aggios.com>
+ <1542022244-22977-4-git-send-email-mirela.simonovic@aggios.com>
+ <03aa1b00-b087-6258-0273-d40c526d7d08@arm.com>
+ <CAKPH-NipkcTy+_GKPVptQxnc-3cqo5UiQ8ao05Yi8egdXMX0Qg@mail.gmail.com>
+ <811e51c5-516a-4bcf-f9e3-02c5b448b967@arm.com>
+ <CAKPH-Ngc_LMdG8tKPDzLWxy+1fuamiO_PTPHQSAkN0AVy9oofA@mail.gmail.com>
+ <17ab88c4-cdf7-8f7f-5933-25d9294f3641@arm.com>
+ <alpine.DEB.2.10.1811131242560.8259@sstabellini-ThinkPad-X260>
+ <6b03d660-15e6-d6ca-a8b8-1662c045a7a9@arm.com>
+ <alpine.DEB.2.10.1811141444480.302@sstabellini-ThinkPad-X260>
+ <1bc18b94-cb14-5d9f-514c-34b0f86442b7@arm.com>
+In-Reply-To: <1bc18b94-cb14-5d9f-514c-34b0f86442b7@arm.com>
+From: Julien Grall <julien.grall@gmail.com>
+Date: Thu, 15 Nov 2018 00:05:55 +0000
+Message-ID: <CAF3u54Bd1rS-mX0AfzWuLrd975qyVkfQcZtNu+PV=Vi0sMnkaw@mail.gmail.com>
+To: Julien Grall <Julien.Grall@arm.com>
+Subject: Re: [Xen-devel] [PATCH 03/18] xen/arm: Save GIC and virtual timer
+ context when the domain suspends
+X-BeenThere: xen-devel@lists.xenproject.org
+X-Mailman-Version: 2.1.23
+Precedence: list
+List-Id: Xen developer discussion <xen-devel.lists.xenproject.org>
+List-Unsubscribe: <https://lists.xenproject.org/mailman/options/xen-devel>,
+ <mailto:xen-devel-request@lists.xenproject.org?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xenproject.org>
+List-Help: <mailto:xen-devel-request@lists.xenproject.org?subject=help>
+List-Subscribe: <https://lists.xenproject.org/mailman/listinfo/xen-devel>,
+ <mailto:xen-devel-request@lists.xenproject.org?subject=subscribe>
+Cc: nd <nd@arm.com>, Stefano Stabellini <sstabellini@kernel.org>,
+ Xen Devel <xen-devel@lists.xen.org>, Davorin Mista <dm@aggios.com>,
+ Andre Przywara <Andre.Przywara@arm.com>,
+ Saeed Nowshadi <saeed.nowshadi@xilinx.com>,
+ xen-devel <xen-devel@lists.xenproject.org>,
+ Stefano Stabellini <stefano.stabellini@xilinx.com>,
+ Mirela Simonovic <mirela.simonovic@aggios.com>
+Content-Type: multipart/mixed; boundary="===============6001357850980475037=="
+Errors-To: xen-devel-bounces@lists.xenproject.org
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+X-CM-TRANSID: AQAAfwB3XEjnuOxblchAAA--.1347S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoWxCF1DJw4xZFyDKw1UZF48Crg_yoW7JF1UpF
+	WDGF4jkw4DJr48Jwn2qr1vvFySyr4fJr4UWrn5A3yUC3s09r13Xr4xtFW5CF97ur1rCw1j
+	qr4UK347X34UXFJanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUU0bIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUULIb7Iv0xC_Kw4lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Xr0_Ar1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1l84ACjcxK6I8E
+	87Iv67AKxVW0oVCq3wA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_GcCE3s1lnx0E6VACY4xI67
+	k04243AVACY4xI67k04243AVAKzVAKj4xI6x02cVCv0xWle2I262IYc4CY6c8Ij28IcVAa
+	Y2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_Jr0_Jr4lYx0Ex4
+	A2jsIE14v26r4j6F4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvEwIxGrwACY4xI67k0
+	4243AVAKzVAKj4xxMx8GjcxK6IxK0xIIj40E5I8CrwCjxxvEa2IrMxkF7I0Ew4C26cxK6c
+	8Ij28IcwCY1Ik26cxK6xAEc7vF6xCjj44lc2xSY4AK6IIF6w1lc2IjII80xcxEwVAKI48J
+	MxvI42IY6xIIjxv20xvE14v26r1j6r1xMxvI42IY6xIIjxv20xvEc7CjxVAFwI0_Jr0_Gr
+	1lcIIF0xvEx4A2jsIE14v26F4UJVW0owCYIxAIcVC2z280aVCY1x0267AKxVWxJr0_GcWl
+	42xK82IYc2Ij64vIr41l42xK82IY64kExVAvwVAq07x20xyl4x8a6x804xWl4I8I3I0E4I
+	kC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUGVWUWwC20s026x8GjcxK67AKxVWUGVWU
+	WwC2zVAF1VAY17CE14v26r1q6r43MIIYrxkI7VAKI48JMIIF0xvE42xK8VAvwI8IcIk0rV
+	WrJr0_WFyUJwCE64xvF2IEb7IF0Fy7YxBIdaVFxhVjvjDU0xZFpf9x07bqu4UUUUUU=
+
+--===============6001357850980475037==
+Content-Type: multipart/alternative; boundary="0000000000004bc61b057aa8d190"
+
+--0000000000004bc61b057aa8d190
+Content-Type: text/plain; charset="UTF-8"
+
+Sorry for the formatting.
+
+On Wed, 14 Nov 2018, 23:41 Julien Grall, <Julien.Grall@arm.com> wrote:
+
+>
+>
+> On 14/11/2018 22:45, Stefano Stabellini wrote:
+> > On Wed, 14 Nov 2018, Julien Grall wrote:
+> >> Hi,
+> >>
+> >> On 13/11/2018 20:44, Stefano Stabellini wrote:
+> >>> On Mon, 12 Nov 2018, Julien Grall wrote:
+> >>>> (+ Andre)
+> >>>>
+> >>>> On 11/12/18 5:42 PM, Mirela Simonovic wrote:
+> >>>>> Hi Julien,
+> >>>>>
+> >>>>> On Mon, Nov 12, 2018 at 6:00 PM Julien Grall <julien.grall@arm.com>
+> >>>>> wrote:
+> >>>>>>
+> >>>>>>
+> >>>>>>
+> >>>>>> On 11/12/18 4:52 PM, Mirela Simonovic wrote:
+> >>>>>>> Hi Julien,
+> >>>>>>
+> >>>>>> Hi,
+> >>>>>>
+> >>>>>>> Thanks for the feedback.
+> >>>>>>>
+> >>>>>>> On Mon, Nov 12, 2018 at 4:36 PM Julien Grall <julien.grall@arm.com
+> >
+> >>>>>>> wrote:
+> >>>>>>>>
+> >>>>>>>> Hi Mirela,
+> >>>>>>>>
+> >>>>>>>> On 11/12/18 11:30 AM, Mirela Simonovic wrote:
+> >>>>>>>>> GIC and virtual timer context must be saved when the domain
+> >>>>>>>>> suspends.
+> >>>>>>>>
+> >>>>>>>> Please provide the rationale for this. Is it required by the spec?
+> >>>>>>>>
+> >>>>>>>
+> >>>>>>> This is required for GIC because a guest leaves enabled interrupts
+> >>>>>>> in
+> >>>>>>> the GIC that could wake it up, and on resume it should be able to
+> >>>>>>> detect which interrupt woke it up. Without saving/restoring the
+> >>>>>>> state
+> >>>>>>> of GIC this would not be possible.
+> >>>>>>
+> >>>>>> I am confused. In patch #10, you save the GIC host because the GIC
+> can
+> >>>>>> be powered-down. Linux is also saving the GIC state. So how the
+> >>>>>> interrupt can come up if the GIC is powered down?
+> >>>>>>
+> >>>>>
+> >>>>> After Xen (or Linux in the config without Xen) hands over the control
+> >>>>> to EL3 on suspend (calls system suspend PSCI to EL3), it leaves
+> >>>>> enabled interrupts that are its wake-up sources. Saving a GIC state
+> >>>>> only means that its current configuration will be remembered
+> somewhere
+> >>>>> in data structures, but the configuration is not changed on suspend.
+> >>>>> Everything that happens with interrupt configuration from this point
+> >>>>> on is platform specific. Now there are 2 options: 1) EL3 will never
+> >>>>> allow CPU0 to be powered down and the wake-up interrupt will indeed
+> >>>>> propagate via GIC;
+> >>>>> or 2) CPU0 will be powered down and the GIC may be
+> >>>>> powered down as well, so an external help is needed to deal with
+> >>>>> wake-up and resume (e.g. in order to react to a wake-up interrupt
+> >>>>> while the GIC is down, and power up CPU0). This external help is
+> >>>>> provided by some low-power processor outside of the Cortex-A cluster.
+> >>>>>
+> >>>>> So the platform firmware is responsible for properly configuring a
+> >>>>> wake-up path if GIC goes down. This is commonly handled by EL3
+> >>>>> communicating with low-power processor. When the GIC power comes up,
+> >>>>> the interrupt triggered by a peripheral is still active and the
+> >>>>> software on Cortex-A cluster should be able to observe it once the
+> GIC
+> >>>>> state is restored, i.e. interrupts get enabled at GIC.
+> >>>>
+> >>>> Thank you for the explanation.  Now the question is why can't we
+> reset at
+> >>>> least the GIC CPU interface?
+> >>>>
+> >>>> AFAIU, the guest should restore them in any case. The only things we
+> need
+> >>>> to
+> >>>> know is the interrupt was received for a given guest. We can then
+> queue it
+> >>>> and
+> >>>> wake-up the domain.
+> >>>>
+> >>>> This seems to fit with the description on top of gic_dist_save() in
+> Linux
+> >>>> GICv2 driver.
+> >>>
+> >>> Can we rely on all PSCI compliant OSes to restore their own GIC again
+> at
+> >>> resume? The PSCI spec is not very clear in that regard (at the the
+> >>> version I am looking at...) I am just asking so that we don't come up
+> >>> with a solution that only works with Linux.
+> >> See PSCI 1.1 (DEN0022D) section 6.8. Each level should save its own
+> context
+> >> because the PSCI implementations is allowed to shutdown the GIC.
+> >
+> > Great, in that case we should be able to skip saving some of the GICD
+> > registers too. We do need to save GICD_ISACTIVER, and GICD_ICFGR,
+> > but we should be able to skip the others (GICD_ISENABLER,
+> > GICD_IPRIORITYR, GICD_ITARGETSR). If we do, we still need to
+> > re-initialize them as we do in gicv2_dist_init.
+>
+> You are assuming a domain will handle properly the suspend/resume. I
+> don't think we can promise that as we call freeze/thaw.
+>
+
+To clarify what I meant by "handle properly" is any domain that will not
+call SYSTEM_SUSPEND before the host is suspending. That may happen if the
+domain is not aware of suspend/resume.
+
+If you wonder, it is not Xen to decide whether we should stop suspending
+but the control domain to not issue the suspend.
+
+Cheers,
+
+
+> Furthermore, we still have to suspend/resume other drivers in Xen. I
+> think this is a bit painful to have to rely on every drivers to deal
+> with their interrupts.
+>
+> Cheers,
+>
+> --
+> Julien Grall
+> _______________________________________________
+> Xen-devel mailing list
+> Xen-devel@lists.xenproject.org
+> https://lists.xenproject.org/mailman/listinfo/xen-devel
+
+--0000000000004bc61b057aa8d190
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+Sorry for the formatting.<br><br><div class=3D"gmail_quote"><div dir=3D"ltr=
+">On Wed, 14 Nov 2018, 23:41 Julien Grall, &lt;<a href=3D"mailto:Julien.Gra=
+ll@arm.com">Julien.Grall@arm.com</a>&gt; wrote:<br></div><blockquote class=
+=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1px #ccc solid;padd=
+ing-left:1ex"><br>
+<br>
+On 14/11/2018 22:45, Stefano Stabellini wrote:<br>
+&gt; On Wed, 14 Nov 2018, Julien Grall wrote:<br>
+&gt;&gt; Hi,<br>
+&gt;&gt;<br>
+&gt;&gt; On 13/11/2018 20:44, Stefano Stabellini wrote:<br>
+&gt;&gt;&gt; On Mon, 12 Nov 2018, Julien Grall wrote:<br>
+&gt;&gt;&gt;&gt; (+ Andre)<br>
+&gt;&gt;&gt;&gt;<br>
+&gt;&gt;&gt;&gt; On 11/12/18 5:42 PM, Mirela Simonovic wrote:<br>
+&gt;&gt;&gt;&gt;&gt; Hi Julien,<br>
+&gt;&gt;&gt;&gt;&gt;<br>
+&gt;&gt;&gt;&gt;&gt; On Mon, Nov 12, 2018 at 6:00 PM Julien Grall &lt;<a hr=
+ef=3D"mailto:julien.grall@arm.com" target=3D"_blank">julien.grall@arm.com</=
+a>&gt;<br>
+&gt;&gt;&gt;&gt;&gt; wrote:<br>
+&gt;&gt;&gt;&gt;&gt;&gt;<br>
+&gt;&gt;&gt;&gt;&gt;&gt;<br>
+&gt;&gt;&gt;&gt;&gt;&gt;<br>
+&gt;&gt;&gt;&gt;&gt;&gt; On 11/12/18 4:52 PM, Mirela Simonovic wrote:<br>
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; Hi Julien,<br>
+&gt;&gt;&gt;&gt;&gt;&gt;<br>
+&gt;&gt;&gt;&gt;&gt;&gt; Hi,<br>
+&gt;&gt;&gt;&gt;&gt;&gt;<br>
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; Thanks for the feedback.<br>
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;<br>
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; On Mon, Nov 12, 2018 at 4:36 PM Julien Grall &=
+lt;<a href=3D"mailto:julien.grall@arm.com" target=3D"_blank">julien.grall@a=
+rm.com</a>&gt;<br>
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; wrote:<br>
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;<br>
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; Hi Mirela,<br>
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;<br>
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; On 11/12/18 11:30 AM, Mirela Simonovic wro=
+te:<br>
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; GIC and virtual timer context must be =
+saved when the domain<br>
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; suspends.<br>
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;<br>
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; Please provide the rationale for this. Is =
+it required by the spec?<br>
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;<br>
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;<br>
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; This is required for GIC because a guest leave=
+s enabled interrupts<br>
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; in<br>
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; the GIC that could wake it up, and on resume i=
+t should be able to<br>
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; detect which interrupt woke it up. Without sav=
+ing/restoring the<br>
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; state<br>
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; of GIC this would not be possible.<br>
+&gt;&gt;&gt;&gt;&gt;&gt;<br>
+&gt;&gt;&gt;&gt;&gt;&gt; I am confused. In patch #10, you save the GIC host=
+ because the GIC can<br>
+&gt;&gt;&gt;&gt;&gt;&gt; be powered-down. Linux is also saving the GIC stat=
+e. So how the<br>
+&gt;&gt;&gt;&gt;&gt;&gt; interrupt can come up if the GIC is powered down?<=
+br>
+&gt;&gt;&gt;&gt;&gt;&gt;<br>
+&gt;&gt;&gt;&gt;&gt;<br>
+&gt;&gt;&gt;&gt;&gt; After Xen (or Linux in the config without Xen) hands o=
+ver the control<br>
+&gt;&gt;&gt;&gt;&gt; to EL3 on suspend (calls system suspend PSCI to EL3), =
+it leaves<br>
+&gt;&gt;&gt;&gt;&gt; enabled interrupts that are its wake-up sources. Savin=
+g a GIC state<br>
+&gt;&gt;&gt;&gt;&gt; only means that its current configuration will be reme=
+mbered somewhere<br>
+&gt;&gt;&gt;&gt;&gt; in data structures, but the configuration is not chang=
+ed on suspend.<br>
+&gt;&gt;&gt;&gt;&gt; Everything that happens with interrupt configuration f=
+rom this point<br>
+&gt;&gt;&gt;&gt;&gt; on is platform specific. Now there are 2 options: 1) E=
+L3 will never<br>
+&gt;&gt;&gt;&gt;&gt; allow CPU0 to be powered down and the wake-up interrup=
+t will indeed<br>
+&gt;&gt;&gt;&gt;&gt; propagate via GIC;<br>
+&gt;&gt;&gt;&gt;&gt; or 2) CPU0 will be powered down and the GIC may be<br>
+&gt;&gt;&gt;&gt;&gt; powered down as well, so an external help is needed to=
+ deal with<br>
+&gt;&gt;&gt;&gt;&gt; wake-up and resume (e.g. in order to react to a wake-u=
+p interrupt<br>
+&gt;&gt;&gt;&gt;&gt; while the GIC is down, and power up CPU0). This extern=
+al help is<br>
+&gt;&gt;&gt;&gt;&gt; provided by some low-power processor outside of the Co=
+rtex-A cluster.<br>
+&gt;&gt;&gt;&gt;&gt;<br>
+&gt;&gt;&gt;&gt;&gt; So the platform firmware is responsible for properly c=
+onfiguring a<br>
+&gt;&gt;&gt;&gt;&gt; wake-up path if GIC goes down. This is commonly handle=
+d by EL3<br>
+&gt;&gt;&gt;&gt;&gt; communicating with low-power processor. When the GIC p=
+ower comes up,<br>
+&gt;&gt;&gt;&gt;&gt; the interrupt triggered by a peripheral is still activ=
+e and the<br>
+&gt;&gt;&gt;&gt;&gt; software on Cortex-A cluster should be able to observe=
+ it once the GIC<br>
+&gt;&gt;&gt;&gt;&gt; state is restored, i.e. interrupts get enabled at GIC.=
+<br>
+&gt;&gt;&gt;&gt;<br>
+&gt;&gt;&gt;&gt; Thank you for the explanation.=C2=A0 Now the question is w=
+hy can&#39;t we reset at<br>
+&gt;&gt;&gt;&gt; least the GIC CPU interface?<br>
+&gt;&gt;&gt;&gt;<br>
+&gt;&gt;&gt;&gt; AFAIU, the guest should restore them in any case. The only=
+ things we need<br>
+&gt;&gt;&gt;&gt; to<br>
+&gt;&gt;&gt;&gt; know is the interrupt was received for a given guest. We c=
+an then queue it<br>
+&gt;&gt;&gt;&gt; and<br>
+&gt;&gt;&gt;&gt; wake-up the domain.<br>
+&gt;&gt;&gt;&gt;<br>
+&gt;&gt;&gt;&gt; This seems to fit with the description on top of gic_dist_=
+save() in Linux<br>
+&gt;&gt;&gt;&gt; GICv2 driver.<br>
+&gt;&gt;&gt;<br>
+&gt;&gt;&gt; Can we rely on all PSCI compliant OSes to restore their own GI=
+C again at<br>
+&gt;&gt;&gt; resume? The PSCI spec is not very clear in that regard (at the=
+ the<br>
+&gt;&gt;&gt; version I am looking at...) I am just asking so that we don&#3=
+9;t come up<br>
+&gt;&gt;&gt; with a solution that only works with Linux.<br>
+&gt;&gt; See PSCI 1.1 (DEN0022D) section 6.8. Each level should save its ow=
+n context<br>
+&gt;&gt; because the PSCI implementations is allowed to shutdown the GIC.<b=
+r>
+&gt; <br>
+&gt; Great, in that case we should be able to skip saving some of the GICD<=
+br>
+&gt; registers too. We do need to save GICD_ISACTIVER, and GICD_ICFGR,<br>
+&gt; but we should be able to skip the others (GICD_ISENABLER,<br>
+&gt; GICD_IPRIORITYR, GICD_ITARGETSR). If we do, we still need to<br>
+&gt; re-initialize them as we do in gicv2_dist_init.<br>
+<br>
+You are assuming a domain will handle properly the suspend/resume. I <br>
+don&#39;t think we can promise that as we call freeze/thaw.<br></blockquote=
+></div><div><br></div><div>To clarify what I meant by &quot;handle properly=
+&quot; is any domain that will not call SYSTEM_SUSPEND before the host is s=
+uspending. That may happen if the domain is not aware of suspend/resume.</d=
+iv><div><br></div><div>If you wonder, it is not Xen to decide whether we sh=
+ould stop suspending but the control domain to not issue the suspend.</div>=
+<div><br></div><div>Cheers,</div><div><br></div><div class=3D"gmail_quote">=
+<blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1p=
+x #ccc solid;padding-left:1ex">
+<br>
+Furthermore, we still have to suspend/resume other drivers in Xen. I <br>
+think this is a bit painful to have to rely on every drivers to deal <br>
+with their interrupts.<br>
+<br>
+Cheers,<br>
+<br>
+-- <br>
+Julien Grall<br>
+_______________________________________________<br>
+Xen-devel mailing list<br>
+<a href=3D"mailto:Xen-devel@lists.xenproject.org" target=3D"_blank">Xen-dev=
+el@lists.xenproject.org</a><br>
+<a href=3D"https://lists.xenproject.org/mailman/listinfo/xen-devel" rel=3D"=
+noreferrer" target=3D"_blank">https://lists.xenproject.org/mailman/listinfo=
+/xen-devel</a></blockquote></div>
+
+--0000000000004bc61b057aa8d190--
+
+
+--===============6001357850980475037==
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: base64
+Content-Disposition: inline
+
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KWGVuLWRldmVs
+IG1haWxpbmcgbGlzdApYZW4tZGV2ZWxAbGlzdHMueGVucHJvamVjdC5vcmcKaHR0cHM6Ly9saXN0
+cy54ZW5wcm9qZWN0Lm9yZy9tYWlsbWFuL2xpc3RpbmZvL3hlbi1kZXZlbA==
+
+--===============6001357850980475037==--

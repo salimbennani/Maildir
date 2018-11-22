@@ -1,0 +1,360 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 22 Nov 2018 00:34:52 -0000
+Received: from icoremail.net (unknown [209.85.214.182])
+	by mail-app4 (Coremail) with SMTP id cS_KCgC3fzH_rfVbmYToAQ--.35175S3;
+	Thu, 22 Nov 2018 03:12:00 +0800 (CST)
+Received: from mail-pl1-f182.google.com (unknown [209.85.214.182])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwCXfEj4rfVb5OlkAA--.359S3;
+	Thu, 22 Nov 2018 03:11:52 +0800 (CST)
+Received: by mail-pl1-f182.google.com with SMTP id f12-v6so6821630plo.1
+        for <xuliker@zju.edu.cn>; Wed, 21 Nov 2018 11:11:52 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:delivered-to:dkim-signature:from:to:cc:subject
+         :date:message-id:sender:precedence:list-id;
+        bh=UkBew9lgRHSj+utBr9Odjh2k9A0JWU8R5nqFkTGHwUw=;
+        b=qlHctjs8PjzAMxL6rkFzJLeg8W/mqO1O3RqUvRsc/JNGqrMH3AKXK7LYN9wARzcRs9
+         s7EafpELbUeFvqal6TJO0TtDVvcQpyi2UzRot8nQ/9+5spUfIYiXSHf9ZfXLCptGfu98
+         0IXWHSfF9hYHaxEUJzaalh+GQCCr4hDZ314wFsWzQGfN4ic61sqa+4c3MR7c4wspNHet
+         lwblbx4jF+R81bUR9TbVvrJIMRmojOU23UFtHeJBuLXap6rp3YnKoUHi6duEx1eZ8qDa
+         y7ycd5/VGTLSksSWYBD2bZrOcnNOYeg6wUHGR5Pzhdsl8SZVo0q+elE3gDQmrQbYyDho
+         5Tlg==
+X-Gm-Message-State: AGRZ1gJIsbOYvinkDc9aPqtHAJQdS4AbCWt4cMZqaLKIsVBtUnxgp7BY
+	3oCk0G0Y67AFQMpM2tdFYZX+NN129xmQFcnDqig3ixb8BJFfu0A=
+X-Received: by 2002:a62:2b17:: with SMTP id r23-v6mr8270885pfr.251.1542827512468;
+        Wed, 21 Nov 2018 11:11:52 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:d106:0:0:0:0 with SMTP id l6-v6csp2355648pju;
+        Wed, 21 Nov 2018 11:11:51 -0800 (PST)
+X-Google-Smtp-Source: AFSGD/UZSlhmat9LOKHoynt7QyApCQ2XN8KZX4xe6+L6lRshvDMVRv13OOqHiTQNsuJo2YsXUWeS
+X-Received: by 2002:a63:580a:: with SMTP id m10mr6994678pgb.332.1542827511526;
+        Wed, 21 Nov 2018 11:11:51 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542827511; cv=none;
+        d=google.com; s=arc-20160816;
+        b=aGuESHT83nXRiW/OvYutE6xwjgQmfcyHWRMsALOp1dCkcz0zt8Eyru8eymaUixHOpb
+         WtOljUvUm2n6Ogv/pTS6zJEPWGiBV+znK2L6ZitlcS/PPQcBBcpiwKT5vJv3/u5a5Qqz
+         2GQJckonZpQrElDx9TYLZhKCkhgOzeAnxApaYafxAF3LdZFrLDMNb2tQ1M7MhJ1Mo7bp
+         NoX9qMK5aK2FO/u99ADu6G4mjJgv/CBbltd3blr7TXU1pM7maDlIHVB8LRC7jUaTNGBd
+         RSBHTooBOYmq3gPkPApNqQjjr6YmFT5CykQgLXC7aevahe6Gt0aVWm4AAUCVIs4up69X
+         wWwg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:message-id:date:subject:cc:to:from
+         :dkim-signature;
+        bh=UkBew9lgRHSj+utBr9Odjh2k9A0JWU8R5nqFkTGHwUw=;
+        b=GHFji0KWriQJNjyCtz3ZyizdwzD4ubEoteS9CAHUJhZ98baFseJqRt+Gb68eHVH3BZ
+         HMlkDpeWBOslobqFQdd072BVRgQ3gMQfJJU7IF8nY3l9xNoiIqjG2ozzsVvTL0k+NWKo
+         SoQTRIKTJ+DoVQEhIlt1Yt0NKqg+l9soY5tSxdUtdHRHwQWFAh09iBcHl4c5NIM3Boo3
+         RcLOAjxigQ8VEldnOHbs/PwOW3+sYQqJ/OpSctvMaXjGXKRhGdhNkoJAMPyc9Plit5Oi
+         4Pk4jwj1qC+yCKSQ6VhTFElQ0BOusDrqJsScqHsqiLjYsjwPCCV4Jvd5EISm1kn7oojr
+         FfQQ==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@kernel.org header.s=default header.b=WQLQIwe9;
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;
+       dmarc=pass (p=NONE sp=NONE dis=NONE) header.from=kernel.org
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id m3si18744090pfh.58.2018.11.21.11.11.36;
+        Wed, 21 Nov 2018 11:11:51 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1732641AbeKVE1S (ORCPT <rfc822;yv9200@gmail.com> + 99 others);
+        Wed, 21 Nov 2018 23:27:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38382 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726074AbeKVE1R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+        Wed, 21 Nov 2018 23:27:17 -0500
+Received: from linux-8ccs.suse.de (charybdis-ext.suse.de [195.135.221.2])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id E562E214D9;
+        Wed, 21 Nov 2018 17:51:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1542822715;
+        bh=R2tPtX40MNt3n4MnAZvuxftp/Du71oYx/JTzOyT/gQ4=;
+        h=From:To:Cc:Subject:Date:From;
+        b=WQLQIwe9MVZlD/Yba5j0uX6NEVwcvq7pij7uibPe/siz848vsGFYKD1kNQ36tE6hA
+         B1OK5xHu8df0h70HVtqjlGx7LfqI6Wz+VMFX2fP3atldBrIuSrv5sGOr2uHAdRhPGs
+         squK5oRCuN6EoVG0U9D07iGKcL/IlctjKtb4qgPw=
+From: Jessica Yu <jeyu@kernel.org>
+To: linux-kernel@vger.kernel.org
+Cc: Jessica Yu <jeyu@kernel.org>
+Subject: [PATCH] module: make it clearer when we're handling kallsyms symbols vs exported symbols
+Date: Wed, 21 Nov 2018 18:51:16 +0100
+Message-Id: <20181121175116.30025-1-jeyu@kernel.org>
+X-Mailer: git-send-email 2.16.4
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwCXfEj4rfVb5OlkAA--.359S3
+Authentication-Results: mail-app4; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW3XFWkCr4xtF48tr15uFW5Awb_yoWfCw17pF
+	W5ArW5XFW8Jr1UWay3ArWj934Yk34DZr4ktwsxG34SyFnIgr1ruas3t34Y9w15AryUXF18
+	tFZavFy3Ka15Ar7anT9S1TB71UUUUUUqnTZGkaVYY2UrUUUU0bIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUBab7Iv0xC_Kw4lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2
+	z280aVAFwI0_Gr1j6F4UJwA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_Cr1j6rxdM2AIxVAIcx
+	kEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v2
+	6r1Y6r17McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IYc2
+	Ij64vIr41l7I0Y6sxI4wCY1x0264kExVAvwVAq07x20xylc2xSY4AK6IIF6rWlc2IjII80
+	xcxEwVAKI48JMxvI42IY6xIIjxv20xvE14v26ryj6F1UMxvI42IY6xIIjxv20xvEc7CjxV
+	AFwI0_Gr0_Cr1lcIIF0xvEx4A2jsIE14v26r4UJVWxJr1lcIIF0xvEx4A2jsIEc7CjxVAF
+	wI0_Gr1j6F4UJwCF04k20xvY0x0EwIxGrwCF04k20xvEw4C26cxK6c8Ij28IcwCF72vE77
+	IF4wCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v26r1j6r18MI8I3I0E7480
+	Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_Jrv_JF1lIxkGc2Ij64vIr41lIxAIcVCF04
+	k26cxKx2IYs7xG6r4j6FyUYxBIdaVFxhVjvjDU0xZFpf9x07bQJPiUUUUU=
+
+The module loader internally works with both exported symbols
+represented as struct kernel_symbol, as well as Elf symbols from a
+module's symbol table. It's hard to distinguish sometimes which type of
+symbol we're handling given that some helper function names are not
+consistent or helpful. Take get_ksymbol() for instance - are we
+looking for an exported symbol or a kallsyms symbol here? Or symname()
+and kernel_symbol_name() - which function handles an exported symbol and
+which one an Elf symbol?
+
+Clean up and unify the function naming scheme a bit to make it clear
+which kind of symbol we're handling. This change only affects static
+functions internal to the module loader.
+
+Signed-off-by: Jessica Yu <jeyu@kernel.org>
+---
+ kernel/module.c | 78 ++++++++++++++++++++++++++++++++-------------------------
+ 1 file changed, 44 insertions(+), 34 deletions(-)
+
+diff --git a/kernel/module.c b/kernel/module.c
+index 49a405891587..27d970361e3e 100644
+--- a/kernel/module.c
++++ b/kernel/module.c
+@@ -495,9 +495,9 @@ struct find_symbol_arg {
+ 	const struct kernel_symbol *sym;
+ };
+ 
+-static bool check_symbol(const struct symsearch *syms,
+-				 struct module *owner,
+-				 unsigned int symnum, void *data)
++static bool check_exported_symbol(const struct symsearch *syms,
++				  struct module *owner,
++				  unsigned int symnum, void *data)
+ {
+ 	struct find_symbol_arg *fsa = data;
+ 
+@@ -555,9 +555,9 @@ static int cmp_name(const void *va, const void *vb)
+ 	return strcmp(a, kernel_symbol_name(b));
+ }
+ 
+-static bool find_symbol_in_section(const struct symsearch *syms,
+-				   struct module *owner,
+-				   void *data)
++static bool find_exported_symbol_in_section(const struct symsearch *syms,
++					    struct module *owner,
++					    void *data)
+ {
+ 	struct find_symbol_arg *fsa = data;
+ 	struct kernel_symbol *sym;
+@@ -565,13 +565,14 @@ static bool find_symbol_in_section(const struct symsearch *syms,
+ 	sym = bsearch(fsa->name, syms->start, syms->stop - syms->start,
+ 			sizeof(struct kernel_symbol), cmp_name);
+ 
+-	if (sym != NULL && check_symbol(syms, owner, sym - syms->start, data))
++	if (sym != NULL && check_exported_symbol(syms, owner,
++						 sym - syms->start, data))
+ 		return true;
+ 
+ 	return false;
+ }
+ 
+-/* Find a symbol and return it, along with, (optional) crc and
++/* Find an exported symbol and return it, along with, (optional) crc and
+  * (optional) module which owns it.  Needs preempt disabled or module_mutex. */
+ const struct kernel_symbol *find_symbol(const char *name,
+ 					struct module **owner,
+@@ -585,7 +586,7 @@ const struct kernel_symbol *find_symbol(const char *name,
+ 	fsa.gplok = gplok;
+ 	fsa.warn = warn;
+ 
+-	if (each_symbol_section(find_symbol_in_section, &fsa)) {
++	if (each_symbol_section(find_exported_symbol_in_section, &fsa)) {
+ 		if (owner)
+ 			*owner = fsa.owner;
+ 		if (crc)
+@@ -2198,7 +2199,7 @@ EXPORT_SYMBOL_GPL(__symbol_get);
+  *
+  * You must hold the module_mutex.
+  */
+-static int verify_export_symbols(struct module *mod)
++static int verify_exported_symbols(struct module *mod)
+ {
+ 	unsigned int i;
+ 	struct module *owner;
+@@ -2519,10 +2520,10 @@ static void free_modinfo(struct module *mod)
+ 
+ #ifdef CONFIG_KALLSYMS
+ 
+-/* lookup symbol in given range of kernel_symbols */
+-static const struct kernel_symbol *lookup_symbol(const char *name,
+-	const struct kernel_symbol *start,
+-	const struct kernel_symbol *stop)
++/* Lookup exported symbol in given range of kernel_symbols */
++static const struct kernel_symbol *lookup_exported_symbol(const char *name,
++							  const struct kernel_symbol *start,
++							  const struct kernel_symbol *stop)
+ {
+ 	return bsearch(name, start, stop - start,
+ 			sizeof(struct kernel_symbol), cmp_name);
+@@ -2533,9 +2534,10 @@ static int is_exported(const char *name, unsigned long value,
+ {
+ 	const struct kernel_symbol *ks;
+ 	if (!mod)
+-		ks = lookup_symbol(name, __start___ksymtab, __stop___ksymtab);
++		ks = lookup_exported_symbol(name, __start___ksymtab, __stop___ksymtab);
+ 	else
+-		ks = lookup_symbol(name, mod->syms, mod->syms + mod->num_syms);
++		ks = lookup_exported_symbol(name, mod->syms, mod->syms + mod->num_syms);
++
+ 	return ks != NULL && kernel_symbol_value(ks) == value;
+ }
+ 
+@@ -3592,7 +3594,7 @@ static int complete_formation(struct module *mod, struct load_info *info)
+ 	mutex_lock(&module_mutex);
+ 
+ 	/* Find duplicate symbols (must be called under lock). */
+-	err = verify_export_symbols(mod);
++	err = verify_exported_symbols(mod);
+ 	if (err < 0)
+ 		goto out;
+ 
+@@ -3911,15 +3913,19 @@ static inline int is_arm_mapping_symbol(const char *str)
+ 	       && (str[2] == '\0' || str[2] == '.');
+ }
+ 
+-static const char *symname(struct mod_kallsyms *kallsyms, unsigned int symnum)
++static const char *kallsyms_symbol_name(struct mod_kallsyms *kallsyms, unsigned int symnum)
+ {
+ 	return kallsyms->strtab + kallsyms->symtab[symnum].st_name;
+ }
+ 
+-static const char *get_ksymbol(struct module *mod,
+-			       unsigned long addr,
+-			       unsigned long *size,
+-			       unsigned long *offset)
++/*
++ * Given a module and address, find the corresponding symbol and return its name
++ * while providing its size and offset if needed.
++ */
++static const char *kallsyms_find_symbol(struct module *mod,
++					unsigned long addr,
++					unsigned long *size,
++					unsigned long *offset)
+ {
+ 	unsigned int i, best = 0;
+ 	unsigned long nextval;
+@@ -3939,8 +3945,8 @@ static const char *get_ksymbol(struct module *mod,
+ 
+ 		/* We ignore unnamed symbols: they're uninformative
+ 		 * and inserted at a whim. */
+-		if (*symname(kallsyms, i) == '\0'
+-		    || is_arm_mapping_symbol(symname(kallsyms, i)))
++		if (*kallsyms_symbol_name(kallsyms, i) == '\0'
++		    || is_arm_mapping_symbol(kallsyms_symbol_name(kallsyms, i)))
+ 			continue;
+ 
+ 		if (kallsyms->symtab[i].st_value <= addr
+@@ -3958,7 +3964,8 @@ static const char *get_ksymbol(struct module *mod,
+ 		*size = nextval - kallsyms->symtab[best].st_value;
+ 	if (offset)
+ 		*offset = addr - kallsyms->symtab[best].st_value;
+-	return symname(kallsyms, best);
++
++	return kallsyms_symbol_name(kallsyms, best);
+ }
+ 
+ void * __weak dereference_module_function_descriptor(struct module *mod,
+@@ -3983,7 +3990,8 @@ const char *module_address_lookup(unsigned long addr,
+ 	if (mod) {
+ 		if (modname)
+ 			*modname = mod->name;
+-		ret = get_ksymbol(mod, addr, size, offset);
++
++		ret = kallsyms_find_symbol(mod, addr, size, offset);
+ 	}
+ 	/* Make a copy in here where it's safe */
+ 	if (ret) {
+@@ -4006,9 +4014,10 @@ int lookup_module_symbol_name(unsigned long addr, char *symname)
+ 		if (within_module(addr, mod)) {
+ 			const char *sym;
+ 
+-			sym = get_ksymbol(mod, addr, NULL, NULL);
++			sym = kallsyms_find_symbol(mod, addr, NULL, NULL);
+ 			if (!sym)
+ 				goto out;
++
+ 			strlcpy(symname, sym, KSYM_NAME_LEN);
+ 			preempt_enable();
+ 			return 0;
+@@ -4031,7 +4040,7 @@ int lookup_module_symbol_attrs(unsigned long addr, unsigned long *size,
+ 		if (within_module(addr, mod)) {
+ 			const char *sym;
+ 
+-			sym = get_ksymbol(mod, addr, size, offset);
++			sym = kallsyms_find_symbol(mod, addr, size, offset);
+ 			if (!sym)
+ 				goto out;
+ 			if (modname)
+@@ -4062,7 +4071,7 @@ int module_get_kallsym(unsigned int symnum, unsigned long *value, char *type,
+ 		if (symnum < kallsyms->num_symtab) {
+ 			*value = kallsyms->symtab[symnum].st_value;
+ 			*type = kallsyms->symtab[symnum].st_info;
+-			strlcpy(name, symname(kallsyms, symnum), KSYM_NAME_LEN);
++			strlcpy(name, kallsyms_symbol_name(kallsyms, symnum), KSYM_NAME_LEN);
+ 			strlcpy(module_name, mod->name, MODULE_NAME_LEN);
+ 			*exported = is_exported(name, *value, mod);
+ 			preempt_enable();
+@@ -4074,13 +4083,14 @@ int module_get_kallsym(unsigned int symnum, unsigned long *value, char *type,
+ 	return -ERANGE;
+ }
+ 
+-static unsigned long mod_find_symname(struct module *mod, const char *name)
++/* Given a module and name of symbol, find and return the symbol's value */
++static unsigned long kallsyms_find_symbol_value(struct module *mod, const char *name)
+ {
+ 	unsigned int i;
+ 	struct mod_kallsyms *kallsyms = rcu_dereference_sched(mod->kallsyms);
+ 
+ 	for (i = 0; i < kallsyms->num_symtab; i++)
+-		if (strcmp(name, symname(kallsyms, i)) == 0 &&
++		if (strcmp(name, kallsyms_symbol_name(kallsyms, i)) == 0 &&
+ 		    kallsyms->symtab[i].st_shndx != SHN_UNDEF)
+ 			return kallsyms->symtab[i].st_value;
+ 	return 0;
+@@ -4097,12 +4107,12 @@ unsigned long module_kallsyms_lookup_name(const char *name)
+ 	preempt_disable();
+ 	if ((colon = strnchr(name, MODULE_NAME_LEN, ':')) != NULL) {
+ 		if ((mod = find_module_all(name, colon - name, false)) != NULL)
+-			ret = mod_find_symname(mod, colon+1);
++			ret = kallsyms_find_symbol_value(mod, colon+1);
+ 	} else {
+ 		list_for_each_entry_rcu(mod, &modules, list) {
+ 			if (mod->state == MODULE_STATE_UNFORMED)
+ 				continue;
+-			if ((ret = mod_find_symname(mod, name)) != 0)
++			if ((ret = kallsyms_find_symbol_value(mod, name)) != 0)
+ 				break;
+ 		}
+ 	}
+@@ -4131,7 +4141,7 @@ int module_kallsyms_on_each_symbol(int (*fn)(void *, const char *,
+ 			if (kallsyms->symtab[i].st_shndx == SHN_UNDEF)
+ 				continue;
+ 
+-			ret = fn(data, symname(kallsyms, i),
++			ret = fn(data, kallsyms_symbol_name(kallsyms, i),
+ 				 mod, kallsyms->symtab[i].st_value);
+ 			if (ret != 0)
+ 				return ret;
+-- 
+2.16.4

@@ -1,0 +1,260 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (61.164.42.155:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 10 Nov 2018 00:53:29 -0000
+Received: from icoremail.net (unknown [209.85.210.176])
+	by mail-app2 (Coremail) with SMTP id by_KCgDHH+YjluVbPVloAQ--.31479S3;
+	Fri, 09 Nov 2018 22:13:56 +0800 (CST)
+Received: from mail-pf1-f176.google.com (unknown [209.85.210.176])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwBnSEQgluVba+UiAA--.64S3;
+	Fri, 09 Nov 2018 22:13:52 +0800 (CST)
+Received: by mail-pf1-f176.google.com with SMTP id v9-v6so994584pff.2
+        for <xuliker@zju.edu.cn>; Fri, 09 Nov 2018 06:13:52 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :subject:to:cc:references:from:openpgp:autocrypt:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding
+         :message-id:sender:precedence:list-id;
+        bh=V/cG6unNS5/+8QTKan7NptOhh0QtQLBtr+3iRp+wYes=;
+        b=J1LS5Yuvwwuo1FgzW9zKkraiUAzF2wmdIuro9Moaf3D+jrUWNi3wcr3tAvXP+5TT0H
+         4XksrZczsb0X2d1YriBSRGa8QEKC+a+h9orB58UhfR8HILiR8si2e8u7DfPss/Lt2a7R
+         GDnAxVSsrAxSEAR5pfIhcGIRiKoM4FDXHx7P0hD+qhF8iurF5TAX3yillIvGmLP8sL9k
+         TQh1Sqg5GK1uQNysCRm7uRsqNhhnzYOvP10R+TlADMEFrndZepDNO0ogzyCKJx8TB2A0
+         yXbJ/mvt1ibFKoUooY8JvqRcl/9JXB53ifTXY5GOtC3TT5l+FoN/n/+ok+pvZtSYyLMH
+         c6/A==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=ibm.com
+X-Gm-Message-State: AGRZ1gI5lzfDCj4TGGANZ71kth578N/gCQiZ2y8OG0jnXZTpmrX0POKF
+	RgH3UJ3Lmo8iMFKf8ccPBp2f3LB72tkplR+Esh+gpIa48LKR32CKSg==
+X-Received: by 2002:a62:42dc:: with SMTP id h89-v6mr9464468pfd.0.1541772831795;
+        Fri, 09 Nov 2018 06:13:51 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp250555pjt;
+        Fri, 9 Nov 2018 06:13:50 -0800 (PST)
+X-Google-Smtp-Source: AJdET5dviMcGNut4V0yv2cuPn7Y7156lo+OtUk4Av702U3FkVyxHlTcDC754v6oiU/Hzt+y6V7Te
+X-Received: by 2002:a17:902:a9:: with SMTP id a38-v6mr9157477pla.7.1541772830656;
+        Fri, 09 Nov 2018 06:13:50 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1541772830; cv=none;
+        d=google.com; s=arc-20160816;
+        b=RAIVlAIGCjYAxDBOPATqPJdqGN94FDazNx7HZnnnrTczbX6K4aqBS1lN0fHjDsvtGU
+         c6FWq5ZJvJfGA98ylWkTZZJ7V76xy8G189XxG/maEYMAFQJxLEFIpSbOc5jTZq5xwd3U
+         pqJI7w7A4n7GvrED/Re4lHs1cEtsk4pethAXBOz7Bf6/WcmhCXCwpcIsC/btg6tyImVD
+         vJ12iDscPf32D4btxjA6FNspRgGklrE7M+mLxwCuBiyG4J9DibB9e+5iOzK/4/GunUMX
+         Ps7LZitN1ZsYusZg0ni0lfZFWM5pAh0i9pMd7+N3Oq6FKRR1dA6KSvgPj6iaKkaAgNHw
+         7/CQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:message-id:content-transfer-encoding
+         :content-language:in-reply-to:mime-version:user-agent:date:autocrypt
+         :openpgp:from:references:cc:to:subject;
+        bh=V/cG6unNS5/+8QTKan7NptOhh0QtQLBtr+3iRp+wYes=;
+        b=BF+/xxGwso3jxTF3nG/qzv57Csj163igWkH851S2yVBQtRQJaHhCgebotu2EoaWZxf
+         LVzPbZ2QvfzKJ3sZbjjLR8Zf63WwDBN0LSkwPcUsSLOtJl9+gAYzzkVSv9RVEyEK3zkO
+         P3ytPP2qqW8tbAB9nbYFsyLdgJ1j3ns5Pb1F8NY7WkwmInjDkSytpDUfy3yHQ+6azee5
+         AeRu4boYOfqi3UdlVOs+ebt+Z0/WuChDSzUoL4A4cdIL9Cd8wo3CXy4UNghNAABqTH5f
+         C4D794YSWkcbQRmYIydw21MNiDOFtDXmAlx4fzKc7is6kStds+JNUBEXg7aCNon6Z5N0
+         FQNA==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=ibm.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id i23si287423pgb.116.2018.11.09.06.13.26;
+        Fri, 09 Nov 2018 06:13:50 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1727955AbeKIXyK (ORCPT <rfc822;fanshuming2011@gmail.com>
+        + 99 others); Fri, 9 Nov 2018 18:54:10 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:57312 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727784AbeKIXyK (ORCPT
+        <rfc822;kvm@vger.kernel.org>); Fri, 9 Nov 2018 18:54:10 -0500
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.22/8.16.0.22) with SMTP id wA9E9fHk005433
+        for <kvm@vger.kernel.org>; Fri, 9 Nov 2018 09:13:23 -0500
+Received: from e06smtp07.uk.ibm.com (e06smtp07.uk.ibm.com [195.75.94.103])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2nna7um77p-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <kvm@vger.kernel.org>; Fri, 09 Nov 2018 09:13:23 -0500
+Received: from localhost
+        by e06smtp07.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <kvm@vger.kernel.org> from <pasic@linux.ibm.com>;
+        Fri, 9 Nov 2018 14:13:21 -0000
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (9.149.109.198)
+        by e06smtp07.uk.ibm.com (192.168.101.137) with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted;
+        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256/256)
+        Fri, 9 Nov 2018 14:13:20 -0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id wA9EDI9T4391244
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
+        Fri, 9 Nov 2018 14:13:18 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 95A31A4051;
+        Fri,  9 Nov 2018 14:13:18 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id DA9B3A4040;
+        Fri,  9 Nov 2018 14:13:17 +0000 (GMT)
+Received: from oc2783563651.ibm.com (unknown [9.152.99.116])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Fri,  9 Nov 2018 14:13:17 +0000 (GMT)
+Subject: Re: [PATCH v2 2/2] vfio: ccw: Register mediated device once all
+ structures are initialized
+To: Cornelia Huck <cohuck@redhat.com>,
+        Pierre Morel <pmorel@linux.ibm.com>
+Cc: pasic@linux.vnet.ibm.com, farman@linux.ibm.com,
+        linux-s390@vger.kernel.org, kvm@vger.kernel.org
+References: <1540487720-11634-1-git-send-email-pmorel@linux.ibm.com>
+ <1540487720-11634-3-git-send-email-pmorel@linux.ibm.com>
+ <20181109121623.1e32a93a.cohuck@redhat.com>
+From: Halil Pasic <pasic@linux.ibm.com>
+Openpgp: preference=signencrypt
+Autocrypt: addr=pasic@linux.ibm.com; prefer-encrypt=mutual; keydata=
+ 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
+Date: Fri, 9 Nov 2018 15:13:17 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:52.0) Gecko/20100101
+ Thunderbird/52.9.1
+MIME-Version: 1.0
+In-Reply-To: <20181109121623.1e32a93a.cohuck@redhat.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+x-cbid: 18110914-0028-0000-0000-000003175157
+X-IBM-AV-DETECTION: SAVI=unused REMOTE=unused XFE=unused
+x-cbparentid: 18110914-0029-0000-0000-000023D3A97D
+Message-Id: <f5c5cf53-9a18-4a4b-1b8d-1b5b9f5f7c9b@linux.ibm.com>
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2018-11-09_05:,,
+ signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ malwarescore=0 suspectscore=2 phishscore=0 bulkscore=0 spamscore=0
+ clxscore=1015 lowpriorityscore=0 mlxscore=0 impostorscore=0
+ mlxlogscore=999 adultscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.0.1-1807170000 definitions=main-1811090131
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwBnSEQgluVba+UiAA--.64S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW7KF1xKw1UJrW7trW3uFW7Arb_yoW8Cw15pr
+	WDKFy5Ka48JFW2934xZr45ZF98tayDtrZ7Ca4jyw1j9rs0qrnaqFyxKr4Uu34DAr1ku3W2
+	vFWj93yUW3yYvFJanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUm2b7Iv0xC_KF4lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_tr0E3s1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2
+	z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s0DM2AIxVAIcxkEcV
+	Aq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r10
+	6r15McIj6I8E87Iv67AKxVW8JVWxJwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IY64vIr4
+	1l7I0Y6sxI4wCYjI0SjxkI62AI1cAE67vIY487MxkF7I0Ew4C26cxK6c8Ij28IcwCY1Ik2
+	6cxK6xAEc7vF6xCjj44lc2xSY4AK6IIF6ry5MxkI7II2jI8vz4vEwIxGrwCYIxAIcVC0I7
+	IYx2IY67AKxVW5JVW7JwCYIxAIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMxvI42IY6I8E
+	87Iv67AKxVW0oVCq3wCYIxAIcVC2z280aVCY1x0267AKxVW0oVCq3wCF04k20xvY0x0EwI
+	xGrwCF04k20xvEw4C26cxK6c8Ij28IcwCF72vE77IF4wCFx2IqxVCFs4IE7xkEbVWUJVW8
+	JwC20s026c02F40E14v26r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1V
+	AFwI0_JF0_Jw1lIxkGc2Ij64vIr41lIxAIcVCF04k26cxKx2IYs7xG6r4j6FyUYxBIdaVF
+	xhVjvjDU0xZFpf9x07b1BMtUUUUU=
+
+
+
+On 11/09/2018 12:16 PM, Cornelia Huck wrote:
+> On Thu, 25 Oct 2018 19:15:20 +0200
+> Pierre Morel <pmorel@linux.ibm.com> wrote:
+> 
+>> Let's register the mediated device when all the data structures
+>> which could be used are initialized.
+>>
+>> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+>> Reviewed-by: Eric Farman <farman@linux.ibm.com>
+>> ---
+>>  drivers/s390/cio/vfio_ccw_drv.c | 8 ++++----
+>>  1 file changed, 4 insertions(+), 4 deletions(-)
+>>
+>> diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
+>> index f47d16b5810b..33fd53f49bf2 100644
+>> --- a/drivers/s390/cio/vfio_ccw_drv.c
+>> +++ b/drivers/s390/cio/vfio_ccw_drv.c
+>> @@ -134,14 +134,14 @@ static int vfio_ccw_sch_probe(struct subchannel *sch)
+>>  	if (ret)
+>>  		goto out_free;
+>>  
+>> -	ret = vfio_ccw_mdev_reg(sch);
+>> -	if (ret)
+>> -		goto out_disable;
+>> -
+>>  	INIT_WORK(&private->io_work, vfio_ccw_sch_io_todo);
+>>  	atomic_set(&private->avail, 1);
+>>  	private->state = VFIO_CCW_STATE_STANDBY;
+>>  
+>> +	ret = vfio_ccw_mdev_reg(sch);
+>> +	if (ret)
+>> +		goto out_disable;
+>> +
+>>  	return 0;
+>>  
+>>  out_disable:
+> 
+> This patch looks fine, but ISTR that Halil was unhappy with the patch
+> description.
+> 
+> Any opinion on that? I'd like to queue this for 4.20.
+> 
+
+That was the v1 patch description, which had multiple issues. The problem that got
+carried over is, that we still don't know if it is a bug-fix or just a readability
+improvement.
+
+In the v1 discussion I questioned this being a bugfix, but we never finished the discussion
+because of KVM Forum.
+
+Anyway, the new commit message does not read as bad (although I would drop 'which could
+be used' and if it isn't a bugfix also explain that the code was ok -- if it is a bugfix
+shouldn't we cc stable?).
+
+Connie, if you don't feel like figuring out the bug or not question, feel free to just
+add an Ack by me and queue for 4.20.
+
+Regards,
+Halil
+
+

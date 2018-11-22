@@ -1,0 +1,136 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 09 Nov 2018 00:37:29 -0000
+Received: from icoremail.net (unknown [209.85.214.178])
+	by mail-app2 (Coremail) with SMTP id by_KCgC3f7WBhORbEfxhAQ--.29472S3;
+	Fri, 09 Nov 2018 02:46:25 +0800 (CST)
+Received: from mail-pl1-f178.google.com (unknown [209.85.214.178])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwDXrzt8hORbwC0eAA--.6449S3;
+	Fri, 09 Nov 2018 02:46:21 +0800 (CST)
+Received: by mail-pl1-f178.google.com with SMTP id f12-v6so8761334plo.1
+        for <xuliker@zju.edu.cn>; Thu, 08 Nov 2018 10:46:21 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:delivered-to:dkim-signature:mime-version
+         :references:in-reply-to:from:date:message-id:subject:to:cc:sender
+         :precedence:list-id;
+        bh=pioQnMAPS1lpghmgomUHcHmT7Y1jAg5LnSVhR/vOdjM=;
+        b=i9CVX6c6bqLlVHB28trB4UcZgwNaVQvqjT0EQmcCdIo+Shvjo5sBPNCAvc2DLWIw1L
+         q0Wlr9TgZPKMedBO71Tq0JmcCKVyYDsJuORJk6nvo7QJ/mYaWJefYPXn6uwDul++ljVp
+         C23bxYMvswImPCNiHCqnsUVHvLOrNoBG6Op9WnqUCAP3QGEnfHD+u0lgbr2Zsa+geAyK
+         Wr6gB/hGCOUxLPzGCSgWDLVtTHXkKh7a1peIHItzeDq+xYyPXA0R06gUqAXFjVjcRWN8
+         u3wXaFPTdaBHbP2niXynVBkRsEnUnrCyv+w/HO+rKAJV5ZjQJZnpJ8DR04fhZC/iTrxO
+         waOw==
+X-Gm-Message-State: AGRZ1gIqrvysmzq1MSYZPDZSjJcE4RAcXFgM7NFXHN8p4IiCN9WC7ToB
+	XNv4bX7Bs+ZDjIHuv9H4Cc1wSYta39EytkZqPFBJaQSSPsfw8PGUww==
+X-Received: by 2002:a17:902:7082:: with SMTP id z2-v6mr5699791plk.78.1541702780606;
+        Thu, 08 Nov 2018 10:46:20 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp571565pjt;
+        Thu, 8 Nov 2018 10:46:20 -0800 (PST)
+X-Google-Smtp-Source: AJdET5f9/86ihvKUVaLTJdRQ1HPIYJYTY5cVCseZ5nDe4Q75pkWlpXGuDC/TpjcW+3u+ZP7AzQke
+X-Received: by 2002:a17:902:b103:: with SMTP id q3-v6mr5665981plr.83.1541702779993;
+        Thu, 08 Nov 2018 10:46:19 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1541702779; cv=none;
+        d=google.com; s=arc-20160816;
+        b=h2+qRY1YqNyZF0uSDeMRuN3h3JS8c9iE9QY5ftY6Utu2zOGo7kF6jFe+xrsKMR6Ck2
+         L/2HOum8zOEkfSwZ4kOP0H09zJJtgsQvby0GpbQUYSkmdhJA376Ct33aph4BFfqSANei
+         8PmRH1EXoo0Km9aM1qx0rA86ig6ltSd3lp81mP1Kq/ekvrQa2G/vHZmUPOO1YYq8tJyk
+         /IvgkrSlyY/6697fe2cfz4A122ky/GILKztse8w5kcGspM8W/6JKc9nFpPbrZhgCi+pS
+         iYNhviaIwxoftxpfU0gA7rfDlOOHOZiJz4tGtLwQfMxRhQ0ru5WHWlRWGxRSLvyp/p0Y
+         OIbA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=pioQnMAPS1lpghmgomUHcHmT7Y1jAg5LnSVhR/vOdjM=;
+        b=sizw5SRyaagsSDxBDsWLGI5TDPlE2IwRwGoo3gEKQ7PbpiTkIFf+19YgYUgQ5Sdv2y
+         xiCoq43Y7KrgHTOSWGiKYWxrt0SYXnNrAaK/Uxknty0xHJdhilF0TgVo2WOrMTUSAXEQ
+         GuI18F7LNbqVs7+yz6UeyFjbtC5d8a3q1nCfD+epF7Ank4NWx0v2N4a3gblqcsoxXDbi
+         r0gnGtqSt1yF+iaEi7BJArP6foAYwS1DhO49wg94METxzxbbMMfyvnvC0v/OS56xTbja
+         lP2dni7VeR8jeSVDB+lsPtdSXLZmfv/mVZJDXVXODxJDnoMPdeBePdHOGgse5d+HWSfg
+         TiKA==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@kernel.org header.s=default header.b="hP+5Id/1";
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;
+       dmarc=pass (p=NONE sp=NONE dis=NONE) header.from=kernel.org
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id ba2-v6si4928210plb.88.2018.11.08.10.46.06;
+        Thu, 08 Nov 2018 10:46:19 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1727246AbeKIEWw (ORCPT <rfc822;fanshuming2011@gmail.com>
+        + 99 others); Thu, 8 Nov 2018 23:22:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37940 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727213AbeKIEWw (ORCPT <rfc822;kvm@vger.kernel.org>);
+        Thu, 8 Nov 2018 23:22:52 -0500
+Received: from mail-wr1-f51.google.com (mail-wr1-f51.google.com [209.85.221.51])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4EAFF20883
+        for <kvm@vger.kernel.org>; Thu,  8 Nov 2018 18:46:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1541702764;
+        bh=pioQnMAPS1lpghmgomUHcHmT7Y1jAg5LnSVhR/vOdjM=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=hP+5Id/1tIkFH9uBgoyS3OslVYe4LmYHK0yAUKkqDwhvD0AmK3OLl9/4UFeXJ+0j9
+         pdO2FOjzvHdMWv7QJ0g9G4cumre+vpj4XNyJZwDSmwljrVSZ4myJcO3OjLFXhCbsuC
+         bZKJHixw4P3vquseVxPyq5uTr+WiTAfuASMAxkCs=
+Received: by mail-wr1-f51.google.com with SMTP id j17-v6so17241380wrq.11
+        for <kvm@vger.kernel.org>; Thu, 08 Nov 2018 10:46:04 -0800 (PST)
+X-Received: by 2002:adf:97d3:: with SMTP id t19-v6mr5409613wrb.283.1541702762746;
+ Thu, 08 Nov 2018 10:46:02 -0800 (PST)
+MIME-Version: 1.0
+References: <20181107194858.9380-1-bigeasy@linutronix.de> <20181107194858.9380-5-bigeasy@linutronix.de>
+In-Reply-To: <20181107194858.9380-5-bigeasy@linutronix.de>
+From: Andy Lutomirski <luto@kernel.org>
+Date: Thu, 8 Nov 2018 10:45:50 -0800
+X-Gmail-Original-Message-ID: <CALCETrW5Ct9oLceGtOWhOz0MW-ieZmHNvqFtR5WV56NMHpzEvA@mail.gmail.com>
+Message-ID: <CALCETrW5Ct9oLceGtOWhOz0MW-ieZmHNvqFtR5WV56NMHpzEvA@mail.gmail.com>
+Subject: Re: [PATCH 04/23] x86/entry/32: Remove asm/math_emu.h include
+To: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Cc: LKML <linux-kernel@vger.kernel.org>, X86 ML <x86@kernel.org>,
+        Andrew Lutomirski <luto@kernel.org>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Radim Krcmar <rkrcmar@redhat.com>,
+        kvm list <kvm@vger.kernel.org>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Rik van Riel <riel@surriel.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>
+Content-Type: text/plain; charset="UTF-8"
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwDXrzt8hORbwC0eAA--.6449S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjDUn29KB7ZKAUJUUUUU529EdanIXcx71UUUUU7v73
+	VFW2AGmfu7jjvjm3AaLaJ3UjIYCTnIWjp_UUUO07k0a2IF6F4UM7kC6x804xWl14x267AK
+	xVWUJVW8JwAFIxvE14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK02
+	1l84ACjcxK6xIIjxv20xvE14v26F1j6w1UM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26F4j
+	6r4UJwA2z4x0Y4vEx4A2jsIE14v26F4UJVW0owA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_Cr
+	1j6rxdM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj
+	6xIIjxv20xvE14v26r106r15McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x0Yz7v_Jr
+	0_Gr1lF7xvr2IY64vIr41l7I0Y6sxI4wCY1x0264kExVAvwVAq07x20xylc7Ca8VAvwVCF
+	zxkY4VCF77xAMxkIecxEwVCI4VW5MxkI7II2jI8vz4vEwIxGrwCYIxAIcVC0I7IYx2IY67
+	AKxVW5JVW7JwCYIxAIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMxvI42IY6I8E87Iv67AK
+	xVW8Jr0_Cr1UMxvI42IY6I8E87Iv6xkF7I0E14v26r4UJVWxJr1l42xK82IYc2Ij64vIr4
+	1l42xK82IY64kExVAvwVAq07x20xyl4x8a6x804xWl4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1l
+	x2IqxVAqx4xG67AKxVWUJVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14
+	v26r1q6r43MIIYrxkI7VAKI48JMIIF0xvE42xK8VAvwI8IcIk0rVW8JVW3JbIYCTnIWIev
+	Ja73UjIFyTuYvjxUDjQ6DUUUU
+
+On Wed, Nov 7, 2018 at 11:49 AM Sebastian Andrzej Siewior
+<bigeasy@linutronix.de> wrote:
+>
+> The math_emu.h header files contains the definition of struct
+> math_emu_info. It is not used in this file.
+>
+> Remove asm/math_emu.h include.
+>
+
+Reviewed-by: Andy Lutomirski <luto@kernel.org>

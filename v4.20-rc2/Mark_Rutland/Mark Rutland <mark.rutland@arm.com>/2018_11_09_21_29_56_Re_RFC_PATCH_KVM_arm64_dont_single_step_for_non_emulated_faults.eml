@@ -1,0 +1,155 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (61.164.42.155:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 10 Nov 2018 00:53:07 -0000
+Received: from icoremail.net (unknown [209.85.215.169])
+	by mail-app2 (Coremail) with SMTP id by_KCgDHH8I1jeVbJCBoAQ--.31937S3;
+	Fri, 09 Nov 2018 21:35:50 +0800 (CST)
+Received: from mail-pg1-f169.google.com (unknown [209.85.215.169])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwAXAEwCjOVbS8YiAA--.2963S3;
+	Fri, 09 Nov 2018 21:30:42 +0800 (CST)
+Received: by mail-pg1-f169.google.com with SMTP id w7so844754pgp.13
+        for <xuliker@zju.edu.cn>; Fri, 09 Nov 2018 05:30:42 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent:sender:precedence
+         :list-id;
+        bh=1fnEsl2b6udhQJL3gYOo9vFlgUJFTop1UpoWl/kv4Oc=;
+        b=JmPpqxQBlN+6irKO+jDb/gBXfIr0sfunWB/Ck/5PG0hORHoHzzm6slSupt0l3Gqj9l
+         YFVo703qGXQQE3B8zLBgsPuKUh4T2O4ME1Ys6N03SiGk8EeAvlUyYwjP7mRy1ujI3CYY
+         IptwjA/bZHNpXLPKdmBXyMO6PQWHbfpRYxP7fqTMlArtWLRKFK9A9j9CfdBjyzs8ZSMc
+         IdmcKoYNwlyy2+EQwkf+qs9sX3JEFnGiLDfOScQE3C6N1MJ7t3tlzS1ewVGlYbTsIchr
+         cGpYi4vC55WgAUim0FjFcZQnsemATkJ4Zj416dPGI33umzWB36gCydho9ICCIqO7lXOs
+         aJBw==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org
+X-Gm-Message-State: AGRZ1gJmizwkBt4NMQizxvvEXmdM9TeDQ7XXHqStKpGzaGZZ3J9zN65u
+	tH7mgVg5vq3fvLhWwYF4Bzj/2NNmkuS3KHmwOnf+h1UopU7VmuD+mw==
+X-Received: by 2002:a62:42dc:: with SMTP id h89-v6mr9304939pfd.0.1541770242438;
+        Fri, 09 Nov 2018 05:30:42 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp202676pjt;
+        Fri, 9 Nov 2018 05:30:41 -0800 (PST)
+X-Google-Smtp-Source: AJdET5c3XeN0S8FDMZmP/6ePudRJjjLr12A+wiDj/y/RE4B30ipTEWdYm+KW63JWl4FmXqtNC5o3
+X-Received: by 2002:a17:902:b784:: with SMTP id e4-v6mr8713499pls.45.1541770241597;
+        Fri, 09 Nov 2018 05:30:41 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1541770241; cv=none;
+        d=google.com; s=arc-20160816;
+        b=bUgo8UwgFbVogl/EbX5gKv0cflztotFCcLdYmW0pdW5o7D+HH9cMwfAMuEKq942u6i
+         fhXJZEUx3NH7bBN2/WV+WbdJDWWVNkMAB+l9UpAL1xtaFk9EA6RZNxc6GnrTKiIWgBdA
+         qHTH0wIvgKaivlhPiKlreYg0oFZcO97v2xi3dTShzhrZAJ0OBOOb332nZRlLfVJM6HWB
+         60J7IZTcMjJSTmw1aOeyJeBfNcAsfETvEi5eQ6F75HS64MDy+Udha/LaKwe8a8v6dSQx
+         icWvMQBVQEY7WD7uSUrg3MpmyLjskZHsr7P9qAPuR7CZbLF4d4+cxqeo8UrnVfD+UgUR
+         h0/A==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:user-agent:in-reply-to
+         :content-disposition:mime-version:references:message-id:subject:cc
+         :to:from:date;
+        bh=1fnEsl2b6udhQJL3gYOo9vFlgUJFTop1UpoWl/kv4Oc=;
+        b=RsBcGJTooTKSSPq33lotYZW3NLxJSPOLgm56DasnBWpJUjIszwGzTuMd3f3cXYxvjY
+         /yGD4KhxC9G0TS79zWVLmqsLltJyhdAIiBHwWmCoPb1A9+vE73Bh51P3fEFptw/0FhfU
+         OhAXChYZmKPwPYkPklk7hKW5RzOYB7/mpiu88wXvUsLKIvgwbwtM06SkNC2DbOLGIAbu
+         fE6CHHLOoHep8OCkQTpMVR+JbeAM73+OzwrGzuxZ5JbfV9dXlm2ld9KPqnEhdPSKmSyT
+         oZZm5nMw/Og2oLoxuJav8BFNExGQT9MWHtS+AaNwZeaUmZIJzgEIjOX/tEv2hUPCEYLo
+         0DdQ==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id d3-v6si8797623pln.204.2018.11.09.05.30.15;
+        Fri, 09 Nov 2018 05:30:41 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1727835AbeKIXKj (ORCPT <rfc822;fanshuming2011@gmail.com>
+        + 99 others); Fri, 9 Nov 2018 18:10:39 -0500
+Received: from foss.arm.com ([217.140.101.70]:60228 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727735AbeKIXKj (ORCPT <rfc822;kvm@vger.kernel.org>);
+        Fri, 9 Nov 2018 18:10:39 -0500
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.72.51.249])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 97B7080D;
+        Fri,  9 Nov 2018 05:30:00 -0800 (PST)
+Received: from lakrids.cambridge.arm.com (usa-sjc-imap-foss1.foss.arm.com [10.72.51.249])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id CC9403F5C0;
+        Fri,  9 Nov 2018 05:29:58 -0800 (PST)
+Date: Fri, 9 Nov 2018 13:29:56 +0000
+From: Mark Rutland <mark.rutland@arm.com>
+To: Peter Maydell <peter.maydell@linaro.org>
+Cc: Alex =?utf-8?Q?Benn=C3=A9e?= <alex.bennee@linaro.org>,
+        kvm-devel <kvm@vger.kernel.org>,
+        Marc Zyngier <marc.zyngier@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        open list <linux-kernel@vger.kernel.org>,
+        Christoffer Dall <christoffer.dall@linaro.org>,
+        kvmarm@lists.cs.columbia.edu,
+        arm-mail-list <linux-arm-kernel@lists.infradead.org>
+Subject: Re: [RFC PATCH] KVM: arm64: don't single-step for non-emulated faults
+Message-ID: <20181109132955.kqfccmqrugfj5rkl@lakrids.cambridge.arm.com>
+References: <20181107180120.urnvkcrkh46ytsdb@lakrids.cambridge.arm.com>
+ <20181107180829.sex54bxhd5wyqvan@lakrids.cambridge.arm.com>
+ <87r2fv68us.fsf@linaro.org>
+ <20181108135122.llmfsel32dbe2q7o@lakrids.cambridge.arm.com>
+ <87pnvf63u2.fsf@linaro.org>
+ <CAFEAcA9v+XvAJBWpDMvEQPeJ7ALM15Yz5KY+wfGPmLG2a8yPRQ@mail.gmail.com>
+ <20181109115644.f4qjqnv2kogoke42@lakrids.cambridge.arm.com>
+ <87lg625th2.fsf@linaro.org>
+ <20181109124930.axelmyohmrcb63b4@lakrids.cambridge.arm.com>
+ <CAFEAcA-xuUPukf9EPeetr_+RSU7FPDMXmyk3zbjY=FcV65CF=g@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAFEAcA-xuUPukf9EPeetr_+RSU7FPDMXmyk3zbjY=FcV65CF=g@mail.gmail.com>
+User-Agent: NeoMutt/20170113 (1.7.2)
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwAXAEwCjOVbS8YiAA--.2963S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvdXoW7GF4kJFykCry7JFyDAFykuFg_yoWDWFXEv3
+	Z7t3ykGa4UKayrAF1UKF4DJFy8WrW5Gr1UJrWDJr98A345JFZxArsrW3sFvF93Kw4Yqrnx
+	Cr1YqFsaya4avjkaLaAFLSUrUUUUUb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAU7a7-sFnT
+	9fnUUIcSsGvfJTRUUUbkxYjsxI4VW3JwAYFVCjjxCrM7AC8VAFwI0_Jr0_Gr1l1IIY67AE
+	w4v_Jr0_Jr4l8cAvFVAK0II2c7xJM28CjxkF64kEwVA0rcxSw2x7M28EF7xvwVC0I7IYx2
+	IY67AKxVW7JVWDJwA2z4x0Y4vE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwA2z4x0Y4vEx4A2
+	jsIE14v26rxl6s0DM28EF7xvwVC2z280aVCY1x0267AKxVW0oVCq3wAS0I0E0xvYzxvE52
+	x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AKxVWUJVWU
+	GwAv7VC2z280aVAFwI0_Gr0_Cr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcVAKI48JMx
+	02cVCv0xWlc7CjxVAKzI0EY4vE52x082I5MxkFs20EY4vE44CYbxCE4x80FwCY02Avz4vE
+	IxC_Xr4lc2IjII80xcxEwVAKI48JMxvI42IY6xIIjxv20xvE14v26r1I6r4UMxvI42IY6x
+	IIjxv20xvEc7CjxVAFwI0_Jr0_Gr1lcIIF0xvEx4A2jsIE14v26rxl6s0DMxvI42IY6I8E
+	87Iv6xkF7I0E14v26rxl6s0DMxAIw28IcxkI7VAKI48JMxAIw28IcVAKzI0EY4vE52x082
+	I5MxCjnVCjjxCrMxC20s026xCaFVCjc4AY6r1j6r4UMxCIbckI1I0E14v26r1Y6r17MI8I
+	3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxV
+	WUtVW8ZwCIc40Y0x0EwIxGrwCI42IY6xAIw20EY4v20xvaj40_Gr0_ZrUvcSsGvfC2Kfnx
+	nUUI43ZEXa7IU5gtx3UUUUU==
+
+On Fri, Nov 09, 2018 at 12:56:54PM +0000, Peter Maydell wrote:
+> On 9 November 2018 at 12:49, Mark Rutland <mark.rutland@arm.com> wrote:
+> > I'm not saying anything about *decisions*. I'm saying that we can make
+> > the state consistent by advancing the singlestep state in the same way
+> > that HW does, at the instant it advances the PC.
+> >
+> > i.e. do that in kvm_skip_instr(), as I've done in my local tree.
+> >
+> > That mirrors the HW, and we don't need to special-case any handling for
+> > emulated vs non-emulated instructions.
+> 
+> You also need to do it in the "set PC because we're making the guest
+> take an exception" code path, which doesn't go through kvm_skip_instr().
+
+Sure.
+
+> This corresponds to the two kinds of "step completed" in hardware as
+> noted in DDI0487D.a D2.12.3 fig D2-3 footnote b:
+>  * executing the instruction to be stepped without taking an exception
+>  * taking an exception to an exception level that debug exceptions
+>    are enabled from [ie guest EL1 in our case]
+
+Thanks for the pointer!
+
+Mark.

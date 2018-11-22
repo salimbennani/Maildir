@@ -1,0 +1,444 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 09 Nov 2018 00:36:04 -0000
+Received: from icoremail.net (unknown [209.85.214.178])
+	by mail-app2 (Coremail) with SMTP id by_KCgDHHyYYYuRbsjZhAQ--.29773S3;
+	Fri, 09 Nov 2018 00:19:37 +0800 (CST)
+Received: from mail-pl1-f178.google.com (unknown [209.85.214.178])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwBHHTkXYuRbUpIdAA--.29S3;
+	Fri, 09 Nov 2018 00:19:35 +0800 (CST)
+Received: by mail-pl1-f178.google.com with SMTP id c13-v6so9746527plz.13
+        for <xuliker@zju.edu.cn>; Thu, 08 Nov 2018 08:19:35 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:delivered-to:dkim-signature:from:to:cc:subject
+         :in-reply-to:message-id:date:sender:precedence:list-id;
+        bh=Nph4Jm+2PET6XFzPx2UB21DLStFWkuIqrQ4Sv8Fmqrs=;
+        b=BycwlqFwJ84x1YPbckvE7vcrvUHgZhHMcoNTIFFI8tsUUwt243uBwfkXIFbvV9RFmp
+         AI9W02amuTwl/mNFvLw0ZkozPbJNG06HOQBwx8MS20iVA5fjS7jLkAvtDhdoJt/MKLwR
+         L5DKGOS5waggfGUuxuuU53KaH0+POaG7RdomQD2Te+ABSdp/MuJDtCY26cPj8Mbq27G0
+         DQUKXUzSS5MRLskLk4PbSoUIDq0zzoYCFuehbzXA0DBtHHgtQ3CRTpqsMn8woNgQDh+A
+         QqrIvjhfyE58VGYsL/9CZe4Dcn3u591yrESUBCtLiC3NQB6ELdYI8c0LulbJI785DFq8
+         bQ3w==
+X-Gm-Message-State: AGRZ1gIFt0rEeNGmobt6mCGuRGSwbHHcOPpcVvX02gblZP4kMuCBHDum
+	wK3FvCuN744LuDqy36dILwNQzH8kTfASmYzydAwbmjcvEEecwdic1w==
+X-Received: by 2002:a17:902:b598:: with SMTP id a24-v6mr5139052pls.231.1541693974996;
+        Thu, 08 Nov 2018 08:19:34 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp392402pjt;
+        Thu, 8 Nov 2018 08:19:34 -0800 (PST)
+X-Google-Smtp-Source: AJdET5cBnVH4+2BXRUH4fdN2GmH989RnmYyYRl0Wc4BXwREOcSMCo16szp3nhKlmSo7rjUWNbZWK
+X-Received: by 2002:a63:4d0e:: with SMTP id a14mr1329912pgb.408.1541693974208;
+        Thu, 08 Nov 2018 08:19:34 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1541693974; cv=none;
+        d=google.com; s=arc-20160816;
+        b=XIvY3212soWFx7Z+csKnFRzUJIVAfESPgXqbyBWVm76D9AMg29btFrBxVcLmfMn/Mb
+         vNsVRBbwNLFQ92s9oNqijE/zq4uoTPz4B7tdMXnkTw60BZ9gzcoSgp/6cJvEL3s64NRF
+         DoRUQhLIu3CcsGxzEE/IeAgFFlFyZkbr/FuMIC/23GmQwtpUxQrONra8oKrpKxo/fbgQ
+         1/lWFJXtdIcLOAuwXvBlFaWraG/IyX1dwxZKbg/Pyg1Wzv73C9z2AhwoMhw59Me9qMtJ
+         ouwVz5BJcHeKZmcXZd9xqZkRbIKP8JlCi0Isz3jXXIogiMiJQ6gbH5V7wQmNhTEyCKnE
+         siAg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:date:message-id:in-reply-to:subject:cc:to
+         :from:dkim-signature;
+        bh=Nph4Jm+2PET6XFzPx2UB21DLStFWkuIqrQ4Sv8Fmqrs=;
+        b=EBufNo0JoOEcEkctJliMoqcF+MvyCKibAaLEuITdyYNa5N7zvAclcvMn6T2lstWGkH
+         LIGCANX/A7PGJWH4nwhtBj8z5R8q0lXVpz5tW0wWMF+V9GfnJo7ID1lvQSG8DpRkYwSh
+         8hchc+pzk79n/fcDdmb00F63TZKHaBSwV2y3ZzpUnsA+ypjpkfMegaSvyLFJ4fI41vYr
+         BFfj4AJ3UgiVb/RlWsnjg3y2QTK54P/aTmP9ofFP+wsKS1Eelv9SZH5vkmzeojLR8xiS
+         2A6+j3RXoAp+xu/FILovK5vKGXOd4EinbmvnFgQoUbZ5DIN7yVTWbFS5sIEX61duHIwq
+         bTSA==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=fail header.i=@sirena.org.uk header.s=20170815-heliosphere header.b=f1AjxZdU;
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=kernel.org
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id g7-v6si4573361pll.160.2018.11.08.08.19.17;
+        Thu, 08 Nov 2018 08:19:34 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1727732AbeKIBzH (ORCPT <rfc822;ankurbansal210989@gmail.com>
+        + 99 others); Thu, 8 Nov 2018 20:55:07 -0500
+Received: from heliosphere.sirena.org.uk ([172.104.155.198]:46308 "EHLO
+        heliosphere.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726861AbeKIBzH (ORCPT
+        <rfc822;linux-kernel@vger.kernel.org>);
+        Thu, 8 Nov 2018 20:55:07 -0500
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=sirena.org.uk; s=20170815-heliosphere; h=Date:Message-Id:In-Reply-To:
+        Subject:Cc:To:From:Sender:Reply-To:MIME-Version:Content-Type:
+        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
+        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:References:
+        List-Id:List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:
+        List-Archive; bh=Nph4Jm+2PET6XFzPx2UB21DLStFWkuIqrQ4Sv8Fmqrs=; b=f1AjxZdUwL/s
+        OED29ia1fbNVw7I02rGa058cL/BLkxq6TFwCPiBHfkE9SpuO//3/AVkigf7Aso064pJM9lApgpazN
+        3EOcXzPfFZ7ZGWFwIvi2HhxJ1MzBMRLGn0zEbN5wf70vL6dlrRFDBslpR5D+8SDYtV53WBJCZ+x9P
+        Xk6rk=;
+Received: from cpc102320-sgyl38-2-0-cust46.18-2.cable.virginm.net ([82.37.168.47] helo=debutante.sirena.org.uk)
+        by heliosphere.sirena.org.uk with esmtpa (Exim 4.89)
+        (envelope-from <broonie@sirena.org.uk>)
+        id 1gKn17-0000Cl-C2; Thu, 08 Nov 2018 16:18:49 +0000
+Received: by debutante.sirena.org.uk (Postfix, from userid 1000)
+        id 111B41124D9E; Thu,  8 Nov 2018 16:18:49 +0000 (GMT)
+From: Mark Brown <broonie@kernel.org>
+To: Maciej Purski <m.purski@samsung.com>
+Cc: Dmitry Osipenko <digetx@gmail.com>,
+        Mark Brown <broonie@kernel.org>, linux-kernel@vger.kernel.org
+Subject: Applied "regulator: core: Add voltage balancing mechanism" to the regulator tree
+In-Reply-To: 
+Message-Id: <20181108161849.111B41124D9E@debutante.sirena.org.uk>
+Date: Thu,  8 Nov 2018 16:18:49 +0000 (GMT)
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwBHHTkXYuRbUpIdAA--.29S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW3Ar17Xr48uFyxXr47uFW8Xrb_yoWftw13pr
+	Z5uFZIkr4kAFyfWFW8CwsrA3W5XFWkJrs3uryrJ3yfAa17JasxZFn09F15ZF1xGr95Zr12
+	yry2yr48ua4qqaDanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUU0bIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUBab7Iv0xC_Kw4lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2
+	z280aVAFwI0_Cr0_Gr1UM28EF7xvwVC2z280aVCY1x0267AKxVW8JVW8Jr1le2I262IYc4
+	CY6c8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_
+	Jr0_Jr4lYx0Ex4A2jsIE14v26r1j6r4UMcvjeVCFs4IE7xkEbVWUJVW8JwCjxxvEa2IrMx
+	kF7I0Ew4C26cxK6c8Ij28IcwCY1Ik26cxK6xAEc7vF6xCjj44lc2xSY4AK6IIF6r1lc2Ij
+	II80xcxEwVAKI48JMxvI42IY6xIIjxv20xvE14v26ryj6F1UMxvI42IY6xIIjxv20xvEc7
+	CjxVAFwI0_Gr0_Cr1lcIIF0xvEx4A2jsIE14v26r4j6F4UMxvI42IY6I8E87Iv6xkF7I0E
+	14v26r4j6r4UJwCF04k20xvY0x0EwIxGrwCF04k20xvEw4C26cxK6c8Ij28IcwCF72vE77
+	IF4wCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v26r1j6r18MI8I3I0E7480
+	Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_JF0_Jw1lIxkGc2Ij64vIr41lIxAIcVCF04
+	k26cxKx2IYs7xG6r1I6r4UYxBIdaVFxhVjvjDU0xZFpf9x07blYFZUUUUU=
+
+The patch
+
+   regulator: core: Add voltage balancing mechanism
+
+has been applied to the regulator tree at
+
+   https://git.kernel.org/pub/scm/linux/kernel/git/broonie/regulator.git 
+
+All being well this means that it will be integrated into the linux-next
+tree (usually sometime in the next 24 hours) and sent to Linus during
+the next merge window (or sooner if it is a bug fix), however if
+problems are discovered then the patch may be dropped or reverted.  
+
+You may get further e-mails resulting from automated or manual testing
+and review of the tree, please engage with people reporting problems and
+send followup patches addressing any issues that are reported if needed.
+
+If any updates are required or you are submitting further changes they
+should be sent as incremental updates against current git, existing
+patches will not be replaced.
+
+Please add any relevant lists and maintainers to the CCs when replying
+to this mail.
+
+Thanks,
+Mark
+
+From c054c6c792e165de2be51bc3feeaf3cebdedc8d6 Mon Sep 17 00:00:00 2001
+From: Maciej Purski <m.purski@samsung.com>
+Date: Fri, 5 Oct 2018 18:36:28 +0300
+Subject: [PATCH] regulator: core: Add voltage balancing mechanism
+
+On Odroid XU3/4 and other Exynos5422 based boards there is a case, that
+different devices on the board are supplied by different regulators
+with non-fixed voltages. If one of these devices temporarily requires
+higher voltage, there might occur a situation that the spread between
+two devices' voltages is so high, that there is a risk of changing
+'high' and 'low' states on the interconnection between devices powered
+by those regulators.
+
+Introduce new function regulator_balance_voltage(), which
+keeps max_spread constraint fulfilled between a group of coupled
+regulators. It should be called if a regulator changes its
+voltage or after disabling or enabling. Disabled regulators should
+follow changes of the enabled ones, but their consumers' demands
+shouldn't be taken into account while calculating voltage of other
+coupled regulators.
+
+Find voltages, which are closest to suiting all the consumers' demands,
+while fulfilling max_spread constraint, keeping the following rules:
+- if one regulator is about to rise its voltage, rise others
+  voltages in order to keep the max_spread
+- if a regulator, which has caused rising other regulators, is
+  lowered, lower other regulators if possible
+- if one regulator is about to lower its voltage, but it hasn't caused
+  rising other regulators, change its voltage so that it doesn't break the
+  max_spread
+
+Change regulators' voltages step by step, keeping max_spread constraint
+fulfilled all the time. Function regulator_get_optimal_voltage()
+should find the best possible change for the regulator, which doesn't
+break max_spread constraint. In function regulator_balance_voltage()
+optimize number of steps by finding highest voltage difference on
+each iteration.
+
+If a regulator, which is about to change its voltage, is not coupled,
+method regulator_get_optimal_voltage() should simply return the lowest
+voltage fulfilling consumers' demands.
+
+Coupling should be checked only if the system is in PM_SUSPEND_ON state.
+
+Signed-off-by: Maciej Purski <m.purski@samsung.com>
+Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
+---
+ drivers/regulator/core.c | 229 +++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 229 insertions(+)
+
+diff --git a/drivers/regulator/core.c b/drivers/regulator/core.c
+index 2c66b528aede..a2a513780fd7 100644
+--- a/drivers/regulator/core.c
++++ b/drivers/regulator/core.c
+@@ -105,6 +105,8 @@ static int _notifier_call_chain(struct regulator_dev *rdev,
+ 				  unsigned long event, void *data);
+ static int _regulator_do_set_voltage(struct regulator_dev *rdev,
+ 				     int min_uV, int max_uV);
++static int regulator_balance_voltage(struct regulator_dev *rdev,
++				     suspend_state_t state);
+ static struct regulator *create_regulator(struct regulator_dev *rdev,
+ 					  struct device *dev,
+ 					  const char *supply_name);
+@@ -3126,6 +3128,233 @@ static int regulator_set_voltage_unlocked(struct regulator *regulator,
+ 	return ret;
+ }
+ 
++static int regulator_get_optimal_voltage(struct regulator_dev *rdev,
++					 int *current_uV,
++					 int *min_uV, int *max_uV,
++					 suspend_state_t state,
++					 int n_coupled)
++{
++	struct coupling_desc *c_desc = &rdev->coupling_desc;
++	struct regulator_dev **c_rdevs = c_desc->coupled_rdevs;
++	struct regulation_constraints *constraints = rdev->constraints;
++	int max_spread = constraints->max_spread;
++	int desired_min_uV = 0, desired_max_uV = INT_MAX;
++	int max_current_uV = 0, min_current_uV = INT_MAX;
++	int highest_min_uV = 0, target_uV, possible_uV;
++	int i, ret;
++	bool done;
++
++	*current_uV = -1;
++
++	/*
++	 * If there are no coupled regulators, simply set the voltage
++	 * demanded by consumers.
++	 */
++	if (n_coupled == 1) {
++		/*
++		 * If consumers don't provide any demands, set voltage
++		 * to min_uV
++		 */
++		desired_min_uV = constraints->min_uV;
++		desired_max_uV = constraints->max_uV;
++
++		ret = regulator_check_consumers(rdev,
++						&desired_min_uV,
++						&desired_max_uV, state);
++		if (ret < 0)
++			return ret;
++
++		possible_uV = desired_min_uV;
++		done = true;
++
++		goto finish;
++	}
++
++	/* Find highest min desired voltage */
++	for (i = 0; i < n_coupled; i++) {
++		int tmp_min = 0;
++		int tmp_max = INT_MAX;
++
++		lockdep_assert_held_once(&c_rdevs[i]->mutex);
++
++		ret = regulator_check_consumers(c_rdevs[i],
++						&tmp_min,
++						&tmp_max, state);
++		if (ret < 0)
++			return ret;
++
++		ret = regulator_check_voltage(c_rdevs[i], &tmp_min, &tmp_max);
++		if (ret < 0)
++			return ret;
++
++		highest_min_uV = max(highest_min_uV, tmp_min);
++
++		if (i == 0) {
++			desired_min_uV = tmp_min;
++			desired_max_uV = tmp_max;
++		}
++	}
++
++	/*
++	 * Let target_uV be equal to the desired one if possible.
++	 * If not, set it to minimum voltage, allowed by other coupled
++	 * regulators.
++	 */
++	target_uV = max(desired_min_uV, highest_min_uV - max_spread);
++
++	/*
++	 * Find min and max voltages, which currently aren't violating
++	 * max_spread.
++	 */
++	for (i = 1; i < n_coupled; i++) {
++		int tmp_act;
++
++		if (!_regulator_is_enabled(c_rdevs[i]))
++			continue;
++
++		tmp_act = _regulator_get_voltage(c_rdevs[i]);
++		if (tmp_act < 0)
++			return tmp_act;
++
++		min_current_uV = min(tmp_act, min_current_uV);
++		max_current_uV = max(tmp_act, max_current_uV);
++	}
++
++	/* There aren't any other regulators enabled */
++	if (max_current_uV == 0) {
++		possible_uV = target_uV;
++	} else {
++		/*
++		 * Correct target voltage, so as it currently isn't
++		 * violating max_spread
++		 */
++		possible_uV = max(target_uV, max_current_uV - max_spread);
++		possible_uV = min(possible_uV, min_current_uV + max_spread);
++	}
++
++	if (possible_uV > desired_max_uV)
++		return -EINVAL;
++
++	done = (possible_uV == target_uV);
++	desired_min_uV = possible_uV;
++
++finish:
++	/* Set current_uV if wasn't done earlier in the code and if necessary */
++	if (n_coupled > 1 && *current_uV == -1) {
++
++		if (_regulator_is_enabled(rdev)) {
++			ret = _regulator_get_voltage(rdev);
++			if (ret < 0)
++				return ret;
++
++			*current_uV = ret;
++		} else {
++			*current_uV = desired_min_uV;
++		}
++	}
++
++	*min_uV = desired_min_uV;
++	*max_uV = desired_max_uV;
++
++	return done;
++}
++
++static int regulator_balance_voltage(struct regulator_dev *rdev,
++				     suspend_state_t state)
++{
++	struct regulator_dev **c_rdevs;
++	struct regulator_dev *best_rdev;
++	struct coupling_desc *c_desc = &rdev->coupling_desc;
++	int i, ret, n_coupled, best_min_uV, best_max_uV, best_c_rdev;
++	bool best_c_rdev_done, c_rdev_done[MAX_COUPLED];
++	unsigned int delta, best_delta;
++
++	c_rdevs = c_desc->coupled_rdevs;
++	n_coupled = c_desc->n_coupled;
++
++	/*
++	 * If system is in a state other than PM_SUSPEND_ON, don't check
++	 * other coupled regulators.
++	 */
++	if (state != PM_SUSPEND_ON)
++		n_coupled = 1;
++
++	if (c_desc->n_resolved < n_coupled) {
++		rdev_err(rdev, "Not all coupled regulators registered\n");
++		return -EPERM;
++	}
++
++	for (i = 0; i < n_coupled; i++)
++		c_rdev_done[i] = false;
++
++	/*
++	 * Find the best possible voltage change on each loop. Leave the loop
++	 * if there isn't any possible change.
++	 */
++	do {
++		best_c_rdev_done = false;
++		best_delta = 0;
++		best_min_uV = 0;
++		best_max_uV = 0;
++		best_c_rdev = 0;
++		best_rdev = NULL;
++
++		/*
++		 * Find highest difference between optimal voltage
++		 * and current voltage.
++		 */
++		for (i = 0; i < n_coupled; i++) {
++			/*
++			 * optimal_uV is the best voltage that can be set for
++			 * i-th regulator at the moment without violating
++			 * max_spread constraint in order to balance
++			 * the coupled voltages.
++			 */
++			int optimal_uV = 0, optimal_max_uV = 0, current_uV = 0;
++
++			if (c_rdev_done[i])
++				continue;
++
++			ret = regulator_get_optimal_voltage(c_rdevs[i],
++							    &current_uV,
++							    &optimal_uV,
++							    &optimal_max_uV,
++							    state, n_coupled);
++			if (ret < 0)
++				goto out;
++
++			delta = abs(optimal_uV - current_uV);
++
++			if (delta && best_delta <= delta) {
++				best_c_rdev_done = ret;
++				best_delta = delta;
++				best_rdev = c_rdevs[i];
++				best_min_uV = optimal_uV;
++				best_max_uV = optimal_max_uV;
++				best_c_rdev = i;
++			}
++		}
++
++		/* Nothing to change, return successfully */
++		if (!best_rdev) {
++			ret = 0;
++			goto out;
++		}
++#if 0
++		ret = regulator_set_voltage_rdev(best_rdev, best_min_uV,
++						 best_max_uV, state);
++#endif
++		if (ret < 0)
++			goto out;
++
++		c_rdev_done[best_c_rdev] = best_c_rdev_done;
++
++	} while (n_coupled > 1);
++
++out:
++	return ret;
++}
++
+ /**
+  * regulator_set_voltage - set regulator output voltage
+  * @regulator: regulator source
+-- 
+2.19.0.rc2

@@ -1,0 +1,382 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 13 Nov 2018 00:33:23 -0000
+Received: from icoremail.net (unknown [209.85.215.172])
+	by mail-app2 (Coremail) with SMTP id by_KCgDHH+brr+lb0PR+AQ--.37867S3;
+	Tue, 13 Nov 2018 00:53:00 +0800 (CST)
+Received: from mail-pg1-f172.google.com (unknown [209.85.215.172])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwAX+UTqr+lbgegyAA--.3576S3;
+	Tue, 13 Nov 2018 00:52:58 +0800 (CST)
+Received: by mail-pg1-f172.google.com with SMTP id z11so1688103pgu.0
+        for <xuliker@zju.edu.cn>; Mon, 12 Nov 2018 08:52:58 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :from:to:cc:subject:date:message-id:in-reply-to:references:sender
+         :precedence:list-id;
+        bh=1ayZFDqNYNR2STxFNHsUld6WYiDZD9XPTa3pzyGtGuM=;
+        b=kfCpQ8fx3eNOxlZR+Gol9IF0MR1H/Ym6RdXuXNEKvgZRBB1QtVut9fJvhpIXTMJwhG
+         GYcJcclaXfGgbHBm+UcCEWUqvei1SSAvkL1hJbCM8w18NJItEn6nDuL9oHE94U1gLWDx
+         ReHWZCZ6bXK1qKV1FIXt7U4S3a6mc3gaHy0ItJVhtNOGjkzZguokkP1bZMVuFTjWIX+l
+         TxOxFM7HxySYNqTRzYpM0acjAXRIb8yxh9o4JMZ5jmI0+trpD3wFra39kzIDrPssLK8j
+         GK8szUqEWyJmULxPlwAWCuJbk63tmtWLzwJEhYfbQ/H54ba041L8NpZDfbZpTKvz0dIQ
+         2WoQ==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=collabora.com
+X-Gm-Message-State: AGRZ1gLkBjHf3SC41KDk5lmiWL6zEgbdkYlmrX6vV2cj6QLnH/Bc0m9f
+	CNi1xSVZLz/45Re86c0AzG1puVK+afddBB8HMFh3W/3ZdJOqsoLlJQ==
+X-Received: by 2002:a62:d084:: with SMTP id p126-v6mr1669140pfg.147.1542041578352;
+        Mon, 12 Nov 2018 08:52:58 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp3423403pjt;
+        Mon, 12 Nov 2018 08:52:57 -0800 (PST)
+X-Google-Smtp-Source: AJdET5evtQK/YVg9NlavLq9WtzYWV9qcv5OBIU2Ky78r0FrSArrHAMSrw7V7UySPEDXbJhcnR2k8
+X-Received: by 2002:a17:902:15a8:: with SMTP id m37-v6mr1637460pla.256.1542041577468;
+        Mon, 12 Nov 2018 08:52:57 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542041577; cv=none;
+        d=google.com; s=arc-20160816;
+        b=E5mORASP0KgAP60fwEIzyELhQRl2dmz3kYl5/CwALdfKrLyDRF9IYZMGKQCgtaEVsP
+         vKgvrfu4Q/IOck059Fxw/QNJAPXT9OmDCBXVhPTnb3bdn5wajv9OBF6XBKwe0hpJe7YZ
+         lK8sWRQ1PkIY/cJfwJGgvfIG7yePEea8ChA4EE/ZEdmlNbrrP7xGySNewMXTQNPnrjFm
+         iqLRil5P5z6pxW7N3XcTj0NToKWfE5ceaG3FOg2hkA1arcoY4p6CouD/+lRi5FcOew2t
+         i6xtTN8YbS7j/r1VWuYsCjJuuE7QJuEMyw9sJvXYOAQLQNB7vjIHP99kBEW3Tjb4suKW
+         ZSsQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:references:in-reply-to:message-id:date
+         :subject:cc:to:from;
+        bh=1ayZFDqNYNR2STxFNHsUld6WYiDZD9XPTa3pzyGtGuM=;
+        b=fUL8YCk1Vnwg/wIFE7oQAYYjPPMdHnOYma9Y+lxgtslWisfhFxAG83aEWbvNa7IELa
+         22U7Z8IsIJYkpVJVWogu8w72bhrcDjA9lRCi3JIogu/nCNIPlrMD8+IGLEG980s5h6AM
+         vSq2o3bUQnwKGAkHLFGFFXgVw7uIdh29rEZsHTU6Ix+OGiBtm0+IjtzCknrvIK2gCY9Q
+         5SCz5UThXQYyQzldc8P99oLgKDnN0zXLGsiYguW7AMglTR8ki7CLUub122y9oZHc34HM
+         vawgOneE9vtshdmFDtVgwH3vz0lMT3Vgx1MA7a/dHy0hmtFN/Sy7vxWwY+QSt/EfUtlQ
+         6vdQ==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=collabora.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id z14si906868pga.349.2018.11.12.08.52.41;
+        Mon, 12 Nov 2018 08:52:57 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1730182AbeKMCqN (ORCPT <rfc822;changseok.bae@gmail.com>
+        + 99 others); Mon, 12 Nov 2018 21:46:13 -0500
+Received: from bhuna.collabora.co.uk ([46.235.227.227]:54976 "EHLO
+        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727130AbeKMCqM (ORCPT
+        <rfc822;linux-kernel@vger.kernel.org>);
+        Mon, 12 Nov 2018 21:46:12 -0500
+Received: from localhost.localdomain (unknown [IPv6:2a02:8109:92c0:207d:68ed:6b77:5dd1:d3e4])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        (Authenticated sender: robertfoss)
+        by bhuna.collabora.co.uk (Postfix) with ESMTPSA id 3617327E986;
+        Mon, 12 Nov 2018 16:52:07 +0000 (GMT)
+From: Robert Foss <robert.foss@collabora.com>
+To: airlied@linux.ie, kraxel@redhat.com,
+        dri-devel@lists.freedesktop.org,
+        virtualization@lists.linux-foundation.org,
+        linux-kernel@vger.kernel.org, Rob Herring <robh@kernel.org>,
+        Gustavo Padovan <gustavo.padovan@collabora.com>,
+        Emil Velikov <emil.velikov@collabora.com>
+Cc: Robert Foss <robert.foss@collabora.com>
+Subject: [PATCH v5 1/4] drm/virtio: add virtio_gpu_alloc_fence()
+Date: Mon, 12 Nov 2018 17:51:54 +0100
+Message-Id: <20181112165157.32765-2-robert.foss@collabora.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20181112165157.32765-1-robert.foss@collabora.com>
+References: <20181112165157.32765-1-robert.foss@collabora.com>
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwAX+UTqr+lbgegyAA--.3576S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoWxtry8AF43Xw1Uuw1kXrWUJwb_yoWDJr47pF
+	W7Cryakr98Aa17Wa95JF1UWr9xC3Z2gr1xKF9xZ345Kwn8tFy3AF1UJrWfZrW7ArZ7Jr43
+	tF18ur1UKF4DuaUanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUU0bIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUPqb7Iv0xC_Kw4lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2
+	z280aVAFwI0_Gr1j6F4UJwA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_Gr1j6F4UJwAS0I0E0x
+	vYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AK
+	xVWUGVWUXwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48Icx
+	kI7VAKI48JMx02cVCv0xWlc7CjxVAKzI0EY4vE52x082I5MxkFs20EY4vE44CYbxCE4x80
+	FwCY02Avz4vEIxC_JwCY0x0Ix7I2Y4AK64vIr41lcIIF0xvE2Ix0cI8IcVAFwI0_Xr0_Ar
+	1lcIIF0xvE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwCYIxAIcVC2z280aVAFwI0_Cr0_Gr1U
+	MxvI42IY6I8E87Iv6xkF7I0E14v26r4j6r4UJwCF04k20xvY0x0EwIxGrwCF04k20xvEw4
+	C26cxK6c8Ij28IcwCF72vE77IF4wCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E
+	14v26r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_Jw0_GFylIx
+	kGc2Ij64vIr41lIxAIcVCF04k26cxKx2IYs7xG6r1I6r4UYxBIdaVFxhVjvjDU0xZFpf9x
+	07bQlk-UUUUU=
+
+Refactor fence creation, add fences to relevant GPU
+operations and add cursor helper functions.
+
+This removes the potential for allocation failures from the
+cmd_submit and atomic_commit paths.
+Now a fence will be allocated first and only after that
+will we proceed with the rest of the execution.
+
+Signed-off-by: Gustavo Padovan <gustavo.padovan@collabora.com>
+Signed-off-by: Robert Foss <robert.foss@collabora.com>
+Suggested-by: Rob Herring <robh@kernel.org>
+---
+
+Changes since v3:
+ - Gerd: Clarified and extended commit message
+ - Emil: Fixed whitespace issue
+ - Emil: Changed label name from fail_fence to fail_backoff
+ - Emil: Remove special case for !fence->drv in virtio_gpu_fence_cleanup()
+
+ drivers/gpu/drm/virtio/virtgpu_drv.h   |  4 +++
+ drivers/gpu/drm/virtio/virtgpu_fence.c | 29 ++++++++++++----
+ drivers/gpu/drm/virtio/virtgpu_ioctl.c | 30 +++++++++++++++--
+ drivers/gpu/drm/virtio/virtgpu_plane.c | 46 +++++++++++++++++++++++---
+ drivers/gpu/drm/virtio/virtgpu_vq.c    |  2 +-
+ 5 files changed, 96 insertions(+), 15 deletions(-)
+
+diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
+index 6474e83cbf3d..acd130c58e33 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_drv.h
++++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
+@@ -131,6 +131,7 @@ struct virtio_gpu_framebuffer {
+ 	int x1, y1, x2, y2; /* dirty rect */
+ 	spinlock_t dirty_lock;
+ 	uint32_t hw_res_handle;
++	struct virtio_gpu_fence *fence;
+ };
+ #define to_virtio_gpu_framebuffer(x) \
+ 	container_of(x, struct virtio_gpu_framebuffer, base)
+@@ -349,6 +350,9 @@ void virtio_gpu_ttm_fini(struct virtio_gpu_device *vgdev);
+ int virtio_gpu_mmap(struct file *filp, struct vm_area_struct *vma);
+ 
+ /* virtio_gpu_fence.c */
++struct virtio_gpu_fence *virtio_gpu_fence_alloc(
++	struct virtio_gpu_device *vgdev);
++void virtio_gpu_fence_cleanup(struct virtio_gpu_fence *fence);
+ int virtio_gpu_fence_emit(struct virtio_gpu_device *vgdev,
+ 			  struct virtio_gpu_ctrl_hdr *cmd_hdr,
+ 			  struct virtio_gpu_fence **fence);
+diff --git a/drivers/gpu/drm/virtio/virtgpu_fence.c b/drivers/gpu/drm/virtio/virtgpu_fence.c
+index 00c742a441bf..6b5d92215cfb 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_fence.c
++++ b/drivers/gpu/drm/virtio/virtgpu_fence.c
+@@ -67,6 +67,28 @@ static const struct dma_fence_ops virtio_fence_ops = {
+ 	.timeline_value_str  = virtio_timeline_value_str,
+ };
+ 
++struct virtio_gpu_fence *virtio_gpu_fence_alloc(struct virtio_gpu_device *vgdev)
++{
++	struct virtio_gpu_fence_driver *drv = &vgdev->fence_drv;
++	struct virtio_gpu_fence *fence = kzalloc(sizeof(struct virtio_gpu_fence),
++							GFP_ATOMIC);
++	if (!fence)
++		return fence;
++
++	fence->drv = drv;
++	dma_fence_init(&fence->f, &virtio_fence_ops, &drv->lock, drv->context, 0);
++
++	return fence;
++}
++
++void virtio_gpu_fence_cleanup(struct virtio_gpu_fence *fence)
++{
++	if (!fence)
++		return;
++
++	dma_fence_put(&fence->f);
++}
++
+ int virtio_gpu_fence_emit(struct virtio_gpu_device *vgdev,
+ 			  struct virtio_gpu_ctrl_hdr *cmd_hdr,
+ 			  struct virtio_gpu_fence **fence)
+@@ -74,15 +96,8 @@ int virtio_gpu_fence_emit(struct virtio_gpu_device *vgdev,
+ 	struct virtio_gpu_fence_driver *drv = &vgdev->fence_drv;
+ 	unsigned long irq_flags;
+ 
+-	*fence = kmalloc(sizeof(struct virtio_gpu_fence), GFP_ATOMIC);
+-	if ((*fence) == NULL)
+-		return -ENOMEM;
+-
+ 	spin_lock_irqsave(&drv->lock, irq_flags);
+-	(*fence)->drv = drv;
+ 	(*fence)->seq = ++drv->sync_seq;
+-	dma_fence_init(&(*fence)->f, &virtio_fence_ops, &drv->lock,
+-		       drv->context, (*fence)->seq);
+ 	dma_fence_get(&(*fence)->f);
+ 	list_add_tail(&(*fence)->node, &drv->fences);
+ 	spin_unlock_irqrestore(&drv->lock, irq_flags);
+diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+index bc5afa4f906e..d69fc356df0a 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
++++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+@@ -168,6 +168,13 @@ static int virtio_gpu_execbuffer_ioctl(struct drm_device *dev, void *data,
+ 		ret = PTR_ERR(buf);
+ 		goto out_unresv;
+ 	}
++
++	fence = virtio_gpu_fence_alloc(vgdev);
++	if (!fence) {
++		kfree(buf);
++		ret = -ENOMEM;
++		goto out_unresv;
++	}
+ 	virtio_gpu_cmd_submit(vgdev, buf, exbuf->size,
+ 			      vfpriv->ctx_id, &fence);
+ 
+@@ -283,11 +290,17 @@ static int virtio_gpu_resource_create_ioctl(struct drm_device *dev, void *data,
+ 		rc_3d.nr_samples = cpu_to_le32(rc->nr_samples);
+ 		rc_3d.flags = cpu_to_le32(rc->flags);
+ 
++		fence = virtio_gpu_fence_alloc(vgdev);
++		if (!fence) {
++			ret = -ENOMEM;
++			goto fail_backoff;
++		}
++
+ 		virtio_gpu_cmd_resource_create_3d(vgdev, qobj, &rc_3d, NULL);
+ 		ret = virtio_gpu_object_attach(vgdev, qobj, &fence);
+ 		if (ret) {
+-			ttm_eu_backoff_reservation(&ticket, &validate_list);
+-			goto fail_unref;
++			virtio_gpu_fence_cleanup(fence);
++			goto fail_backoff;
+ 		}
+ 		ttm_eu_fence_buffer_objects(&ticket, &validate_list, &fence->f);
+ 	}
+@@ -312,6 +325,8 @@ static int virtio_gpu_resource_create_ioctl(struct drm_device *dev, void *data,
+ 		dma_fence_put(&fence->f);
+ 	}
+ 	return 0;
++fail_backoff:
++	ttm_eu_backoff_reservation(&ticket, &validate_list);
+ fail_unref:
+ 	if (vgdev->has_virgl_3d) {
+ 		virtio_gpu_unref_list(&validate_list);
+@@ -374,6 +389,12 @@ static int virtio_gpu_transfer_from_host_ioctl(struct drm_device *dev,
+ 		goto out_unres;
+ 
+ 	convert_to_hw_box(&box, &args->box);
++
++	fence = virtio_gpu_fence_alloc(vgdev);
++	if (!fence) {
++		ret = -ENOMEM;
++		goto out_unres;
++	}
+ 	virtio_gpu_cmd_transfer_from_host_3d
+ 		(vgdev, qobj->hw_res_handle,
+ 		 vfpriv->ctx_id, offset, args->level,
+@@ -423,6 +444,11 @@ static int virtio_gpu_transfer_to_host_ioctl(struct drm_device *dev, void *data,
+ 			(vgdev, qobj, offset,
+ 			 box.w, box.h, box.x, box.y, NULL);
+ 	} else {
++		fence = virtio_gpu_fence_alloc(vgdev);
++		if (!fence) {
++			ret = -ENOMEM;
++			goto out_unres;
++		}
+ 		virtio_gpu_cmd_transfer_to_host_3d
+ 			(vgdev, qobj,
+ 			 vfpriv ? vfpriv->ctx_id : 0, offset,
+diff --git a/drivers/gpu/drm/virtio/virtgpu_plane.c b/drivers/gpu/drm/virtio/virtgpu_plane.c
+index a9f4ae7d4483..b84ac8c25856 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_plane.c
++++ b/drivers/gpu/drm/virtio/virtgpu_plane.c
+@@ -137,6 +137,41 @@ static void virtio_gpu_primary_plane_update(struct drm_plane *plane,
+ 				      plane->state->src_h >> 16);
+ }
+ 
++static int virtio_gpu_cursor_prepare_fb(struct drm_plane *plane,
++					struct drm_plane_state *new_state)
++{
++	struct drm_device *dev = plane->dev;
++	struct virtio_gpu_device *vgdev = dev->dev_private;
++	struct virtio_gpu_framebuffer *vgfb;
++	struct virtio_gpu_object *bo;
++
++	if (!new_state->fb)
++		return 0;
++
++	vgfb = to_virtio_gpu_framebuffer(new_state->fb);
++	bo = gem_to_virtio_gpu_obj(vgfb->base.obj[0]);
++	if (bo && bo->dumb && (plane->state->fb != new_state->fb)) {
++		vgfb->fence = virtio_gpu_fence_alloc(vgdev);
++		if (!vgfb->fence)
++			return -ENOMEM;
++	}
++
++	return 0;
++}
++
++static void virtio_gpu_cursor_cleanup_fb(struct drm_plane *plane,
++					 struct drm_plane_state *old_state)
++{
++	struct virtio_gpu_framebuffer *vgfb;
++
++	if (!plane->state->fb)
++		return;
++
++	vgfb = to_virtio_gpu_framebuffer(plane->state->fb);
++	if (vgfb->fence)
++		virtio_gpu_fence_cleanup(vgfb->fence);
++}
++
+ static void virtio_gpu_cursor_plane_update(struct drm_plane *plane,
+ 					   struct drm_plane_state *old_state)
+ {
+@@ -144,7 +179,6 @@ static void virtio_gpu_cursor_plane_update(struct drm_plane *plane,
+ 	struct virtio_gpu_device *vgdev = dev->dev_private;
+ 	struct virtio_gpu_output *output = NULL;
+ 	struct virtio_gpu_framebuffer *vgfb;
+-	struct virtio_gpu_fence *fence = NULL;
+ 	struct virtio_gpu_object *bo = NULL;
+ 	uint32_t handle;
+ 	int ret = 0;
+@@ -170,13 +204,13 @@ static void virtio_gpu_cursor_plane_update(struct drm_plane *plane,
+ 			(vgdev, bo, 0,
+ 			 cpu_to_le32(plane->state->crtc_w),
+ 			 cpu_to_le32(plane->state->crtc_h),
+-			 0, 0, &fence);
++			 0, 0, &vgfb->fence);
+ 		ret = virtio_gpu_object_reserve(bo, false);
+ 		if (!ret) {
+ 			reservation_object_add_excl_fence(bo->tbo.resv,
+-							  &fence->f);
+-			dma_fence_put(&fence->f);
+-			fence = NULL;
++							  &vgfb->fence->f);
++			dma_fence_put(&vgfb->fence->f);
++			vgfb->fence = NULL;
+ 			virtio_gpu_object_unreserve(bo);
+ 			virtio_gpu_object_wait(bo, false);
+ 		}
+@@ -218,6 +252,8 @@ static const struct drm_plane_helper_funcs virtio_gpu_primary_helper_funcs = {
+ };
+ 
+ static const struct drm_plane_helper_funcs virtio_gpu_cursor_helper_funcs = {
++	.prepare_fb		= virtio_gpu_cursor_prepare_fb,
++	.cleanup_fb		= virtio_gpu_cursor_cleanup_fb,
+ 	.atomic_check		= virtio_gpu_plane_atomic_check,
+ 	.atomic_update		= virtio_gpu_cursor_plane_update,
+ };
+diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
+index 51bef1775e47..93f2c3a51ee8 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_vq.c
++++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
+@@ -896,9 +896,9 @@ void virtio_gpu_object_detach(struct virtio_gpu_device *vgdev,
+ 			      struct virtio_gpu_object *obj)
+ {
+ 	bool use_dma_api = !virtio_has_iommu_quirk(vgdev->vdev);
+-	struct virtio_gpu_fence *fence;
+ 
+ 	if (use_dma_api && obj->mapped) {
++		struct virtio_gpu_fence *fence = virtio_gpu_fence_alloc(vgdev);
+ 		/* detach backing and wait for the host process it ... */
+ 		virtio_gpu_cmd_resource_inval_backing(vgdev, obj->hw_res_handle, &fence);
+ 		dma_fence_wait(&fence->f, true);
+-- 
+2.17.1

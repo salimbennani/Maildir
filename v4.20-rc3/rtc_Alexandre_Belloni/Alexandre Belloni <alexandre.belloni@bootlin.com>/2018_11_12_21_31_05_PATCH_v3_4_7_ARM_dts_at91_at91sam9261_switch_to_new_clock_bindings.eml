@@ -1,0 +1,562 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (61.164.42.155:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 12 Nov 2018 15:16:20 -0000
+Received: from icoremail.net (unknown [209.85.210.172])
+	by mail-app2 (Coremail) with SMTP id by_KCgD3_ycbgelb1tl9AQ--.38213S3;
+	Mon, 12 Nov 2018 21:33:16 +0800 (CST)
+Received: from mail-pf1-f172.google.com (unknown [209.85.210.172])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwCHaUUTgelbLPgxAA--.2682S3;
+	Mon, 12 Nov 2018 21:33:08 +0800 (CST)
+Received: by mail-pf1-f172.google.com with SMTP id v68-v6so4358923pfk.0
+        for <xuliker@zju.edu.cn>; Mon, 12 Nov 2018 05:33:08 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding:sender:precedence:list-id;
+        bh=DwqR7bYZS7uzzs4RYtNITNEwdEZwz+IWmvkLQOgKhWk=;
+        b=XGkCR3J/v2IiRhTkFKAak3IcGkIQo1yIEsg/Q3NRu/m2Q7GILN5C5WE6EeKBo9/MH/
+         IQws1BpvNoJWKACnErIjKw1B73vrEnkp7epV1xu/iHdE+dG8Z0a/28SH+YhGxh32JXUu
+         p45ouFpgNeEe2+ZggzAqpQK59tD7S2qjGkjSsKQJtISfdQNMlIC4U3f7NRZDjnyIY5Re
+         A6e4Z6XDNcu+TbcshHJBSimhpQs6k+TBniO2DQs78Wy9QdVZZADTFg8V6jshmv18FOpG
+         I9dQsw1AZl3uS/NdJErDeQxWwIvwdbJCYSOA3lSNIBJjAChJDx2VMStCUol/HQiqF3oZ
+         AX0Q==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org
+X-Gm-Message-State: AGRZ1gK1qWyJT90Vo9TuAjNZjhYgWdFSisB1pgtj8AnZi6GqDpPREQSB
+	GnDZOQV1VjSK9IGzLUZMrhIX70W8pV0aIG19rSyUHGNWm2eHPAOJ1A==
+X-Received: by 2002:a63:460a:: with SMTP id t10-v6mr847342pga.197.1542029587638;
+        Mon, 12 Nov 2018 05:33:07 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp3192521pjt;
+        Mon, 12 Nov 2018 05:33:06 -0800 (PST)
+X-Google-Smtp-Source: AJdET5fIcDyZUxqY5Qq4Jh7DfQED6I9VSv/m1LYQwaIDGB43wYFDx/k6amQv/Wehfm+eq0aKJ4FW
+X-Received: by 2002:a63:ed42:: with SMTP id m2mr847702pgk.147.1542029586316;
+        Mon, 12 Nov 2018 05:33:06 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542029586; cv=none;
+        d=google.com; s=arc-20160816;
+        b=xUzyiUjASoPnE1VYBevkJq/mcgB3sRy3R7dS6r9p7EwREDnovZYoTu9rCFO86o3dwJ
+         9rfPfjDO/8ess5eTzAK3/rx19k89HSuF4eYOkGdpaMSWZ9aSMIe3dKsEQ+1VFPJ7FSja
+         9iYMgppuZWkIek78l6SziS3kJbnYbvPmzUwrSM0x1kMAebJ1xwNQbFzSxms/0GIwMSp9
+         08sdAZecaB0IhQyWJK5ViOYm5uWieYmQp+m4d+6WdsTGnq0UCkApd9KFsqzXD/jVdBzs
+         Ntk/JobxCqtUiK0Hzv15UY7rtMdVqci6XS48BBlJs5cxkg1KLl/f33wX5r1YvPc423rw
+         yw+Q==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:content-transfer-encoding:mime-version
+         :references:in-reply-to:message-id:date:subject:cc:to:from;
+        bh=DwqR7bYZS7uzzs4RYtNITNEwdEZwz+IWmvkLQOgKhWk=;
+        b=wGujD1oIJppDXGziC9q7z+SMOYVHs+LQf4kJjijv7Ko7wa1KlCDNMS/nCymYq7cEaj
+         0SZ2cl9ciYV/gzvw2sU7H+TEN5xRla5FMtWLhkVZYnd6ySyHCElh+CxzSiIR5oaQirXD
+         6ennbvzoNiBTnfl6YPgCl80CUisltO1/XR/wc7zoseVczdIDwdG0yplMoUd6aDAxFtqZ
+         7jw2xTxRNzXSattLgy5cmgx/VADiOqJxIweDi3O/a+yvwvXvwmUceuezKCwdvjerPAlm
+         ZZiozsRUfeoW2oJ7bBoo1Nnlnlyno8VIt7yFFwoLulBUJjVwzFFyHxrya0tdUDlDDDG2
+         9vGg==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id b11-v6si18468773plk.406.2018.11.12.05.32.51;
+        Mon, 12 Nov 2018 05:33:06 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1729883AbeKLXZH (ORCPT <rfc822;tomnomnom1@gmail.com>
+        + 99 others); Mon, 12 Nov 2018 18:25:07 -0500
+Received: from mail.bootlin.com ([62.4.15.54]:47645 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729351AbeKLXYb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+        Mon, 12 Nov 2018 18:24:31 -0500
+Received: by mail.bootlin.com (Postfix, from userid 110)
+        id 39D1E2217E; Mon, 12 Nov 2018 14:31:11 +0100 (CET)
+X-Spam-Checker-Version: SpamAssassin 3.4.2 (2018-09-13) on mail.bootlin.com
+X-Spam-Level: 
+X-Spam-Status: No, score=-1.0 required=5.0 tests=ALL_TRUSTED,SHORTCIRCUIT,
+        URIBL_BLOCKED shortcircuit=ham autolearn=disabled version=3.4.2
+Received: from localhost (unknown [37.71.171.242])
+        by mail.bootlin.com (Postfix) with ESMTPSA id 0623D20717;
+        Mon, 12 Nov 2018 14:31:11 +0100 (CET)
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: Nicolas Ferre <nicolas.ferre@microchip.com>
+Cc: Ludovic Desroches <ludovic.desroches@microchip.com>,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH v3 4/7] ARM: dts: at91: at91sam9261: switch to new clock bindings
+Date: Mon, 12 Nov 2018 14:31:05 +0100
+Message-Id: <20181112133108.31021-5-alexandre.belloni@bootlin.com>
+X-Mailer: git-send-email 2.19.1
+In-Reply-To: <20181112133108.31021-1-alexandre.belloni@bootlin.com>
+References: <20181112133108.31021-1-alexandre.belloni@bootlin.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwCHaUUTgelbLPgxAA--.2682S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoWxKF1UGw18Gw4rAry8JF1DWrg_yoWDGr4UpF
+	13C393Xrs2vr409a15KryUKr97u3s5CF95CwnIkFy8JF15KFy0yF1xCryxA34UtF17Cwnr
+	XFsxAr1xtw1DCaUanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUPFb7Iv0xC_tr1lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1l84ACjcxK6I8E
+	87Iv67AKxVW0oVCq3wA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_GcCE3s1le2I262IYc4CY6c
+	8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_JrI_
+	JrylYx0Ex4A2jsIE14v26F4j6r4UJwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IYc2Ij64
+	vIr41l7I0Y6sxI4wCY1x0264kExVAvwVAq07x20xylc7Ca8VAvwVCFzxkY4VCF77xAMxkI
+	ecxEwVCI4VW5GwCY0x0Ix7I2Y4AK64vIr41lcIIF0xvE2Ix0cI8IcVAFwI0_Gr0_Xr1lcI
+	IF0xvE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwCYIxAIcVC2z280aVAFwI0_GcCE3s1lcIIF
+	0xvEx4A2jsIEc7CjxVAFwI0_GcCE3s1l42xK82IYc2Ij64vIr41l42xK82IY64kExVAvwV
+	Aq07x20xyl4x8a6x804xWl4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWU
+	JVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r126r1DMIIYrxkI7V
+	AKI48JMIIF0xvE42xK8VAvwI8IcIk0rVWUCVW8JbIYCTnIWIevJa73UjIFyTuYvjxU6ZqX
+	UUUUU
+
+Switch at91sam9261 boards to the new PMC clock bindings.
+
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+---
+ arch/arm/boot/dts/at91sam9261.dtsi | 287 +++--------------------------
+ 1 file changed, 23 insertions(+), 264 deletions(-)
+
+diff --git a/arch/arm/boot/dts/at91sam9261.dtsi b/arch/arm/boot/dts/at91sam9261.dtsi
+index 33f09d5ea020..01d700b63b45 100644
+--- a/arch/arm/boot/dts/at91sam9261.dtsi
++++ b/arch/arm/boot/dts/at91sam9261.dtsi
+@@ -75,7 +75,7 @@
+ 			compatible = "atmel,at91rm9200-ohci", "usb-ohci";
+ 			reg = <0x00500000 0x100000>;
+ 			interrupts = <20 IRQ_TYPE_LEVEL_HIGH 2>;
+-			clocks = <&ohci_clk>, <&hclk0>, <&uhpck>;
++			clocks = <&pmc PMC_TYPE_PERIPHERAL 20>, <&pmc PMC_TYPE_SYSTEM 16>, <&pmc PMC_TYPE_SYSTEM 6>;
+ 			clock-names = "ohci_clk", "hclk", "uhpck";
+ 			status = "disabled";
+ 		};
+@@ -86,7 +86,7 @@
+ 			interrupts = <21 IRQ_TYPE_LEVEL_HIGH 3>;
+ 			pinctrl-names = "default";
+ 			pinctrl-0 = <&pinctrl_fb>;
+-			clocks = <&lcd_clk>, <&hclk1>;
++			clocks = <&pmc PMC_TYPE_PERIPHERAL 21>, <&pmc PMC_TYPE_SYSTEM 17>;
+ 			clock-names = "lcdc_clk", "hclk";
+ 			status = "disabled";
+ 		};
+@@ -106,7 +106,7 @@
+ 				  0x5 0x0 0x60000000 0x10000000
+ 				  0x6 0x0 0x70000000 0x10000000
+ 				  0x7 0x0 0x80000000 0x10000000>;
+-			clocks = <&mck>;
++			clocks = <&pmc PMC_TYPE_CORE PMC_MCK>;
+ 			status = "disabled";
+ 
+ 			nand_controller: nand-controller {
+@@ -132,7 +132,7 @@
+ 				interrupts = <17 IRQ_TYPE_LEVEL_HIGH 0>,
+ 					     <18 IRQ_TYPE_LEVEL_HIGH 0>,
+ 					     <19 IRQ_TYPE_LEVEL_HIGH 0>;
+-				clocks = <&tc0_clk>, <&tc1_clk>, <&tc2_clk>, <&slow_xtal>;
++				clocks = <&pmc PMC_TYPE_PERIPHERAL 17>, <&pmc PMC_TYPE_PERIPHERAL 18>, <&pmc PMC_TYPE_PERIPHERAL 19>, <&slow_xtal>;
+ 				clock-names = "t0_clk", "t1_clk", "t2_clk", "slow_clk";
+ 			};
+ 
+@@ -140,7 +140,7 @@
+ 				compatible = "atmel,at91sam9261-udc";
+ 				reg = <0xfffa4000 0x4000>;
+ 				interrupts = <10 IRQ_TYPE_LEVEL_HIGH 2>;
+-				clocks = <&udc_clk>, <&udpck>;
++				clocks = <&pmc PMC_TYPE_PERIPHERAL 10>, <&pmc PMC_TYPE_SYSTEM 7>;
+ 				clock-names = "pclk", "hclk";
+ 				atmel,matrix = <&matrix>;
+ 				status = "disabled";
+@@ -154,7 +154,7 @@
+ 				pinctrl-0 = <&pinctrl_mmc0_clk>, <&pinctrl_mmc0_slot0_cmd_dat0>, <&pinctrl_mmc0_slot0_dat1_3>;
+ 				#address-cells = <1>;
+ 				#size-cells = <0>;
+-				clocks = <&mci0_clk>;
++				clocks = <&pmc PMC_TYPE_PERIPHERAL 9>;
+ 				clock-names = "mci_clk";
+ 				status = "disabled";
+ 			};
+@@ -167,7 +167,7 @@
+ 				interrupts = <11 IRQ_TYPE_LEVEL_HIGH 6>;
+ 				#address-cells = <1>;
+ 				#size-cells = <0>;
+-				clocks = <&twi0_clk>;
++				clocks = <&pmc PMC_TYPE_PERIPHERAL 11>;
+ 				status = "disabled";
+ 			};
+ 
+@@ -179,7 +179,7 @@
+ 				atmel,use-dma-tx;
+ 				pinctrl-names = "default";
+ 				pinctrl-0 = <&pinctrl_usart0>;
+-				clocks = <&usart0_clk>;
++				clocks = <&pmc PMC_TYPE_PERIPHERAL 6>;
+ 				clock-names = "usart";
+ 				status = "disabled";
+ 			};
+@@ -192,7 +192,7 @@
+ 				atmel,use-dma-tx;
+ 				pinctrl-names = "default";
+ 				pinctrl-0 = <&pinctrl_usart1>;
+-				clocks = <&usart1_clk>;
++				clocks = <&pmc PMC_TYPE_PERIPHERAL 7>;
+ 				clock-names = "usart";
+ 				status = "disabled";
+ 			};
+@@ -205,7 +205,7 @@
+ 				atmel,use-dma-tx;
+ 				pinctrl-names = "default";
+ 				pinctrl-0 = <&pinctrl_usart2>;
+-				clocks = <&usart2_clk>;
++				clocks = <&pmc PMC_TYPE_PERIPHERAL 8>;
+ 				clock-names = "usart";
+ 				status = "disabled";
+ 			};
+@@ -216,7 +216,7 @@
+ 				interrupts = <14 IRQ_TYPE_LEVEL_HIGH 5>;
+ 				pinctrl-names = "default";
+ 				pinctrl-0 = <&pinctrl_ssc0_tx &pinctrl_ssc0_rx>;
+-				clocks = <&ssc0_clk>;
++				clocks = <&pmc PMC_TYPE_PERIPHERAL 14>;
+ 				clock-names = "pclk";
+ 				status = "disabled";
+ 			};
+@@ -227,7 +227,7 @@
+ 				interrupts = <15 IRQ_TYPE_LEVEL_HIGH 5>;
+ 				pinctrl-names = "default";
+ 				pinctrl-0 = <&pinctrl_ssc1_tx &pinctrl_ssc1_rx>;
+-				clocks = <&ssc1_clk>;
++				clocks = <&pmc PMC_TYPE_PERIPHERAL 15>;
+ 				clock-names = "pclk";
+ 				status = "disabled";
+ 			};
+@@ -238,7 +238,7 @@
+ 				interrupts = <16 IRQ_TYPE_LEVEL_HIGH 5>;
+ 				pinctrl-names = "default";
+ 				pinctrl-0 = <&pinctrl_ssc2_tx &pinctrl_ssc2_rx>;
+-				clocks = <&ssc2_clk>;
++				clocks = <&pmc PMC_TYPE_PERIPHERAL 16>;
+ 				clock-names = "pclk";
+ 				status = "disabled";
+ 			};
+@@ -252,7 +252,7 @@
+ 				interrupts = <12 IRQ_TYPE_LEVEL_HIGH 3>;
+ 				pinctrl-names = "default";
+ 				pinctrl-0 = <&pinctrl_spi0>;
+-				clocks = <&spi0_clk>;
++				clocks = <&pmc PMC_TYPE_PERIPHERAL 12>;
+ 				clock-names = "spi_clk";
+ 				status = "disabled";
+ 			};
+@@ -265,7 +265,7 @@
+ 				interrupts = <13 IRQ_TYPE_LEVEL_HIGH 3>;
+ 				pinctrl-names = "default";
+ 				pinctrl-0 = <&pinctrl_spi1>;
+-				clocks = <&spi1_clk>;
++				clocks = <&pmc PMC_TYPE_PERIPHERAL 13>;
+ 				clock-names = "spi_clk";
+ 				status = "disabled";
+ 			};
+@@ -299,7 +299,7 @@
+ 				interrupts = <1 IRQ_TYPE_LEVEL_HIGH 7>;
+ 				pinctrl-names = "default";
+ 				pinctrl-0 = <&pinctrl_dbgu>;
+-				clocks = <&mck>;
++				clocks = <&pmc PMC_TYPE_CORE PMC_MCK>;
+ 				clock-names = "usart";
+ 				status = "disabled";
+ 			};
+@@ -563,7 +563,7 @@
+ 					gpio-controller;
+ 					interrupt-controller;
+ 					#interrupt-cells = <2>;
+-					clocks = <&pioA_clk>;
++					clocks = <&pmc PMC_TYPE_PERIPHERAL 2>;
+ 				};
+ 
+ 				pioB: gpio@fffff600 {
+@@ -574,7 +574,7 @@
+ 					gpio-controller;
+ 					interrupt-controller;
+ 					#interrupt-cells = <2>;
+-					clocks = <&pioB_clk>;
++					clocks = <&pmc PMC_TYPE_PERIPHERAL 3>;
+ 				};
+ 
+ 				pioC: gpio@fffff800 {
+@@ -585,7 +585,7 @@
+ 					gpio-controller;
+ 					interrupt-controller;
+ 					#interrupt-cells = <2>;
+-					clocks = <&pioC_clk>;
++					clocks = <&pmc PMC_TYPE_PERIPHERAL 4>;
+ 				};
+ 			};
+ 
+@@ -593,250 +593,9 @@
+ 				compatible = "atmel,at91sam9261-pmc", "syscon";
+ 				reg = <0xfffffc00 0x100>;
+ 				interrupts = <1 IRQ_TYPE_LEVEL_HIGH 7>;
+-				interrupt-controller;
+-				#address-cells = <1>;
+-				#size-cells = <0>;
+-				#interrupt-cells = <1>;
+-
+-				main_osc: main_osc {
+-					compatible = "atmel,at91rm9200-clk-main-osc";
+-					#clock-cells = <0>;
+-					interrupts-extended = <&pmc AT91_PMC_MOSCS>;
+-					clocks = <&main_xtal>;
+-				};
+-
+-				main: mainck {
+-					compatible = "atmel,at91rm9200-clk-main";
+-					#clock-cells = <0>;
+-					clocks = <&main_osc>;
+-				};
+-
+-				plla: pllack {
+-					compatible = "atmel,at91rm9200-clk-pll";
+-					#clock-cells = <0>;
+-					interrupts-extended = <&pmc AT91_PMC_LOCKA>;
+-					clocks = <&main>;
+-					reg = <0>;
+-					atmel,clk-input-range = <1000000 32000000>;
+-					#atmel,pll-clk-output-range-cells = <4>;
+-					atmel,pll-clk-output-ranges = <80000000 200000000 0 1>,
+-								<190000000 240000000 2 1>;
+-				};
+-
+-				pllb: pllbck {
+-					compatible = "atmel,at91rm9200-clk-pll";
+-					#clock-cells = <0>;
+-					interrupts-extended = <&pmc AT91_PMC_LOCKB>;
+-					clocks = <&main>;
+-					reg = <1>;
+-					atmel,clk-input-range = <1000000 5000000>;
+-					#atmel,pll-clk-output-range-cells = <4>;
+-					atmel,pll-clk-output-ranges = <70000000 130000000 1 1>;
+-				};
+-
+-				mck: masterck {
+-					compatible = "atmel,at91rm9200-clk-master";
+-					#clock-cells = <0>;
+-					interrupts-extended = <&pmc AT91_PMC_MCKRDY>;
+-					clocks = <&slow_xtal>, <&main>, <&plla>, <&pllb>;
+-					atmel,clk-output-range = <0 94000000>;
+-					atmel,clk-divisors = <1 2 4 0>;
+-				};
+-
+-				usb: usbck {
+-					compatible = "atmel,at91rm9200-clk-usb";
+-					#clock-cells = <0>;
+-					atmel,clk-divisors = <1 2 4 0>;
+-					clocks = <&pllb>;
+-				};
+-
+-				prog: progck {
+-					compatible = "atmel,at91rm9200-clk-programmable";
+-					#address-cells = <1>;
+-					#size-cells = <0>;
+-					interrupt-parent = <&pmc>;
+-					clocks = <&slow_xtal>, <&main>, <&plla>, <&pllb>;
+-
+-					prog0: prog0 {
+-						#clock-cells = <0>;
+-						reg = <0>;
+-						interrupts = <AT91_PMC_PCKRDY(0)>;
+-					};
+-
+-					prog1: prog1 {
+-						#clock-cells = <0>;
+-						reg = <1>;
+-						interrupts = <AT91_PMC_PCKRDY(1)>;
+-					};
+-
+-					prog2: prog2 {
+-						#clock-cells = <0>;
+-						reg = <2>;
+-						interrupts = <AT91_PMC_PCKRDY(2)>;
+-					};
+-
+-					prog3: prog3 {
+-						#clock-cells = <0>;
+-						reg = <3>;
+-						interrupts = <AT91_PMC_PCKRDY(3)>;
+-					};
+-				};
+-
+-				systemck {
+-					compatible = "atmel,at91rm9200-clk-system";
+-					#address-cells = <1>;
+-					#size-cells = <0>;
+-
+-					uhpck: uhpck {
+-						#clock-cells = <0>;
+-						reg = <6>;
+-						clocks = <&usb>;
+-					};
+-
+-					udpck: udpck {
+-						#clock-cells = <0>;
+-						reg = <7>;
+-						clocks = <&usb>;
+-					};
+-
+-					pck0: pck0 {
+-						#clock-cells = <0>;
+-						reg = <8>;
+-						clocks = <&prog0>;
+-					};
+-
+-					pck1: pck1 {
+-						#clock-cells = <0>;
+-						reg = <9>;
+-						clocks = <&prog1>;
+-					};
+-
+-					pck2: pck2 {
+-						#clock-cells = <0>;
+-						reg = <10>;
+-						clocks = <&prog2>;
+-					};
+-
+-					pck3: pck3 {
+-						#clock-cells = <0>;
+-						reg = <11>;
+-						clocks = <&prog3>;
+-					};
+-
+-					hclk0: hclk0 {
+-						#clock-cells = <0>;
+-						reg = <16>;
+-						clocks = <&mck>;
+-					};
+-
+-					hclk1: hclk1 {
+-						#clock-cells = <0>;
+-						reg = <17>;
+-						clocks = <&mck>;
+-					};
+-				};
+-
+-				periphck {
+-					compatible = "atmel,at91rm9200-clk-peripheral";
+-					#address-cells = <1>;
+-					#size-cells = <0>;
+-					clocks = <&mck>;
+-
+-					pioA_clk: pioA_clk {
+-						#clock-cells = <0>;
+-						reg = <2>;
+-					};
+-
+-					pioB_clk: pioB_clk {
+-						#clock-cells = <0>;
+-						reg = <3>;
+-					};
+-
+-					pioC_clk: pioC_clk {
+-						#clock-cells = <0>;
+-						reg = <4>;
+-					};
+-
+-					usart0_clk: usart0_clk {
+-						#clock-cells = <0>;
+-						reg = <6>;
+-					};
+-
+-					usart1_clk: usart1_clk {
+-						#clock-cells = <0>;
+-						reg = <7>;
+-					};
+-
+-					usart2_clk: usart2_clk {
+-						#clock-cells = <0>;
+-						reg = <8>;
+-					};
+-
+-					mci0_clk: mci0_clk {
+-						#clock-cells = <0>;
+-						reg = <9>;
+-					};
+-
+-					udc_clk: udc_clk {
+-						#clock-cells = <0>;
+-						reg = <10>;
+-					};
+-
+-					twi0_clk: twi0_clk {
+-						reg = <11>;
+-						#clock-cells = <0>;
+-					};
+-
+-					spi0_clk: spi0_clk {
+-						#clock-cells = <0>;
+-						reg = <12>;
+-					};
+-
+-					spi1_clk: spi1_clk {
+-						#clock-cells = <0>;
+-						reg = <13>;
+-					};
+-
+-					ssc0_clk: ssc0_clk {
+-						#clock-cells = <0>;
+-						reg = <14>;
+-					};
+-
+-					ssc1_clk: ssc1_clk {
+-						#clock-cells = <0>;
+-						reg = <15>;
+-					};
+-
+-					ssc2_clk: ssc2_clk {
+-						#clock-cells = <0>;
+-						reg = <16>;
+-					};
+-
+-					tc0_clk: tc0_clk {
+-						#clock-cells = <0>;
+-						reg = <17>;
+-					};
+-
+-					tc1_clk: tc1_clk {
+-						#clock-cells = <0>;
+-						reg = <18>;
+-					};
+-
+-					tc2_clk: tc2_clk {
+-						#clock-cells = <0>;
+-						reg = <19>;
+-					};
+-
+-					ohci_clk: ohci_clk {
+-						#clock-cells = <0>;
+-						reg = <20>;
+-					};
+-
+-					lcd_clk: lcd_clk {
+-						#clock-cells = <0>;
+-						reg = <21>;
+-					};
+-				};
++				#clock-cells = <2>;
++				clocks = <&slow_xtal>, <&main_xtal>;
++				clock-names = "slow_xtal", "main_xtal";
+ 			};
+ 
+ 			rstc@fffffd00 {
+@@ -855,7 +614,7 @@
+ 				compatible = "atmel,at91sam9260-pit";
+ 				reg = <0xfffffd30 0xf>;
+ 				interrupts = <1 IRQ_TYPE_LEVEL_HIGH 7>;
+-				clocks = <&mck>;
++				clocks = <&pmc PMC_TYPE_CORE PMC_MCK>;
+ 			};
+ 
+ 			rtc@fffffd20 {
+-- 
+2.19.1

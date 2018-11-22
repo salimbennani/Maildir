@@ -1,0 +1,402 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 20 Nov 2018 00:34:47 -0000
+Received: from icoremail.net (unknown [209.85.215.177])
+	by mail-app4 (Coremail) with SMTP id cS_KCgDHH5q7B_NbLtvZAQ--.31573S3;
+	Tue, 20 Nov 2018 02:58:05 +0800 (CST)
+Received: from mail-pg1-f177.google.com (unknown [209.85.215.177])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwDnz0u3B_NbNspZAA--.3208S3;
+	Tue, 20 Nov 2018 02:57:59 +0800 (CST)
+Received: by mail-pg1-f177.google.com with SMTP id t13so5568411pgr.11
+        for <xuliker@zju.edu.cn>; Mon, 19 Nov 2018 10:57:59 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :from:to:cc:subject:date:message-id:in-reply-to:references:sender
+         :precedence:list-id;
+        bh=tO4c/KM0bSn41nZdkVbqQD0yAeGBjW+OUEJgTkQdiZE=;
+        b=qNXjPPAPF+c4/8fY/XomAjQljEoKPGMEtJp9VLezgNw8f8oK4/LP5ZzPPT1MJzPV6L
+         VNBmTEnAlW3MwWz+OMfe3vd5xf5b56P+BEuC81dioyZn+Ua7qCyQSg+Ha7O15PImMtS6
+         julRtxTnRPSmHZmYD4egwLEQp9sJwULoqQU2BEsQegsdZbBUW8w4/Gd19DQi4ya9pt4A
+         221FOU81zM+rYK02AWWUBpOAVCX2Er3tZ8rlFbIy/KcAd6GHC777YqYXcdtsVUJ+GHU5
+         3XBlxt8zOqhJlYrV8KgD3b7wiI0QF2A9uG4ikOa8EE9yqGJUpD2dFaw0pqK5Dxe/z7i0
+         hArg==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=redhat.com
+X-Gm-Message-State: AGRZ1gLQkrN39GxWx36LoxIS892fJnmbnfU4h6XVfe+sfbBtM1saHrxu
+	0fPkcdEg3+iVONSxtejlCSIuludZiFOvWopcfNXBSH5mnocxSc8=
+X-Received: by 2002:a62:5e83:: with SMTP id s125-v6mr23940740pfb.232.1542653879438;
+        Mon, 19 Nov 2018 10:57:59 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:d106:0:0:0:0 with SMTP id l6-v6csp3049243pju;
+        Mon, 19 Nov 2018 10:57:58 -0800 (PST)
+X-Google-Smtp-Source: AJdET5cCIoPDGbqnQnSC4t1MymElnH4a/qmpTRIN091CldvF87/46EhehsU3CEPCttLWav+6BRJp
+X-Received: by 2002:a63:da45:: with SMTP id l5mr21370821pgj.111.1542653878228;
+        Mon, 19 Nov 2018 10:57:58 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542653878; cv=none;
+        d=google.com; s=arc-20160816;
+        b=XD3Q/hORLV/BWEsWGXd+wKstczH/kqWewfY2AoqWLW+EWfd0Mwl0TOuOpBQYfFCquJ
+         DWfYhD6Zk8JmSjCzaIlJdYSluFnERHz6ETTEJQH7VG7ZPQDZlJ2YmGYF4+qDXzSBUcbx
+         psu8rTkSWNklC3/m9+bSNgmU6AvDTfWp2OhPxlaCfJ3FCSOejajNn61t8N9Mg6yuCgZg
+         5A7d6zqmxRvxci9SX5uBffvgqXiSYthhdUlULTcl0LwhxsSudRvLdoe1aXG+U9yEadOS
+         JB0UJgvSrmSw+jbNO048ZY+lQWCoyTJD+Zzi0gEaUvft+MR1LoxUG+H9Kn1UY06ODSz4
+         6WAA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:references:in-reply-to:message-id:date
+         :subject:cc:to:from;
+        bh=tO4c/KM0bSn41nZdkVbqQD0yAeGBjW+OUEJgTkQdiZE=;
+        b=qKurpY8hr8+1Gz42RfKUJMK9eStWmVlRHmk7ARTPLi6rpvJIVg8gDo5YeNA78QdaG9
+         fXKEs25rNIOMcO0t6H+KoSfTfYCRnMEGuC2LqqAZ5ZAiMGlgO7ApDS+KHFJtoyx/5NX/
+         EzOk7KCY+xAXmNr0CS13WvjC+2DNNh8JdKseFr5PwDmQ+2AYdKitNBd2HbUlPqqdS9Wn
+         mHoMZac7a5pAx3Ngsx8VwoRgsxRav8Kx/2PmeRCd2BBI7g4bRURevv4WqDkL2LSHnJqt
+         nYcXsGs1SOhZ30lS0dtuTYtzEEOWRHC5HOyQ1DVTcORAKIzixNjPjKm4Uo/2h5vT43Jd
+         4Jwg==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=redhat.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id x87-v6si44869194pfk.54.2018.11.19.10.57.43;
+        Mon, 19 Nov 2018 10:57:58 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1726568AbeKTFVs (ORCPT <rfc822;nullbytes00@gmail.com>
+        + 99 others); Tue, 20 Nov 2018 00:21:48 -0500
+Received: from mx1.redhat.com ([209.132.183.28]:36756 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726431AbeKTFVs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+        Tue, 20 Nov 2018 00:21:48 -0500
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id DC82A45CD3;
+        Mon, 19 Nov 2018 18:56:54 +0000 (UTC)
+Received: from llong.com (dhcp-17-55.bos.redhat.com [10.18.17.55])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 63B7B608F8;
+        Mon, 19 Nov 2018 18:56:53 +0000 (UTC)
+From: Waiman Long <longman@redhat.com>
+To: Peter Zijlstra <peterz@infradead.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Thomas Gleixner <tglx@linutronix.de>
+Cc: linux-kernel@vger.kernel.org, kasan-dev@googlegroups.com,
+        linux-mm@kvack.org, iommu@lists.linux-foundation.org,
+        Petr Mladek <pmladek@suse.com>,
+        Sergey Senozhatsky <sergey.senozhatsky@gmail.com>,
+        Andrey Ryabinin <aryabinin@virtuozzo.com>,
+        Tejun Heo <tj@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Waiman Long <longman@redhat.com>
+Subject: [PATCH v2 03/17] locking/lockdep: Add a new terminal lock type
+Date: Mon, 19 Nov 2018 13:55:12 -0500
+Message-Id: <1542653726-5655-4-git-send-email-longman@redhat.com>
+In-Reply-To: <1542653726-5655-1-git-send-email-longman@redhat.com>
+References: <1542653726-5655-1-git-send-email-longman@redhat.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.26]); Mon, 19 Nov 2018 18:56:55 +0000 (UTC)
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwDnz0u3B_NbNspZAA--.3208S3
+Authentication-Results: mail-app4; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW3AF18GrWfJF18Wr45WF1DGFg_yoWDGryfpF
+	4S9asxJw4kXFWI93ZrXa1kZF1rtw48CFy7CFnIq34IyFyUXr15WF97WF15tr10qrZ7uFsx
+	XF1YvF4qk3yUu3DanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUU0bIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUU9Cb7Iv0xC_Kw4lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Xr0_Ar1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1l84ACjcxK6I8E
+	87Iv67AKxVW0oVCq3wA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_GcCE3s1le2I262IYc4CY6c
+	8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_Jr0_
+	Jr4lYx0Ex4A2jsIE14v26r4j6F4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvEwIxGrw
+	CjxxvEa2IrMxkF7I0Ew4C26cxK6c8Ij28IcwCY02Avz4vEIxC_XwCY0x0Ix7I2Y4AK64vI
+	r41lcIIF0xvE2Ix0cI8IcVAFwI0_Gr0_Xr1lcIIF0xvE2Ix0cI8IcVCY1x0267AKxVW8JV
+	WxJwCYIxAIcVC2z280aVAFwI0_Cr1j6rxdMxvI42IY6I8E87Iv6xkF7I0E14v26F4UJVW0
+	owCF04k20xvY0x0EwIxGrwCF04k20xvEw4C26cxK6c8Ij28IcwCF72vE77IF4wCFx2IqxV
+	CFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v26r1j6r18MI8I3I0E7480Y4vE14v26r10
+	6r1rMI8E67AF67kF1VAFwI0_Jw0_GFylIxkGc2Ij64vIr41lIxAIcVCF04k26cxKx2IYs7
+	xG6r4j6FyUYxBIdaVFxhVjvjDU0xZFpf9x07b9gA7UUUUU=
+
+A terminal lock is a lock where further locking or unlocking on another
+lock is not allowed. IOW, no forward dependency is permitted.
+
+With such a restriction in place, we don't really need to do a full
+validation of the lock chain involving a terminal lock.  Instead,
+we just check if there is any further locking or unlocking on another
+lock when a terminal lock is being held.
+
+Only spinlocks which are acquired by the _irq or _irqsave variants
+or in IRQ disabled context should be classified as terminal locks.
+
+By adding this new lock type, we can save entries in lock_chains[],
+chain_hlocks[], list_entries[] and stack_trace[]. By marking suitable
+locks as terminal, we reduce the chance of overflowing those tables
+allowing them to focus on locks that can have both forward and backward
+dependencies.
+
+Four bits are stolen from the pin_count of the held_lock structure
+to hold a new 4-bit flags field. The pin_count field is essentially a
+summation of 16-bit random cookie values. Removing 4 bits still allow
+the pin_count to accumulate up to almost 4096 of those cookie values.
+
+Signed-off-by: Waiman Long <longman@redhat.com>
+---
+ include/linux/lockdep.h            | 29 ++++++++++++++++++++---
+ kernel/locking/lockdep.c           | 47 ++++++++++++++++++++++++++++++++------
+ kernel/locking/lockdep_internals.h |  5 ++++
+ kernel/locking/lockdep_proc.c      | 11 +++++++--
+ 4 files changed, 80 insertions(+), 12 deletions(-)
+
+diff --git a/include/linux/lockdep.h b/include/linux/lockdep.h
+index 8fe5b4f..a146bca 100644
+--- a/include/linux/lockdep.h
++++ b/include/linux/lockdep.h
+@@ -144,9 +144,20 @@ struct lock_class_stats {
+ 
+ /*
+  * Lockdep class type flags
++ *
+  * 1) LOCKDEP_FLAG_NOVALIDATE: No full validation, just simple checks.
++ * 2) LOCKDEP_FLAG_TERMINAL: This is a terminal lock where lock/unlock on
++ *    another lock within its critical section is not allowed.
++ *
++ * Only the least significant 4 bits of the flags will be copied to the
++ * held_lock structure.
+  */
+-#define LOCKDEP_FLAG_NOVALIDATE 	(1 << 0)
++#define LOCKDEP_FLAG_TERMINAL		(1 << 0)
++#define LOCKDEP_FLAG_NOVALIDATE 	(1 << 4)
++
++#define LOCKDEP_HLOCK_FLAGS_MASK	0x0f
++#define LOCKDEP_NOCHECK_FLAGS		(LOCKDEP_FLAG_NOVALIDATE |\
++					 LOCKDEP_FLAG_TERMINAL)
+ 
+ /*
+  * Map the lock object (the lock instance) to the lock-class object.
+@@ -263,7 +274,16 @@ struct held_lock {
+ 	unsigned int check:1;       /* see lock_acquire() comment */
+ 	unsigned int hardirqs_off:1;
+ 	unsigned int references:12;					/* 32 bits */
+-	unsigned int pin_count;
++	/*
++	 * Four bits are stolen from pin_count for flags so as not to
++	 * increase the size of the structure. The stolen bits may not
++	 * be enough in the future as more flag bits are added. However,
++	 * not all of them may need to be checked in the held_lock
++	 * structure. We just have to make sure that the the relevant
++	 * ones will be in the 4 least significant bits.
++	 */
++	unsigned int pin_count:28;
++	unsigned int flags:4;
+ };
+ 
+ /*
+@@ -305,6 +325,8 @@ extern void lockdep_init_map(struct lockdep_map *lock, const char *name,
+ 
+ #define lockdep_set_novalidate_class(lock) \
+ 	do { (lock)->dep_map.flags |= LOCKDEP_FLAG_NOVALIDATE; } while (0)
++#define lockdep_set_terminal_class(lock) \
++	do { (lock)->dep_map.flags |= LOCKDEP_FLAG_TERMINAL; } while (0)
+ 
+ /*
+  * Compare locking classes
+@@ -420,7 +442,8 @@ static inline void lockdep_on(void)
+ 		do { (void)(key); } while (0)
+ #define lockdep_set_subclass(lock, sub)		do { } while (0)
+ 
+-#define lockdep_set_novalidate_class(lock) do { } while (0)
++#define lockdep_set_novalidate_class(lock)	do { } while (0)
++#define lockdep_set_terminal_class(lock)	do { } while (0)
+ 
+ /*
+  * We don't define lockdep_match_class() and lockdep_match_key() for !LOCKDEP
+diff --git a/kernel/locking/lockdep.c b/kernel/locking/lockdep.c
+index 493b567..40894c1 100644
+--- a/kernel/locking/lockdep.c
++++ b/kernel/locking/lockdep.c
+@@ -3020,6 +3020,11 @@ static inline int separate_irq_context(struct task_struct *curr,
+ 
+ #endif /* defined(CONFIG_TRACE_IRQFLAGS) && defined(CONFIG_PROVE_LOCKING) */
+ 
++static int hlock_is_terminal(struct held_lock *hlock)
++{
++	return flags_is_terminal(hlock->flags);
++}
++
+ /*
+  * Mark a lock with a usage bit, and validate the state transition:
+  */
+@@ -3047,7 +3052,11 @@ static int mark_lock(struct task_struct *curr, struct held_lock *this,
+ 
+ 	hlock_class(this)->usage_mask |= new_mask;
+ 
+-	if (!save_trace(hlock_class(this)->usage_traces + new_bit))
++	/*
++	 * We don't need to save the stack trace for terminal locks.
++	 */
++	if (!hlock_is_terminal(this) &&
++	    !save_trace(hlock_class(this)->usage_traces + new_bit))
+ 		return 0;
+ 
+ 	switch (new_bit) {
+@@ -3215,9 +3224,6 @@ static int __lock_acquire(struct lockdep_map *lock, unsigned int subclass,
+ 	if (unlikely(!debug_locks))
+ 		return 0;
+ 
+-	if (!prove_locking || (lock->flags & LOCKDEP_FLAG_NOVALIDATE))
+-		check = 0;
+-
+ 	if (subclass < NR_LOCKDEP_CACHING_CLASSES)
+ 		class = lock->class_cache[subclass];
+ 	/*
+@@ -3229,6 +3235,9 @@ static int __lock_acquire(struct lockdep_map *lock, unsigned int subclass,
+ 			return 0;
+ 	}
+ 
++	if (!prove_locking || (class->flags & LOCKDEP_NOCHECK_FLAGS))
++		check = 0;
++
+ 	debug_class_ops_inc(class);
+ 
+ 	if (very_verbose(class)) {
+@@ -3255,6 +3264,13 @@ static int __lock_acquire(struct lockdep_map *lock, unsigned int subclass,
+ 
+ 	if (depth) {
+ 		hlock = curr->held_locks + depth - 1;
++
++		/*
++		 * Warn if the previous lock is a terminal lock.
++		 */
++		if (DEBUG_LOCKS_WARN_ON(hlock_is_terminal(hlock)))
++			return 0;
++
+ 		if (hlock->class_idx == class_idx && nest_lock) {
+ 			if (hlock->references) {
+ 				/*
+@@ -3294,6 +3310,7 @@ static int __lock_acquire(struct lockdep_map *lock, unsigned int subclass,
+ 	hlock->holdtime_stamp = lockstat_clock();
+ #endif
+ 	hlock->pin_count = pin_count;
++	hlock->flags = class->flags & LOCKDEP_HLOCK_FLAGS_MASK;
+ 
+ 	if (check && !mark_irqflags(curr, hlock))
+ 		return 0;
+@@ -3636,6 +3653,14 @@ static int __lock_downgrade(struct lockdep_map *lock, unsigned long ip)
+ 	if (i == depth-1)
+ 		return 1;
+ 
++	/*
++	 * Unlock of an outer lock is not allowed while holding a terminal
++	 * lock.
++	 */
++	hlock = curr->held_locks + depth - 1;
++	if (DEBUG_LOCKS_WARN_ON(hlock_is_terminal(hlock)))
++		return 0;
++
+ 	if (reacquire_held_locks(curr, depth, i + 1))
+ 		return 0;
+ 
+@@ -3688,7 +3713,7 @@ static struct pin_cookie __lock_pin_lock(struct lockdep_map *lock)
+ 			/*
+ 			 * Grab 16bits of randomness; this is sufficient to not
+ 			 * be guessable and still allows some pin nesting in
+-			 * our u32 pin_count.
++			 * our 28-bit pin_count.
+ 			 */
+ 			cookie.val = 1 + (prandom_u32() >> 16);
+ 			hlock->pin_count += cookie.val;
+@@ -4013,7 +4038,7 @@ void lock_unpin_lock(struct lockdep_map *lock, struct pin_cookie cookie)
+ }
+ 
+ static void
+-__lock_acquired(struct lockdep_map *lock, unsigned long ip)
++__lock_acquired(struct lockdep_map *lock, unsigned long ip, unsigned long flags)
+ {
+ 	struct task_struct *curr = current;
+ 	struct held_lock *hlock;
+@@ -4039,6 +4064,13 @@ void lock_unpin_lock(struct lockdep_map *lock, struct pin_cookie cookie)
+ 	if (hlock->instance != lock)
+ 		return;
+ 
++	/*
++	 * A terminal lock should only be used with IRQ disabled.
++	 */
++	if (DEBUG_LOCKS_WARN_ON(hlock_is_terminal(hlock) &&
++				!irqs_disabled_flags(flags)))
++		return;
++
+ 	cpu = smp_processor_id();
+ 	if (hlock->waittime_stamp) {
+ 		now = lockstat_clock();
+@@ -4093,9 +4125,10 @@ void lock_acquired(struct lockdep_map *lock, unsigned long ip)
+ 		return;
+ 
+ 	raw_local_irq_save(flags);
++
+ 	check_flags(flags);
+ 	current->lockdep_recursion = 1;
+-	__lock_acquired(lock, ip);
++	__lock_acquired(lock, ip, flags);
+ 	current->lockdep_recursion = 0;
+ 	raw_local_irq_restore(flags);
+ }
+diff --git a/kernel/locking/lockdep_internals.h b/kernel/locking/lockdep_internals.h
+index 88c847a..271fba8 100644
+--- a/kernel/locking/lockdep_internals.h
++++ b/kernel/locking/lockdep_internals.h
+@@ -212,3 +212,8 @@ static inline unsigned long debug_class_ops_read(struct lock_class *class)
+ # define debug_atomic_read(ptr)		0
+ # define debug_class_ops_inc(ptr)	do { } while (0)
+ #endif
++
++static inline unsigned int flags_is_terminal(unsigned int flags)
++{
++	return flags & LOCKDEP_FLAG_TERMINAL;
++}
+diff --git a/kernel/locking/lockdep_proc.c b/kernel/locking/lockdep_proc.c
+index 3d31f9b..37fbd41 100644
+--- a/kernel/locking/lockdep_proc.c
++++ b/kernel/locking/lockdep_proc.c
+@@ -78,7 +78,10 @@ static int l_show(struct seq_file *m, void *v)
+ 	get_usage_chars(class, usage);
+ 	seq_printf(m, " %s", usage);
+ 
+-	seq_printf(m, ": ");
++	/*
++	 * Print terminal lock status
++	 */
++	seq_printf(m, "%c: ", flags_is_terminal(class->flags) ? 'T' : ' ');
+ 	print_name(m, class);
+ 	seq_puts(m, "\n");
+ 
+@@ -208,7 +211,7 @@ static int lockdep_stats_show(struct seq_file *m, void *v)
+ 		      nr_irq_read_safe = 0, nr_irq_read_unsafe = 0,
+ 		      nr_softirq_read_safe = 0, nr_softirq_read_unsafe = 0,
+ 		      nr_hardirq_read_safe = 0, nr_hardirq_read_unsafe = 0,
+-		      sum_forward_deps = 0;
++		      nr_nocheck = 0, sum_forward_deps = 0;
+ 
+ 	list_for_each_entry(class, &all_lock_classes, lock_entry) {
+ 
+@@ -240,6 +243,8 @@ static int lockdep_stats_show(struct seq_file *m, void *v)
+ 			nr_hardirq_read_safe++;
+ 		if (class->usage_mask & LOCKF_ENABLED_HARDIRQ_READ)
+ 			nr_hardirq_read_unsafe++;
++		if (class->flags & LOCKDEP_NOCHECK_FLAGS)
++			nr_nocheck++;
+ 
+ #ifdef CONFIG_PROVE_LOCKING
+ 		sum_forward_deps += lockdep_count_forward_deps(class);
+@@ -318,6 +323,8 @@ static int lockdep_stats_show(struct seq_file *m, void *v)
+ 			nr_uncategorized);
+ 	seq_printf(m, " unused locks:                  %11lu\n",
+ 			nr_unused);
++	seq_printf(m, " unchecked locks:               %11lu\n",
++			nr_nocheck);
+ 	seq_printf(m, " max locking depth:             %11u\n",
+ 			max_lockdep_depth);
+ #ifdef CONFIG_PROVE_LOCKING
+-- 
+1.8.3.1

@@ -1,0 +1,182 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 20 Nov 2018 00:33:54 -0000
+Received: from icoremail.net (unknown [209.85.210.182])
+	by mail-app2 (Coremail) with SMTP id by_KCgC3f0F88vJbsrC6AQ--.54608S3;
+	Tue, 20 Nov 2018 01:27:25 +0800 (CST)
+Received: from mail-pf1-f182.google.com (unknown [209.85.210.182])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwCHbkp68vJbFoNZAA--.3525S3;
+	Tue, 20 Nov 2018 01:27:22 +0800 (CST)
+Received: by mail-pf1-f182.google.com with SMTP id u3-v6so12494909pfm.4
+        for <xuliker@zju.edu.cn>; Mon, 19 Nov 2018 09:27:22 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :from:to:cc:subject:date:in-reply-to:references:message-id:sender
+         :precedence:list-id;
+        bh=lz9PIe0oDK1ZcLh58wDPwBZtqDO/M5c350hfkCz6MGo=;
+        b=DhCnqPplZqn3JAhiLPbqgBE3LXt580RGAAQ8qEeUD7emC9nm8AGxT0BrGrdyDrisIu
+         o+/d8eS+pBa7rKAWdA1MK35RCCfpmF0qI4efr4GhT5ygB6Vq8+v+XzpijimyT7EwSM2S
+         rVX0vK/b6wCP4y6tbSRV+A5BwFbJnPrAHiXwOxLdEf10BPQDEuX5ekF4qW9u5v1UGc3N
+         OusCc1wT3chlKy3APQ4YcIgWTOyHpQ2uipv63jvSJOK/gNh4xhTHWQeqaNkn8mtG2T5X
+         NZtxu0OdTnKK73XTlyE1T2U2i9nZVwc/2kJa0jBEwwPaYlq4vr9mT1Hs0X6gcpsE00NB
+         I13g==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=ibm.com
+X-Gm-Message-State: AGRZ1gIhEdWiFVPxlm+YO8IeWaJrIqK/HrcHFAlPNwbcAJHfpYourEx3
+	zzG8aqhl9lFI+8U2AlRv58iJPB90DoGQH0lFafxV9YkGC/O2fgI=
+X-Received: by 2002:a63:2315:: with SMTP id j21mr21058425pgj.297.1542648441854;
+        Mon, 19 Nov 2018 09:27:21 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:d106:0:0:0:0 with SMTP id l6-v6csp2947302pju;
+        Mon, 19 Nov 2018 09:27:20 -0800 (PST)
+X-Google-Smtp-Source: AJdET5fRVQertLo8BWSt/JXmnNu9KMXas/GenF4kI06vIlwUKlUsIURobbDg0B+BFtEPu2HV7l6Q
+X-Received: by 2002:a62:3687:: with SMTP id d129-v6mr24040036pfa.56.1542648440617;
+        Mon, 19 Nov 2018 09:27:20 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542648440; cv=none;
+        d=google.com; s=arc-20160816;
+        b=IdkP31oZQqaTaTet1JSFqpEUk/Jn/kXdvJeKEIlEixBuB4xYtmb/yEiGkal9mh8wI+
+         WfarWpVxoEWYieoWe27coSgzfyMfOQqr0zM90M74m3mGd8C0m2Xs8n9Jom02qMQEybOP
+         FpzydiJUliiQr7QjKcwuy6sQUVPsViCvQVXhyQF5pwfBpPAx4/lOEuk6dkXu1r+XbSsL
+         9J2JMHo+vaNSqM7Jpc6WdbEOXDvZVXW6TagY1lFgV3+PKCbVANDQaSdp3P6awlH4RkHc
+         bQG+/nxo0gloPJ2SJB9Q5hxeQSeI6icUQpED4Tnwkz/QyUbGJ3Ali5e3Jon8L+1SEcBp
+         SEbw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:message-id:references:in-reply-to:date
+         :subject:cc:to:from;
+        bh=lz9PIe0oDK1ZcLh58wDPwBZtqDO/M5c350hfkCz6MGo=;
+        b=V/RXfoV3UwcxjJszvOnLnKc/MhPPNNSi24nIhadC83trkNGZtqi0tWfQ0x/GC6hPvd
+         yyy7s7TTFattfTnG8IjyKSGo0I1R++99sliJ/yzn/mEQd8k43oxSqpNnPXdw3c01v1Co
+         8lLKH0b4G/Gm1g/D3w9SSd5J4GE+vg3eNmLNmknuVUkcQ84OaY92KGk/+A4OEp6h3Vnc
+         A0Vnl9rjMzQNjpZL5aXaxCY7+Q644+f7sDy3sCCX67Y5gfv6ilfLkUnFtEoGjVKcHMst
+         abh49d2euEQzErh/bUIdjFGBaVDYlLU4fpU7L7Fz3u48gEHR7YVgHVrEB0dpHmBzxmzV
+         mOHA==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=ibm.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id l8si39054235pgr.345.2018.11.19.09.26.52;
+        Mon, 19 Nov 2018 09:27:20 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S2404481AbeKTDuh (ORCPT <rfc822;ww9210@gmail.com> + 99 others);
+        Mon, 19 Nov 2018 22:50:37 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:58088 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S2404560AbeKTDug (ORCPT
+        <rfc822;kvm@vger.kernel.org>); Mon, 19 Nov 2018 22:50:36 -0500
+Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.22/8.16.0.22) with SMTP id wAJHPJbx065590
+        for <kvm@vger.kernel.org>; Mon, 19 Nov 2018 12:26:12 -0500
+Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2nv1bb8mj3-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <kvm@vger.kernel.org>; Mon, 19 Nov 2018 12:26:11 -0500
+Received: from localhost
+        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <kvm@vger.kernel.org> from <mimu@linux.ibm.com>;
+        Mon, 19 Nov 2018 17:26:10 -0000
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (9.149.109.198)
+        by e06smtp04.uk.ibm.com (192.168.101.134) with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted;
+        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256/256)
+        Mon, 19 Nov 2018 17:26:07 -0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id wAJHQ5e210748090
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
+        Mon, 19 Nov 2018 17:26:05 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 9BD934C059;
+        Mon, 19 Nov 2018 17:26:05 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 263574C04A;
+        Mon, 19 Nov 2018 17:26:05 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Mon, 19 Nov 2018 17:26:05 +0000 (GMT)
+From: Michael Mueller <mimu@linux.ibm.com>
+To: kvm@vger.kernel.org, linux-s390@vger.kernel.org
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>,
+        Heiko Carstens <heiko.carstens@de.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Michael Mueller <mimu@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Pierre Morel <pmorel@linux.ibm.com>
+Subject: [PATCH v2 12/12] KVM: s390: start using the GIB
+Date: Mon, 19 Nov 2018 18:25:36 +0100
+X-Mailer: git-send-email 2.16.4
+In-Reply-To: <20181119172536.52649-1-mimu@linux.ibm.com>
+References: <20181119172536.52649-1-mimu@linux.ibm.com>
+X-TM-AS-GCONF: 00
+x-cbid: 18111917-0016-0000-0000-0000022953AC
+X-IBM-AV-DETECTION: SAVI=unused REMOTE=unused XFE=unused
+x-cbparentid: 18111917-0017-0000-0000-000032818866
+Message-Id: <20181119172536.52649-13-mimu@linux.ibm.com>
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2018-11-19_06:,,
+ signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ malwarescore=0 suspectscore=0 phishscore=0 bulkscore=0 spamscore=0
+ clxscore=1015 lowpriorityscore=0 mlxscore=0 impostorscore=0
+ mlxlogscore=853 adultscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.0.1-1810050000 definitions=main-1811190159
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwCHbkp68vJbFoNZAA--.3525S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvdXoW7Xr4kKF4xXryUXrWDAw47urg_yoW3twbEvr
+	1xW34UtrW8XanrZryqyw43Gr1Y9w48GF13Zr4IqFy5Jr1kWw43XrWkW39rW348Wr4fCrZ7
+	ZryDJasayw1qkjkaLaAFLSUrUUUUUb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAU7a7-sFnT
+	9fnUUIcSsGvfJTRUUUbfkYjsxI4VW3JwAYFVCjjxCrM7AC8VAFwI0_Jr0_Gr1l1IIY67AE
+	w4v_Jr0_Jr4l8cAvFVAK0II2c7xJM28CjxkF64kEwVA0rcxSw2x7M28EF7xvwVC0I7IYx2
+	IY67AKxVWDJVCq3wA2z4x0Y4vE2Ix0cI8IcVCY1x0267AKxVWxJVW8Jr1l84ACjcxK6I8E
+	87Iv67AKxVW0oVCq3wA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_GcCE3s1le2I262IYc4CY6c
+	8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_Jrv_
+	JF1lYx0Ex4A2jsIE14v26r4j6F4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvY0x0EwI
+	xGrwCjxxvEa2IrMxkF7I0Ew4C26cxK6c8Ij28IcwCY02Avz4vEIxC_GwCY0x0Ix7I2Y4AK
+	64vIr41lcIIF0xvE2Ix0cI8IcVAFwI0_Ar0_tr1lcIIF0xvE2Ix0cI8IcVCY1x0267AKxV
+	WxJVW8Jr1lcIIF0xvEx4A2jsIE14v26F4UJVW0owCYIxAIcVC2z280aVCY1x0267AKxVWx
+	Jr0_GcWl42xK82IYc2Ij64vIr41l42xK82IY64kExVAvwVAq07x20xyl4x8a6x804xWl4I
+	8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x8GjcxK67AK
+	xVWUGVWUWwC2zVAF1VAY17CE14v26r1q6r43MIIYrxkI7VAKI48JMIIF0xvE42xK8VAvwI
+	8IcIk0rVWUJVWUCbIYCTnIWIevJa73UjIFyTuYvjxUD6wZUUUUU
+
+By initializing the GIB, it will we used by the kvm host.
+
+Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
+---
+ arch/s390/kvm/kvm-s390.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 386f98029a3f..08341be4d0aa 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -417,6 +417,8 @@ static void kvm_s390_cpu_feat_init(void)
+ 
+ int kvm_arch_init(void *opaque)
+ {
++	int rc;
++
+ 	kvm_s390_dbf = debug_register("kvm-trace", 32, 1, 7 * sizeof(long));
+ 	if (!kvm_s390_dbf)
+ 		return -ENOMEM;
+@@ -426,6 +428,10 @@ int kvm_arch_init(void *opaque)
+ 		return -ENOMEM;
+ 	}
+ 
++	rc = kvm_s390_gib_init(GAL_ISC);
++	if (rc)
++		return rc;
++
+ 	kvm_s390_cpu_feat_init();
+ 
+ 	/* Register floating interrupt controller interface. */
+-- 
+2.13.4

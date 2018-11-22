@@ -1,0 +1,240 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (61.164.42.155:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 10 Nov 2018 00:57:53 -0000
+Received: from icoremail.net (unknown [209.85.215.180])
+	by mail-app2 (Coremail) with SMTP id by_KCgDXv2KAF+Zb1xFrAQ--.33075S3;
+	Sat, 10 Nov 2018 07:25:53 +0800 (CST)
+Received: from mail-pg1-f180.google.com (unknown [209.85.215.180])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwA3FUF+F+ZbPJYkAA--.13882S3;
+	Sat, 10 Nov 2018 07:25:50 +0800 (CST)
+Received: by mail-pg1-f180.google.com with SMTP id q5-v6so1494002pgv.0
+        for <xuliker@zju.edu.cn>; Fri, 09 Nov 2018 15:25:50 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:content-transfer-encoding:in-reply-to
+         :user-agent:sender:precedence:list-id;
+        bh=OV13cwIT3R1teWEg6J9yK6F97G9QJDvtgHZgDd8Syz8=;
+        b=GTIEgeubbvfbCFHFUiL9TVLu7vA+4a9D/RA9JXCnkvZLSse1nfRy4dxa/Tjt/w9oxa
+         IZjgCoN8Auui2ulPFkUp2VGgdNbP1kSY92qztjTyq2M70aez2aUlw0okaanl1W874mIk
+         V+xq73Zf2imZRV4bJedSjgDDs0gUBxf3LQ/Yy7LBQ8PvM+Vt+YhuWoRj4R49jvPDPX8N
+         OtGIv7MM2c6S63oCig+pjuqVSaeuagDFn6z7TVbC/v19xo7Pq0n4ao82QCZYFdc4dgH8
+         u5EtjxYqhysfFU6Qtun9dGOmC+fZAEPTMJfji5XLOPClNlWvqbTqUoZ1P0syE+iFJRk/
+         sCpA==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org
+X-Gm-Message-State: AGRZ1gIXEoGzv0Koow1Vb4rpBwNU7zSNHorV05U+/i/C1J2PD/B3+B9d
+	Efc7TwRo6H4b1lj+Ntw08hc0iUBtlblp7MPYOuHwSQtYHeDbdWkAIw==
+X-Received: by 2002:a62:1c53:: with SMTP id c80-v6mr10913937pfc.14.1541805950375;
+        Fri, 09 Nov 2018 15:25:50 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp508134pjt;
+        Fri, 9 Nov 2018 15:25:49 -0800 (PST)
+X-Google-Smtp-Source: AJdET5da4iwitG9+tXwSPR3InpkSWb0IlRVTg84WConLKsk6aRLfPayxl0JA9H0/XxlXWL21etKp
+X-Received: by 2002:a17:902:4623:: with SMTP id o32-v6mr10727921pld.187.1541805949204;
+        Fri, 09 Nov 2018 15:25:49 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1541805949; cv=none;
+        d=google.com; s=arc-20160816;
+        b=BgsNgxN8Ki1M1yHV9HzoVn7JnZr+l9A6b8wXHilvCS3W/JCbU3NFpl7AF5aJ20jkUS
+         neHMpasXKKPffodK/cyM8v86PZ3q3BunsZqSsue24rtQ127XfwX/ikGCkhOsb27gTfgX
+         e+dFYN0M27AZRqXqDLVkBLhuS+jwA2Q58OolPPqV77BeRsygThBXDsolz487+CxBBinW
+         pJcYvfwBp0VTLKx8bl7ogWeb8cO6VLk549+yK2syLXHAYHxAJvehYi+0N4fPhlZ7SC1r
+         9sV9rOZ0aoyMUEg+tvPlrvGjVFeeavuoQQn23QfMLh1GJbE++nQuNJW+kHoRsFKOYwLr
+         7Duw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:user-agent:in-reply-to
+         :content-transfer-encoding:content-disposition:mime-version
+         :references:message-id:subject:cc:to:from:date;
+        bh=OV13cwIT3R1teWEg6J9yK6F97G9QJDvtgHZgDd8Syz8=;
+        b=yS9GrVlPNNU98IHKK27YvbdSIwgBRhYgbtgPIsg+3ZpMO1YaafO6tTWgkaxMo1MXGw
+         L+UsR2LcFm8yD8maSNWrnnRt2P9Jt8zDx+oWU0Zq112vBEmbKKBX8Lm/IHMlIc3w5x7h
+         2RAA3EVrua/13LjtABU8eiJ4TAYd9pFlSa7U9DPLMzXHvTxYTHbFYRKzn87V528MazUo
+         iM5NTJizDyxoDUMFJ9fleMZGNGHxgax57BgmB3Lj1/jhQimtpl51/8G2zE81R6AXS9rr
+         RxfobsAJ8xwzgEYc0Nz85BLB9O1/HxzGLjfMzJY66M2TDpOEijl6mrdP3EZe5x3PHrZz
+         EX5g==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id x64-v6si10052594pfd.219.2018.11.09.15.25.34;
+        Fri, 09 Nov 2018 15:25:49 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1728705AbeKJJIP convert rfc822-to-8bit (ORCPT
+        <rfc822;fanshuming2011@gmail.com> + 99 others);
+        Sat, 10 Nov 2018 04:08:15 -0500
+Received: from Galois.linutronix.de ([146.0.238.70]:47991 "EHLO
+        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728434AbeKJJIO (ORCPT <rfc822;kvm@vger.kernel.org>);
+        Sat, 10 Nov 2018 04:08:14 -0500
+Received: from bigeasy by Galois.linutronix.de with local (Exim 4.80)
+        (envelope-from <bigeasy@linutronix.de>)
+        id 1gLG9S-0006KO-09; Sat, 10 Nov 2018 00:25:22 +0100
+Date: Sat, 10 Nov 2018 00:25:21 +0100
+From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+To: Borislav Petkov <bp@alien8.de>
+Cc: Ingo Molnar <mingo@kernel.org>, linux-kernel@vger.kernel.org,
+        x86@kernel.org, Andy Lutomirski <luto@kernel.org>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Radim =?utf-8?B?S3LEjW3DocWZ?= <rkrcmar@redhat.com>,
+        kvm@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Rik van Riel <riel@surriel.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>
+Subject: Re: [PATCH 02/23] x86/fpu: Remove fpu->initialized usage in
+ __fpu__restore_sig()
+Message-ID: <20181109232521.l2ll2n3coxygkxv4@linutronix.de>
+References: <20181107194858.9380-1-bigeasy@linutronix.de>
+ <20181107194858.9380-3-bigeasy@linutronix.de>
+ <20181108145721.GC7543@zn.tnic>
+ <20181109173521.2m6iijp5wkncgi77@linutronix.de>
+ <20181109185202.GF21243@zn.tnic>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8BIT
+In-Reply-To: <20181109185202.GF21243@zn.tnic>
+User-Agent: NeoMutt/20180716
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwA3FUF+F+ZbPJYkAA--.13882S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoWxCFW5ur4xurWUKr13ZFWUJwb_yoWrXry7pF
+	WrGwnakr1DXFW2y3ySvw10qF9YkF4rJFyfCrn8Ga4Fyay5u3yDtFWxKFZ0vF48ZryfGw18
+	tw4vv3s5uas8AFDanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUU0bIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUBqb7Iv0xC_Kw4lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2
+	z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s0DM2AIxVAIcxkEcV
+	Aq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r10
+	6r15McIj6I8E87Iv67AKxVW8JVWxJwAm72CE4IkC6x0Yz7v_Jr0_Gr1l7I0Y6sxI4wCY1x
+	0264kExVAvwVAq07x20xylc7Ca8VAvwVCFzxkY4VCF77xAMxkIecxEwVCI4VWfMxkI7II2
+	jI8vz4vEwIxGrwCYIxAIcVC0I7IYx2IY67AKxVW5JVW7JwCYIxAIcVC0I7IYx2IY6xkF7I
+	0E14v26r4j6F4UMxvI42IY6I8E87Iv67AKxVW8Jr0_Cr1UMxvI42IY6I8E87Iv6xkF7I0E
+	14v26r4UJVWxJr1l42xK82IYc2Ij64vIr41l42xK82IY64kExVAvwVAq07x20xyl4x8a6x
+	804xWl4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x8G
+	jcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r1q6r43MIIYrxkI7VAKI48JMIIF0xvE42
+	xK8VAvwI8IcIk0rVW3JVWrJrUvcSsGvfC2KfnxnUUI43ZEXa7IUOGzutUUUUU==
+
+On 2018-11-09 19:52:02 [+0100], Borislav Petkov wrote:
+> On Fri, Nov 09, 2018 at 06:35:21PM +0100, Sebastian Andrzej Siewior wrote:
+> > fpu__drop() stets ->initialized to 0. As a result the context switch
+> 
+> "... the context switch path landing in switch_fpu_prepare()... " is what you
+> mean, right?
+I mean both. switch_fpu_prepare() while the task is leaving and then
+switch_fpu_finish() while the task is coming back. But yes.
+
+> > will not save current FPU registers and so _not_ write to fpu->state.
+> > This also means that CPU's FPU register will be random (inherited from
+> > the last context)
+> 
+> You mean, the FPU regs will have random values, yes.
+correct. Same like for kernel threads.
+
+> > after the context switch. This is also true for usage
+> > in softirq via kernel_fpu_begin().
+> 
+> So far so good.
+> 
+> Except maybe because I'm dense about FPU, I still am missing something.
+> 
+> You have this path:
+> 
+> __fpu__restore_sig
+> |-> fpu__clear
+>  |-> fpu__drop
+> 
+> and that happens on the sigreturn() path.
+> 
+> Now, the context switch happens ... when exactly?
+> 
+> After the sigreturn is done?
+
+Is fpu__clear() correct here? If so, a context switch after setting
+->initialized has been set to 1 wouldn't matter because in the end the
+register state is restored from init_fpstate and not from task's FPU
+struct.
+
+> 
+> It must be because then you'd get that ->state corruption after
+> ->initialized has been cleared.
+> 
+> Right?
+
+I might got your question wrong. If you quote the code and try again and
+I do so, too :)
+
+> <snip a bunch of stuff, we'll get back to it later>
+> 
+> > So. The fix would be:
+> > @@ -344,10 +344,10 @@ static int __fpu__restore_sig(void __user *buf, void __user *buf_fx, int size)
+> >                         sanitize_restored_xstate(tsk, &env, xfeatures, fx_only);
+> >                 }
+> >  
+> > +               local_bh_disable();
+> >                 fpu->initialized = 1;
+> > -               preempt_disable();
+> >                 fpu__restore(fpu);
+> > -               preempt_enable();
+> > +               local_bh_enable();
+> >  
+> >                 return err;
+> >         } else {
+> > 
+> > local_bh_disable() due to possible kernel_fpu_begin() usage in softirq.
+> > How much do we care here about a theoretical race on 32bit anyway? I
+> > don't think someone complained :) I would have to rebase my queue…
+> > otherwise…
+> 
+> Funny, you should mention that.
+> 
+> But this very much rings a bell about a very elusive bug we had on
+> 32-bit at the time. See attached mbox (yeah, the web archives were crap
+> and couldn't find the links so I'm sending you the whole thread).
+> 
+> And at the time Ingo said that there's something still missing about
+> *why* it would happen.
+> 
+> And I think it is this context switch happening right after the
+> sigreturn - *AFAICT* - which would cause this.
+> 
+> I could very well be off but this smells very similar to your thing.
+
+So checking out v4.5-rc3-15-g58122bf1d856a and __fpu__restore_sig() is
+something like this:
+
+|	fpu__drop(fpu);
+…
+|	fpu->fpstate_active = 1;
+X
+|	if (use_eager_fpu()) {
+|		preempt_disable();
+|		fpu__restore(fpu);
+|		preempt_enable();
+|	}
+
+fpu__drop() sets fpstate_active & fpregs_active to 0[¹]. A context switch
+at X would _not_ save current FPU registers and overwrite what was
+prepared because fpregs_active should still be zero.
+Now on the switch back to the task, fpstate_active was set which means
+fpu.preload might be true. If so it would load the FPU registers and set
+fpregs_active to 1. Later fpu__restore() would try the same and
+fpregs_activate() would trigger the warning because fpregs_active was
+already set to 1.
+
+> Hmmm.
+So I just came up with a possible hard to trigger case and a robot
+triggered it already a while back. Well, CONFIG_PREEMPT=y is also there
+so it matches this part of the story. But you connected the dots. 
+
+[¹] side note: in my early research it took a while to notice that
+    fpstate_active and fpregs_active were two different things. My brain
+    used fp.*_active for matching. It also helped my confusion that
+    those were renamed and removed…
+
+Sebastian

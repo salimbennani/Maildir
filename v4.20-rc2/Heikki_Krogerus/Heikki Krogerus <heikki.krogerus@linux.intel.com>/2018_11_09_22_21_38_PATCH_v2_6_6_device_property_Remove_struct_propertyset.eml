@@ -1,0 +1,516 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (61.164.42.155:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 10 Nov 2018 00:53:32 -0000
+Received: from icoremail.net (unknown [209.85.215.181])
+	by mail-app2 (Coremail) with SMTP id by_KCgCn35g6mOVb62VoAQ--.31669S3;
+	Fri, 09 Nov 2018 22:22:51 +0800 (CST)
+Received: from mail-pg1-f181.google.com (unknown [209.85.215.181])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwBXNkI4mOVbge0iAA--.3976S3;
+	Fri, 09 Nov 2018 22:22:48 +0800 (CST)
+Received: by mail-pg1-f181.google.com with SMTP id i4-v6so905461pgq.9
+        for <xuliker@zju.edu.cn>; Fri, 09 Nov 2018 06:22:48 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding:sender:precedence:list-id;
+        bh=wsbjK2yBUwnIMndIuxUAVI0MI59FoimZw+gH5k5GTbQ=;
+        b=UIi7ARcj51zQ+EKTP8ZWRVwVyVCmi9JOh1qEUsA1BlbY/HaHY+nWxVyS43eHlqltBW
+         vtKxMSrZO1aqbX+gQ5u8RYkB1vxMzp3HBHeF1F/wx0NEUc6nKC4D0iTIgffOm7EjSid7
+         ZyKglCKyiph6S13jDza9OUbZ6lV0xfBslieIhbrlk/YZk1o8mRgMoxbadhpXit0N43w4
+         pdYYYZnniDuN6+stYiD5RixynwjIYM2vcpkBaAHKB4rXwQ2aPSYQRmUMQ6bTosfMRjFJ
+         2J/kyJWFxZxA1xuasNPMxx0CSbMol9Gu8jXSosP+Aipgz7jTwgD4WBP2JpIrnuJKWetx
+         krVA==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=intel.com
+X-Gm-Message-State: AGRZ1gLT86+igciTbd0wVjz8sd0/H8MynVCA2BSLTkJgU+IN4dQ3CiCQ
+	f9b/kAw3zPsgLolpeysNoO6249rMaus2nGshPUTQ/ZDtzyYcOaSqvw==
+X-Received: by 2002:a63:fd53:: with SMTP id m19mr7749136pgj.340.1541773368426;
+        Fri, 09 Nov 2018 06:22:48 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp260920pjt;
+        Fri, 9 Nov 2018 06:22:47 -0800 (PST)
+X-Google-Smtp-Source: AJdET5fb4jOXb+lItxmw5nxz8zcwCXBk+J3OWBuxPCtUr/uUVggTkLxPkWdaugPCNO0k6OKNt1+h
+X-Received: by 2002:a63:7cf:: with SMTP id 198mr7774757pgh.129.1541773367316;
+        Fri, 09 Nov 2018 06:22:47 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1541773367; cv=none;
+        d=google.com; s=arc-20160816;
+        b=SVhuBcJwpRFmMXMtuiBd0SnBith9wZ8BioUAgDY0zXwpqLYIrz3ovYhLHadBLmDJtx
+         jo/X7z9tPI2lgFMChraCZ7Ay9MLrrW5+yzDdDVBjU/ziXsxW7rlryEbozPK02emTLBH5
+         fgaoAgHzAmNZOylD/WleShsnFdqWKJQmoRwHXIcLqR7fG184hiYSgE7K4MfvOgC64fKL
+         1NPJ0a5vtpFJFRDwhbatfkQDGWoPEqJgLDERf1PWrrBmuuOivS6T4B32QBGpPXY3aM95
+         xHcKhJDlKCR1ujZw2RIb8VQ1TzYj9DUT13QWvcNM7aTvaokvvhAaJSkd+TjXIUZnmihx
+         BRAQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:content-transfer-encoding:mime-version
+         :references:in-reply-to:message-id:date:subject:cc:to:from;
+        bh=wsbjK2yBUwnIMndIuxUAVI0MI59FoimZw+gH5k5GTbQ=;
+        b=UyxSefHI35GaWnY2KGNxZuRIoS/kCn7AKwf06FPoHgCzOIw5AjYh9Z10Ta9Ap+OkTD
+         NglLMd8pk4zELEp6tX9QQTa0E2GzvrAJAD9e4onFcKD9AXNYNocXDkplZtOHbexD7adj
+         VdlMJQaXE2djO9ZZNmTP8K5YSo5IB+SXf/a8ML9Y0HixkuhO7ntv+l3wbu88dPcwb5bE
+         8ocKQYp5S90/JJeLqCg4VlA0RHb/nh6JtPQBMU+VmWMNJuzGUEYRqmVhBgHYnZrRCl/E
+         0SGN2N1vmlCYbglnWDDT2TW2O58WuBTRcrGQ4hRqFstjtsnkw3dj1li4neP1kDeTWHjg
+         4sgA==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=intel.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id bc11-v6si7753540plb.120.2018.11.09.06.22.17;
+        Fri, 09 Nov 2018 06:22:47 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1728272AbeKJACv (ORCPT <rfc822;tu.k.phung@gmail.com>
+        + 99 others); Fri, 9 Nov 2018 19:02:51 -0500
+Received: from mga07.intel.com ([134.134.136.100]:21407 "EHLO mga07.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727735AbeKJACu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+        Fri, 9 Nov 2018 19:02:50 -0500
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga001.fm.intel.com ([10.253.24.23])
+  by orsmga105.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 09 Nov 2018 06:22:02 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.54,483,1534834800"; 
+   d="scan'208";a="106729715"
+Received: from black.fi.intel.com (HELO black.fi.intel.com.) ([10.237.72.28])
+  by fmsmga001.fm.intel.com with ESMTP; 09 Nov 2018 06:21:59 -0800
+From: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
+Subject: [PATCH v2 6/6] device property: Remove struct property_set
+Date: Fri,  9 Nov 2018 17:21:38 +0300
+Message-Id: <20181109142138.54770-7-heikki.krogerus@linux.intel.com>
+X-Mailer: git-send-email 2.19.1
+In-Reply-To: <20181109142138.54770-1-heikki.krogerus@linux.intel.com>
+References: <20181109142138.54770-1-heikki.krogerus@linux.intel.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwBXNkI4mOVbge0iAA--.3976S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoWfJw1fJFW3Wr1rXr1UAF4UCFg_yoWkGrWfpF
+	4FyFW8Jrs5Kw18Ga40yFs5Cw4Yyr17Ja1UK3W7Cw17u3Wqqr4rWF42kFyIvFyFkryku345
+	Ga1UWFn8XFZrGaUanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUU0bIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUPIb7Iv0xC_Kw4lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_tr0E3s1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr1j6F4UJwA2z4x0Y4vE
+	x4A2jsIE14v26rxl6s0DM28EF7xvwVC2z280aVCY1x0267AKxVW0oVCq3wAS0I0E0xvYzx
+	vE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AKxVWU
+	JVWUGwAv7VC2z280aVAFwI0_Cr0_Gr1UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvY0x
+	0EwIxGrwCjxxvEa2IrMxkF7I0Ew4C26cxK6c8Ij28IcwCY1Ik26cxK6xAEc7vF6xCjj44l
+	c2xSY4AK6IIF6ry5MxkI7II2jI8vz4vEwIxGrwCYIxAIcVC0I7IYx2IY67AKxVW5JVW7Jw
+	CYIxAIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMxvI42IY6I8E87Iv67AKxVW0oVCq3wCY
+	IxAIcVC2z280aVCY1x0267AKxVW0oVCq3wCF04k20xvY0x0EwIxGrwCF04k20xvEw4C26c
+	xK6c8Ij28IcwCF72vE77IF4wCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v2
+	6r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_Jw0_GFylIxkGc2
+	Ij64vIr41lIxAIcVCF04k26cxKx2IYs7xG6r4j6FyUYxBIdaVFxhVjvjDU0xZFpf9x07bv
+	XocUUUUU=
+
+Replacing struct property_set with the software nodes that
+were just introduced.
+
+The API and functionality for adding properties to devices
+remains the same, however, the goal is to convert the
+drivers to use the API for software nodes when the device
+has no real firmware node, and use the old API only when
+"extra" build-in properties are needed.
+
+Signed-off-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+---
+ drivers/base/property.c | 332 ++--------------------------------------
+ 1 file changed, 17 insertions(+), 315 deletions(-)
+
+diff --git a/drivers/base/property.c b/drivers/base/property.c
+index e20642759c67..240cd0f40605 100644
+--- a/drivers/base/property.c
++++ b/drivers/base/property.c
+@@ -18,198 +18,6 @@
+ #include <linux/etherdevice.h>
+ #include <linux/phy.h>
+ 
+-struct property_set {
+-	struct device *dev;
+-	struct fwnode_handle fwnode;
+-	const struct property_entry *properties;
+-};
+-
+-static const struct fwnode_operations pset_fwnode_ops;
+-
+-static inline bool is_pset_node(const struct fwnode_handle *fwnode)
+-{
+-	return !IS_ERR_OR_NULL(fwnode) && fwnode->ops == &pset_fwnode_ops;
+-}
+-
+-#define to_pset_node(__fwnode)						\
+-	({								\
+-		typeof(__fwnode) __to_pset_node_fwnode = __fwnode;	\
+-									\
+-		is_pset_node(__to_pset_node_fwnode) ?			\
+-			container_of(__to_pset_node_fwnode,		\
+-				     struct property_set, fwnode) :	\
+-			NULL;						\
+-	})
+-
+-static const struct property_entry *
+-pset_prop_get(const struct property_set *pset, const char *name)
+-{
+-	const struct property_entry *prop;
+-
+-	if (!pset || !pset->properties)
+-		return NULL;
+-
+-	for (prop = pset->properties; prop->name; prop++)
+-		if (!strcmp(name, prop->name))
+-			return prop;
+-
+-	return NULL;
+-}
+-
+-static const void *property_get_pointer(const struct property_entry *prop)
+-{
+-	switch (prop->type) {
+-	case DEV_PROP_U8:
+-		if (prop->is_array)
+-			return prop->pointer.u8_data;
+-		return &prop->value.u8_data;
+-	case DEV_PROP_U16:
+-		if (prop->is_array)
+-			return prop->pointer.u16_data;
+-		return &prop->value.u16_data;
+-	case DEV_PROP_U32:
+-		if (prop->is_array)
+-			return prop->pointer.u32_data;
+-		return &prop->value.u32_data;
+-	case DEV_PROP_U64:
+-		if (prop->is_array)
+-			return prop->pointer.u64_data;
+-		return &prop->value.u64_data;
+-	case DEV_PROP_STRING:
+-		if (prop->is_array)
+-			return prop->pointer.str;
+-		return &prop->value.str;
+-	default:
+-		return NULL;
+-	}
+-}
+-
+-static const void *pset_prop_find(const struct property_set *pset,
+-				  const char *propname, size_t length)
+-{
+-	const struct property_entry *prop;
+-	const void *pointer;
+-
+-	prop = pset_prop_get(pset, propname);
+-	if (!prop)
+-		return ERR_PTR(-EINVAL);
+-	pointer = property_get_pointer(prop);
+-	if (!pointer)
+-		return ERR_PTR(-ENODATA);
+-	if (length > prop->length)
+-		return ERR_PTR(-EOVERFLOW);
+-	return pointer;
+-}
+-
+-static int pset_prop_read_u8_array(const struct property_set *pset,
+-				   const char *propname,
+-				   u8 *values, size_t nval)
+-{
+-	const void *pointer;
+-	size_t length = nval * sizeof(*values);
+-
+-	pointer = pset_prop_find(pset, propname, length);
+-	if (IS_ERR(pointer))
+-		return PTR_ERR(pointer);
+-
+-	memcpy(values, pointer, length);
+-	return 0;
+-}
+-
+-static int pset_prop_read_u16_array(const struct property_set *pset,
+-				    const char *propname,
+-				    u16 *values, size_t nval)
+-{
+-	const void *pointer;
+-	size_t length = nval * sizeof(*values);
+-
+-	pointer = pset_prop_find(pset, propname, length);
+-	if (IS_ERR(pointer))
+-		return PTR_ERR(pointer);
+-
+-	memcpy(values, pointer, length);
+-	return 0;
+-}
+-
+-static int pset_prop_read_u32_array(const struct property_set *pset,
+-				    const char *propname,
+-				    u32 *values, size_t nval)
+-{
+-	const void *pointer;
+-	size_t length = nval * sizeof(*values);
+-
+-	pointer = pset_prop_find(pset, propname, length);
+-	if (IS_ERR(pointer))
+-		return PTR_ERR(pointer);
+-
+-	memcpy(values, pointer, length);
+-	return 0;
+-}
+-
+-static int pset_prop_read_u64_array(const struct property_set *pset,
+-				    const char *propname,
+-				    u64 *values, size_t nval)
+-{
+-	const void *pointer;
+-	size_t length = nval * sizeof(*values);
+-
+-	pointer = pset_prop_find(pset, propname, length);
+-	if (IS_ERR(pointer))
+-		return PTR_ERR(pointer);
+-
+-	memcpy(values, pointer, length);
+-	return 0;
+-}
+-
+-static int pset_prop_count_elems_of_size(const struct property_set *pset,
+-					 const char *propname, size_t length)
+-{
+-	const struct property_entry *prop;
+-
+-	prop = pset_prop_get(pset, propname);
+-	if (!prop)
+-		return -EINVAL;
+-
+-	return prop->length / length;
+-}
+-
+-static int pset_prop_read_string_array(const struct property_set *pset,
+-				       const char *propname,
+-				       const char **strings, size_t nval)
+-{
+-	const struct property_entry *prop;
+-	const void *pointer;
+-	size_t array_len, length;
+-
+-	/* Find out the array length. */
+-	prop = pset_prop_get(pset, propname);
+-	if (!prop)
+-		return -EINVAL;
+-
+-	if (!prop->is_array)
+-		/* The array length for a non-array string property is 1. */
+-		array_len = 1;
+-	else
+-		/* Find the length of an array. */
+-		array_len = pset_prop_count_elems_of_size(pset, propname,
+-							  sizeof(const char *));
+-
+-	/* Return how many there are if strings is NULL. */
+-	if (!strings)
+-		return array_len;
+-
+-	array_len = min(nval, array_len);
+-	length = array_len * sizeof(*strings);
+-
+-	pointer = pset_prop_find(pset, propname, length);
+-	if (IS_ERR(pointer))
+-		return PTR_ERR(pointer);
+-
+-	memcpy(strings, pointer, length);
+-
+-	return array_len;
+-}
+-
+ struct fwnode_handle *dev_fwnode(struct device *dev)
+ {
+ 	return IS_ENABLED(CONFIG_OF) && dev->of_node ?
+@@ -217,51 +25,6 @@ struct fwnode_handle *dev_fwnode(struct device *dev)
+ }
+ EXPORT_SYMBOL_GPL(dev_fwnode);
+ 
+-static bool pset_fwnode_property_present(const struct fwnode_handle *fwnode,
+-					 const char *propname)
+-{
+-	return !!pset_prop_get(to_pset_node(fwnode), propname);
+-}
+-
+-static int pset_fwnode_read_int_array(const struct fwnode_handle *fwnode,
+-				      const char *propname,
+-				      unsigned int elem_size, void *val,
+-				      size_t nval)
+-{
+-	const struct property_set *node = to_pset_node(fwnode);
+-
+-	if (!val)
+-		return pset_prop_count_elems_of_size(node, propname, elem_size);
+-
+-	switch (elem_size) {
+-	case sizeof(u8):
+-		return pset_prop_read_u8_array(node, propname, val, nval);
+-	case sizeof(u16):
+-		return pset_prop_read_u16_array(node, propname, val, nval);
+-	case sizeof(u32):
+-		return pset_prop_read_u32_array(node, propname, val, nval);
+-	case sizeof(u64):
+-		return pset_prop_read_u64_array(node, propname, val, nval);
+-	}
+-
+-	return -ENXIO;
+-}
+-
+-static int
+-pset_fwnode_property_read_string_array(const struct fwnode_handle *fwnode,
+-				       const char *propname,
+-				       const char **val, size_t nval)
+-{
+-	return pset_prop_read_string_array(to_pset_node(fwnode), propname,
+-					   val, nval);
+-}
+-
+-static const struct fwnode_operations pset_fwnode_ops = {
+-	.property_present = pset_fwnode_property_present,
+-	.property_read_int_array = pset_fwnode_read_int_array,
+-	.property_read_string_array = pset_fwnode_property_read_string_array,
+-};
+-
+ /**
+  * device_property_present - check if a property of a device is present
+  * @dev: Device whose property is being checked
+@@ -721,82 +484,25 @@ int fwnode_property_get_reference_args(const struct fwnode_handle *fwnode,
+ }
+ EXPORT_SYMBOL_GPL(fwnode_property_get_reference_args);
+ 
+-/**
+- * pset_free_set - releases memory allocated for copied property set
+- * @pset: Property set to release
+- *
+- * Function takes previously copied property set and releases all the
+- * memory allocated to it.
+- */
+-static void pset_free_set(struct property_set *pset)
+-{
+-	if (!pset)
+-		return;
+-
+-	property_entries_free(pset->properties);
+-	kfree(pset);
+-}
+-
+-/**
+- * pset_copy_set - copies property set
+- * @pset: Property set to copy
+- *
+- * This function takes a deep copy of the given property set and returns
+- * pointer to the copy. Call device_free_property_set() to free resources
+- * allocated in this function.
+- *
+- * Return: Pointer to the new property set or error pointer.
+- */
+-static struct property_set *pset_copy_set(const struct property_set *pset)
+-{
+-	struct property_entry *properties;
+-	struct property_set *p;
+-
+-	p = kzalloc(sizeof(*p), GFP_KERNEL);
+-	if (!p)
+-		return ERR_PTR(-ENOMEM);
+-
+-	properties = property_entries_dup(pset->properties);
+-	if (IS_ERR(properties)) {
+-		kfree(p);
+-		return ERR_CAST(properties);
+-	}
+-
+-	p->properties = properties;
+-	return p;
+-}
+-
+ /**
+  * device_remove_properties - Remove properties from a device object.
+  * @dev: Device whose properties to remove.
+  *
+  * The function removes properties previously associated to the device
+- * secondary firmware node with device_add_properties(). Memory allocated
+- * to the properties will also be released.
++ * firmware node with device_add_properties(). Memory allocated to the
++ * properties will also be released.
+  */
+ void device_remove_properties(struct device *dev)
+ {
+-	struct fwnode_handle *fwnode;
+-	struct property_set *pset;
++	struct fwnode_handle *fwnode = dev_fwnode(dev);
+ 
+-	fwnode = dev_fwnode(dev);
+ 	if (!fwnode)
+ 		return;
+-	/*
+-	 * Pick either primary or secondary node depending which one holds
+-	 * the pset. If there is no real firmware node (ACPI/DT) primary
+-	 * will hold the pset.
+-	 */
+-	pset = to_pset_node(fwnode);
+-	if (pset) {
+-		set_primary_fwnode(dev, NULL);
+-	} else {
+-		pset = to_pset_node(fwnode->secondary);
+-		if (pset && dev == pset->dev)
+-			set_secondary_fwnode(dev, NULL);
++
++	if (is_software_node(fwnode->secondary)) {
++		fwnode_remove_software_node(fwnode->secondary);
++		set_secondary_fwnode(dev, NULL);
+ 	}
+-	if (pset && dev == pset->dev)
+-		pset_free_set(pset);
+ }
+ EXPORT_SYMBOL_GPL(device_remove_properties);
+ 
+@@ -806,26 +512,22 @@ EXPORT_SYMBOL_GPL(device_remove_properties);
+  * @properties: Collection of properties to add.
+  *
+  * Associate a collection of device properties represented by @properties with
+- * @dev as its secondary firmware node. The function takes a copy of
+- * @properties.
++ * @dev. The function takes a copy of @properties.
++ *
++ * WARNING: The callers should not use this function if it is known that there
++ * is no real firmware node associated with @dev! In that case the callers
++ * should create a software node and assign it to @dev directly.
+  */
+ int device_add_properties(struct device *dev,
+ 			  const struct property_entry *properties)
+ {
+-	struct property_set *p, pset;
+-
+-	if (!properties)
+-		return -EINVAL;
+-
+-	pset.properties = properties;
++	struct fwnode_handle *fwnode;
+ 
+-	p = pset_copy_set(&pset);
+-	if (IS_ERR(p))
+-		return PTR_ERR(p);
++	fwnode = fwnode_create_software_node(properties, NULL);
++	if (IS_ERR(fwnode))
++		return PTR_ERR(fwnode);
+ 
+-	p->fwnode.ops = &pset_fwnode_ops;
+-	set_secondary_fwnode(dev, &p->fwnode);
+-	p->dev = dev;
++	set_secondary_fwnode(dev, fwnode);
+ 	return 0;
+ }
+ EXPORT_SYMBOL_GPL(device_add_properties);
+-- 
+2.19.1

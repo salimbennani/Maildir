@@ -1,0 +1,185 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 20 Nov 2018 00:29:21 -0000
+Received: from icoremail.net (unknown [209.85.214.169])
+	by mail-app2 (Coremail) with SMTP id by_KCgDnX9NzjPJb1RO4AQ--.54172S3;
+	Mon, 19 Nov 2018 18:12:03 +0800 (CST)
+Received: from mail-pl1-f169.google.com (unknown [209.85.214.169])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwD33EhvjPJb5mdXAA--.19385S3;
+	Mon, 19 Nov 2018 18:11:59 +0800 (CST)
+Received: by mail-pl1-f169.google.com with SMTP id b22-v6so8921342pls.7
+        for <xuliker@zju.edu.cn>; Mon, 19 Nov 2018 02:11:59 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :from:to:cc:subject:in-reply-to:references:date:message-id
+         :mime-version:sender:precedence:list-id;
+        bh=6mfzTP66XbmQXQML+FMUL/9OHjzjwQul1M7AjMBNb3M=;
+        b=Q6EVondpY6qXSkcO+SN1WNmucgZFgfW1uess0xnvBlO7P6EDP2Z/ntuK5FNzYwmYfr
+         /NnBzcMA07d3j3gJ8nWqBXRdGeEyODXJwIuX9zRcRxHI3zgIpFY53QAaIjf6AM1E5OPy
+         ICJCanQoMybsr88y9jw7UEYRZ9LRkhq/Py8TSTrQ5BpdvcKp1ooz+8UUpGcXo18oXF98
+         f9GB8hsHnCuv0WY5zPquhUkv2/uqd+QBX8oRwsg0nEnXrkUOVf9GddTyC9R20gIWgJ1q
+         lnD4XBu/2KDS0FHcHQoQdIyTpJKhYppcitu/opo7n4nyl1rNxv+XXdkihgnOSWyeTqyP
+         R8MA==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=redhat.com
+X-Gm-Message-State: AGRZ1gLE6Sn/Jtay4B6NlvA7kHHslRm/9niLbTYRoNU9nbKVkCNIFHpz
+	2bM+C42JFW3WgYYpWA58H1saZam32UtaEcP6aQ8qA9xkQtpabso=
+X-Received: by 2002:a17:902:166:: with SMTP id 93-v6mr21269597plb.68.1542622318941;
+        Mon, 19 Nov 2018 02:11:58 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:d106:0:0:0:0 with SMTP id l6-v6csp2463979pju;
+        Mon, 19 Nov 2018 02:11:57 -0800 (PST)
+X-Google-Smtp-Source: AJdET5ezi3tJ9ghNl9XDyqlmPZIsAWhlOvQD9r08yhMma3pqUZ2of9iT0Ak+v6x9gzs8rpDauApZ
+X-Received: by 2002:a63:f111:: with SMTP id f17mr19645798pgi.236.1542622317465;
+        Mon, 19 Nov 2018 02:11:57 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542622317; cv=none;
+        d=google.com; s=arc-20160816;
+        b=Ss+j7G6JOrGNO168+W/0Pcp1qCaKZsF5JDPRXHU9bfop6uNpuL3tUR6+y+XXIZxB7P
+         GWtjgTod/DegqCoIZDVo3FTe7n2bivre+c1EbnMk9WoB/5woolRpZS7O28/IP2dTz+tA
+         nYYqSaeLb4NpQzR/mF2iVTNGrhybxo0zVl0BJHnkVKpRl0UX4nMANlYZXQxWvYAxxeBL
+         quO2VcOulaZbqtSH1YIJCWfbkQsxKtZ5V/T38i363ET0Eogpd/7G/Su4SaX4hkpKnjrU
+         xGSf/mEDX0+/96/j3DciYBuFNbyd9y5hFyhrGGyNjSAap7Xf8cTEfzjXJ/chkjR9N3tt
+         kraQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:mime-version:message-id:date:references
+         :in-reply-to:subject:cc:to:from;
+        bh=6mfzTP66XbmQXQML+FMUL/9OHjzjwQul1M7AjMBNb3M=;
+        b=QNi8rW4VNhdQ0c2EdqFs+OpREK0wbSjWIsi1riyjAfX9/a0AZ9LJXS4jqEc1q/ik6o
+         Tw8JgQwenekixvgaowxxXtdVuzJCRvMlVsdYxGrKqDkJU6obQ7H6Df24pGq472bMIB5l
+         mRWnAdhrQs0XOUjKHnSom4vaPdeveff83ESBC/VYVkkZtRYyuYH2MPWYcYQjcG4Dg+cY
+         L2u56NeCYP1atzAsZJRA34sfQLtGOpscmJOiPgqHBKKvgcZ/40at5+yXafRMpn48n/hK
+         7E/SJfydYi+94EdR6Zm8I6CbFNhWt91clfqgp4CQNsIZRk+4HO+YN1YrSOs6eUUXIiVP
+         cquA==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=redhat.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id o28si36520522pgm.238.2018.11.19.02.11.42;
+        Mon, 19 Nov 2018 02:11:57 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1727570AbeKSUdB (ORCPT <rfc822;z.kun1001@gmail.com> + 99 others);
+        Mon, 19 Nov 2018 15:33:01 -0500
+Received: from mx1.redhat.com ([209.132.183.28]:39284 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726287AbeKSUdB (ORCPT <rfc822;kvm@vger.kernel.org>);
+        Mon, 19 Nov 2018 15:33:01 -0500
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id BFE0330023B8;
+        Mon, 19 Nov 2018 10:09:52 +0000 (UTC)
+Received: from vitty.brq.redhat.com.redhat.com (unknown [10.43.2.155])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 83C2C60922;
+        Mon, 19 Nov 2018 10:09:51 +0000 (UTC)
+From: Vitaly Kuznetsov <vkuznets@redhat.com>
+To: Liran Alon <liran.alon@oracle.com>
+Cc: idan.brown@oracle.com, pbonzini@redhat.com, rkrcmar@redhat.com,
+        kvm@vger.kernel.org
+Subject: Re: [PATCH] KVM: nVMX: Fix kernel info-leak when enabling KVM_CAP_HYPERV_ENLIGHTENED_VMCS more than once
+In-Reply-To: <20181117120506.89840-1-liran.alon@oracle.com>
+References: <20181117120506.89840-1-liran.alon@oracle.com>
+Date: Mon, 19 Nov 2018 11:09:51 +0100
+Message-ID: <87o9alpeds.fsf@vitty.brq.redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.47]); Mon, 19 Nov 2018 10:09:52 +0000 (UTC)
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwD33EhvjPJb5mdXAA--.19385S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoWxWrWruFWfAF48Ww4Dur1fXrb_yoW5Ar17p3
+	s7u34q9397X3s7Kw4DXr92gFy3ZrW8XFyxGryDGw4ruwsFvryxJryIk3WrXFnYqr4kJFW5
+	Zr1xZa1xuay5JwUanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUP2b7Iv0xC_tr1lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1l84ACjcxK6I8E
+	87Iv67AKxVW0oVCq3wA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_GcCE3s1le2I262IYc4CY6c
+	8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_JrI_
+	JrylYx0Ex4A2jsIE14v26r4j6F4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvEwIxGrw
+	CjxxvEa2IrMxkF7I0Ew4C26cxK6c8Ij28IcwCY1Ik26cxK6xAEc7vF6xCjj44lc2xSY4AK
+	6IIF6r4DMxkI7II2jI8vz4vEwIxGrwCYIxAIcVC0I7IYx2IY67AKxVW8JVW5JwCYIxAIcV
+	C0I7IYx2IY6xkF7I0E14v26r4j6F4UMxvI42IY6I8E87Iv67AKxVW8Jr0_Cr1UMxvI42IY
+	6I8E87Iv6xkF7I0E14v26r4UJVWxJr1l42xK82IYc2Ij64vIr41l42xK82IY64kExVAvwV
+	Aq07x20xyl4x8a6x804xWl4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWU
+	JVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r126r1DMIIYrxkI7V
+	AKI48JMIIF0xvE42xK8VAvwI8IcIk0rVW3JVWrJrUvcSsGvfC2KfnxnUUI43ZEXa7IU5zM
+	KtUUUUU==
+
+Liran Alon <liran.alon@oracle.com> writes:
+
+> Consider the case that userspace enables KVM_CAP_HYPERV_ENLIGHTENED_VMCS twice:
+> 1) kvm_vcpu_ioctl_enable_cap() is called to enable
+> KVM_CAP_HYPERV_ENLIGHTENED_VMCS which calls nested_enable_evmcs().
+> 2) nested_enable_evmcs() sets enlightened_vmcs_enabled to true and fills
+> vmcs_version which is then copied to userspace.
+> 3) kvm_vcpu_ioctl_enable_cap() is called again to enable
+> KVM_CAP_HYPERV_ENLIGHTENED_VMCS which calls nested_enable_evmcs().
+> 4) This time nested_enable_evmcs() just returns 0 as
+> enlightened_vmcs_enabled is already true. *Without filling
+> vmcs_version*.
+> 5) kvm_vcpu_ioctl_enable_cap() continues as usual and copies
+> *uninitialized* vmcs_version to userspace which leads to kernel info-leak.
+>
+> Fix this issue by simply changing nested_enable_evmcs() to always fill
+> vmcs_version output argument. Even when enlightened_vmcs_enabled is
+> already set to true.
+>
+> Note that SVM's nested_enable_evmcs() should not be modified because it
+> always returns a non-zero value (-ENODEV) which results in
+> kvm_vcpu_ioctl_enable_cap() skipping the copy of vmcs_version to
+> userspace (as it should).
+>
+> Fixes: 57b119da3594 ("KVM: nVMX: add KVM_CAP_HYPERV_ENLIGHTENED_VMCS capability")
+>
+> Reported-by: syzbot+cfbc368e283d381f8cef@syzkaller.appspotmail.com
+> Reviewed-by: Krish Sadhukhan <krish.sadhukhan@oracle.com>
+> Signed-off-by: Liran Alon <liran.alon@oracle.com>
+> ---
+>  arch/x86/kvm/vmx.c | 12 ++++++------
+>  1 file changed, 6 insertions(+), 6 deletions(-)
+>
+> diff --git a/arch/x86/kvm/vmx.c b/arch/x86/kvm/vmx.c
+> index 6e92624fe8d6..be1c6e37b57c 100644
+> --- a/arch/x86/kvm/vmx.c
+> +++ b/arch/x86/kvm/vmx.c
+> @@ -1610,12 +1610,6 @@ static int nested_enable_evmcs(struct kvm_vcpu *vcpu,
+>  {
+>  	struct vcpu_vmx *vmx = to_vmx(vcpu);
+>  
+> -	/* We don't support disabling the feature for simplicity. */
+> -	if (vmx->nested.enlightened_vmcs_enabled)
+> -		return 0;
+> -
+> -	vmx->nested.enlightened_vmcs_enabled = true;
+> -
+>  	/*
+>  	 * vmcs_version represents the range of supported Enlightened VMCS
+>  	 * versions: lower 8 bits is the minimal version, higher 8 bits is the
+> @@ -1625,6 +1619,12 @@ static int nested_enable_evmcs(struct kvm_vcpu *vcpu,
+>  	if (vmcs_version)
+>  		*vmcs_version = (KVM_EVMCS_VERSION << 8) | 1;
+>  
+> +	/* We don't support disabling the feature for simplicity. */
+> +	if (vmx->nested.enlightened_vmcs_enabled)
+> +		return 0;
+> +
+> +	vmx->nested.enlightened_vmcs_enabled = true;
+> +
+>  	vmx->nested.msrs.pinbased_ctls_high &= ~EVMCS1_UNSUPPORTED_PINCTRL;
+>  	vmx->nested.msrs.entry_ctls_high &= ~EVMCS1_UNSUPPORTED_VMENTRY_CTRL;
+>  	vmx->nested.msrs.exit_ctls_high &= ~EVMCS1_UNSUPPORTED_VMEXIT_CTRL;
+
+Reviewed-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+
+Thanks!
+
+-- 
+Vitaly

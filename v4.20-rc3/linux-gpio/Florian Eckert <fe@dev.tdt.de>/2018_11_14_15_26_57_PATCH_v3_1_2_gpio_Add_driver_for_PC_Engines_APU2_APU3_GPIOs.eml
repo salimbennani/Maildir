@@ -1,0 +1,484 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (61.164.42.155:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 14 Nov 2018 14:44:05 -0000
+Received: from icoremail.net (unknown [209.85.210.176])
+	by mail-app2 (Coremail) with SMTP id by_KCgC3f7Vw0Otbu12NAQ--.42401S3;
+	Wed, 14 Nov 2018 15:36:17 +0800 (CST)
+Received: from mail-pf1-f176.google.com (unknown [209.85.210.176])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwAn_jls0OtbHTI9AA--.6241S3;
+	Wed, 14 Nov 2018 15:36:12 +0800 (CST)
+Received: by mail-pf1-f176.google.com with SMTP id x2-v6so7460019pfm.7
+        for <xuliker@zju.edu.cn>; Tue, 13 Nov 2018 23:36:12 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :from:to:cc:subject:date:message-id:in-reply-to:references:sender
+         :precedence:list-id;
+        bh=xBLrh6cy6swJEODWhDKAFCixX6FrZo2IIjY9Zs9i+M0=;
+        b=COVpQPSYyUuGsPBl2H/aU2RmxjIcnthbNQN8lX7BNbJzksSXqiHz/yBt89QJS9xWU2
+         xk/AKSD9aoHeQtRvXtrbsi7rY6XLKk/uWHi6EN47AUJlhYwS3gELHoFi88O/hxCQYU/t
+         xK5hIlIa/j4j+8Bglc7beKtV9anBdbG/9fEKhr0yIuglxvnHTRCyjJ4OrU0vXMB4aYZ3
+         cd8WPd5CszO75JThwf7iw/NALL0nUKH/jSKsruT5Q30a/gHAK8ZXcmSI0JNo+RGE4I1q
+         YJvyWsd8h8OTy2ZdZ+0/GVJOZZDA0QEzhTFg2+thMOvThpJKsdVlwHO+HDETdyn/uQQi
+         /YiQ==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org
+X-Gm-Message-State: AGRZ1gIC/dc66dZCKeGA09IaSpYEFhU0pGcwCA/ttP5xV2u2fwCoGnPk
+	R1i/k9SFytXMFQloLERDGLZNJE245kGpTOuM+5Tg5rgwXLO53sP32A==
+X-Received: by 2002:a62:22c3:: with SMTP id p64-v6mr867318pfj.9.1542180972432;
+        Tue, 13 Nov 2018 23:36:12 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp5485138pjt;
+        Tue, 13 Nov 2018 23:36:11 -0800 (PST)
+X-Google-Smtp-Source: AJdET5dWDsZl82XTKvtYJKPBoCk1clkiIjM2qXtix+DcjbUyr4cGsvTyExh3Sd0AHGoGAJVwjltz
+X-Received: by 2002:a63:4566:: with SMTP id u38mr779749pgk.4.1542180971344;
+        Tue, 13 Nov 2018 23:36:11 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542180971; cv=none;
+        d=google.com; s=arc-20160816;
+        b=l2TckGdyij52rJy8CuYFwsDRvlPavAUL/Tgfjs635y7Ybs/zVjg0+5cQc8vsif60VT
+         mCUJoxsZYfWRJSWxTfbR78O71viPJIpTGXkd8an2NDVJwo5CMlJf81+8rviNz17GNA9X
+         J/c9yhRBw6BtqKm+vVvQP5aCMkrfmt+Y94NXt1urDtLboqyiaF90RzBBlyOtMCsc5qM+
+         7oibh7RecEKtUnNW3t52i/XKx9JLrrks39CA/hpO2Czn7ovfFCOBAiB1b1CHBc1y0d92
+         9yrYoxuhU8RpWdc5AEiz7ml2hZFXMZBBhq66+ayEn3nsNTjOjVOi+Of7HMzyj3jsyCeS
+         aHjg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:references:in-reply-to:message-id:date
+         :subject:cc:to:from;
+        bh=xBLrh6cy6swJEODWhDKAFCixX6FrZo2IIjY9Zs9i+M0=;
+        b=U6XGaW5bBFx0a5XqLaQErKKxViidRjqGA1uc+bjo4BQTDrAYgydxIJER3Xc1pEmJtY
+         rTKUe0nqCb3X06fV2mdmlnOc2jOnqypiRfqRnw7bF6SG0inLgEd1DkU32r3+KzbYNEyr
+         dE0HBbhS/r6aC0cf70k/dWMYBdJxzRGUP/mQflLy8niOk640eiSqIX+WUnGl4OoXv7nU
+         5SRKuGECo72LYiO84sF0vSsbX/Ac1AQJIWTzYRjibR0a0vp5sNvACu1825v2U50Pyz7M
+         ala+44ub9/bE/RiSc3eAp8ZIeFvzYfnmal7qpTxnWqmqgcMFHL7EX3eN0OnZdw1qXfTd
+         qGtw==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id h80-v6si20958835pfj.112.2018.11.13.23.35.55;
+        Tue, 13 Nov 2018 23:36:11 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1731991AbeKNRhw (ORCPT <rfc822;zhaoweiliew@gmail.com>
+        + 99 others); Wed, 14 Nov 2018 12:37:52 -0500
+Received: from ms.tdt.de ([195.243.126.94]:57816 "EHLO mail.dev.tdt.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1727375AbeKNRhv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+        Wed, 14 Nov 2018 12:37:51 -0500
+Received: from feckert01.dev.tdt.de (unknown [10.2.3.40])
+        by mail.dev.tdt.de (Postfix) with ESMTPSA id 14BE32196E;
+        Wed, 14 Nov 2018 07:27:06 +0000 (UTC)
+From: Florian Eckert <fe@dev.tdt.de>
+To: linus.walleij@linaro.org, tglx@linutronix.de, mingo@redhat.com,
+        bp@alien8.de, andy.shevchenko@gmail.com, joe@perches.com,
+        chunkeey@gmail.com, piotr.krol@3mdeb.com, dvhart@infradead.org
+Cc: linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org
+Subject: [PATCH v3 1/2] gpio: Add driver for PC Engines APU2/APU3 GPIOs
+Date: Wed, 14 Nov 2018 08:26:57 +0100
+Message-Id: <20181114072658.11457-2-fe@dev.tdt.de>
+X-Mailer: git-send-email 2.11.0
+In-Reply-To: <20181114072658.11457-1-fe@dev.tdt.de>
+References: <20181114072658.11457-1-fe@dev.tdt.de>
+X-Spam-Status: No, score=-1.0 required=5.0 tests=ALL_TRUSTED autolearn=ham
+        autolearn_force=no version=3.4.0
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on mail.dev.tdt.de
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwAn_jls0OtbHTI9AA--.6241S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoWfGF18Kr4rtw4kJryxAFW5Jrb_yoWDAw1DpF
+	1qgryrJFW3JF4jgr43A398ZF15uw4DK34ay3sxCr1rZa4jq34kJFs0vFZ8Zr1UAFWDWF1F
+	yFyfGF1ruFsFywUanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUU0bIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUP2b7Iv0xC_Kw4lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1l84ACjcxK6I8E
+	87Iv67AKxVW0oVCq3wA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_GcCE3s1le2I262IYc4CY6c
+	8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_JrI_
+	JrylYx0Ex4A2jsIE14v26r4j6F4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvY0x0EwI
+	xGrwCjxxvEa2IrMxkF7I0Ew4C26cxK6c8Ij28IcwCY1Ik26cxK6xAEc7vF6xCjj44lc2xS
+	Y4AK6IIF6r4xMxkI7II2jI8vz4vEwIxGrwCYIxAIcVC0I7IYx2IY67AKxVWUCVW8JwCYIx
+	AIcVC0I7IYx2IY6xkF7I0E14v26r1j6r4UMxvI42IY6I8E87Iv67AKxVWxJr0_GcWlcIIF
+	0xvEx4A2jsIEc7CjxVAFwI0_Cr1j6rxdMxAIw28IcxkI7VAKI48JMxAIw28IcVAKzI0EY4
+	vE52x082I5MxCjnVCjjxCrMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_
+	Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWUtVW8ZwCIc40Y0x
+	0EwIxGrwCI42IY6xAIw20EY4v20xvaj40_Gr0_ZrUvcSsGvfC2KfnxnUUI43ZEXa7IUOaz
+	utUUUUU==
+
+Add a new device driver "gpio-apu" which will handle the GPIOs onAPU2
+and APU3 devices from PC Engines.
+
+APU2 (https://pcengines.ch/schema/apu2c.pdf page 7):
+- G32 is "button_reset" connected to the smd-button on the frontpanel
+- G50 is "mpcie2_reset" connected to mPCIe2 reset line
+- G51 is "mpcie3_reset" connected to mPCIe3 reset line
+
+APU3 (https://pcengines.ch/schema/apu3c.pdf page 7):
+- G32 is "button_reset" connected to the smd-button on the frontpanel
+- G50 is "mpcie2_reset" connected to mPCIe2 reset line
+- G51 is "mpcie3_reset" connected to mPCIe3 reset line
+- G33 is "simswap" connected to SIM switch IC to swap the SIM between
+  mPCIe2 and mPCIe3 slot
+
+Signed-off-by: Florian Eckert <fe@dev.tdt.de>
+---
+ drivers/gpio/Kconfig    |   8 ++
+ drivers/gpio/Makefile   |   1 +
+ drivers/gpio/gpio-apu.c | 312 ++++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 321 insertions(+)
+ create mode 100644 drivers/gpio/gpio-apu.c
+
+diff --git a/drivers/gpio/Kconfig b/drivers/gpio/Kconfig
+index 833a1b51c948..f9e603d5670c 100644
+--- a/drivers/gpio/Kconfig
++++ b/drivers/gpio/Kconfig
+@@ -117,6 +117,14 @@ config GPIO_AMDPT
+ 	  driver for GPIO functionality on Promontory IOHub
+ 	  Require ACPI ASL code to enumerate as a platform device.
+ 
++config GPIO_APU
++	tristate "PC Engines APU2/APU3 GPIO support"
++	depends on X86
++	select GPIO_GENERIC
++	help
++	  Say Y here to support GPIO functionality on APU2/APU3 boards
++	  from PC Engines.
++
+ config GPIO_ASPEED
+ 	tristate "Aspeed GPIO support"
+ 	depends on (ARCH_ASPEED || COMPILE_TEST) && OF_GPIO
+diff --git a/drivers/gpio/Makefile b/drivers/gpio/Makefile
+index 671c4477c951..9c27523fb189 100644
+--- a/drivers/gpio/Makefile
++++ b/drivers/gpio/Makefile
+@@ -29,6 +29,7 @@ obj-$(CONFIG_GPIO_ALTERA)  	+= gpio-altera.o
+ obj-$(CONFIG_GPIO_ALTERA_A10SR)	+= gpio-altera-a10sr.o
+ obj-$(CONFIG_GPIO_AMD8111)	+= gpio-amd8111.o
+ obj-$(CONFIG_GPIO_AMDPT)	+= gpio-amdpt.o
++obj-$(CONFIG_GPIO_APU)		+= gpio-apu.o
+ obj-$(CONFIG_GPIO_ARIZONA)	+= gpio-arizona.o
+ obj-$(CONFIG_GPIO_ATH79)	+= gpio-ath79.o
+ obj-$(CONFIG_GPIO_ASPEED)	+= gpio-aspeed.o
+diff --git a/drivers/gpio/gpio-apu.c b/drivers/gpio/gpio-apu.c
+new file mode 100644
+index 000000000000..df166c0d8258
+--- /dev/null
++++ b/drivers/gpio/gpio-apu.c
+@@ -0,0 +1,312 @@
++// SPDX-License-Identifier: GPL-2.0
++/* PC Engines APU2/APU3 GPIO device driver
++ *
++ * Copyright (C) 2018 Florian Eckert <fe@dev.tdt.de>
++ */
++
++#include <linux/dmi.h>
++#include <linux/err.h>
++#include <linux/gpio/driver.h>
++#include <linux/input.h>
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/platform_device.h>
++
++#define DEVNAME                "gpio-apu"
++
++#define APU_FCH_ACPI_MMIO_BASE 0xFED80000
++#define APU_FCH_GPIO_BASE      (APU_FCH_ACPI_MMIO_BASE + 0x1500)
++#define APU_GPIO_BIT_RD        16
++#define APU_GPIO_BIT_WR        22
++#define APU_GPIO_BIT_DIR       23
++
++struct apu_gpio_pdata {
++	struct platform_device *pdev;
++	struct gpio_chip *chip;
++	unsigned long *offset;		/* base register offset */
++	void __iomem **addr;		/* remapped iomem addresses */
++	spinlock_t lock;		/* lock register access */
++};
++
++static struct apu_gpio_pdata *apu_gpio;
++
++/* APU2 */
++static unsigned long apu2_gpio_offset[] = {
++	APU_FCH_GPIO_BASE + 89 * sizeof(u32),
++	APU_FCH_GPIO_BASE + 67 * sizeof(u32),
++	APU_FCH_GPIO_BASE + 66 * sizeof(u32),
++};
++static const char * const apu2_gpio_names[] = {
++	"button_reset",
++	"mpcie2_reset",
++	"mpcie3_reset",
++};
++
++/* APU3 */
++static unsigned long apu3_gpio_offset[] = {
++	APU_FCH_GPIO_BASE + 89 * sizeof(u32),
++	APU_FCH_GPIO_BASE + 67 * sizeof(u32),
++	APU_FCH_GPIO_BASE + 66 * sizeof(u32),
++	APU_FCH_GPIO_BASE + 90 * sizeof(u32),
++};
++static const char * const apu3_gpio_names[] = {
++	"button_reset",
++	"mpcie2_reset",
++	"mpcie3_reset",
++	"simswap",
++};
++
++static int gpio_apu_get_dir(struct gpio_chip *chip, unsigned int offset)
++{
++	u32 val;
++
++	spin_lock(&apu_gpio->lock);
++
++	val = ~ioread32(apu_gpio->addr[offset]);
++	val = (val >> APU_GPIO_BIT_DIR) & 1;
++
++	spin_unlock(&apu_gpio->lock);
++
++	return val;
++}
++
++static int gpio_apu_dir_in(struct gpio_chip *chip, unsigned int offset)
++{
++	u32 val;
++
++	spin_lock(&apu_gpio->lock);
++
++	val = ioread32(apu_gpio->addr[offset]);
++	val &= ~BIT(APU_GPIO_BIT_DIR);
++	iowrite32(val, apu_gpio->addr[offset]);
++
++	spin_unlock(&apu_gpio->lock);
++
++	return 0;
++}
++
++static int gpio_apu_dir_out(struct gpio_chip *chip, unsigned int offset,
++		int value)
++{
++	u32 val;
++
++	spin_lock(&apu_gpio->lock);
++
++	val = ioread32(apu_gpio->addr[offset]);
++	val |= BIT(APU_GPIO_BIT_DIR);
++	iowrite32(val, apu_gpio->addr[offset]);
++
++	spin_unlock(&apu_gpio->lock);
++
++	return 0;
++}
++
++static int gpio_apu_get_data(struct gpio_chip *chip, unsigned int offset)
++{
++	u32 val;
++
++	spin_lock(&apu_gpio->lock);
++
++	val = ioread32(apu_gpio->addr[offset]);
++	val = (val >> APU_GPIO_BIT_RD) & 1;
++
++	spin_unlock(&apu_gpio->lock);
++
++	return val;
++}
++
++static void gpio_apu_set_data(struct gpio_chip *chip, unsigned int offset,
++		int value)
++{
++	u32 val;
++
++	spin_lock(&apu_gpio->lock);
++
++	val = ioread32(apu_gpio->addr[offset]);
++	if (value)
++		val |= BIT(APU_GPIO_BIT_WR);
++	else
++		val &= ~BIT(APU_GPIO_BIT_WR);
++	iowrite32(val, apu_gpio->addr[offset]);
++
++	spin_unlock(&apu_gpio->lock);
++}
++
++static const struct dmi_system_id apu_gpio_dmi_table[] __initconst = {
++	/* PC Engines APU2 with "Legacy" bios < 4.0.8 */
++	{
++		.ident = "apu2",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "PC Engines"),
++			DMI_MATCH(DMI_BOARD_NAME, "APU2")
++		}
++	},
++	/* PC Engines APU2 with "Legacy" bios >= 4.0.8 */
++	{
++		.ident = "apu2",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "PC Engines"),
++			DMI_MATCH(DMI_BOARD_NAME, "apu2")
++		}
++	},
++	/* PC Engines APU2 with "Mainline" bios */
++	{
++		.ident = "apu2",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "PC Engines"),
++			DMI_MATCH(DMI_BOARD_NAME, "PC Engines apu2")
++		}
++	},
++	/* PC Engines APU3 with "Legacy" bios < 4.0.8 */
++	{
++		.ident = "apu3",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "PC Engines"),
++			DMI_MATCH(DMI_BOARD_NAME, "APU3")
++		}
++	},
++	/* PC Engines APU3 with "Legacy" bios >= 4.0.8 */
++	{
++		.ident = "apu3",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "PC Engines"),
++			DMI_MATCH(DMI_BOARD_NAME, "apu3")
++		}
++	},
++	/* PC Engines APU3 with "Mainline" bios */
++	{
++		.ident = "apu3",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "PC Engines"),
++			DMI_MATCH(DMI_BOARD_NAME, "PC Engines apu3")
++		}
++	},
++	{}
++};
++MODULE_DEVICE_TABLE(dmi, apu_gpio_dmi_table);
++
++static struct gpio_chip gpio_apu_chip = {
++	.label = "gpio-apu",
++	.owner = THIS_MODULE,
++	.base = 20,
++	.get_direction = gpio_apu_get_dir,
++	.direction_input = gpio_apu_dir_in,
++	.direction_output = gpio_apu_dir_out,
++	.get = gpio_apu_get_data,
++	.set = gpio_apu_set_data,
++};
++
++static int __init apu_gpio_probe(struct platform_device *pdev)
++{
++	int i;
++
++	apu_gpio = devm_kzalloc(&pdev->dev, sizeof(*apu_gpio), GFP_KERNEL);
++
++	if (!apu_gpio)
++		return -ENOMEM;
++
++	apu_gpio->pdev = pdev;
++	apu_gpio->chip = &gpio_apu_chip;
++	spin_lock_init(&apu_gpio->lock);
++
++	if (dmi_match(DMI_BOARD_NAME, "APU3") ||
++	    dmi_match(DMI_BOARD_NAME, "apu3") ||
++	    dmi_match(DMI_BOARD_NAME, "PC Engines apu3")) {
++		apu_gpio->addr = devm_kzalloc(&pdev->dev,
++				sizeof(apu3_gpio_offset),
++				GFP_KERNEL);
++
++		if (!apu_gpio->addr)
++			return -ENOMEM;
++
++		apu_gpio->offset = apu3_gpio_offset;
++		apu_gpio->chip->names = apu3_gpio_names;
++		apu_gpio->chip->ngpio = ARRAY_SIZE(apu3_gpio_offset);
++		for (i = 0; i < ARRAY_SIZE(apu3_gpio_offset); i++) {
++			apu_gpio->addr[i] = devm_ioremap(&pdev->dev,
++					apu_gpio->offset[i], sizeof(u32));
++			if (!apu_gpio->addr[i])
++				return -ENOMEM;
++		}
++	} else if (dmi_match(DMI_BOARD_NAME, "APU2") ||
++		   dmi_match(DMI_BOARD_NAME, "apu2") ||
++		   dmi_match(DMI_BOARD_NAME, "PC Engines apu2")) {
++		apu_gpio->addr = devm_kzalloc(&pdev->dev,
++				sizeof(apu2_gpio_offset),
++				GFP_KERNEL);
++
++		if (!apu_gpio->addr)
++			return -ENOMEM;
++
++		apu_gpio->offset = apu2_gpio_offset;
++		apu_gpio->chip->names = apu2_gpio_names;
++		apu_gpio->chip->ngpio = ARRAY_SIZE(apu2_gpio_offset);
++		for (i = 0; i < ARRAY_SIZE(apu2_gpio_offset); i++) {
++			apu_gpio->addr[i] = devm_ioremap(&pdev->dev,
++					apu_gpio->offset[i], sizeof(u32));
++			if (!apu_gpio->addr[i])
++				return -ENOMEM;
++		}
++	}
++
++	return devm_gpiochip_add_data(&pdev->dev, apu_gpio->chip, NULL);
++}
++
++static struct platform_driver apu_gpio_driver = {
++	.driver = {
++		.name = KBUILD_MODNAME,
++	},
++};
++
++static int __init apu_gpio_init(void)
++{
++	struct platform_device *pdev;
++	int err;
++
++	if (!dmi_match(DMI_SYS_VENDOR, "PC Engines")) {
++		pr_err("No PC Engines board detected\n");
++		return -ENODEV;
++	}
++	if (!(dmi_match(DMI_PRODUCT_NAME, "APU2") ||
++	      dmi_match(DMI_PRODUCT_NAME, "apu2") ||
++	      dmi_match(DMI_PRODUCT_NAME, "PC Engines apu2") ||
++	      dmi_match(DMI_PRODUCT_NAME, "APU3") ||
++	      dmi_match(DMI_PRODUCT_NAME, "apu3") ||
++	      dmi_match(DMI_PRODUCT_NAME, "PC Engines apu3"))) {
++		pr_err("Unknown PC Engines board: %s\n",
++				dmi_get_system_info(DMI_PRODUCT_NAME));
++		return -ENODEV;
++	}
++
++	pdev = platform_device_register_simple(KBUILD_MODNAME, -1, NULL, 0);
++	if (IS_ERR(pdev)) {
++		pr_err("Device allocation failed\n");
++		return PTR_ERR(pdev);
++	}
++
++	err = platform_driver_probe(&apu_gpio_driver, apu_gpio_probe);
++	if (err) {
++		pr_err("Probe platform driver failed\n");
++		platform_device_unregister(pdev);
++	}
++
++	pr_info("%s: APU2/3 GPIO driver module loaded\n", DEVNAME);
++
++	return err;
++}
++
++static void __exit apu_gpio_exit(void)
++{
++	gpiochip_remove(apu_gpio->chip);
++	platform_device_unregister(apu_gpio->pdev);
++	platform_driver_unregister(&apu_gpio_driver);
++	pr_info("%s: APU2/3 GPIO driver module unloaded\n", DEVNAME);
++}
++
++module_init(apu_gpio_init);
++module_exit(apu_gpio_exit);
++
++MODULE_AUTHOR("Florian Eckert");
++MODULE_DESCRIPTION("PC Engines APU2/3 family GPIO driver");
++MODULE_LICENSE("GPL v2");
++MODULE_ALIAS("platform:gpio_apu");
+-- 
+2.11.0

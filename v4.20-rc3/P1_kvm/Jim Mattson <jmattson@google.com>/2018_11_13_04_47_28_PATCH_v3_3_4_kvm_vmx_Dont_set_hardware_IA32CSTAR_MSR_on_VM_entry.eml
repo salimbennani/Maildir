@@ -1,0 +1,149 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 13 Nov 2018 00:34:22 -0000
+Received: from icoremail.net (unknown [209.85.210.175])
+	by mail-app2 (Coremail) with SMTP id by_KCgD3_6cU5+lbIxmAAQ--.38698S3;
+	Tue, 13 Nov 2018 04:48:20 +0800 (CST)
+Received: from mail-pf1-f175.google.com (unknown [209.85.210.175])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwB38EwP5+lbQswzAA--.5774S3;
+	Tue, 13 Nov 2018 04:48:15 +0800 (CST)
+Received: by mail-pf1-f175.google.com with SMTP id c72so188360pfc.6
+        for <xuliker@zju.edu.cn>; Mon, 12 Nov 2018 12:48:15 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:delivered-to:dkim-signature:date:in-reply-to
+         :message-id:mime-version:references:subject:from:to:cc:sender
+         :precedence:list-id;
+        bh=lvO/89UIlRwac5jIbA1ThVAvGtoPR4/KGOR7LTsBEAI=;
+        b=HJdd7Vx23wj9Xc00ALWJVx3vxpWS4/chA1CKO2yDiwRe9GQ9vBUGh70ibIZCUWhQcm
+         DEogteGwD+vRHYqkXK6blrHzZhi6t16TS1KwTpPORp2SpaskPlWkF+29JIkdFtEKzO21
+         P3BvuolaIUKNeg5M/U4OtBRnmAss+QIwzVOTLfodonJiuiG6IbmtNOHtsX0tE4XwlmYv
+         JP+DXUiBp52UC1UQx1hQIRXwi7BfFNsKd/R+FRDcslye+XYxNIjnBlZKhH3dnR1nWr3W
+         nHy0pKAspqdoHgudEYPOeeKpY8p0OGWZiTVSUpFXGwitKT76wC5tDKqv3Q5xC/YvmhZ0
+         G7EQ==
+X-Gm-Message-State: AGRZ1gIpll6pxsfKw1XbSSVhZY4NUzmzOCHpgzcWXJcNxQGH5+oM2AMg
+	74Z1UaPdqK8htc4hwtkNYpjbQiyF0FllkuLAajj3iz+UlbajK8f2JA==
+X-Received: by 2002:a63:460a:: with SMTP id t10-v6mr2155377pga.197.1542055695278;
+        Mon, 12 Nov 2018 12:48:15 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp3658615pjt;
+        Mon, 12 Nov 2018 12:48:14 -0800 (PST)
+X-Google-Smtp-Source: AJdET5fPBAHqYHQ2YnlAGkFkptnYwTrLzkdwBGr8z5VdhUQUDiXU9zwkjh+SG0teaVSZmQSM0Tna
+X-Received: by 2002:a17:902:50ec:: with SMTP id c41-v6mr2271806plj.176.1542055694588;
+        Mon, 12 Nov 2018 12:48:14 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542055694; cv=none;
+        d=google.com; s=arc-20160816;
+        b=hccYTwlubKGwaW7wqTvl5saCSIWZ0WNXcPnHj2O/sEvVJE2LdbopZdJbcgKXvkOEc9
+         jWJG3k3MvlQV+5ekhivd9KN5gouOfpJ2TAlIEXPiQDYar/L5Fp9UtXC+9aMjdaGRg4Px
+         7iqe3YrcT6gwqbGNYkjvQa4eFc5DvnV5z0J3+f+NaiVNZjddDpQYH1AyfDsCvYpPrG+B
+         Q1NH0ZZsFqtJgkq6AsXIlZBQd3njIfKHt47S0guXHvqZWQPV3Wog73P6CmSBi62b+BYW
+         n9b2VIIMgAooldrPW4BzaORU2C0q+GqdfpynnSjBnNcNrxYTwHAfMgkctTkWxWp7DIm0
+         4hwQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:cc:to:from:subject:references
+         :mime-version:message-id:in-reply-to:date:dkim-signature;
+        bh=lvO/89UIlRwac5jIbA1ThVAvGtoPR4/KGOR7LTsBEAI=;
+        b=Fz0M5hERN+79asJ3emcDx7lLfxQnJacOFjg13I+D1bBEFXPwxAAJbTGFU4llhG/BUU
+         2VS6mo0h4+sTIhhhWDcliw4hjsnh4lq1ZeAb1Tg3aqin9d9mKvtNSGJCuMSo/9xr7/jE
+         Wv3Y79R2SJDr4Guhw5h4J5o1v1u1yOZ2DzQR2uKpDzjVDicKoRlrvqIWy0YvkVypSZRA
+         3YA9D61f9hWnPhvp4l/1g5WvfwfNhw68MTpqw/Hgm78PHFN65cda61LVkl0OMYNxqtAW
+         Osb5+vEAjH+jq6iCpwBMX805vJ9a+xmBfbMov1pvkwQDcgpv8gGCFe+2Dk4m6wPKqCtw
+         n4CQ==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@google.com header.s=20161025 header.b=l03bEsC0;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;
+       dmarc=pass (p=REJECT sp=REJECT dis=NONE) header.from=google.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id q16-v6si16562576pgb.266.2018.11.12.12.48.01;
+        Mon, 12 Nov 2018 12:48:14 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1727250AbeKMGm1 (ORCPT <rfc822;fanshuming2011@gmail.com>
+        + 99 others); Tue, 13 Nov 2018 01:42:27 -0500
+Received: from mail-io1-f74.google.com ([209.85.166.74]:36392 "EHLO
+        mail-io1-f74.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725861AbeKMGm1 (ORCPT <rfc822;kvm@vger.kernel.org>);
+        Tue, 13 Nov 2018 01:42:27 -0500
+Received: by mail-io1-f74.google.com with SMTP id w5-v6so11108566ioj.3
+        for <kvm@vger.kernel.org>; Mon, 12 Nov 2018 12:47:32 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=date:in-reply-to:message-id:mime-version:references:subject:from:to
+         :cc;
+        bh=lvO/89UIlRwac5jIbA1ThVAvGtoPR4/KGOR7LTsBEAI=;
+        b=l03bEsC0UzVdkY5JmASSQMY3jRMgw0tIE5tVIXh7t5xDG2zvgMTmWTFPYB2LmX08NX
+         fQ2JgR0IkDSX5fZsfEOI0Sys8Z72SrBttNSVZsYcyDqK+q2ilcGXsQT828WlupC2KPug
+         IZcicVA4UzdzjPFS4Wt8WgoSYou+ohRjsJlOmdxqZSdQXfVbjkGkrEtuH2j/+AAlv6V/
+         eB4NS4dvPD098A3P6wgy0onkHmpSaOhw3Vm/qpJojgSPSNVMURXbGLPy+1voBWJeXgCs
+         aA72fTTzPgXm2sfBIV5LFJNqrH2I6+vPkZB5W/B1KFdt4oIhPqzIQc4Eqvk1uje/rROZ
+         FQFA==
+X-Received: by 2002:a24:6c90:: with SMTP id w138-v6mr978959itb.12.1542055652151;
+ Mon, 12 Nov 2018 12:47:32 -0800 (PST)
+Date: Mon, 12 Nov 2018 12:47:28 -0800
+In-Reply-To: <20181109222131.60885-2-jmattson@google.com>
+Message-Id: <20181112204728.674-1-jmattson@google.com>
+Mime-Version: 1.0
+References: <20181109222131.60885-2-jmattson@google.com>
+X-Mailer: git-send-email 2.19.1.930.g4563a0d9d0-goog
+Subject: [PATCH v3 3/4] kvm: vmx: Don't set hardware IA32_CSTAR MSR on VM-entry
+From: Jim Mattson <jmattson@google.com>
+To: kvm@vger.kernel.org
+Cc: Jim Mattson <jmattson@google.com>, Peter Shier <pshier@google.com>
+Content-Type: text/plain; charset="UTF-8"
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwB38EwP5+lbQswzAA--.5774S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvdXoW7XF4DAFy7Ar4kJF1ruF1xXwb_yoWDXwcE93
+	Z7J3ykA3yY93WDZay2yF4SkF92vFs7AFW3Wr13AF1xAas5t3WUJFZ0yr9rZ345GFsxZry5
+	A39Fyr4fGFWqvjkaLaAFLSUrUUUUUb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAU7a7-sFnT
+	9fnUUIcSsGvfJTRUUUbqkYjsxI4VWDJwAYFVCjjxCrM7AC8VAFwI0_Jr0_Gr1l1IIY67AE
+	w4v_Jr0_Jr4l8cAvFVAK0II2c7xJM28CjxkF64kEwVA0rcxSw2x7M28EF7xvwVC0I7IYx2
+	IY67AKxVW7JVWDJwA2z4x0Y4vE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwA2z4x0Y4vEx4A2
+	jsIE14v26rxl6s0DM28EF7xvwVC2z280aVCY1x0267AKxVW0oVCq3wAS0I0E0xvYzxvE52
+	x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AKxVWUJVWU
+	GwAv7VC2z280aVAFwI0_Gr0_Cr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcxkI7VAKI4
+	8JMx02cVCv0xWlc7CjxVAKzI0EY4vE52x082I5MxkFs20EY4vE44CYbxCE4x80FwCY02Av
+	z4vEIxC_AwCY0x0Ix7I2Y4AK64vIr41lcIIF0xvE2Ix0cI8IcVAFwI0_Gr0_Xr1lcIIF0x
+	vE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwCYIxAIcVC2z280aVAFwI0_Gr1j6F4UJwCYIxAI
+	cVC2z280aVCY1x0267AKxVW8Jr0_Cr1UMxAIw28IcxkI7VAKI48JMxAIw28IcVAKzI0EY4
+	vE52x082I5MxCjnVCjjxCrMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_
+	Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWUAVWUtwCIc40Y0x
+	0EwIxGrwCI42IY6xAIw20EY4v20xvaj40_Zr0_Wr1UYxBIdaVFxhVjvjDU0xZFpf9x07bY
+	tC7UUUUU=
+
+SYSCALL raises #UD in compatibility mode on Intel CPUs, so it's
+pointless to load the guest's IA32_CSTAR value into the hardware MSR.
+
+IA32_CSTAR still provides 48 bits of storage on Intel CPUs that have
+CPUID.80000001:EDX.LM[bit 29] set, so we cannot remove it from the
+vmx_msr_index[] array.
+
+Signed-off-by: Jim Mattson <jmattson@google.com>
+Reviewed-by: Peter Shier <pshier@google.com>
+---
+ arch/x86/kvm/vmx.c | 3 ---
+ 1 file changed, 3 deletions(-)
+
+diff --git a/arch/x86/kvm/vmx.c b/arch/x86/kvm/vmx.c
+index ee460a21d369..df468980a8c1 100644
+--- a/arch/x86/kvm/vmx.c
++++ b/arch/x86/kvm/vmx.c
+@@ -3413,9 +3413,6 @@ static void setup_msrs(struct vcpu_vmx *vmx)
+ 		if (index >= 0)
+ 			move_msr_up(vmx, index, save_nmsrs++);
+ 		index = __find_msr_index(vmx, MSR_LSTAR);
+-		if (index >= 0)
+-			move_msr_up(vmx, index, save_nmsrs++);
+-		index = __find_msr_index(vmx, MSR_CSTAR);
+ 		if (index >= 0)
+ 			move_msr_up(vmx, index, save_nmsrs++);
+ 		/*
+-- 
+2.19.1.930.g4563a0d9d0-goog

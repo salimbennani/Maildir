@@ -1,0 +1,202 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 15 Nov 2018 00:42:03 -0000
+Received: from icoremail.net (unknown [209.85.210.175])
+	by mail-app2 (Coremail) with SMTP id by_KCgDHH_oTauxbtkmSAQ--.43809S3;
+	Thu, 15 Nov 2018 02:31:47 +0800 (CST)
+Received: from mail-pf1-f175.google.com (unknown [209.85.210.175])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwCXfkoNauxbDts_AA--.1059S3;
+	Thu, 15 Nov 2018 02:31:41 +0800 (CST)
+Received: by mail-pf1-f175.google.com with SMTP id q1so337306pfi.5
+        for <xuliker@zju.edu.cn>; Wed, 14 Nov 2018 10:31:41 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :reply-to:subject:to:cc:references:from:date:user-agent:mime-version
+         :in-reply-to:content-language:content-transfer-encoding:message-id
+         :sender:precedence:list-id;
+        bh=fgbfE4L8m4FlnctemGqtAph8jsvu5wrSLMSGjvaYrAQ=;
+        b=KjAg42HVFgvFTJ7ulZmkw9p2IPETubtrvRLTtxSaHyF5+GQJaZX7Nj35ouVSdVNqgZ
+         RktkjRWRRoz2/qFYJOyp4dQXMyQ8WgY49sKeh+X1eqPNoIxUkBe1XN790H5ndm9H+lUl
+         Yog0v53av+IKhDArkIARFIN168Pd60tc+UX7381DCjBMqJcbj83eZFv+rHKBcDe18kQ+
+         WZVTEl7OTlr0Vkj/h26nicGVvVUiifxMoxR2ZzcMqWcnr1Cu8mPtPrdMO2MIoVxC8euu
+         D5sA1jkd6fvsWQ/nC39rRj7YlZMSbJ/JyvJSURICnAWWoNAEaxSqyR38RigfpMjBSmTl
+         2MMg==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=ibm.com
+X-Gm-Message-State: AGRZ1gJOWT0nqo338/Ulg1NBiT9O2WleJoU6axlxHMjCNjqzAuS/jDAg
+	Myp28QS8ZFd8fwIHZvD+gJnE7nRi9fEOXT00NoGUsoc7q+hnbo3KHw==
+X-Received: by 2002:a62:1f9d:: with SMTP id l29mr3107066pfj.14.1542220300690;
+        Wed, 14 Nov 2018 10:31:40 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp6160164pjt;
+        Wed, 14 Nov 2018 10:31:39 -0800 (PST)
+X-Google-Smtp-Source: AJdET5f7ghNxL7yyppMsBFZ8ZZ60TQsB+v9uHod8QrmXpKJcYqc+yTJs8ojBRklOEa/R9liRaZ/J
+X-Received: by 2002:a62:8f8c:: with SMTP id n134-v6mr3111321pfd.258.1542220299821;
+        Wed, 14 Nov 2018 10:31:39 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542220299; cv=none;
+        d=google.com; s=arc-20160816;
+        b=Mscbg2+2QLR6AHBu06dQsr1Y61yMaDGOF/FUuEjdnt9N6C49+zY6Bi/cmWXlylvaCA
+         BMR7BMiUYPY/2p6Q8NL2dCQFkIRiTdSUwmyaajmMw0RupWBZ0ujHW8nhvqDp10yoY2qm
+         Y+Yw0/abV/LCWyz1KAzbusiwgAC0PzhDrtHaDQnkxtZa3fzazKwreEuhdvRaMHX2Fnz/
+         4ZrWJovVNcVyRTU7tPHwNiixYBYpo5SpeElpgqZWZ/cChyw7mADTZrzSigD1bZhDtUzG
+         cq2uOwqMDshTUuZr1VlohLQ1arNJYWiKUqQm0eKalQXf6nXn4OjnnWGl48GBt3S76tDh
+         Yutw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:message-id:content-transfer-encoding
+         :content-language:in-reply-to:mime-version:user-agent:date:from
+         :references:cc:to:subject:reply-to;
+        bh=fgbfE4L8m4FlnctemGqtAph8jsvu5wrSLMSGjvaYrAQ=;
+        b=Jf7fXoMDGdy0WMwLEEA4XP8UyeX3v2E9MN0sqwpLvSPJg8Ae7u/OdlJmfGnYbLrDKf
+         Rrm6mIe8ybGnpD61FwJSQCHHklPnI9xidrc2LTZasECHTmk4PKVLHkXImG2qK30pdAYs
+         nELQENiPbLj9db/gFOTz/dobtEB8iT0oTyK18O7/IJbNMkTJQuMgLjxcgPEinh6/9ZVp
+         zJxuHqClO1wF4uIJYBb+zOytpkNVAvTxZrGFpiY8wqrg7HAnp/WD41TodfsJ5MKbStjp
+         ERgXfBlqxEGCJcQF+4FaBeeSOkkP966aLCwtJwYXIj3dEXBK4zwf7nsL9O72V3mHRzfp
+         KSPg==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=ibm.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id ce19-v6si27694801plb.162.2018.11.14.10.31.19;
+        Wed, 14 Nov 2018 10:31:39 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1727835AbeKOEen (ORCPT <rfc822;xiao.zheng.rmb@gmail.com>
+        + 99 others); Wed, 14 Nov 2018 23:34:43 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:57216 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726823AbeKOEen (ORCPT
+        <rfc822;kvm@vger.kernel.org>); Wed, 14 Nov 2018 23:34:43 -0500
+Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.22/8.16.0.22) with SMTP id wAEIO7B8115424
+        for <kvm@vger.kernel.org>; Wed, 14 Nov 2018 13:30:23 -0500
+Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2nrpwwpqnd-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <kvm@vger.kernel.org>; Wed, 14 Nov 2018 13:30:22 -0500
+Received: from localhost
+        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <kvm@vger.kernel.org> from <pmorel@linux.ibm.com>;
+        Wed, 14 Nov 2018 18:30:21 -0000
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (9.149.109.196)
+        by e06smtp04.uk.ibm.com (192.168.101.134) with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted;
+        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256/256)
+        Wed, 14 Nov 2018 18:30:18 -0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id wAEIUHKe40632526
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
+        Wed, 14 Nov 2018 18:30:17 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 2F2D7A4060;
+        Wed, 14 Nov 2018 18:30:17 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id D7DD7A4054;
+        Wed, 14 Nov 2018 18:30:16 +0000 (GMT)
+Received: from [9.145.52.74] (unknown [9.145.52.74])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed, 14 Nov 2018 18:30:16 +0000 (GMT)
+Reply-To: pmorel@linux.ibm.com
+Subject: Re: [RFC PATCH v1 00/10] vfio-ccw channel program rework
+To: Eric Farman <farman@linux.ibm.com>,
+        Cornelia Huck <cohuck@redhat.com>
+Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Farhan Ali <alifm@linux.ibm.com>,
+        "Jason J . Herne" <jjherne@linux.ibm.com>
+References: <20181109023937.96105-1-farman@linux.ibm.com>
+From: Pierre Morel <pmorel@linux.ibm.com>
+Date: Wed, 14 Nov 2018 19:30:16 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.2.1
+MIME-Version: 1.0
+In-Reply-To: <20181109023937.96105-1-farman@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+x-cbid: 18111418-0016-0000-0000-0000022700DB
+X-IBM-AV-DETECTION: SAVI=unused REMOTE=unused XFE=unused
+x-cbparentid: 18111418-0017-0000-0000-0000327F1F23
+Message-Id: <8dd77a46-c04b-f8dc-4d13-acbe0cc793a4@linux.ibm.com>
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2018-11-14_14:,,
+ signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ malwarescore=0 suspectscore=2 phishscore=0 bulkscore=0 spamscore=0
+ clxscore=1015 lowpriorityscore=0 mlxscore=0 impostorscore=0
+ mlxlogscore=598 adultscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.0.1-1810050000 definitions=main-1811140164
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwCXfkoNauxbDts_AA--.1059S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW7Aw1xtF4UuryDWw4Dtw1rtFb_yoW8Xw4xpF
+	W5K3Wjkan5tr1xWr97Xw17AryfAay8CayUGr1Yq348A3s8XFnIg39Ika1a9FyfGr4kKa4a
+	vr42q3WkWF15ZaDanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUU0bIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUmmb7Iv0xC_Kw4lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2
+	z280aVAFwI0_Gr1j6F4UJwA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_Cr1j6rxdM2AIxVAIcx
+	kEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v2
+	6r106r15McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IY64
+	vIr41l7I0Y6sxI4wCYjI0SjxkI62AI1cAE67vIY487MxkF7I0Ew4C26cxK6c8Ij28IcwCY
+	1Ik26cxK6xAEc7vF6xCjj44lc2xSY4AK6IIF6rylc2IjII80xcxEwVAKI48JMxvI42IY6x
+	IIjxv20xvE14v26r4j6ryUMxvI42IY6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1lcIIF0xvE
+	x4A2jsIE14v26r4UJVWxJr1lcIIF0xvEx4A2jsIEc7CjxVAFwI0_Gr1j6F4UJwCF04k20x
+	vY0x0EwIxGrwCF04k20xvEw4C26cxK6c8Ij28IcwCF72vE77IF4wCFx2IqxVCFs4IE7xkE
+	bVWUJVW8JwC20s026c02F40E14v26r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67
+	AF67kF1VAFwI0_Jw0_GFylIxkGc2Ij64vIr41lIxAIcVCF04k26cxKx2IYs7xG6r4j6FyU
+	YxBIdaVFxhVjvjDU0xZFpf9x07b9a0dUUUUU=
+
+On 09/11/2018 03:39, Eric Farman wrote:
+> Hi Connie, Pierre,
+> 
+> This is a first round of rework to vfio-ccw that I've been cooking to
+> make the channel program handler easier to understand.  My apologies
+> for the number of patches; as there are some intersections within them
+> I couldn't break them up without forcing them to be applied in a
+> particular order.  I imagine that since there will probably need to be
+> some discussion, an RFC tag makes sense and one giant series will be
+> fine for now.  I can break them up for later versions if desired.
+> 
+> (Sidebar: I'm leaving next Thursday for an early start on the US
+> Thanksgiving holiday.  So if you are busy and can't get to this,
+> no problem!  Now where did I leave Pierre's rework patches...  :)
+> 
+> Patch summary:
+> 
+> 1-2:	Fixes for cleanup on error paths
+> 3:	Code simplication
+
+I am absolutely OK with these three first patches.
+
+
+> 4-6:	Simplify the ccwchain processing
+> 7-10:	Simplify the pfn_array processing
+
+I still need some investigation on the last 7 ones.
+On a first view, it looks generally good but I developed some ideas on 
+the subject you address that you may want to study and may be implement 
+as part of this memory optimization series:
+
+- avoiding the multiples CCW chain alloc/free (already discussed in the 
+dedicated patch)
+
+- optimize the allocations of CCW chain metadata using kmem_caches
+or
+- dedicate a pre-allocated page to handle CCW chains in a single copy 
+per subchain.
+we would certainly never need more than a single page.
+
+
+
+Regards,
+Pierre
+
+-- 
+Pierre Morel
+Linux/KVM/QEMU in Böblingen - Germany

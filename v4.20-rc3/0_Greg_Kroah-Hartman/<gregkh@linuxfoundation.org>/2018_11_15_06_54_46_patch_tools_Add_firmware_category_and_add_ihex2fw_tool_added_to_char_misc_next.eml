@@ -1,0 +1,508 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 15 Nov 2018 00:43:56 -0000
+Received: from icoremail.net (unknown [209.85.214.169])
+	by mail-app2 (Coremail) with SMTP id by_KCgDnX9_Rp+xb6r6TAQ--.44418S3;
+	Thu, 15 Nov 2018 06:55:14 +0800 (CST)
+Received: from mail-pl1-f169.google.com (unknown [209.85.214.169])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwB3XEjPp+xbCZBAAA--.894S3;
+	Thu, 15 Nov 2018 06:55:12 +0800 (CST)
+Received: by mail-pl1-f169.google.com with SMTP id f12-v6so8498488plo.1
+        for <xuliker@zju.edu.cn>; Wed, 14 Nov 2018 14:55:12 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:delivered-to:dkim-signature:subject:to:from:date
+         :message-id:mime-version:content-transfer-encoding:sender:precedence
+         :list-id;
+        bh=tzdEmM84Hu7oOaXllI5fN7iqUN16xYBVARloc1VfOCo=;
+        b=U0Gy96f71XySvFuBQgwFz6JDEdLNXlkXBbk/FXQ5Odu11954mjePD7FxLd32q1iAc3
+         HdJ5MbieK5GxdFpeIVzV8iGyqUWIbRRev3Jindt4EMi1P/uxRDCq62J+9Nk4Jda8Slk+
+         g/vsO5Dimrp7tkE6xmua2w1fo9U84zxnh/5tc2aHGnCvCDOjwngD2ZftkJWzcIzcplo+
+         oxiXMrUJGikt5p4sBbPoBYtLDuAQl/46imbFcxtXSsG1HiaDjosrQYhOuTAq1ipP/uUG
+         ybOeK8bnd6gwE9KLreFoSyJgJn2AaxoQOA7beqktvVzOD90fJLf7kYsi72ildCH2DZTh
+         mmLQ==
+X-Gm-Message-State: AGRZ1gKSYgA6raFKyI2JtNHrrNgszntEd9Fg2gFyGB6+OLFMqJXL6hH7
+	FPlEnpbSeDCA3E6jeXExAVcmG8le9bNjL7GUZa9pXUuPxPfrksl73A==
+X-Received: by 2002:a17:902:166:: with SMTP id 93-v6mr3711855plb.68.1542236111607;
+        Wed, 14 Nov 2018 14:55:11 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp6416154pjt;
+        Wed, 14 Nov 2018 14:55:10 -0800 (PST)
+X-Google-Smtp-Source: AJdET5d7onQFCi6e4hhNSZLMSpWn7JNCYEP93nMtbSQZYXhXzj4bGm2x5LayAutN//2E01J+JRJl
+X-Received: by 2002:a62:6085:: with SMTP id u127-v6mr1102588pfb.147.1542236110726;
+        Wed, 14 Nov 2018 14:55:10 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542236110; cv=none;
+        d=google.com; s=arc-20160816;
+        b=L17Zc5y02XUlbBMYD5b/eBU787Xm/X8DpVx4Mq7fyCuxXSuYkR+nwByMM/QiHty3kP
+         V/SqaWwSPOFogDwBOcn74WWOPVT5LFXPGwNtKCWeHTIypPpZJYmcxwqJs+mqaSgqyR2X
+         1TOmR5HtaPPMH940ZfR9TlpflhzNDYWj/2odqLPzJKtRJSYSrykcsDtasEkXasm6xvg5
+         ihHMUz6VdqNK+p/9DnceNBqlpmOhlHGxbCtbIS+ELJKzobOvJlnF4Pq3mobcvDASIg6O
+         Y5ww8nC7eTGGBowdUVmGddZVDKiF/u7+R/5y0S4s4iHBsvKrBsLQ93rZWdyM+a7L2eVp
+         0abw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:content-transfer-encoding:mime-version
+         :message-id:date:from:to:subject:dkim-signature;
+        bh=tzdEmM84Hu7oOaXllI5fN7iqUN16xYBVARloc1VfOCo=;
+        b=CLsDCyxXBZX0LLJ91gm62m4CdGo8yyhe8bRYL77JiQC+rgH5gtp13SWjeHUsIymu5R
+         1aSk+06stLPyvYBNAyPj/6QpHgJ8Z0zj6WdwqCEwbkAqP6AS7o+4tGsQHt5J4afvInkn
+         AVCAelUbygu/h6kRw9c5ZqvgD4Mbeqyh6iUqVgAjiExjFKitR9u8RyhyV2hZqPRJQ3Cb
+         eNgkUIcRizP/pscPxyjV/39fF6bSMjtcd2gIFwOsA4oJLhnRGdMOEfGwbKcy28lQAaMV
+         diCH2sne0wsfiPFrmPI8FDvBJfb0SCZao/aL7n+WXR/KNkbG6r8jfQs1S06AGYJmgc/D
+         F/kA==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=fail header.i=@kernel.org header.s=default header.b=PhBAb1ya;
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id 3-v6si25653495plx.83.2018.11.14.14.54.56;
+        Wed, 14 Nov 2018 14:55:10 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1726821AbeKOJAC (ORCPT <rfc822;kristofer.rye@gmail.com>
+        + 99 others); Thu, 15 Nov 2018 04:00:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51344 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726427AbeKOJAB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+        Thu, 15 Nov 2018 04:00:01 -0500
+Received: from localhost (unknown [64.114.255.97])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 217F32243E;
+        Wed, 14 Nov 2018 22:54:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1542236087;
+        bh=iPJMdPQPrPwPmqbbRqdwz9cvcz9QnbVZC4gZJRFWjQg=;
+        h=Subject:To:From:Date:From;
+        b=PhBAb1ya+yq6tBPnv2LMzpgfI2pkt0i7HihcZqqjsH0DfDMfDSJgnp9R41JfaufLr
+         Rf0Glu0KutHCg/7YukijPrE0UPES+ljTsyfr/jc5II0F1V67B3nFY7879rXjrI0gV0
+         Z8rnxrXtwX46SnupkaeUi5jwQyIh6TKS9QJfGxHw=
+Subject: patch "tools: Add 'firmware' category and add ihex2fw tool" added to char-misc-next
+To: andrew.smirnov@gmail.com, akpm@linux-foundation.org,
+        dwmw2@infradead.org, gregkh@linuxfoundation.org, kyle@kernel.org,
+        linux-kernel@vger.kernel.org, yamada.masahiro@socionext.com
+From: <gregkh@linuxfoundation.org>
+Date: Wed, 14 Nov 2018 14:54:46 -0800
+Message-ID: <15422360864898@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwB3XEjPp+xbCZBAAA--.894S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW3tw1rtFy3ZFy7Jw4xtFy8uFg_yoWkGr17pF
+	Z8XrZrJw4kJw1fCwn3tr4YvF9Y93s7Xa4UXry7WF15CF18Xr17tr40vr1Iqr1fGrZ5Ka1f
+	GF43tFWrKFs7uaDanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUU0bIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUmYb7Iv0xC_Kw4lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_tr0E3s1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr1j6F4UJwA2z4x0Y4vE
+	x4A2jsIE14v26rxl6s0DM28EF7xvwVC2z280aVCY1x0267AKxVW0oVCq3wAS0I0E0xvYzx
+	vE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AKxVWU
+	AVWUtwAv7VC2z280aVAFwI0_Gr0_Cr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcVAKI4
+	8JM4kE6xkIj40Ew7xC0wCjxxvEa2IrMxkF7I0Ew4C26cxK6c8Ij28IcwCY1Ik26cxK6xAE
+	c7vF6xCjj44lc2xSY4AK6IIF6Fylc2IjII80xcxEwVAKI48JMxvI42IY6xIIjxv20xvE14
+	v26w1j6s0DMxvI42IY6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UMxvI42IY6I8E87Iv67AK
+	xVW8Jr0_Cr1UMxvI42IY6I8E87Iv6xkF7I0E14v26r4UJVWxJr1l42xK82IYc2Ij64vIr4
+	1l42xK82IY64kExVAvwVAq07x20xyl4x8a6x804xWl4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1l
+	x2IqxVAqx4xG67AKxVWUJVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14
+	v26r1q6r43MIIYrxkI7VAKI48JMIIF0xvE42xK8VAvwI8IcIk0rVW8JVW3JbIYCTnIWIev
+	Ja73UjIFyTuYvjxUHSksDUUUU
+
+
+This is a note to let you know that I've just added the patch titled
+
+    tools: Add 'firmware' category and add ihex2fw tool
+
+to my char-misc git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
+in the char-misc-next branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will also be merged in the next major kernel release
+during the merge window.
+
+If you have any questions about this process, please let me know.
+
+
+From 1e5106031f298af4ad29c2eb866780d9a21e9ab4 Mon Sep 17 00:00:00 2001
+From: Andrey Smirnov <andrew.smirnov@gmail.com>
+Date: Wed, 17 Oct 2018 11:27:18 -0700
+Subject: tools: Add 'firmware' category and add ihex2fw tool
+
+Commit 5620a0d1aacd ("firmware: delete in-kernel firmware") removed
+ihex2fw tool together with the rest of the contents of firmware/
+folder. Since that tool is quite useful for doing .ihex -> .fw
+converstion, restore its original source code to tools/firmware
+
+Suggested-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Kyle McMartin <kyle@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Masahiro Yamada <yamada.masahiro@socionext.com>
+Cc: David Woodhouse <dwmw2@infradead.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ tools/Makefile           |   7 +-
+ tools/firmware/Makefile  |  13 ++
+ tools/firmware/ihex2fw.c | 281 +++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 298 insertions(+), 3 deletions(-)
+ create mode 100644 tools/firmware/Makefile
+ create mode 100644 tools/firmware/ihex2fw.c
+
+diff --git a/tools/Makefile b/tools/Makefile
+index abb358a70ad0..77f1aee8ea01 100644
+--- a/tools/Makefile
++++ b/tools/Makefile
+@@ -13,6 +13,7 @@ help:
+ 	@echo '  cgroup                 - cgroup tools'
+ 	@echo '  cpupower               - a tool for all things x86 CPU power'
+ 	@echo '  firewire               - the userspace part of nosy, an IEEE-1394 traffic sniffer'
++	@echo '  firmware               - Firmware tools'
+ 	@echo '  freefall               - laptop accelerometer program for disk protection'
+ 	@echo '  gpio                   - GPIO tools'
+ 	@echo '  hv                     - tools used when in Hyper-V clients'
+@@ -60,7 +61,7 @@ acpi: FORCE
+ cpupower: FORCE
+ 	$(call descend,power/$@)
+ 
+-cgroup firewire hv guest spi usb virtio vm bpf iio gpio objtool leds wmi pci: FORCE
++cgroup firewire hv guest spi usb virtio vm bpf iio gpio objtool leds wmi pci firmware: FORCE
+ 	$(call descend,$@)
+ 
+ liblockdep: FORCE
+@@ -137,7 +138,7 @@ acpi_clean:
+ cpupower_clean:
+ 	$(call descend,power/cpupower,clean)
+ 
+-cgroup_clean hv_clean firewire_clean spi_clean usb_clean virtio_clean vm_clean wmi_clean bpf_clean iio_clean gpio_clean objtool_clean leds_clean pci_clean:
++cgroup_clean hv_clean firewire_clean spi_clean usb_clean virtio_clean vm_clean wmi_clean bpf_clean iio_clean gpio_clean objtool_clean leds_clean pci_clean firmware_clean:
+ 	$(call descend,$(@:_clean=),clean)
+ 
+ liblockdep_clean:
+@@ -175,6 +176,6 @@ clean: acpi_clean cgroup_clean cpupower_clean hv_clean firewire_clean \
+ 		perf_clean selftests_clean turbostat_clean spi_clean usb_clean virtio_clean \
+ 		vm_clean bpf_clean iio_clean x86_energy_perf_policy_clean tmon_clean \
+ 		freefall_clean build_clean libbpf_clean libsubcmd_clean liblockdep_clean \
+-		gpio_clean objtool_clean leds_clean wmi_clean pci_clean
++		gpio_clean objtool_clean leds_clean wmi_clean pci_clean firmware_clean
+ 
+ .PHONY: FORCE
+diff --git a/tools/firmware/Makefile b/tools/firmware/Makefile
+new file mode 100644
+index 000000000000..d329825aa31b
+--- /dev/null
++++ b/tools/firmware/Makefile
+@@ -0,0 +1,13 @@
++# SPDX-License-Identifier: GPL-2.0
++# Makefile for firmware tools
++
++CFLAGS = -Wall -Wextra -g
++
++all: ihex2fw
++%: %.c
++	$(CC) $(CFLAGS) -o $@ $^
++
++clean:
++	$(RM) ihex2fw
++
++.PHONY: all clean
+\ No newline at end of file
+diff --git a/tools/firmware/ihex2fw.c b/tools/firmware/ihex2fw.c
+new file mode 100644
+index 000000000000..b58dd061e978
+--- /dev/null
++++ b/tools/firmware/ihex2fw.c
+@@ -0,0 +1,281 @@
++/*
++ * Parser/loader for IHEX formatted data.
++ *
++ * Copyright © 2008 David Woodhouse <dwmw2@infradead.org>
++ * Copyright © 2005 Jan Harkes <jaharkes@cs.cmu.edu>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++#include <stdint.h>
++#include <arpa/inet.h>
++#include <stdio.h>
++#include <errno.h>
++#include <sys/types.h>
++#include <sys/stat.h>
++#include <sys/mman.h>
++#include <fcntl.h>
++#include <string.h>
++#include <unistd.h>
++#include <stdlib.h>
++#define _GNU_SOURCE
++#include <getopt.h>
++
++
++struct ihex_binrec {
++	struct ihex_binrec *next; /* not part of the real data structure */
++        uint32_t addr;
++        uint16_t len;
++        uint8_t data[];
++};
++
++/**
++ * nybble/hex are little helpers to parse hexadecimal numbers to a byte value
++ **/
++static uint8_t nybble(const uint8_t n)
++{
++	if      (n >= '0' && n <= '9') return n - '0';
++	else if (n >= 'A' && n <= 'F') return n - ('A' - 10);
++	else if (n >= 'a' && n <= 'f') return n - ('a' - 10);
++	return 0;
++}
++
++static uint8_t hex(const uint8_t *data, uint8_t *crc)
++{
++	uint8_t val = (nybble(data[0]) << 4) | nybble(data[1]);
++	*crc += val;
++	return val;
++}
++
++static int process_ihex(uint8_t *data, ssize_t size);
++static void file_record(struct ihex_binrec *record);
++static int output_records(int outfd);
++
++static int sort_records = 0;
++static int wide_records = 0;
++static int include_jump = 0;
++
++static int usage(void)
++{
++	fprintf(stderr, "ihex2fw: Convert ihex files into binary "
++		"representation for use by Linux kernel\n");
++	fprintf(stderr, "usage: ihex2fw [<options>] <src.HEX> <dst.fw>\n");
++	fprintf(stderr, "       -w: wide records (16-bit length)\n");
++	fprintf(stderr, "       -s: sort records by address\n");
++	fprintf(stderr, "       -j: include records for CS:IP/EIP address\n");
++	return 1;
++}
++
++int main(int argc, char **argv)
++{
++	int infd, outfd;
++	struct stat st;
++	uint8_t *data;
++	int opt;
++
++	while ((opt = getopt(argc, argv, "wsj")) != -1) {
++		switch (opt) {
++		case 'w':
++			wide_records = 1;
++			break;
++		case 's':
++			sort_records = 1;
++			break;
++		case 'j':
++			include_jump = 1;
++			break;
++		default:
++			return usage();
++		}
++	}
++
++	if (optind + 2 != argc)
++		return usage();
++
++	if (!strcmp(argv[optind], "-"))
++		infd = 0;
++	else
++		infd = open(argv[optind], O_RDONLY);
++	if (infd == -1) {
++		fprintf(stderr, "Failed to open source file: %s",
++			strerror(errno));
++		return usage();
++	}
++	if (fstat(infd, &st)) {
++		perror("stat");
++		return 1;
++	}
++	data = mmap(NULL, st.st_size, PROT_READ, MAP_SHARED, infd, 0);
++	if (data == MAP_FAILED) {
++		perror("mmap");
++		return 1;
++	}
++
++	if (!strcmp(argv[optind+1], "-"))
++		outfd = 1;
++	else
++		outfd = open(argv[optind+1], O_TRUNC|O_CREAT|O_WRONLY, 0644);
++	if (outfd == -1) {
++		fprintf(stderr, "Failed to open destination file: %s",
++			strerror(errno));
++		return usage();
++	}
++	if (process_ihex(data, st.st_size))
++		return 1;
++
++	return output_records(outfd);
++}
++
++static int process_ihex(uint8_t *data, ssize_t size)
++{
++	struct ihex_binrec *record;
++	uint32_t offset = 0;
++	uint32_t data32;
++	uint8_t type, crc = 0, crcbyte = 0;
++	int i, j;
++	int line = 1;
++	int len;
++
++	i = 0;
++next_record:
++	/* search for the start of record character */
++	while (i < size) {
++		if (data[i] == '\n') line++;
++		if (data[i++] == ':') break;
++	}
++
++	/* Minimum record length would be about 10 characters */
++	if (i + 10 > size) {
++		fprintf(stderr, "Can't find valid record at line %d\n", line);
++		return -EINVAL;
++	}
++
++	len = hex(data + i, &crc); i += 2;
++	if (wide_records) {
++		len <<= 8;
++		len += hex(data + i, &crc); i += 2;
++	}
++	record = malloc((sizeof (*record) + len + 3) & ~3);
++	if (!record) {
++		fprintf(stderr, "out of memory for records\n");
++		return -ENOMEM;
++	}
++	memset(record, 0, (sizeof(*record) + len + 3) & ~3);
++	record->len = len;
++
++	/* now check if we have enough data to read everything */
++	if (i + 8 + (record->len * 2) > size) {
++		fprintf(stderr, "Not enough data to read complete record at line %d\n",
++			line);
++		return -EINVAL;
++	}
++
++	record->addr  = hex(data + i, &crc) << 8; i += 2;
++	record->addr |= hex(data + i, &crc); i += 2;
++	type = hex(data + i, &crc); i += 2;
++
++	for (j = 0; j < record->len; j++, i += 2)
++		record->data[j] = hex(data + i, &crc);
++
++	/* check CRC */
++	crcbyte = hex(data + i, &crc); i += 2;
++	if (crc != 0) {
++		fprintf(stderr, "CRC failure at line %d: got 0x%X, expected 0x%X\n",
++			line, crcbyte, (unsigned char)(crcbyte-crc));
++		return -EINVAL;
++	}
++
++	/* Done reading the record */
++	switch (type) {
++	case 0:
++		/* old style EOF record? */
++		if (!record->len)
++			break;
++
++		record->addr += offset;
++		file_record(record);
++		goto next_record;
++
++	case 1: /* End-Of-File Record */
++		if (record->addr || record->len) {
++			fprintf(stderr, "Bad EOF record (type 01) format at line %d",
++				line);
++			return -EINVAL;
++		}
++		break;
++
++	case 2: /* Extended Segment Address Record (HEX86) */
++	case 4: /* Extended Linear Address Record (HEX386) */
++		if (record->addr || record->len != 2) {
++			fprintf(stderr, "Bad HEX86/HEX386 record (type %02X) at line %d\n",
++				type, line);
++			return -EINVAL;
++		}
++
++		/* We shouldn't really be using the offset for HEX86 because
++		 * the wraparound case is specified quite differently. */
++		offset = record->data[0] << 8 | record->data[1];
++		offset <<= (type == 2 ? 4 : 16);
++		goto next_record;
++
++	case 3: /* Start Segment Address Record */
++	case 5: /* Start Linear Address Record */
++		if (record->addr || record->len != 4) {
++			fprintf(stderr, "Bad Start Address record (type %02X) at line %d\n",
++				type, line);
++			return -EINVAL;
++		}
++
++		memcpy(&data32, &record->data[0], sizeof(data32));
++		data32 = htonl(data32);
++		memcpy(&record->data[0], &data32, sizeof(data32));
++
++		/* These records contain the CS/IP or EIP where execution
++		 * starts. If requested output this as a record. */
++		if (include_jump)
++			file_record(record);
++		goto next_record;
++
++	default:
++		fprintf(stderr, "Unknown record (type %02X)\n", type);
++		return -EINVAL;
++	}
++
++	return 0;
++}
++
++static struct ihex_binrec *records;
++
++static void file_record(struct ihex_binrec *record)
++{
++	struct ihex_binrec **p = &records;
++
++	while ((*p) && (!sort_records || (*p)->addr < record->addr))
++		p = &((*p)->next);
++
++	record->next = *p;
++	*p = record;
++}
++
++static int output_records(int outfd)
++{
++	unsigned char zeroes[6] = {0, 0, 0, 0, 0, 0};
++	struct ihex_binrec *p = records;
++
++	while (p) {
++		uint16_t writelen = (p->len + 9) & ~3;
++
++		p->addr = htonl(p->addr);
++		p->len = htons(p->len);
++		if (write(outfd, &p->addr, writelen) != writelen)
++			return 1;
++		p = p->next;
++	}
++	/* EOF record is zero length, since we don't bother to represent
++	   the type field in the binary version */
++	if (write(outfd, zeroes, 6) != 6)
++		return 1;
++	return 0;
++}
+-- 
+2.19.1
+

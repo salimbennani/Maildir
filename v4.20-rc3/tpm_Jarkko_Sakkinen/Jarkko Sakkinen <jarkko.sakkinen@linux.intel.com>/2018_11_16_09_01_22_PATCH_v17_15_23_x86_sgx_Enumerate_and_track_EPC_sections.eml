@@ -1,0 +1,429 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 16 Nov 2018 02:44:15 -0000
+Received: from icoremail.net (unknown [209.85.214.180])
+	by mail-app2 (Coremail) with SMTP id by_KCgA3cI6SGO5bRoueAQ--.50544S3;
+	Fri, 16 Nov 2018 09:08:34 +0800 (CST)
+Received: from mail-pl1-f180.google.com (unknown [209.85.214.180])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwAH7EeOGO5b20xGAA--.2216S3;
+	Fri, 16 Nov 2018 09:08:31 +0800 (CST)
+Received: by mail-pl1-f180.google.com with SMTP id b22-v6so4861980pls.7
+        for <xuliker@zju.edu.cn>; Thu, 15 Nov 2018 17:08:31 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding:sender:precedence:list-id;
+        bh=AhBWjzgz+wInF1oYoCNVrj41N3kA6/nXx7q1iZZ57xE=;
+        b=a8dagoV/GndEzk5UIbGk6h+xRg/CHHzECzgf3Lxu4MKnq44qCj5EdM14ba1Z4QEvJg
+         OEoB09GWmVSjzfUO9XxHU3gQ56kyoDxITeeDCn5WxhwpwVkD6pHg/jhjAR8NA41SncKh
+         pKwFj8fv36MMIIxPNuGRe5DdLFT+didQ+kM2KDOGui1ZXcNhpQPY8f+62I2NMogikvAP
+         /25dq5sp2dBQGdgjrVPP1LJM3nMpVwprNlATQ56yYPDR51ZP0iAzWlrvlNnsZygztuWQ
+         We5xYN31DO91FQL0ltB4nNn8KRZfyN1hy3UEHOvgkF54aM5N8ArBdyUgcz8z2qxc1IBg
+         eh8w==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=intel.com
+X-Gm-Message-State: AGRZ1gIneadZdEenNyx0n+aXwqDwFjGlKjd2EclWjApyoISxC9eGLDIF
+	lA+VFykTvh1ctnydieDxqf0RoNNjqz1ni8WOYU741H/qYGZUG24=
+X-Received: by 2002:a17:902:50e3:: with SMTP id c32-v6mr8563078plj.39.1542330510653;
+        Thu, 15 Nov 2018 17:08:30 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:d106:0:0:0:0 with SMTP id l6-v6csp1285441pju;
+        Thu, 15 Nov 2018 17:08:28 -0800 (PST)
+X-Google-Smtp-Source: AJdET5dDTlB1FNR4BKezTiOeN4H/A5Eq3Kjn29kUJDYjUR4k9AuS9cmzmToMS0abHRHb6nLY9Y7v
+X-Received: by 2002:a62:3c6:: with SMTP id 189-v6mr8830645pfd.19.1542330508901;
+        Thu, 15 Nov 2018 17:08:28 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542330508; cv=none;
+        d=google.com; s=arc-20160816;
+        b=xKgaCygpmQnjUaAJZhjjDT8LWqygmXlU4pim0cWLmcfi2Q6n35MgEOf9/qTflJzIzp
+         VCmwo0saKj297WyIQNRqK2E/il0FaAryS6D7vOO2jAGiIHX/1khfsISHZRKQmoN7apKY
+         jcaIkRlF8na3WZpIgxob2NTCz4af3gSfuaXRWQhcFIMTFE/V9eRrpH7aLXGzNqNey3n9
+         ISlKEjUreltnen1TfQfcGn09vuLVp0Fup0AweFn7cEJrSUQ1DguCaElqbWuOLziIO0k2
+         FWDlnNqdQQCICxn2rP6RVfdccTexN6f2Ql80dkLkx4pIZfewHYhjl6GP2HH3hp90zF4Q
+         /09w==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:content-transfer-encoding:mime-version
+         :references:in-reply-to:message-id:date:subject:cc:to:from;
+        bh=AhBWjzgz+wInF1oYoCNVrj41N3kA6/nXx7q1iZZ57xE=;
+        b=J7V0yePLZnlNfuyRpoiJ4mLNfG3+gKb6McOj9z/ZoZiVjhdqHEM2PF640wGKaTm/kS
+         OgVOuaAIjlahPnlw6O82pCwJvFwtbKPJDNUiqwlYdEYzhVlogx0yM8hDCBAVdhBMMRwP
+         NcYQvjvny0w0/zOkOO5yCRxRIXkoHabRtfXdSrzc34EoFTlR9TOm7NxGPRN3dUHdGQek
+         rQ9wc7KTWBJ7SV6m4ViCgelX9g/J9dFdtxHa5i2oTmhnwxiZW2tXt+5BpcMDSMOT9mBi
+         LT4e0pabmkSWLd+8qYw5C3Ga5TOUHlqV8GcIdOtfGYx/mpJX7bXhXXDhU8n9enssIAGm
+         Pa1w==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=intel.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id t69si27964282pgb.365.2018.11.15.17.08.14;
+        Thu, 15 Nov 2018 17:08:28 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S2389219AbeKPLRf (ORCPT <rfc822;jroi.martin@gmail.com>
+        + 99 others); Fri, 16 Nov 2018 06:17:35 -0500
+Received: from mga09.intel.com ([134.134.136.24]:51252 "EHLO mga09.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726518AbeKPLRf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+        Fri, 16 Nov 2018 06:17:35 -0500
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga005.fm.intel.com ([10.253.24.32])
+  by orsmga102.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 15 Nov 2018 17:07:17 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.56,238,1539673200"; 
+   d="scan'208";a="280385992"
+Received: from sfhansen-mobl2.ger.corp.intel.com (HELO localhost) ([10.249.254.82])
+  by fmsmga005.fm.intel.com with ESMTP; 15 Nov 2018 17:07:11 -0800
+From: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+To: x86@kernel.org, platform-driver-x86@vger.kernel.org,
+        linux-sgx@vger.kernel.org
+Cc: dave.hansen@intel.com, sean.j.christopherson@intel.com,
+        nhorman@redhat.com, npmccallum@redhat.com, serge.ayoun@intel.com,
+        shay.katz-zamir@intel.com, haitao.huang@linux.intel.com,
+        andriy.shevchenko@linux.intel.com, tglx@linutronix.de,
+        kai.svahn@intel.com, mark.shanahan@intel.com, luto@amacapital.net,
+        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+        Suresh Siddha <suresh.b.siddha@intel.com>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Reinette Chatre <reinette.chatre@intel.com>,
+        Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Pu Wen <puwen@hygon.cn>,
+        linux-kernel@vger.kernel.org (open list:X86 ARCHITECTURE (32-BIT AND
+        64-BIT))
+Subject: [PATCH v17 15/23] x86/sgx: Enumerate and track EPC sections
+Date: Fri, 16 Nov 2018 03:01:22 +0200
+Message-Id: <20181116010412.23967-16-jarkko.sakkinen@linux.intel.com>
+X-Mailer: git-send-email 2.19.1
+In-Reply-To: <20181116010412.23967-1-jarkko.sakkinen@linux.intel.com>
+References: <20181116010412.23967-1-jarkko.sakkinen@linux.intel.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwAH7EeOGO5b20xGAA--.2216S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW3Jr18AF43KF17trWrCrWDCFg_yoWfZry5pF
+	srCryxGF4kJF1xu3yfJw4kuryaqan5Wr45Kr9rG3Z2yw17Zr1vyF4vya4DtF1DGrWrCrWf
+	WFW5JF43Gr15AaUanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUU0bIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUPab7Iv0xC_Kw4lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2
+	z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s0DM2AIxVAIcxkEcV
+	Aq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1j
+	6r18McIj6I8E87Iv67AKxVW8JVWxJwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IYc2Ij64
+	vIr41l7I0Y6sxI4wCY1x0264kExVAvwVAq07x20xylc7Ca8VAvwVCFzxkY4VCF77xAMxkI
+	ecxEwVCI4VWkMxkI7II2jI8vz4vEwIxGrwCYIxAIcVC0I7IYx2IY67AKxVW8JVW5JwCYIx
+	AIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMxvI42IY6I8E87Iv67AKxVW8Jr0_Cr1UMxvI
+	42IY6I8E87Iv6xkF7I0E14v26r4UJVWxJr1l42xK82IYc2Ij64vIr41l42xK82IY64kExV
+	AvwVAq07x20xyl4x8a6x804xWl4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AK
+	xVWUJVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r4a6rW5MIIYrx
+	kI7VAKI48JMIIF0xvE42xK8VAvwI8IcIk0rVW8JVW3JbIYCTnIWIevJa73UjIFyTuYvjxU
+	HBMNDUUUU
+
+From: Sean Christopherson <sean.j.christopherson@intel.com>
+
+Enumerate Enclave Page Cache (EPC) sections via CPUID and add the data
+structures necessary to track EPC pages so that they can be allocated,
+freed and managed.  As a system may have multiple EPC sections, invoke
+CPUID on SGX sub-leafs until an invalid leaf is encountered.
+
+On NUMA systems, a node can have at most one bank. A bank can be at
+most part of two nodes.  SGX supports both nodes with a single memory
+controller and also sub-cluster nodes with severals memory controllers
+on a single die.
+
+For simplicity, support a maximum of eight EPC sections.  Current
+client hardware supports only a single section, while upcoming server
+hardware will support at most eight sections.  Bounding the number of
+sections also allows the section ID to be embedded along with a page's
+offset in a single unsigned long, enabling easy retrieval of both the
+VA and PA for a given page.
+
+Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Co-developed-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Co-developed-by: Suresh Siddha <suresh.b.siddha@intel.com>
+Signed-off-by: Suresh Siddha <suresh.b.siddha@intel.com>
+Co-developed-by: Serge Ayoun <serge.ayoun@intel.com>
+Signed-off-by: Serge Ayoun <serge.ayoun@intel.com>
+---
+ arch/x86/Kconfig                |  17 ++++
+ arch/x86/include/asm/sgx.h      |  58 +++++++++++++
+ arch/x86/kernel/cpu/Makefile    |   1 +
+ arch/x86/kernel/cpu/intel_sgx.c | 146 ++++++++++++++++++++++++++++++++
+ 4 files changed, 222 insertions(+)
+ create mode 100644 arch/x86/kernel/cpu/intel_sgx.c
+
+diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+index 9d734f3c8234..4c3a325351ce 100644
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -1919,6 +1919,23 @@ config X86_INTEL_MEMORY_PROTECTION_KEYS
+ 
+ 	  If unsure, say y.
+ 
++config INTEL_SGX_CORE
++	bool "Intel SGX core functionality"
++	depends on X86_64 && CPU_SUP_INTEL
++	help
++	Intel Software Guard eXtensions (SGX) CPU feature that allows ring 3
++	applications to create enclaves: private regions of memory that are
++	architecturally protected from unauthorized access and/or modification.
++
++	This option enables kernel recognition of SGX, high-level management
++	of the Enclave Page Cache (EPC), tracking and writing of SGX Launch
++	Enclave Hash MSRs, and allows for virtualization of SGX via KVM. By
++	itself, this option does not provide SGX support to userspace.
++
++	For details, see Documentation/x86/intel_sgx.rst
++
++	If unsure, say N.
++
+ config EFI
+ 	bool "EFI runtime service support"
+ 	depends on ACPI
+diff --git a/arch/x86/include/asm/sgx.h b/arch/x86/include/asm/sgx.h
+index 3d5ba1d23dfb..efe3e213e582 100644
+--- a/arch/x86/include/asm/sgx.h
++++ b/arch/x86/include/asm/sgx.h
+@@ -2,9 +2,67 @@
+ #ifndef _ASM_X86_SGX_H
+ #define _ASM_X86_SGX_H
+ 
++#include <linux/bitops.h>
++#include <linux/err.h>
++#include <linux/io.h>
++#include <linux/rwsem.h>
++#include <linux/types.h>
+ #include <asm/asm.h>
+ #include <asm/sgx_arch.h>
+ 
++struct sgx_epc_page {
++	unsigned long desc;
++	struct list_head list;
++};
++
++/**
++ * struct sgx_epc_section
++ *
++ * The firmware can define multiple chunks of EPC to the different areas of the
++ * physical memory e.g. for memory areas of the each node. This structure is
++ * used to store EPC pages for one EPC section and virtual memory area where
++ * the pages have been mapped.
++ */
++struct sgx_epc_section {
++	unsigned long pa;
++	void *va;
++	struct sgx_epc_page **pages;
++	unsigned long free_cnt;
++	spinlock_t lock;
++};
++
++#define SGX_MAX_EPC_SECTIONS	8
++
++extern struct sgx_epc_section sgx_epc_sections[SGX_MAX_EPC_SECTIONS];
++
++/**
++ * enum sgx_epc_page_desc - bits and masks for an EPC page's descriptor
++ * %SGX_EPC_SECTION_MASK:	SGX allows to have multiple EPC sections in the
++ *				physical memory. The existing and near-future
++ *				hardware defines at most eight sections, hence
++ *				three bits to hold a section.
++ * %SGX_EPC_PAGE_RECLAIMABLE:	The page page is reclaimable. Used when freeing
++ *				a page to know that we also need to remove the
++ *				page from the list of reclaimable pages.
++ */
++enum sgx_epc_page_desc {
++	SGX_EPC_SECTION_MASK			= GENMASK_ULL(3, 0),
++	SGX_EPC_PAGE_RECLAIMABLE		= BIT(4),
++	/* bits 12-63 are reserved for the physical page address of the page */
++};
++
++static inline struct sgx_epc_section *sgx_epc_section(struct sgx_epc_page *page)
++{
++	return &sgx_epc_sections[page->desc & SGX_EPC_SECTION_MASK];
++}
++
++static inline void *sgx_epc_addr(struct sgx_epc_page *page)
++{
++	struct sgx_epc_section *section = sgx_epc_section(page);
++
++	return section->va + (page->desc & PAGE_MASK) - section->pa;
++}
++
+ /**
+  * ENCLS_FAULT_FLAG - flag signifying an ENCLS return code is a trapnr
+  *
+diff --git a/arch/x86/kernel/cpu/Makefile b/arch/x86/kernel/cpu/Makefile
+index 1f5d2291c31e..b496c9360b88 100644
+--- a/arch/x86/kernel/cpu/Makefile
++++ b/arch/x86/kernel/cpu/Makefile
+@@ -39,6 +39,7 @@ obj-$(CONFIG_CPU_SUP_UMC_32)		+= umc.o
+ obj-$(CONFIG_INTEL_RDT)	+= intel_rdt.o intel_rdt_rdtgroup.o intel_rdt_monitor.o
+ obj-$(CONFIG_INTEL_RDT)	+= intel_rdt_ctrlmondata.o intel_rdt_pseudo_lock.o
+ CFLAGS_intel_rdt_pseudo_lock.o = -I$(src)
++obj-$(CONFIG_INTEL_SGX_CORE)		+= intel_sgx.o
+ 
+ obj-$(CONFIG_X86_MCE)			+= mcheck/
+ obj-$(CONFIG_MTRR)			+= mtrr/
+diff --git a/arch/x86/kernel/cpu/intel_sgx.c b/arch/x86/kernel/cpu/intel_sgx.c
+new file mode 100644
+index 000000000000..bfdf907c5d94
+--- /dev/null
++++ b/arch/x86/kernel/cpu/intel_sgx.c
+@@ -0,0 +1,146 @@
++// SPDX-License-Identifier: (GPL-2.0 OR BSD-3-Clause)
++// Copyright(c) 2016-17 Intel Corporation.
++
++#include <linux/freezer.h>
++#include <linux/highmem.h>
++#include <linux/kthread.h>
++#include <linux/pagemap.h>
++#include <linux/ratelimit.h>
++#include <linux/sched/signal.h>
++#include <linux/slab.h>
++#include <asm/sgx.h>
++
++struct sgx_epc_section sgx_epc_sections[SGX_MAX_EPC_SECTIONS];
++EXPORT_SYMBOL_GPL(sgx_epc_sections);
++
++static int sgx_nr_epc_sections;
++
++static __init void sgx_free_epc_section(struct sgx_epc_section *section)
++{
++	int i;
++
++	if (section->pages) {
++		for (i = 0; i < section->free_cnt && section->pages[i]; i++)
++			kfree(section->pages[i]);
++		kfree(section->pages);
++	}
++	memunmap(section->va);
++}
++
++static __init int sgx_init_epc_section(u64 addr, u64 size, unsigned long index,
++				       struct sgx_epc_section *section)
++{
++	unsigned long nr_pages = size >> PAGE_SHIFT;
++	unsigned long i;
++
++	section->va = memremap(addr, size, MEMREMAP_WB);
++	if (!section->va)
++		return -ENOMEM;
++
++	section->pa = addr;
++	section->free_cnt = nr_pages;
++	spin_lock_init(&section->lock);
++
++	section->pages = kcalloc(nr_pages, sizeof(struct sgx_epc_page *),
++				 GFP_KERNEL);
++	if (!section->pages) {
++		pr_warn("sgx: EPC section allocation failed\n");
++		goto out;
++	}
++
++	for (i = 0; i < nr_pages; i++) {
++		section->pages[i] = kzalloc(sizeof(struct sgx_epc_page),
++					    GFP_KERNEL);
++		if (!section->pages[i])
++			goto out;
++
++		section->pages[i]->desc = (addr + (i << PAGE_SHIFT)) | index;
++	}
++
++	return 0;
++out:
++	sgx_free_epc_section(section);
++	return -ENOMEM;
++}
++
++static __init void sgx_page_cache_teardown(void)
++{
++	int i;
++
++	for (i = 0; i < sgx_nr_epc_sections; i++)
++		sgx_free_epc_section(&sgx_epc_sections[i]);
++}
++
++/**
++ * A section metric is concatenated in a way that @low bits 12-31 define the
++ * bits 12-31 of the metric and @high bits 0-19 define the bits 32-51 of the
++ * metric.
++ */
++static inline u64 sgx_calc_section_metric(u64 low, u64 high)
++{
++	return (low & GENMASK_ULL(31, 12)) +
++	       ((high & GENMASK_ULL(19, 0)) << 32);
++}
++
++static __init int sgx_page_cache_init(void)
++{
++	u32 eax, ebx, ecx, edx, type;
++	u64 pa, size;
++	int ret;
++	int i;
++
++	BUILD_BUG_ON(SGX_MAX_EPC_SECTIONS > (SGX_EPC_SECTION_MASK + 1));
++
++	for (i = 0; i < (SGX_MAX_EPC_SECTIONS + 1); i++) {
++		cpuid_count(SGX_CPUID, i + SGX_CPUID_FIRST_VARIABLE_SUB_LEAF,
++			    &eax, &ebx, &ecx, &edx);
++
++		type = eax & SGX_CPUID_SUB_LEAF_TYPE_MASK;
++		if (type == SGX_CPUID_SUB_LEAF_INVALID)
++			break;
++		if (type != SGX_CPUID_SUB_LEAF_EPC_SECTION) {
++			pr_err_once("sgx: Unknown sub-leaf type: %u\n", type);
++			return -ENODEV;
++		}
++		if (i == SGX_MAX_EPC_SECTIONS) {
++			pr_warn("sgx: More than " __stringify(SGX_MAX_EPC_SECTIONS)
++				" EPC sections\n");
++			break;
++		}
++
++		pa = sgx_calc_section_metric(eax, ebx);
++		size = sgx_calc_section_metric(ecx, edx);
++		pr_info("sgx: EPC section 0x%llx-0x%llx\n", pa, pa + size - 1);
++
++		ret = sgx_init_epc_section(pa, size, i, &sgx_epc_sections[i]);
++		if (ret) {
++			sgx_page_cache_teardown();
++			return ret;
++		}
++
++		sgx_nr_epc_sections++;
++	}
++
++	if (!sgx_nr_epc_sections) {
++		pr_err("sgx: There are zero EPC sections.\n");
++		return -ENODEV;
++	}
++
++	return 0;
++}
++
++static __init int sgx_init(void)
++{
++	int ret;
++
++	if (!boot_cpu_has(X86_FEATURE_SGX))
++		return false;
++
++	ret = sgx_page_cache_init();
++	if (ret)
++		return ret;
++
++	return 0;
++}
++
++arch_initcall(sgx_init);
+-- 
+2.19.1

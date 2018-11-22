@@ -1,0 +1,148 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (61.164.42.155:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 16 Nov 2018 13:50:53 -0000
+Received: from icoremail.net (unknown [209.85.210.176])
+	by mail-app2 (Coremail) with SMTP id by_KCgC3f93Jne5b3gKiAQ--.48916S3;
+	Fri, 16 Nov 2018 18:36:58 +0800 (CST)
+Received: from mail-pf1-f176.google.com (unknown [209.85.210.176])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwCHb0vFne5b7+1IAA--.936S3;
+	Fri, 16 Nov 2018 18:36:54 +0800 (CST)
+Received: by mail-pf1-f176.google.com with SMTP id u3-v6so8542315pfm.4
+        for <xuliker@zju.edu.cn>; Fri, 16 Nov 2018 02:36:54 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:delivered-to:dkim-signature:date:from:to:cc
+         :subject:message-id:mime-version:content-disposition:user-agent
+         :sender:precedence:list-id;
+        bh=zczUpfpBJbU+UhhYCXdsGzD3+sW2s6HOrPs8FFQLYMw=;
+        b=MBdQyVV1R3q9GlM3zIhs0TlsnD2f5naCOZtYILFRMMtuAbBDu0TxFYpEeNIgYXpnqQ
+         hs4QzJpo7JSv1WZRPEeYueo0W+s6uigwWBdhbpq62Z/H7JavCBTbnjCynkMeCTdQ0zeD
+         v8et4piJjcrLErfgZlorqAfpJf7YHWax9qu3WRKq13lcw0WyJKc73R/wJJZ0EUjRQi8D
+         GWpO3WvVZDsallRTU3YlkI521rHLaNnyHbVEQ9wXCLkOlO/vpbcBk7v7i4jmYxROvHRR
+         lkKw5jEeRkmVPv7mFezPEvdk+stiweg96RwT47fmkbwl3HYuG+XVkSHLIHmSAeGcZYJK
+         i1WA==
+X-Gm-Message-State: AGRZ1gKAaBHTD8FYOBcTiAJ+VUJBYk4c/tzrhSsnYosBBYZdvIl/803e
+	+ogVxjLQ/FSPdn9LwgKghVT91pw59e6k24IIWRAH5rU3GOhV20I=
+X-Received: by 2002:a63:bc02:: with SMTP id q2mr9563059pge.116.1542364613708;
+        Fri, 16 Nov 2018 02:36:53 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:d106:0:0:0:0 with SMTP id l6-v6csp242855pju;
+        Fri, 16 Nov 2018 02:36:52 -0800 (PST)
+X-Google-Smtp-Source: AJdET5d5g75ZAT/GGlqnVf7ut5rrGhZ105EcbrmdyY+GjmXBWX04pwcTQF8e8k5mH6i2VJ9lOfNh
+X-Received: by 2002:a63:194f:: with SMTP id 15mr9517181pgz.192.1542364612865;
+        Fri, 16 Nov 2018 02:36:52 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542364612; cv=none;
+        d=google.com; s=arc-20160816;
+        b=mQUhLML/UflD4elD6DpPAM/M9CWwr09y3k5hy396cn5ctsVgjRccP/kErIJ+lzUrC8
+         wD61sGCh5WwmP4iCfbxB8aw7g5mzaHtOUpvChywbbq6RkANyuAqzje2MjyezT8MPAhw7
+         /ZxVDbsCEDUY762FsYYGkWJbFLxYgJKKe1cIftr+ABrANrSF8LIB2Khi+WWEyCfSzP4Q
+         U9hXgCEzc0zgofb22krI700SSCL0WqKAVOqm3vuU2pEGLDNLv1aC335jcSKtHg+uzZ7O
+         pHlR7YwhngZXDNW+UzekGjSojTTQ/DW39d1WuJDhSUCRVktLHs+IJ2w/f+ohLrfTTOey
+         xhdA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:user-agent:content-disposition
+         :mime-version:message-id:subject:cc:to:from:date:dkim-signature;
+        bh=zczUpfpBJbU+UhhYCXdsGzD3+sW2s6HOrPs8FFQLYMw=;
+        b=qLE4cr3nqRGeKNCGvNmS9yLGDVn1y+LCnCZTR3L+3uw8TZAldBsG4bhZs3O/1pGx3u
+         CRyPtViwy6hh/86cOxHzzKVqC07QVd8Fxtl8oUMU5lqCdfSk/rGPJfoYTQByp0EMlp1u
+         YT7MR3NBlaIIjCFMsZvgRYm9HJj4omTGstwLG9f9m4IMOV65OzQkkoY1UFARcp1XXmSC
+         wg7Ys7ZrV/3XYtNCZLNsEcltF1NBrjxhOcLuNhXnQEuXJiPBUWm+/G+0Eo5d3Gzrm7pc
+         p5l0FcqDpsdNAG9kLwLj+JAzelVZoYl14nWezSZYIckbcj/ML5k/FIkXQoudG+635qBt
+         MZdw==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@ozlabs.org header.s=201707 header.b=d79vME83;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id y13si30588738pgj.157.2018.11.16.02.36.38;
+        Fri, 16 Nov 2018 02:36:52 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1727543AbeKPUsI (ORCPT <rfc822;nodee764@gmail.com> + 99 others);
+        Fri, 16 Nov 2018 15:48:08 -0500
+Received: from ozlabs.org ([203.11.71.1]:57993 "EHLO ozlabs.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727490AbeKPUsI (ORCPT <rfc822;kvm@vger.kernel.org>);
+        Fri, 16 Nov 2018 15:48:08 -0500
+Received: by ozlabs.org (Postfix, from userid 1003)
+        id 42xF5K3FTMz9s8F; Fri, 16 Nov 2018 21:36:21 +1100 (AEDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ozlabs.org; s=201707;
+        t=1542364581; bh=gBFAzPY3FqxQhiRKKh97sFdTKWWkdJedJ9hwG49uKFI=;
+        h=Date:From:To:Cc:Subject:From;
+        b=d79vME83+xVKJcl+XjHXcEva1qFtppeGymnK/t1d/kTWiqSravGn3y9O2nOryLjDF
+         nzb3I2pgGtIg1gB/F7iis4XZcjtyG27PndC29TZKobWUXY5HFMYbUomo4Pp4WRPat4
+         H1lEUXVMOKIsK229GVPMibSRsnU+R5cheaGCN6YViNhTdu4TdkHEuj7IWBiziPy5Yy
+         2GBdzMAmypfy9DXDi0QbJPbiwVjH25LMXstnxv24rbYrhlen2vZL0tl2YXXAMT146W
+         WrZpyU7g1iJyaYURxyQG+YEIT5l0qNK2t/fl3o4Y4oXF2xTfF8c1FsVkAbbHU04OcV
+         e60N0KHyzoqZw==
+Date: Fri, 16 Nov 2018 21:36:16 +1100
+From: Paul Mackerras <paulus@ozlabs.org>
+To: Paolo Bonzini <pbonzini@redhat.com>,
+        Radim =?utf-8?B?S3LEjW3DocWZ?= <rkrcmar@redhat.com>,
+        kvm@vger.kernel.org
+Cc: kvm-ppc@vger.kernel.org, David Gibson <david@gibson.dropbear.id.au>
+Subject: [GIT PULL] Please pull my kvm-ppc-fixes-4.20-1 tag
+Message-ID: <20181116103616.GB19018@blackberry>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.24 (2015-08-30)
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwCHb0vFne5b7+1IAA--.936S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvdXoW7Jw4xGw15tF4UWFW8Gr15urg_yoWDuFX_ZF
+	yxAa4UWryjqr1UZ3W7AF1UJr15Jr17Gr17CryUJr47Aw1xJa4UAry8Jr4UXr18u348Arn8
+	Crn8Jwn8JF18CjkaLaAFLSUrUUUUUb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAU7a7-sFnT
+	9fnUUIcSsGvfJTRUUUbSkYjsxI4VW3JwAYFVCjjxCrM7AC8VAFwI0_Jr0_Gr1l1IIY67AE
+	w4v_Jr0_Jr4l8cAvFVAK0II2c7xJM28CjxkF64kEwVA0rcxSw2x7M28EF7xvwVC0I7IYx2
+	IY67AKxVW7JVWDJwA2z4x0Y4vE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwA2z4x0Y4vEx4A2
+	jsIE14v26rxl6s0DM28EF7xvwVC2z280aVCY1x0267AKxVW0oVCq3wAS0I0E0xvYzxvE52
+	x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AKxVWUJVWU
+	GwAv7VC2z280aVAFwI0_Gr0_Cr1lOx8S6xCaFVCjc4AY6r1j6r4UMx02cVCv0xWlc7CjxV
+	AKzI0EY4vE52x082I5MxkFs20EY4vE44CYbxCE4x80FwCY02Avz4vEIxC_Gw1lc2IjII80
+	xcxEwVAKI48JMxvI42IY6xIIjxv20xvE14v26r4j6ryUMxvI42IY6xIIjxv20xvEc7CjxV
+	AFwI0_Gr0_Cr1lcIIF0xvEx4A2jsIE14v26F4UJVW0owCYIxAIcVC2z280aVCY1x0267AK
+	xVWxJr0_GcWl42xK82IYc2Ij64vIr41l42xK82IY64kExVAvwVAq07x20xyl4x8a6x804x
+	Wl4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x8GjcxK
+	67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r126r1DMIIYrxkI7VAKI48JMIIF0xvE42xK8V
+	AvwI8IcIk0rVW3JVWrJrUvcSsGvfC2KfnxnUUI43ZEXa7IU5hzVUUUUUU==
+
+Paolo or Radim,
+
+Please do a pull from my kvm-ppc-fixes-4.20-1 tag to get a 1-line
+change that fixes a bug in the nested HV KVM code that was merged in
+the 4.20 merge window.
+
+Thanks,
+Paul.
+
+The following changes since commit ccda4af0f4b92f7b4c308d3acc262f4a7e3affad:
+
+  Linux 4.20-rc2 (2018-11-11 17:12:31 -0600)
+
+are available in the git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/paulus/powerpc tags/kvm-ppc-fixes-4.20-1
+
+for you to fetch changes up to 6c08ec1216b7b2f84b9755f339d6009768599256:
+
+  KVM: PPC: Book3S HV: Fix handling for interrupted H_ENTER_NESTED (2018-11-15 13:59:21 +1100)
+
+----------------------------------------------------------------
+PPC KVM fixes for 4.20
+
+This has a single 1-line patch which fixes a bug in the recently-merged
+nested HV KVM support.
+
+----------------------------------------------------------------
+Michael Roth (1):
+      KVM: PPC: Book3S HV: Fix handling for interrupted H_ENTER_NESTED
+
+ arch/powerpc/kvm/book3s_hv.c | 1 +
+ 1 file changed, 1 insertion(+)

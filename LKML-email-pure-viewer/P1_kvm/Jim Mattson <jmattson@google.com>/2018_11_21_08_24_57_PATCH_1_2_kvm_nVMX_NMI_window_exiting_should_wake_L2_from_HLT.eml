@@ -1,0 +1,169 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 21 Nov 2018 00:42:37 -0000
+Received: from icoremail.net (unknown [209.85.214.175])
+	by mail-app2 (Coremail) with SMTP id by_KCgDXvwoCqPRbATzDAQ--.56673S3;
+	Wed, 21 Nov 2018 08:34:10 +0800 (CST)
+Received: from mail-pl1-f175.google.com (unknown [209.85.214.175])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwBXPUn_p_RbxIJgAA--.3645S3;
+	Wed, 21 Nov 2018 08:34:07 +0800 (CST)
+Received: by mail-pl1-f175.google.com with SMTP id b22-v6so2758752pls.7
+        for <xuliker@zju.edu.cn>; Tue, 20 Nov 2018 16:34:07 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:delivered-to:dkim-signature:date:message-id
+         :mime-version:subject:from:to:cc:sender:precedence:list-id;
+        bh=qAPf5v8pxN0vjLBlfstzHTJZu8p+5R9MtKCIVlyD41c=;
+        b=kwAPaAADvkm2hQIADI3VdkhasdjYt9Y4+FItnBUjq0aCiFAoFHH5t9FdBBndwC8Zrr
+         UMQ9MCtXovbDUtGGUMMqC6qShNOaAydCn/i7pZUl5IbWD4SH7MlFW7S00qwbWrm5OzTD
+         X6h6GRu5D8ualagNI4mSbaYs9K1EluxtqqS/bU5ziDY4b72rkxp93hoDMLt0AJ2DJauq
+         8VYbT0LE5odTerak9G56dZv1c/Dswuh6K96XqSXUWOrU3d8VGRAIT8RgBU2DtmF53P2R
+         L9lK13tVVR/pYVxwhiAV7inkCHBe8uWRjKqLEkFDZ7qYh/V6tvtzZPcyOv5yt8t2aVn2
+         4wbQ==
+X-Gm-Message-State: AA+aEWbfO+QHuQ97IqL43aWVPvmbgeOvtYCHKxihVChslx2oDv4Vt/eJ
+	mo32+ys7uvIM8ufkfeJjcyvqEnZTrnMSw6pWlx5B+05o+t/u66Y=
+X-Received: by 2002:a63:f615:: with SMTP id m21mr4051445pgh.428.1542760446862;
+        Tue, 20 Nov 2018 16:34:06 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:d106:0:0:0:0 with SMTP id l6-v6csp1300631pju;
+        Tue, 20 Nov 2018 16:34:06 -0800 (PST)
+X-Google-Smtp-Source: AFSGD/XcSmTUJcVFlBndYba/kNzukiLDbp5FOeW/MU6G775BKw4VrU0LWVdkAWW78g9VKLdOgm0/
+X-Received: by 2002:a17:902:74c1:: with SMTP id f1mr4416523plt.273.1542760445994;
+        Tue, 20 Nov 2018 16:34:05 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542760445; cv=none;
+        d=google.com; s=arc-20160816;
+        b=isReiAJqzCI4eCBsK1jOjI/351De6wYDO3yxE7wjii4PSzwYnj1bjDzAeq4u7nv2zX
+         YKHa3Yw1kQ493oueUWYflGceDjESgpT7SyVLAEpP5iXDNxag/ZcXqq8GQKiqmzE6acb8
+         MxfbcLw6ggWFEixQh12YeUbuq/r6DZAyvYfpkyN+mcb0c1TBIg6Q50S/oIvY39pWBPdR
+         Pokwp/kH4TGkFJntPPvbtqH03zh/jKPcao4XjYi0+gzdPoQ1esstwLH6UActRtZusDWu
+         0ZPW+UL6n1ZEubA/SYn5/vPB9WPAyHKr/06CCLARmR4F5okk6DWR/vg3LrS0GeT9PH0z
+         +6Lw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:cc:to:from:subject:mime-version
+         :message-id:date:dkim-signature;
+        bh=qAPf5v8pxN0vjLBlfstzHTJZu8p+5R9MtKCIVlyD41c=;
+        b=0CP4x3krvOCFNzrbxD2ScV9FiYnHLrVprf+NruT6s7Y3kCYTjj0kR10q+s1GRdzx2r
+         I3Nd+oOK1ywOlIiUUVYBoYSqYlKmeDVBuYLg0Nzjh2upyF9ZnaWk29yrMTAzlfWN0WLy
+         mYjL+iPdIttlDoDRT/ssbX61El4nqCnkzAIHmHsquvIFJL8h3UhbQS8R5ccQoTigl6k2
+         LVzSkaV0h2oG+Cs+WPry3XbozCjtsTLVfrBm+j5sIASlZQSCPqY1WX+SskoTDFbs6Et7
+         MSD1+O5scVzpySmQalZVZkabNLGfTCn0r7EN0eL/1kkIr7OMVw97GLDqxlJE3lpUqXo7
+         /Qow==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@google.com header.s=20161025 header.b=RBsbCFzU;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;
+       dmarc=pass (p=REJECT sp=REJECT dis=NONE) header.from=google.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id 27si44357227pgp.135.2018.11.20.16.33.42;
+        Tue, 20 Nov 2018 16:34:05 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1726849AbeKUK47 (ORCPT <rfc822;alpcanarslan95@gmail.com>
+        + 99 others); Wed, 21 Nov 2018 05:56:59 -0500
+Received: from mail-pl1-f202.google.com ([209.85.214.202]:37478 "EHLO
+        mail-pl1-f202.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726060AbeKUK47 (ORCPT <rfc822;kvm@vger.kernel.org>);
+        Wed, 21 Nov 2018 05:56:59 -0500
+Received: by mail-pl1-f202.google.com with SMTP id v11so4557274ply.4
+        for <kvm@vger.kernel.org>; Tue, 20 Nov 2018 16:25:05 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=date:message-id:mime-version:subject:from:to:cc;
+        bh=qAPf5v8pxN0vjLBlfstzHTJZu8p+5R9MtKCIVlyD41c=;
+        b=RBsbCFzU52AhtU7qGsyhzJi9ER0LCXE8/mGmI0ul3PtEHopF9QEVsEqncFGcUz9xBj
+         iYQbxvDa3pUTnUvbsruwvraYTUzJtDZKo5YsgLKw0TkLRcjvMp1F6ramrW4HVtXuL0BF
+         qDjaOl/E5URzcc7fOhUICFK1nXR6H8iAj/0pa4J5zTzpkqVU40BxzIX7MIzTclvpapYO
+         ZAQL3nRa/yPdqzkkpj0S+0tNcsccaYJgwxmEin4ZZ0Ij7vjh/UkMhYzz1GlD1d91u5wh
+         3B5l8lZxT+LpzB8uV0cxBCZ0OR2VOUHUUF86ywW9s7qe3Vi8CUchhyHx0yFgSO45eHbV
+         PLRw==
+X-Received: by 2002:a63:780d:: with SMTP id t13mr1877184pgc.39.1542759905081;
+ Tue, 20 Nov 2018 16:25:05 -0800 (PST)
+Date: Tue, 20 Nov 2018 16:24:57 -0800
+Message-Id: <20181121002458.239673-1-jmattson@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.19.1.1215.g8438c0b245-goog
+Subject: [PATCH 1/2] kvm: nVMX: NMI-window exiting should wake L2 from HLT
+From: Jim Mattson <jmattson@google.com>
+To: kvm@vger.kernel.org
+Cc: Jim Mattson <jmattson@google.com>, Peter Shier <pshier@google.com>
+Content-Type: text/plain; charset="UTF-8"
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwBXPUn_p_RbxIJgAA--.3645S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW7Zr1xuF18Kry3tFWUXFy7Wrg_yoW8ur18pr
+	97Wrn0vr48GFWxC3yxGa1ruFWSkr97ZF1xGryDGwnxJF4qg3WUJr1Fgr98ta4UurZYgw1f
+	ZFWUt3yxu3W5JrJanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUU0bIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUPIb7Iv0xC_Kw4lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Xr0_Ar1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1l84ACjcxK6I8E
+	87Iv67AKxVW0oVCq3wA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_GcCE3s1le2I262IYc4CY6c
+	8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_JrI_
+	JrylYx0Ex4A2jsIE14v26r4j6F4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvY0x0EwI
+	xGrwCjxxvEa2IrMxkF7I0Ew4C26cxK6c8Ij28IcwCY1Ik26cxK6xAEc7vF6xCjj44lc2xS
+	Y4AK6IIF6w1lc2IjII80xcxEwVAKI48JMxvI42IY6xIIjxv20xvE14v26r1j6r1xMxvI42
+	IY6xIIjxv20xvEc7CjxVAFwI0_Jr0_Gr1lcIIF0xvEx4A2jsIE14v26r4UJVWxJr1lcIIF
+	0xvEx4A2jsIEc7CjxVAFwI0_Gr1j6F4UJwCF04k20xvY0x0EwIxGrwCF04k20xvEw4C26c
+	xK6c8Ij28IcwCF72vE77IF4wCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v2
+	6r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_JF0_Jw1lIxkGc2
+	Ij64vIr41lIxAIcVCF04k26cxKx2IYs7xG6r4j6FyUYxBIdaVFxhVjvjDU0xZFpf9x07bH
+	_-PUUUUU=
+
+According to the SDM, "NMI-window exiting" VM-exits wake a logical
+processor from the same inactive states as would an NMI. Specifically,
+they wake a logical processor from the shutdown state and from the
+states entered using the HLT and MWAIT instructions.
+
+Fixes: 6dfacadd5858 ("KVM: nVMX: Add support for activity state HLT")
+Signed-off-by: Jim Mattson <jmattson@google.com>
+Reviewed-by: Peter Shier <pshier@google.com>
+---
+ arch/x86/kvm/vmx.c | 19 ++++++++++++++++---
+ 1 file changed, 16 insertions(+), 3 deletions(-)
+
+diff --git a/arch/x86/kvm/vmx.c b/arch/x86/kvm/vmx.c
+index ccc6a01eb4f4..5f5c79e72a49 100644
+--- a/arch/x86/kvm/vmx.c
++++ b/arch/x86/kvm/vmx.c
+@@ -13421,6 +13421,17 @@ static int nested_vmx_enter_non_root_mode(struct kvm_vcpu *vcpu,
+ 	return 1;
+ }
+ 
++static bool nested_vmx_nmi_window_exit(struct kvm_vcpu *vcpu)
++{
++	struct vmcs12 *vmcs12 = get_vmcs12(vcpu);
++
++	return (vmcs12->cpu_based_vm_exec_control &
++		CPU_BASED_VIRTUAL_NMI_PENDING) &&
++		vmcs12->guest_activity_state != GUEST_ACTIVITY_WAIT_SIPI &&
++		!(vmcs12->guest_interruptibility_info &
++		  (GUEST_INTR_STATE_NMI | GUEST_INTR_STATE_MOV_SS));
++}
++
+ /*
+  * nested_vmx_run() handles a nested entry, i.e., a VMLAUNCH or VMRESUME on L1
+  * for running an L2 nested guest.
+@@ -13512,11 +13523,13 @@ static int nested_vmx_run(struct kvm_vcpu *vcpu, bool launch)
+ 	nested_cache_shadow_vmcs12(vcpu, vmcs12);
+ 
+ 	/*
+-	 * If we're entering a halted L2 vcpu and the L2 vcpu won't be woken
+-	 * by event injection, halt vcpu.
++	 * If we're entering a halted L2 vcpu and the L2 vcpu won't be
++	 * awakened by event injection or by an NMI-window VM-exit,
++	 * halt the vcpu.
+ 	 */
+ 	if ((vmcs12->guest_activity_state == GUEST_ACTIVITY_HLT) &&
+-	    !(vmcs12->vm_entry_intr_info_field & INTR_INFO_VALID_MASK)) {
++	    !(vmcs12->vm_entry_intr_info_field & INTR_INFO_VALID_MASK) &&
++	    !nested_vmx_nmi_window_exit(vcpu)) {
+ 		vmx->nested.nested_run_pending = 0;
+ 		return kvm_vcpu_halt(vcpu);
+ 	}
+-- 
+2.19.1.1215.g8438c0b245-goog

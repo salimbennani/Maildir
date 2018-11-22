@@ -1,0 +1,413 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 20 Nov 2018 07:58:39 -0000
+Received: from icoremail.net (unknown [209.85.215.175])
+	by mail-app4 (Coremail) with SMTP id cS_KCgD3__NvXvNbiKjbAQ--.36313S3;
+	Tue, 20 Nov 2018 09:08:00 +0800 (CST)
+Received: from mail-pg1-f175.google.com (unknown [209.85.215.175])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwD320dtXvNbfR9bAA--.17407S3;
+	Tue, 20 Nov 2018 09:07:57 +0800 (CST)
+Received: by mail-pg1-f175.google.com with SMTP id w6so113142pgl.6
+        for <xuliker@zju.edu.cn>; Mon, 19 Nov 2018 17:07:57 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:delivered-to:dkim-filter:dkim-signature:from:to
+         :cc:subject:date:message-id:in-reply-to:references:sender:precedence
+         :list-id;
+        bh=wILs/jCFE4M+ZMmlQ+LQNN5sZo97KGOWxwtpzXfKeLE=;
+        b=knsrikQZlqtHMpTuJ7815iFyHgAPAjpH+Uef3LVu6APyikNEcteo8t3b/GCFZ6ytY3
+         uMK6SDU57DTk+BUhA7tIYAY8DZ8LDyWjPORTxOWkmuoClHIjtarAbSul+PwlMABawx62
+         MBhkzmaGbbdg0cxzCkoYtiB2jKwBSYDGUqI9WjwnsaGSVELPUomr5y2slLjojbH+uAo+
+         oknnRw/1EQ48iK7qoGEMQSCccJ2ITwESf61jLdASn4av0i8mUvKvIAecmlzGaLXFklQs
+         qnJclTSLVFvdS5rF+2MY1VmmWvnXUeE9F0W3DWMUylWTrOegY/vaWvQNuqIiWn+r6mqw
+         pjJQ==
+X-Gm-Message-State: AGRZ1gInJTyM1xDV7BaaXR6CBkjqlRRCWFPoOmEa7X9wf2YpAENF3tHe
+	U7otIdifnzBqw3NJxMO4gXOHc5/wWWcC/OG8mMZ5oLxgdbweie0=
+X-Received: by 2002:a62:5d0c:: with SMTP id r12mr17719pfb.0.1542676076737;
+        Mon, 19 Nov 2018 17:07:56 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:d106:0:0:0:0 with SMTP id l6-v6csp3403012pju;
+        Mon, 19 Nov 2018 17:07:55 -0800 (PST)
+X-Google-Smtp-Source: AJdET5flAqde9q8ompobsv2ZvAQs1mfWikGXV3grgXnHWjXEd8bAYvvdSIPJMZ08R82hheahx7oC
+X-Received: by 2002:a17:902:7587:: with SMTP id j7mr24839957pll.191.1542676075694;
+        Mon, 19 Nov 2018 17:07:55 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542676075; cv=none;
+        d=google.com; s=arc-20160816;
+        b=lpei+yto5LtML51mr+xy3jLjpxFLRcAquYG4n7UZEhcSnNcOrUq+5d/mAFuKiaK53r
+         sLjKoHM8ojHvdJ/Zw6xkhOHRY4SKAMIWdYfprzYaoATU2v2/2y24NW72pcGDvr5/lr+q
+         5OE/nYcqhLg0x9EFFNA8ga022iKRwzQt6Is8OxRuz78BirshBU9iL3cjeFwX72GWZBzZ
+         c7JpZzmhkrH4Jefu+za3XE2YZ2WRnFzeMahU4KsG9huf/RxpC6R73ZCuysSGMaype/qw
+         NGnZOlegopaoYi2FWYdAz266OG+ewdrHaCNZJ8BlOZ0Q3yXgO1P8WLb91rou67AaFAyX
+         kelQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:references:in-reply-to:message-id:date
+         :subject:cc:to:from:dkim-signature:dkim-filter;
+        bh=wILs/jCFE4M+ZMmlQ+LQNN5sZo97KGOWxwtpzXfKeLE=;
+        b=mYSLzKEzxQft5CmhI+P9e/VsZChVmTgKt+6byT6r4AsPdraU4u6THcAnMQZHgphPTk
+         O0Q3zuKjWSH1yB3ctEeRVRJNfjK8+UJ8PUx5x3/CcFqsz+c6SbOh51jybvAHvOYRTCDo
+         CnveZWZy8zY62zDYE1UeTNjMQzoPq6lhjCtX1g0lAMjNa72+5Coa6I7ALkaFDqBNiKpK
+         W6nHYOhPI0d37wCgnv/fcfoL7Q3Dfw6gLGcnyLaGjBVACXaUiPV/ex5ymfLY4cdf442k
+         pnP+ALBWLvY6Ox5/PQEuKWPK36B4Wh+AmmOpx3RZ4VWwBq5+fUMKLLriLm3z+nbVITbk
+         6lNg==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@nifty.com header.s=dec2015msa header.b=ZPeonO61;
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id n15si5277808pgk.27.2018.11.19.17.07.41;
+        Mon, 19 Nov 2018 17:07:55 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1732610AbeKTLdg (ORCPT <rfc822;nullbytes00@gmail.com>
+        + 99 others); Tue, 20 Nov 2018 06:33:36 -0500
+Received: from conuserg-11.nifty.com ([210.131.2.78]:34850 "EHLO
+        conuserg-11.nifty.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730331AbeKTLdg (ORCPT
+        <rfc822;linux-kernel@vger.kernel.org>);
+        Tue, 20 Nov 2018 06:33:36 -0500
+Received: from pug.e01.socionext.com (p14092-ipngnfx01kyoto.kyoto.ocn.ne.jp [153.142.97.92]) (authenticated)
+        by conuserg-11.nifty.com with ESMTP id wAK15ZEc029284;
+        Tue, 20 Nov 2018 10:05:40 +0900
+DKIM-Filter: OpenDKIM Filter v2.10.3 conuserg-11.nifty.com wAK15ZEc029284
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nifty.com;
+        s=dec2015msa; t=1542675940;
+        bh=wILs/jCFE4M+ZMmlQ+LQNN5sZo97KGOWxwtpzXfKeLE=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=ZPeonO61Am3xQAnlKi4AWW28Iv++4Jh0rrA5/vw/WgfFWB6HPzN4x0JEWMQkUwSe1
+         jnns6FNrgkesZe3MGz+EOooGES/u5/4kclgwI9sU7JqKgzhqBbyTXhJhvsBE6BlkLu
+         eHQ58NEWqsI0UuzxX2198rAurMKU+WDDnD5mwCvulZw/OEKSy721fPQXI+NJrBcoNL
+         OIB4lqMakJv+pmpe7o0QOsBYBz4QHN8zUJ8H/eDJ197EbtLxzNxP66ZqZkZxIZqZGx
+         1euQ6W9AUJSSFEpRorn9ESWEFveM0Yuv2lWx/JvkgY+lcR+ZBbcxZi56UwOMqk4Moz
+         taaQkIjw0pPnw==
+X-Nifty-SrcIP: [153.142.97.92]
+From: Masahiro Yamada <yamada.masahiro@socionext.com>
+To: linux-kbuild@vger.kernel.org
+Cc: Sam Ravnborg <sam@ravnborg.org>,
+        Nicolas Pitre <nicolas.pitre@linaro.org>,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        linux-arch@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        linux-kernel@vger.kernel.org,
+        Michal Marek <michal.lkml@markovi.net>,
+        Will Deacon <will.deacon@arm.com>,
+        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH v2 5/9] kbuild: simplify dependency generation for CONFIG_TRIM_UNUSED_KSYMS
+Date: Tue, 20 Nov 2018 10:05:26 +0900
+Message-Id: <1542675930-21114-6-git-send-email-yamada.masahiro@socionext.com>
+X-Mailer: git-send-email 2.7.4
+In-Reply-To: <1542675930-21114-1-git-send-email-yamada.masahiro@socionext.com>
+References: <1542675930-21114-1-git-send-email-yamada.masahiro@socionext.com>
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwD320dtXvNbfR9bAA--.17407S3
+Authentication-Results: mail-app4; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW3Xw1DAr4rZF4fGF47GFyrXrb_yoWfWFW8pa
+	n0yayxGrWkXryUXw4xCr129345Jw1vqrWfuFWrWFy8AFyUtF48K39ayr4Fg34qgFWjyF4Y
+	qF9I9ay5Gr4kJF7anT9S1TB71UUUUUUqnTZGkaVYY2UrUUUU0bIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUP0b7Iv0xC_Kw4lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1l84ACjcxK6I8E
+	87Iv67AKxVW0oVCq3wA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_GcCE3s1le2I262IYc4CY6c
+	8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_JrI_
+	JrylYx0Ex4A2jsIE14v26r4j6F4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvY0x0EwI
+	xGrwCjxxvEa2IrMxkF7I0Ew4C26cxK6c8Ij28IcwCY1Ik26cxK6xAEc7vF6xCjj44lc2xS
+	Y4AK6IIF6w4lc2IjII80xcxEwVAKI48JMxvI42IY6xIIjxv20xvE14v26r4j6ryUMxvI42
+	IY6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1lcIIF0xvEx4A2jsIE14v26rxl6s0DMxvI42IY
+	6I8E87Iv6xkF7I0E14v26rxl6s0DMxAIw28IcxkI7VAKI48JMxAIw28IcVAKzI0EY4vE52
+	x082I5MxCjnVCjjxCrMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr0_
+	Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWUtVW8ZwCIc40Y0x0EwI
+	xGrwCI42IY6xAIw20EY4v20xvaj40_Gr0_ZrUvcSsGvfC2KfnxnUUI43ZEXa7IUOJ73PUU
+	UUU==
+
+My main motivation of this commit is to clean up scripts/Kbuild.include
+and scripts/Makefile.build.
+
+Currently, CONFIG_TRIM_UNUSED_KSYMS works with a tricky gimmick;
+possibly exported symbols are detected by letting $(CPP) replace
+EXPORT_SYMBOL* with a special string '=== __KSYM_*===', which is
+post-processed by sed, and passed to fixdep. The extra preprocessing
+is costly, and hacking cmd_and_fixdep is ugly.
+
+I came up with a new way to find exported symbols; insert a dummy
+symbol __ksym_marker_* to each potentially exported symbol. Those
+dummy symbols are picked up by $(NM), post-processed by sed, then
+appended to .*.cmd files. I collected the post-process part to a
+new shell script scripts/gen_ksymdeps.sh for readability. The dummy
+symbols are put into the .discard.* section so that the linker
+script rips them off the final vmlinux or modules.
+
+A nice side-effect is building with CONFIG_TRIM_UNUSED_KSYMS will
+be much faster.
+
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+---
+
+Changes in v2:
+  - Let gen_ksymdeps.sh add dependencies to .*.cmd file directly
+  - Fix typos
+
+ include/asm-generic/export.h | 13 ++++++++-----
+ include/linux/export.h       | 18 +++++++++---------
+ scripts/Kbuild.include       | 28 ----------------------------
+ scripts/Makefile.build       |  7 +++++++
+ scripts/basic/fixdep.c       | 31 ++++---------------------------
+ scripts/gen_ksymdeps.sh      | 25 +++++++++++++++++++++++++
+ 6 files changed, 53 insertions(+), 69 deletions(-)
+ create mode 100755 scripts/gen_ksymdeps.sh
+
+diff --git a/include/asm-generic/export.h b/include/asm-generic/export.h
+index 4d73e6e..294d6ae 100644
+--- a/include/asm-generic/export.h
++++ b/include/asm-generic/export.h
+@@ -59,16 +59,19 @@ __kcrctab_\name:
+ .endm
+ #undef __put
+ 
+-#if defined(__KSYM_DEPS__)
+-
+-#define __EXPORT_SYMBOL(sym, val, sec)	=== __KSYM_##sym ===
+-
+-#elif defined(CONFIG_TRIM_UNUSED_KSYMS)
++#if defined(CONFIG_TRIM_UNUSED_KSYMS)
+ 
+ #include <linux/kconfig.h>
+ #include <generated/autoksyms.h>
+ 
++.macro __ksym_marker sym
++	.section ".discard.ksym","a"
++__ksym_marker_\sym:
++	 .previous
++.endm
++
+ #define __EXPORT_SYMBOL(sym, val, sec)				\
++	__ksym_marker sym;					\
+ 	__cond_export_sym(sym, val, sec, __is_defined(__KSYM_##sym))
+ #define __cond_export_sym(sym, val, sec, conf)			\
+ 	___cond_export_sym(sym, val, sec, conf)
+diff --git a/include/linux/export.h b/include/linux/export.h
+index ce764a5..fd8711e 100644
+--- a/include/linux/export.h
++++ b/include/linux/export.h
+@@ -92,22 +92,22 @@ struct kernel_symbol {
+  */
+ #define __EXPORT_SYMBOL(sym, sec)
+ 
+-#elif defined(__KSYM_DEPS__)
++#elif defined(CONFIG_TRIM_UNUSED_KSYMS)
++
++#include <generated/autoksyms.h>
+ 
+ /*
+  * For fine grained build dependencies, we want to tell the build system
+  * about each possible exported symbol even if they're not actually exported.
+- * We use a string pattern that is unlikely to be valid code that the build
+- * system filters out from the preprocessor output (see ksym_dep_filter
+- * in scripts/Kbuild.include).
++ * We use a symbol pattern __ksym_marker_<symbol> that the build system filters
++ * from the $(NM) output (see scripts/gen_ksymdeps.sh). These symbols are
++ * discarded in the final link stage.
+  */
+-#define __EXPORT_SYMBOL(sym, sec)	=== __KSYM_##sym ===
+-
+-#elif defined(CONFIG_TRIM_UNUSED_KSYMS)
+-
+-#include <generated/autoksyms.h>
++#define __ksym_marker(sym)	\
++	static int __ksym_marker_##sym[0] __section(".discard.ksym") __used
+ 
+ #define __EXPORT_SYMBOL(sym, sec)				\
++	__ksym_marker(sym);					\
+ 	__cond_export_sym(sym, sec, __is_defined(__KSYM_##sym))
+ #define __cond_export_sym(sym, sec, conf)			\
+ 	___cond_export_sym(sym, sec, conf)
+diff --git a/scripts/Kbuild.include b/scripts/Kbuild.include
+index 6cf6a8b..4b943f4 100644
+--- a/scripts/Kbuild.include
++++ b/scripts/Kbuild.include
+@@ -260,39 +260,11 @@ if_changed_dep = $(if $(strip $(any-prereq) $(arg-check) ),                  \
+ 	@set -e;                                                             \
+ 	$(cmd_and_fixdep), @:)
+ 
+-ifndef CONFIG_TRIM_UNUSED_KSYMS
+-
+ cmd_and_fixdep =                                                             \
+ 	$(echo-cmd) $(cmd_$(1));                                             \
+ 	scripts/basic/fixdep $(depfile) $@ '$(make-cmd)' > $(dot-target).cmd;\
+ 	rm -f $(depfile);
+ 
+-else
+-
+-# Filter out exported kernel symbol names from the preprocessor output.
+-# See also __KSYM_DEPS__ in include/linux/export.h.
+-# We disable the depfile generation here, so as not to overwrite the existing
+-# depfile while fixdep is parsing it.
+-flags_nodeps = $(filter-out -Wp$(comma)-M%, $($(1)))
+-ksym_dep_filter =                                                            \
+-	case "$(1)" in                                                       \
+-	  cc_*_c|cpp_i_c)                                                    \
+-	    $(CPP) $(call flags_nodeps,c_flags) -D__KSYM_DEPS__ $< ;;        \
+-	  as_*_S|cpp_s_S)                                                    \
+-	    $(CPP) $(call flags_nodeps,a_flags) -D__KSYM_DEPS__ $< ;;        \
+-	  boot*|build*|cpp_its_S|*cpp_lds_S|dtc|host*|vdso*) : ;;            \
+-	  *) echo "Don't know how to preprocess $(1)" >&2; false ;;          \
+-	esac | tr ";" "\n" | sed -n 's/^.*=== __KSYM_\(.*\) ===.*$$/_\1/p'
+-
+-cmd_and_fixdep =                                                             \
+-	$(echo-cmd) $(cmd_$(1));                                             \
+-	$(ksym_dep_filter) |                                                 \
+-		scripts/basic/fixdep -e $(depfile) $@ '$(make-cmd)'          \
+-			> $(dot-target).cmd;	                             \
+-	rm -f $(depfile);
+-
+-endif
+-
+ # Usage: $(call if_changed_rule,foo)
+ # Will check if $(cmd_foo) or any of the prerequisites changed,
+ # and if so will execute $(rule_foo).
+diff --git a/scripts/Makefile.build b/scripts/Makefile.build
+index 4f94579..c23ee45 100644
+--- a/scripts/Makefile.build
++++ b/scripts/Makefile.build
+@@ -254,9 +254,15 @@ objtool_dep = $(objtool_obj)					\
+ 	      $(wildcard include/config/orc/unwinder.h		\
+ 			 include/config/stack/validation.h)
+ 
++ifdef CONFIG_TRIM_UNUSED_KSYMS
++cmd_gen_ksymdeps = \
++	$(CONFIG_SHELL) $(srctree)/scripts/gen_ksymdeps.sh $@ >> $(dot-target).cmd;
++endif
++
+ define rule_cc_o_c
+ 	$(call echo-cmd,checksrc) $(cmd_checksrc)			  \
+ 	$(call cmd_and_fixdep,cc_o_c)					  \
++	$(cmd_gen_ksymdeps)						  \
+ 	$(cmd_checkdoc)							  \
+ 	$(call echo-cmd,objtool) $(cmd_objtool)				  \
+ 	$(cmd_modversions_c)						  \
+@@ -265,6 +271,7 @@ endef
+ 
+ define rule_as_o_S
+ 	$(call cmd_and_fixdep,as_o_S)					  \
++	$(cmd_gen_ksymdeps)						  \
+ 	$(call echo-cmd,objtool) $(cmd_objtool)				  \
+ 	$(cmd_modversions_S)
+ endef
+diff --git a/scripts/basic/fixdep.c b/scripts/basic/fixdep.c
+index 850966f3..facbd60 100644
+--- a/scripts/basic/fixdep.c
++++ b/scripts/basic/fixdep.c
+@@ -105,8 +105,7 @@
+ 
+ static void usage(void)
+ {
+-	fprintf(stderr, "Usage: fixdep [-e] <depfile> <target> <cmdline>\n");
+-	fprintf(stderr, " -e  insert extra dependencies given on stdin\n");
++	fprintf(stderr, "Usage: fixdep <depfile> <target> <cmdline>\n");
+ 	exit(1);
+ }
+ 
+@@ -131,21 +130,6 @@ static void print_dep(const char *m, int slen, const char *dir)
+ 	printf(".h) \\\n");
+ }
+ 
+-static void do_extra_deps(void)
+-{
+-	char buf[80];
+-
+-	while (fgets(buf, sizeof(buf), stdin)) {
+-		int len = strlen(buf);
+-
+-		if (len < 2 || buf[len - 1] != '\n') {
+-			fprintf(stderr, "fixdep: bad data on stdin\n");
+-			exit(1);
+-		}
+-		print_dep(buf, len - 1, "include/ksym");
+-	}
+-}
+-
+ struct item {
+ 	struct item	*next;
+ 	unsigned int	len;
+@@ -293,7 +277,7 @@ static int is_ignored_file(const char *s, int len)
+  * assignments are parsed not only by make, but also by the rather simple
+  * parser in scripts/mod/sumversion.c.
+  */
+-static void parse_dep_file(char *m, const char *target, int insert_extra_deps)
++static void parse_dep_file(char *m, const char *target)
+ {
+ 	char *p;
+ 	int is_last, is_target;
+@@ -369,9 +353,6 @@ static void parse_dep_file(char *m, const char *target, int insert_extra_deps)
+ 		exit(1);
+ 	}
+ 
+-	if (insert_extra_deps)
+-		do_extra_deps();
+-
+ 	printf("\n%s: $(deps_%s)\n\n", target, target);
+ 	printf("$(deps_%s):\n", target);
+ }
+@@ -379,13 +360,9 @@ static void parse_dep_file(char *m, const char *target, int insert_extra_deps)
+ int main(int argc, char *argv[])
+ {
+ 	const char *depfile, *target, *cmdline;
+-	int insert_extra_deps = 0;
+ 	void *buf;
+ 
+-	if (argc == 5 && !strcmp(argv[1], "-e")) {
+-		insert_extra_deps = 1;
+-		argv++;
+-	} else if (argc != 4)
++	if (argc != 4)
+ 		usage();
+ 
+ 	depfile = argv[1];
+@@ -395,7 +372,7 @@ int main(int argc, char *argv[])
+ 	printf("cmd_%s := %s\n\n", target, cmdline);
+ 
+ 	buf = read_file(depfile);
+-	parse_dep_file(buf, target, insert_extra_deps);
++	parse_dep_file(buf, target);
+ 	free(buf);
+ 
+ 	return 0;
+diff --git a/scripts/gen_ksymdeps.sh b/scripts/gen_ksymdeps.sh
+new file mode 100755
+index 0000000..1324986
+--- /dev/null
++++ b/scripts/gen_ksymdeps.sh
+@@ -0,0 +1,25 @@
++#!/bin/sh
++# SPDX-License-Identifier: GPL-2.0
++
++set -e
++
++# List of exported symbols
++ksyms=$($NM $1 | sed -n 's/.*__ksym_marker_\(.*\)/\1/p' | tr A-Z a-z)
++
++if [ -z "$ksyms" ]; then
++	exit 0
++fi
++
++echo
++echo "ksymdeps_$1 := \\"
++
++for s in $ksyms
++do
++	echo $s | sed -e 's:^_*:    $(wildcard include/ksym/:' \
++			-e 's:__*:/:g' -e 's/$/.h) \\/'
++done
++
++echo
++echo "$1: \$(ksymdeps_$1)"
++echo
++echo "\$(ksymdeps_$1):"
+-- 
+2.7.4

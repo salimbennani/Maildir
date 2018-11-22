@@ -1,0 +1,203 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 09 Nov 2018 00:37:19 -0000
+Received: from icoremail.net (unknown [209.85.215.178])
+	by mail-app2 (Coremail) with SMTP id by_KCgCn31yTguRbk_JhAQ--.29852S3;
+	Fri, 09 Nov 2018 02:38:13 +0800 (CST)
+Received: from mail-pg1-f178.google.com (unknown [209.85.215.178])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwCngj6NguRbbCceAA--.654S3;
+	Fri, 09 Nov 2018 02:38:05 +0800 (CST)
+Received: by mail-pg1-f178.google.com with SMTP id i4-v6so9216538pgq.9
+        for <xuliker@zju.edu.cn>; Thu, 08 Nov 2018 10:38:05 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:delivered-to:dkim-signature:date:from:to:cc
+         :subject:message-id:references:mime-version:content-disposition
+         :in-reply-to:user-agent:sender:precedence:list-id;
+        bh=1r7EQ+sDGWBc15waJnRDE2HMEZ5VDpQWXNviFak9M5c=;
+        b=QLUpAPT+XK/YfP2zC+DI5Z1RdXp64ztBmQrtvbNJDekskxXc6xM/5Cp9qQFEJ+S6LE
+         vhh580z/8P3rNJuEmzwHnBbxVhqsLEb6qFrlsJgvNxx8IAo6Nhg5YCou2Tojv4QDI+t5
+         e4XS2dVBxo7hysNy3QiJEwRNQlhM6Mz8macmG4vqUnN3sqgroNnnQeDJJm/k42ZkzGI+
+         WvnfsjzsDnbdnNU48xPTmQzrty+DokIXcMR+DOol0sS9f7zFR8oIumbby91OlfO0d1SW
+         I2o1zsZVs5G1xh8NxCuVioo2DlYDrq/BP1aDEfI32WTe/QMuA5sAcvAq0HQTEaNNlvQ9
+         Zm/g==
+X-Gm-Message-State: AGRZ1gKJb5IjyHaTQdh6XzF7+uzfkGHsd16Nxppcs8VRhBZjaeCT4Gt6
+	XhPSc32PHZyBTjcb+C59PEg9O6/s0Muq0rYqbV7pL0+H1ApO2+i4tA==
+X-Received: by 2002:a63:5816:: with SMTP id m22-v6mr4614188pgb.332.1541702285200;
+        Thu, 08 Nov 2018 10:38:05 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp562770pjt;
+        Thu, 8 Nov 2018 10:38:04 -0800 (PST)
+X-Google-Smtp-Source: AJdET5eZDuMwVNUMvLKNRAcSXTfLo0OyoRo9Bh4e6K+UDlCIlaXdkmJ00YWNBp5Vn1K+BbFiHs+a
+X-Received: by 2002:a17:902:d806:: with SMTP id a6-v6mr5385709plz.301.1541702284138;
+        Thu, 08 Nov 2018 10:38:04 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1541702284; cv=none;
+        d=google.com; s=arc-20160816;
+        b=GmPJydCDUPp88FbH3obl3Y6L8fzDQHVzxhZyLoYKkUj4ZKBP8CXdumsApSg93++ISY
+         aC/+Snnc1rNKhuZsjESbETedgai+0oim/ScyDGfiAVyncsvHAK+A2Tl7ituQRF3ydFeT
+         sv/LbJoMx8QBorvG9J/68Wwza71I0fCHcZiUJNgrNnWB2F+j/4ts0hBMKDhpF50IOGPc
+         gtXwBve0KY7XMQZMBwyOiQIDTKqEEdqUWdyU/V32KHOUHC1lcoTR6qURmWGjR+8TxrZ5
+         QckT2ge1Bd8Ltdbkk3lWHOPHWlpJpELYT9jsLMbymg9gpjYVvOvL04m+mun7hUCzxivK
+         8byQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:user-agent:in-reply-to
+         :content-disposition:mime-version:references:message-id:subject:cc
+         :to:from:date:dkim-signature;
+        bh=1r7EQ+sDGWBc15waJnRDE2HMEZ5VDpQWXNviFak9M5c=;
+        b=CwH9cr3REooiQsCkVBb0Aof3pZPNE2WDoh6QKPPVS0gfz2/QWF5//M63AAVSMvSzcK
+         KxGHUhvWh+82N119haVfHt/1S5dx6IeM+Kzo9TXPKXbBHjvOKrojexOwTQTREUJ6Q94Z
+         dmlfJv0MU1El2rBt9CovUsU8jyLMhWnZAx8zNgwKHbjgq1PTy1MKFfwv4/qcoKUpHiaT
+         j93t24U+hrry2sA1TsbeOlFNbRatDo1KD3ALRx9wMw/RyjiB2C9oQxzfy0hkw8NF3EWV
+         46LVkWmao6lG3MlHs0+9g32RFmfoncVNuQcovexo9k+Q7jH61gV8c6gduRiLlkBYt1YZ
+         T0wQ==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@gmail.com header.s=20161025 header.b=RQ9CWvhJ;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;
+       dmarc=pass (p=NONE sp=QUARANTINE dis=NONE) header.from=gmail.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id b12-v6si4896349pfi.99.2018.11.08.10.37.44;
+        Thu, 08 Nov 2018 10:38:04 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1727413AbeKIEN6 (ORCPT <rfc822;fanshuming2011@gmail.com>
+        + 99 others); Thu, 8 Nov 2018 23:13:58 -0500
+Received: from mail-qk1-f193.google.com ([209.85.222.193]:36414 "EHLO
+        mail-qk1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726845AbeKIEN5 (ORCPT <rfc822;kvm@vger.kernel.org>);
+        Thu, 8 Nov 2018 23:13:57 -0500
+Received: by mail-qk1-f193.google.com with SMTP id o125so28278266qkf.3
+        for <kvm@vger.kernel.org>; Thu, 08 Nov 2018 10:37:10 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=1r7EQ+sDGWBc15waJnRDE2HMEZ5VDpQWXNviFak9M5c=;
+        b=RQ9CWvhJrs0sPZPXV6KqTqMGi1Q+fU/RZDhikX5DxGAHjtDy3hZnvxnBKon/aBAlKu
+         NRaciggQQCeCk7oOFZTM0/omn4oBJIdutB2eMuU2M+G5xkz6LjiGGmu7FibIGm7W83zu
+         kB79+btmOIyDvCwNAc1O5erZzwR6It7T+/uIIcDig4Iw1B04+WEtWNXksiL/tU/jcx3Q
+         oTgfkj9LvMLQfwZxxfvYGFccCTg88NaqHl6yMiS2N++tgE3wl8BKWojbVbcdlS46jwDy
+         pQQIqoJRlKq+lTBzWfNBpCpH8ZE6chzZnRQ2mnRBqcPEF5Q4v+6yoLM2Y05UpeYyd7pU
+         NqJQ==
+X-Received: by 2002:aed:3263:: with SMTP id y90mr5371399qtd.269.1541701905663;
+        Thu, 08 Nov 2018 10:31:45 -0800 (PST)
+Received: from xakep.localdomain (c-73-69-118-222.hsd1.nh.comcast.net. [73.69.118.222])
+        by smtp.gmail.com with ESMTPSA id e17sm3140519qte.12.2018.11.08.10.31.43
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Thu, 08 Nov 2018 10:31:44 -0800 (PST)
+Date: Thu, 8 Nov 2018 13:31:43 -0500
+From: Pavel Tatashin <pasha.tatashin@gmail.com>
+To: Andrew Morton <akpm@linux-foundation.org>,
+        Michal Hocko <mhocko@suse.com>
+Cc: Timofey Titovets <nefelim4ag@gmail.com>, linux-mm@kvack.org,
+        Andrea Arcangeli <aarcange@redhat.com>, kvm@vger.kernel.org,
+        leesioh <solee@os.korea.ac.kr>
+Subject: Re: [PATCH RESEND V8 1/2] xxHash: create arch dependent 32/64-bit
+ xxhash()
+Message-ID: <20181108183143.jtgzcapauqrynqxz@xakep.localdomain>
+References: <20181023182554.23464-1-nefelim4ag@gmail.com>
+ <20181023182554.23464-2-nefelim4ag@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20181023182554.23464-2-nefelim4ag@gmail.com>
+User-Agent: NeoMutt/20180716
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwCngj6NguRbbCceAA--.654S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW7Cr4xur1UtF48JrW8GF17KFg_yoW8uF1fpF
+	ZxJw13Cw47Ja47JryfGrn0va45uw48tr15tr9rGwn8uanIvw1kXryDCr40v3ykCw40kr1f
+	ZFnF9rZ09F15X3DanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUU9ab7Iv0xC_Zr1lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1l84ACjcxK6I8E
+	87Iv67AKxVWxJr0_GcWl84ACjcxK6I8E87Iv6xkF7I0E14v26F4UJVW0owAS0I0E0xvYzx
+	vE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AKxVWU
+	JVWUGwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcVAKI4
+	8JMx02cVCv0xWlc7CjxVAKzI0EY4vE52x082I5MxkI7II2jI8vz4vEwIxGrwCYIxAIcVC0
+	I7IYx2IY67AKxVW8JVW5JwCYIxAIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMxvI42IY6I
+	8E87Iv67AKxVW8Jr0_Cr1UMxvI42IY6I8E87Iv6xkF7I0E14v26r4UJVWxJr1l42xK82IY
+	c2Ij64vIr41l42xK82IY64kExVAvwVAq07x20xyl4x8a6x804xWl4I8I3I0E4IkC6x0Yz7
+	v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF
+	1VAY17CE14v26r1q6r43MIIYrxkI7VAKI48JMIIF0xvE42xK8VAvwI8IcIk0rVW3JVWrJr
+	UvcSsGvfC2KfnxnUUI43ZEXa7IUnCJmUUUUUU==
+
+Hi Andrew,
+
+Can you please accept these patches? They are simple yet provide a good
+performance improvement. Timofey has been resending them for a while.
+
+Thank you,
+Pasha
+
+On 18-10-23 21:25:53, Timofey Titovets wrote:
+> xxh32() - fast on both 32/64-bit platforms
+> xxh64() - fast only on 64-bit platform
+> 
+> Create xxhash() which will pickup fastest version
+> on compile time.
+> 
+> As result depends on cpu word size,
+> the main proporse of that - in memory hashing.
+> 
+> Changes:
+>   v2:
+>     - Create that patch
+>   v3 -> v8:
+>     - Nothing, whole patchset version bump
+> 
+> Signed-off-by: Timofey Titovets <nefelim4ag@gmail.com>
+> Reviewed-by: Pavel Tatashin <pavel.tatashin@microsoft.com>
+> Reviewed-by: Mike Rapoport <rppt@linux.vnet.ibm.com>
+> 
+> CC: Andrea Arcangeli <aarcange@redhat.com>
+> CC: linux-mm@kvack.org
+> CC: kvm@vger.kernel.org
+> CC: leesioh <solee@os.korea.ac.kr>
+> ---
+>  include/linux/xxhash.h | 23 +++++++++++++++++++++++
+>  1 file changed, 23 insertions(+)
+> 
+> diff --git a/include/linux/xxhash.h b/include/linux/xxhash.h
+> index 9e1f42cb57e9..52b073fea17f 100644
+> --- a/include/linux/xxhash.h
+> +++ b/include/linux/xxhash.h
+> @@ -107,6 +107,29 @@ uint32_t xxh32(const void *input, size_t length, uint32_t seed);
+>   */
+>  uint64_t xxh64(const void *input, size_t length, uint64_t seed);
+>  
+> +/**
+> + * xxhash() - calculate wordsize hash of the input with a given seed
+> + * @input:  The data to hash.
+> + * @length: The length of the data to hash.
+> + * @seed:   The seed can be used to alter the result predictably.
+> + *
+> + * If the hash does not need to be comparable between machines with
+> + * different word sizes, this function will call whichever of xxh32()
+> + * or xxh64() is faster.
+> + *
+> + * Return:  wordsize hash of the data.
+> + */
+> +
+> +static inline unsigned long xxhash(const void *input, size_t length,
+> +				   uint64_t seed)
+> +{
+> +#if BITS_PER_LONG == 64
+> +       return xxh64(input, length, seed);
+> +#else
+> +       return xxh32(input, length, seed);
+> +#endif
+> +}
+> +
+>  /*-****************************
+>   * Streaming Hash Functions
+>   *****************************/
+> -- 
+> 2.19.0
+> 

@@ -1,0 +1,791 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (61.164.42.155:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 20 Nov 2018 11:09:33 -0000
+Received: from icoremail.net (unknown [209.85.214.178])
+	by mail-app4 (Coremail) with SMTP id cS_KCgDHH7qB3vNbaePeAQ--.57267S3;
+	Tue, 20 Nov 2018 18:14:26 +0800 (CST)
+Received: from mail-pl1-f178.google.com (unknown [209.85.214.178])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwAXAEx_3vNb1IVdAA--.4948S3;
+	Tue, 20 Nov 2018 18:14:23 +0800 (CST)
+Received: by mail-pl1-f178.google.com with SMTP id x21-v6so767364pln.9
+        for <xuliker@zju.edu.cn>; Tue, 20 Nov 2018 02:14:23 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:sender:precedence:list-id;
+        bh=vwDJy8+4xL48HAorYlygRGihk2CKqOAMGBttzoEnRV8=;
+        b=DofKbxop2cl9IvHRNbLjStfgjWGIEHap+CSQatsUqEE+aQYk98Ym8HUspZhx6GRX5H
+         ED8t3JmoYNmosK+QI9jLotY6hoUl1M3OpdzJMSGoBk7lOqfTKV9vyW1BzHX76qtj2dCL
+         QKwjlCRd6aOiu2/Z247rRdvhoRZTrYV66TN6stzKT1JclXApns/5k4RtuRD40943TV8D
+         MDDc2UwzdN+O0Hgn+iSj01U1vaxTGysB3W269gfPMDuJHFqJj3hc+g0ZpEr3bVlUq3lX
+         nigxI2zMYh4Ja+kTED1blifz33UoQtTHo9n/SbLiY5ZIFXtfTnH8/QSbD2Fo2a81nkrU
+         /x+Q==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org
+X-Gm-Message-State: AA+aEWZ8URrRmOkzLw0Hwawuf/I1Nw8r4KRlSHCSRZSopWZV+papwNaP
+	97ySxHbqoGWxi3xhty89FTZN9/faZt2TpJRxVEPY/Gu6bUzolOI=
+X-Received: by 2002:a17:902:8f97:: with SMTP id z23mr1571764plo.283.1542708862975;
+        Tue, 20 Nov 2018 02:14:22 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:d106:0:0:0:0 with SMTP id l6-v6csp411420pju;
+        Tue, 20 Nov 2018 02:14:21 -0800 (PST)
+X-Google-Smtp-Source: AFSGD/UdsfwE45tKCW0ZStIzbi1UuQughhccqk+697FBcIHTfYvE9GLsunIFyKP8o7lt2/rg/Sod
+X-Received: by 2002:a17:902:6f09:: with SMTP id w9mr1594272plk.309.1542708861510;
+        Tue, 20 Nov 2018 02:14:21 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542708861; cv=none;
+        d=google.com; s=arc-20160816;
+        b=aLaLKlT0B6JyIkL0k0lymskNRlcfeuzheXUBUoPf4igDgaj0Cq3KrdOMQjza+PsQI+
+         TWcMg+COsC6HWBwSRbgXxfPZgH1vprJqMEsL4HADwwuLNBipJ91i88rQxtTfuXjT8NtD
+         TOtPmL+wTfl7ZJ25kNg6v4yr3EqUf6tiTPGAr0gmmMrv4+nK8xOMv0KgtVMS+PscAX2w
+         SLwbZcXHUL2+tVgYe3DzUZMAJF8lu51e6neS8N4CSQJ0k3eWRuuL+bddZrtcXl6d6+oE
+         inZ8IT+RnSl4Oj0g0DGnLj7B15hNTP7O00S2cJegckssu3j4y7VLShEA+Csz/naiwGNF
+         zWdQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from;
+        bh=vwDJy8+4xL48HAorYlygRGihk2CKqOAMGBttzoEnRV8=;
+        b=XkD2rVMwoh4C74s24+8Ryj37nTHUaS4zOVc+0TweMHtaqiIARtiTJIyPdckPb+f7I9
+         MB5IlKd3UcG5IIhaL+gOtiw+Pf4ipzCSoN72VsDtM9X6NM9EXpKT44aUdyTMDoUWv+Dw
+         SzqyJIDAnEPOvoJlfdRTURZme6uI4avkMw+/SqiJ/bQgRURyJCtCE5GSIeKEmrJYHY7f
+         v2Jjezr/LJba76NbIfdRUz+n6su0cNkSnMysTS6IA/tHvJ1o7+0GhXjbXhsodoaNio1N
+         4nZzihfsLvOwgqSK1nUKot19AOe8HqU/n+W3aNbekQsYMdY10nzmSQ2jXeUX7+2pSN9Y
+         07TQ==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id v9si35575029pgt.464.2018.11.20.02.14.07;
+        Tue, 20 Nov 2018 02:14:21 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1728134AbeKTUmO (ORCPT <rfc822;nullbytes00@gmail.com>
+        + 99 others); Tue, 20 Nov 2018 15:42:14 -0500
+Received: from mx07-00178001.pphosted.com ([62.209.51.94]:50739 "EHLO
+        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727791AbeKTUmN (ORCPT
+        <rfc822;linux-kernel@vger.kernel.org>);
+        Tue, 20 Nov 2018 15:42:13 -0500
+Received: from pps.filterd (m0046037.ppops.net [127.0.0.1])
+        by mx07-.pphosted.com (8.16.0.21/8.16.0.21) with SMTP id wAKA8kap014360;
+        Tue, 20 Nov 2018 11:13:05 +0100
+Received: from beta.dmz-eu.st.com (beta.dmz-eu.st.com [164.129.1.35])
+        by mx07-00178001.pphosted.com with ESMTP id 2nvg1t8380-1
+        (version=TLSv1 cipher=ECDHE-RSA-AES256-SHA bits=256 verify=NOT);
+        Tue, 20 Nov 2018 11:13:05 +0100
+Received: from zeta.dmz-eu.st.com (zeta.dmz-eu.st.com [164.129.230.9])
+        by beta.dmz-eu.st.com (STMicroelectronics) with ESMTP id 943A33A;
+        Tue, 20 Nov 2018 10:13:04 +0000 (GMT)
+Received: from Webmail-eu.st.com (sfhdag5node3.st.com [10.75.127.15])
+        by zeta.dmz-eu.st.com (STMicroelectronics) with ESMTP id 5F7F3266D;
+        Tue, 20 Nov 2018 10:13:04 +0000 (GMT)
+Received: from localhost (10.75.127.45) by SFHDAG5NODE3.st.com (10.75.127.15)
+ with Microsoft SMTP Server (TLS) id 15.0.1347.2; Tue, 20 Nov 2018 11:13:03
+ +0100
+From: Fabrice Gasnier <fabrice.gasnier@st.com>
+To: <jic23@kernel.org>
+CC: <linux-arm-kernel@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>, <mcoquelin.stm32@gmail.com>,
+        <alexandre.torgue@st.com>, <fabrice.gasnier@st.com>,
+        <linux-iio@vger.kernel.org>, <lars@metafoo.de>, <knaack.h@gmx.de>,
+        <pmeerw@pmeerw.net>, <linux-stm32@st-md-mailman.stormreply.com>
+Subject: [PATCH 2/3] iio: adc: stm32-adc: add power management support
+Date: Tue, 20 Nov 2018 11:12:31 +0100
+Message-ID: <1542708752-26163-3-git-send-email-fabrice.gasnier@st.com>
+X-Mailer: git-send-email 1.9.1
+In-Reply-To: <1542708752-26163-1-git-send-email-fabrice.gasnier@st.com>
+References: <1542708752-26163-1-git-send-email-fabrice.gasnier@st.com>
+MIME-Version: 1.0
+Content-Type: text/plain
+X-Originating-IP: [10.75.127.45]
+X-ClientProxiedBy: SFHDAG1NODE1.st.com (10.75.127.1) To SFHDAG5NODE3.st.com
+ (10.75.127.15)
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2018-11-20_04:,,
+ signatures=0
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwAXAEx_3vNb1IVdAA--.4948S3
+Authentication-Results: mail-app4; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvAXoW3ur45Kw17XrykCw4xuFyUZFb_yoW8Aw1xZo
+	Z7Cw1fWw48Kr9xC3y7tr10y34aq3yrZ39Ik3W5ArsruFWDZ3Wj9w12gw17Aa4xWw13KFsF
+	vrn3Jw4fKFWxG34xn29KB7ZKAUJUUUUU529EdanIXcx71UUUUj7v73VFW2AGmfu7jjvjm3
+	AaLaJ3UjIYCTnIWjp_UUUO07k0a2IF6w4kM7kC6x804xWl14x267AKxVWUJVW8JwAFIxvE
+	14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK021l84ACjcxK6xIIjx
+	v20xvE14v26w1j6s0DM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26r4UJVWxJr1l84ACjcxK
+	6I8E87Iv67AKxVW0oVCq3wA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_GcCE3s1le2I262IYc4
+	CY6c8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_
+	JrI_JrylYx0Ex4A2jsIE14v26r4j6F4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvY0x
+	0EwIxGrwCjxxvEa2IrMxkF7I0Ew4C26cxK6c8Ij28IcwCY1Ik26cxK6xAEc7vF6xCjj44l
+	c2xSY4AK6IIF6r4DMxkI7II2jI8vz4vEwIxGrwCYIxAIcVC0I7IYx2IY67AKxVW7JVWDJw
+	CYIxAIcVC0I7IYx2IY6xkF7I0E14v26F4j6r4UJwCYIxAIcVC2z280aVAFwI0_GcCE3s1l
+	cIIF0xvEx4A2jsIEc7CjxVAFwI0_GcCE3s1l42xK82IYc2Ij64vIr41l42xK82IY64kExV
+	AvwVAq07x20xyl4x8a6x804xWl4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AK
+	xVWUJVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r1q6r43MIIYrx
+	kI7VAKI48JMIIF0xvE42xK8VAvwI8IcIk0rVWUCVW8JbIYCTnIWIevJa73UjIFyTuYvjxU
+	QsXoDUUUU
+
+Add support for runtime PM & sleep. Move all regulator and clock management
+to dedicated HW start/stop routines. Then rely on (runtime) PM OPS to
+call them.
+
+Signed-off-by: Fabrice Gasnier <fabrice.gasnier@st.com>
+---
+ drivers/iio/adc/stm32-adc-core.c | 182 +++++++++++++++++++++++++++------------
+ drivers/iio/adc/stm32-adc.c      | 169 ++++++++++++++++++++++++++++--------
+ 2 files changed, 258 insertions(+), 93 deletions(-)
+
+diff --git a/drivers/iio/adc/stm32-adc-core.c b/drivers/iio/adc/stm32-adc-core.c
+index ca432e7..2327ec1 100644
+--- a/drivers/iio/adc/stm32-adc-core.c
++++ b/drivers/iio/adc/stm32-adc-core.c
+@@ -16,6 +16,7 @@
+ #include <linux/irqdomain.h>
+ #include <linux/module.h>
+ #include <linux/of_device.h>
++#include <linux/pm_runtime.h>
+ #include <linux/regulator/consumer.h>
+ #include <linux/slab.h>
+ 
+@@ -48,15 +49,19 @@
+ #define STM32H7_CKMODE_SHIFT		16
+ #define STM32H7_CKMODE_MASK		GENMASK(17, 16)
+ 
++#define STM32_ADC_CORE_SLEEP_DELAY_MS	2000
++
+ /**
+  * stm32_adc_common_regs - stm32 common registers, compatible dependent data
+  * @csr:	common status register offset
++ * @ccr:	common control register offset
+  * @eoc1:	adc1 end of conversion flag in @csr
+  * @eoc2:	adc2 end of conversion flag in @csr
+  * @eoc3:	adc3 end of conversion flag in @csr
+  */
+ struct stm32_adc_common_regs {
+ 	u32 csr;
++	u32 ccr;
+ 	u32 eoc1_msk;
+ 	u32 eoc2_msk;
+ 	u32 eoc3_msk;
+@@ -85,6 +90,7 @@ struct stm32_adc_priv_cfg {
+  * @vref:		regulator reference
+  * @cfg:		compatible configuration data
+  * @common:		common data for all ADC instances
++ * @ccr_bak:		backup CCR in low power mode
+  */
+ struct stm32_adc_priv {
+ 	int				irq[STM32_ADC_MAX_ADCS];
+@@ -94,6 +100,7 @@ struct stm32_adc_priv {
+ 	struct regulator		*vref;
+ 	const struct stm32_adc_priv_cfg	*cfg;
+ 	struct stm32_adc_common		common;
++	u32				ccr_bak;
+ };
+ 
+ static struct stm32_adc_priv *to_stm32_adc_priv(struct stm32_adc_common *com)
+@@ -265,6 +272,7 @@ static int stm32h7_adc_clk_sel(struct platform_device *pdev,
+ /* STM32F4 common registers definitions */
+ static const struct stm32_adc_common_regs stm32f4_adc_common_regs = {
+ 	.csr = STM32F4_ADC_CSR,
++	.ccr = STM32F4_ADC_CCR,
+ 	.eoc1_msk = STM32F4_EOC1,
+ 	.eoc2_msk = STM32F4_EOC2,
+ 	.eoc3_msk = STM32F4_EOC3,
+@@ -273,6 +281,7 @@ static int stm32h7_adc_clk_sel(struct platform_device *pdev,
+ /* STM32H7 common registers definitions */
+ static const struct stm32_adc_common_regs stm32h7_adc_common_regs = {
+ 	.csr = STM32H7_ADC_CSR,
++	.ccr = STM32H7_ADC_CCR,
+ 	.eoc1_msk = STM32H7_EOC_MST,
+ 	.eoc2_msk = STM32H7_EOC_SLV,
+ };
+@@ -379,6 +388,61 @@ static void stm32_adc_irq_remove(struct platform_device *pdev,
+ 	}
+ }
+ 
++static int stm32_adc_core_hw_start(struct device *dev)
++{
++	struct stm32_adc_common *common = dev_get_drvdata(dev);
++	struct stm32_adc_priv *priv = to_stm32_adc_priv(common);
++	int ret;
++
++	ret = regulator_enable(priv->vref);
++	if (ret < 0) {
++		dev_err(dev, "vref enable failed\n");
++		return ret;
++	}
++
++	if (priv->bclk) {
++		ret = clk_prepare_enable(priv->bclk);
++		if (ret < 0) {
++			dev_err(dev, "bus clk enable failed\n");
++			goto err_regulator_disable;
++		}
++	}
++
++	if (priv->aclk) {
++		ret = clk_prepare_enable(priv->aclk);
++		if (ret < 0) {
++			dev_err(dev, "adc clk enable failed\n");
++			goto err_bclk_disable;
++		}
++	}
++
++	writel_relaxed(priv->ccr_bak, priv->common.base + priv->cfg->regs->ccr);
++
++	return 0;
++
++err_bclk_disable:
++	if (priv->bclk)
++		clk_disable_unprepare(priv->bclk);
++err_regulator_disable:
++	regulator_disable(priv->vref);
++
++	return ret;
++}
++
++static void stm32_adc_core_hw_stop(struct device *dev)
++{
++	struct stm32_adc_common *common = dev_get_drvdata(dev);
++	struct stm32_adc_priv *priv = to_stm32_adc_priv(common);
++
++	/* Backup CCR that may be lost (depends on power state to achieve) */
++	priv->ccr_bak = readl_relaxed(priv->common.base + priv->cfg->regs->ccr);
++	if (priv->aclk)
++		clk_disable_unprepare(priv->aclk);
++	if (priv->bclk)
++		clk_disable_unprepare(priv->bclk);
++	regulator_disable(priv->vref);
++}
++
+ static int stm32_adc_probe(struct platform_device *pdev)
+ {
+ 	struct stm32_adc_priv *priv;
+@@ -393,6 +457,7 @@ static int stm32_adc_probe(struct platform_device *pdev)
+ 	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
+ 	if (!priv)
+ 		return -ENOMEM;
++	platform_set_drvdata(pdev, &priv->common);
+ 
+ 	priv->cfg = (const struct stm32_adc_priv_cfg *)
+ 		of_match_device(dev->driver->of_match_table, dev)->data;
+@@ -410,67 +475,51 @@ static int stm32_adc_probe(struct platform_device *pdev)
+ 		return ret;
+ 	}
+ 
+-	ret = regulator_enable(priv->vref);
+-	if (ret < 0) {
+-		dev_err(&pdev->dev, "vref enable failed\n");
+-		return ret;
+-	}
+-
+-	ret = regulator_get_voltage(priv->vref);
+-	if (ret < 0) {
+-		dev_err(&pdev->dev, "vref get voltage failed, %d\n", ret);
+-		goto err_regulator_disable;
+-	}
+-	priv->common.vref_mv = ret / 1000;
+-	dev_dbg(&pdev->dev, "vref+=%dmV\n", priv->common.vref_mv);
+-
+ 	priv->aclk = devm_clk_get(&pdev->dev, "adc");
+ 	if (IS_ERR(priv->aclk)) {
+ 		ret = PTR_ERR(priv->aclk);
+-		if (ret == -ENOENT) {
+-			priv->aclk = NULL;
+-		} else {
++		if (ret != -ENOENT) {
+ 			dev_err(&pdev->dev, "Can't get 'adc' clock\n");
+-			goto err_regulator_disable;
+-		}
+-	}
+-
+-	if (priv->aclk) {
+-		ret = clk_prepare_enable(priv->aclk);
+-		if (ret < 0) {
+-			dev_err(&pdev->dev, "adc clk enable failed\n");
+-			goto err_regulator_disable;
++			return ret;
+ 		}
++		priv->aclk = NULL;
+ 	}
+ 
+ 	priv->bclk = devm_clk_get(&pdev->dev, "bus");
+ 	if (IS_ERR(priv->bclk)) {
+ 		ret = PTR_ERR(priv->bclk);
+-		if (ret == -ENOENT) {
+-			priv->bclk = NULL;
+-		} else {
++		if (ret != -ENOENT) {
+ 			dev_err(&pdev->dev, "Can't get 'bus' clock\n");
+-			goto err_aclk_disable;
++			return ret;
+ 		}
++		priv->bclk = NULL;
+ 	}
+ 
+-	if (priv->bclk) {
+-		ret = clk_prepare_enable(priv->bclk);
+-		if (ret < 0) {
+-			dev_err(&pdev->dev, "adc clk enable failed\n");
+-			goto err_aclk_disable;
+-		}
++	pm_runtime_get_noresume(dev);
++	pm_runtime_set_active(dev);
++	pm_runtime_set_autosuspend_delay(dev, STM32_ADC_CORE_SLEEP_DELAY_MS);
++	pm_runtime_use_autosuspend(dev);
++	pm_runtime_enable(dev);
++
++	ret = stm32_adc_core_hw_start(dev);
++	if (ret)
++		goto err_pm_stop;
++
++	ret = regulator_get_voltage(priv->vref);
++	if (ret < 0) {
++		dev_err(&pdev->dev, "vref get voltage failed, %d\n", ret);
++		goto err_hw_stop;
+ 	}
++	priv->common.vref_mv = ret / 1000;
++	dev_dbg(&pdev->dev, "vref+=%dmV\n", priv->common.vref_mv);
+ 
+ 	ret = priv->cfg->clk_sel(pdev, priv);
+ 	if (ret < 0)
+-		goto err_bclk_disable;
++		goto err_hw_stop;
+ 
+ 	ret = stm32_adc_irq_probe(pdev, priv);
+ 	if (ret < 0)
+-		goto err_bclk_disable;
+-
+-	platform_set_drvdata(pdev, &priv->common);
++		goto err_hw_stop;
+ 
+ 	ret = of_platform_populate(np, NULL, NULL, &pdev->dev);
+ 	if (ret < 0) {
+@@ -478,21 +527,19 @@ static int stm32_adc_probe(struct platform_device *pdev)
+ 		goto err_irq_remove;
+ 	}
+ 
++	pm_runtime_mark_last_busy(dev);
++	pm_runtime_put_autosuspend(dev);
++
+ 	return 0;
+ 
+ err_irq_remove:
+ 	stm32_adc_irq_remove(pdev, priv);
+-
+-err_bclk_disable:
+-	if (priv->bclk)
+-		clk_disable_unprepare(priv->bclk);
+-
+-err_aclk_disable:
+-	if (priv->aclk)
+-		clk_disable_unprepare(priv->aclk);
+-
+-err_regulator_disable:
+-	regulator_disable(priv->vref);
++err_hw_stop:
++	stm32_adc_core_hw_stop(dev);
++err_pm_stop:
++	pm_runtime_disable(dev);
++	pm_runtime_set_suspended(dev);
++	pm_runtime_put_noidle(dev);
+ 
+ 	return ret;
+ }
+@@ -502,17 +549,39 @@ static int stm32_adc_remove(struct platform_device *pdev)
+ 	struct stm32_adc_common *common = platform_get_drvdata(pdev);
+ 	struct stm32_adc_priv *priv = to_stm32_adc_priv(common);
+ 
++	pm_runtime_get_sync(&pdev->dev);
+ 	of_platform_depopulate(&pdev->dev);
+ 	stm32_adc_irq_remove(pdev, priv);
+-	if (priv->bclk)
+-		clk_disable_unprepare(priv->bclk);
+-	if (priv->aclk)
+-		clk_disable_unprepare(priv->aclk);
+-	regulator_disable(priv->vref);
++	stm32_adc_core_hw_stop(&pdev->dev);
++	pm_runtime_disable(&pdev->dev);
++	pm_runtime_set_suspended(&pdev->dev);
++	pm_runtime_put_noidle(&pdev->dev);
+ 
+ 	return 0;
+ }
+ 
++#if defined(CONFIG_PM)
++static int stm32_adc_core_runtime_suspend(struct device *dev)
++{
++	stm32_adc_core_hw_stop(dev);
++
++	return 0;
++}
++
++static int stm32_adc_core_runtime_resume(struct device *dev)
++{
++	return stm32_adc_core_hw_start(dev);
++}
++#endif
++
++static const struct dev_pm_ops stm32_adc_core_pm_ops = {
++	SET_SYSTEM_SLEEP_PM_OPS(pm_runtime_force_suspend,
++				pm_runtime_force_resume)
++	SET_RUNTIME_PM_OPS(stm32_adc_core_runtime_suspend,
++			   stm32_adc_core_runtime_resume,
++			   NULL)
++};
++
+ static const struct stm32_adc_priv_cfg stm32f4_adc_priv_cfg = {
+ 	.regs = &stm32f4_adc_common_regs,
+ 	.clk_sel = stm32f4_adc_clk_sel,
+@@ -552,6 +621,7 @@ static int stm32_adc_remove(struct platform_device *pdev)
+ 	.driver = {
+ 		.name = "stm32-adc-core",
+ 		.of_match_table = stm32_adc_of_match,
++		.pm = &stm32_adc_core_pm_ops,
+ 	},
+ };
+ module_platform_driver(stm32_adc_driver);
+diff --git a/drivers/iio/adc/stm32-adc.c b/drivers/iio/adc/stm32-adc.c
+index dca8733..32c9c61 100644
+--- a/drivers/iio/adc/stm32-adc.c
++++ b/drivers/iio/adc/stm32-adc.c
+@@ -22,6 +22,7 @@
+ #include <linux/iopoll.h>
+ #include <linux/module.h>
+ #include <linux/platform_device.h>
++#include <linux/pm_runtime.h>
+ #include <linux/of.h>
+ #include <linux/of_device.h>
+ 
+@@ -148,6 +149,7 @@ enum stm32h7_adc_dmngt {
+ #define STM32_ADC_MAX_SMP		7	/* SMPx range is [0..7] */
+ #define STM32_ADC_TIMEOUT_US		100000
+ #define STM32_ADC_TIMEOUT	(msecs_to_jiffies(STM32_ADC_TIMEOUT_US / 1000))
++#define STM32_ADC_HW_STOP_DELAY_MS	100
+ 
+ #define STM32_DMA_BUFFER_SIZE		PAGE_SIZE
+ 
+@@ -623,6 +625,47 @@ static void stm32_adc_set_res(struct stm32_adc *adc)
+ 	stm32_adc_writel(adc, res->reg, val);
+ }
+ 
++static int stm32_adc_hw_stop(struct device *dev)
++{
++	struct stm32_adc *adc = dev_get_drvdata(dev);
++
++	if (adc->cfg->unprepare)
++		adc->cfg->unprepare(adc);
++
++	if (adc->clk)
++		clk_disable_unprepare(adc->clk);
++
++	return 0;
++}
++
++static int stm32_adc_hw_start(struct device *dev)
++{
++	struct stm32_adc *adc = dev_get_drvdata(dev);
++	int ret;
++
++	if (adc->clk) {
++		ret = clk_prepare_enable(adc->clk);
++		if (ret)
++			return ret;
++	}
++
++	stm32_adc_set_res(adc);
++
++	if (adc->cfg->prepare) {
++		ret = adc->cfg->prepare(adc);
++		if (ret)
++			goto err_clk_dis;
++	}
++
++	return 0;
++
++err_clk_dis:
++	if (adc->clk)
++		clk_disable_unprepare(adc->clk);
++
++	return ret;
++}
++
+ /**
+  * stm32f4_adc_start_conv() - Start conversions for regular channels.
+  * @adc: stm32 adc instance
+@@ -1171,6 +1214,7 @@ static int stm32_adc_single_conv(struct iio_dev *indio_dev,
+ 				 int *res)
+ {
+ 	struct stm32_adc *adc = iio_priv(indio_dev);
++	struct device *dev = indio_dev->dev.parent;
+ 	const struct stm32_adc_regspec *regs = adc->cfg->regs;
+ 	long timeout;
+ 	u32 val;
+@@ -1180,10 +1224,10 @@ static int stm32_adc_single_conv(struct iio_dev *indio_dev,
+ 
+ 	adc->bufi = 0;
+ 
+-	if (adc->cfg->prepare) {
+-		ret = adc->cfg->prepare(adc);
+-		if (ret)
+-			return ret;
++	ret = pm_runtime_get_sync(dev);
++	if (ret < 0) {
++		pm_runtime_put_noidle(dev);
++		return ret;
+ 	}
+ 
+ 	/* Apply sampling time settings */
+@@ -1221,8 +1265,8 @@ static int stm32_adc_single_conv(struct iio_dev *indio_dev,
+ 
+ 	stm32_adc_conv_irq_disable(adc);
+ 
+-	if (adc->cfg->unprepare)
+-		adc->cfg->unprepare(adc);
++	pm_runtime_mark_last_busy(dev);
++	pm_runtime_put_autosuspend(dev);
+ 
+ 	return ret;
+ }
+@@ -1330,15 +1374,22 @@ static int stm32_adc_update_scan_mode(struct iio_dev *indio_dev,
+ 				      const unsigned long *scan_mask)
+ {
+ 	struct stm32_adc *adc = iio_priv(indio_dev);
++	struct device *dev = indio_dev->dev.parent;
+ 	int ret;
+ 
++	ret = pm_runtime_get_sync(dev);
++	if (ret < 0) {
++		pm_runtime_put_noidle(dev);
++		return ret;
++	}
++
+ 	adc->num_conv = bitmap_weight(scan_mask, indio_dev->masklength);
+ 
+ 	ret = stm32_adc_conf_scan_seq(indio_dev, scan_mask);
+-	if (ret)
+-		return ret;
++	pm_runtime_mark_last_busy(dev);
++	pm_runtime_put_autosuspend(dev);
+ 
+-	return 0;
++	return ret;
+ }
+ 
+ static int stm32_adc_of_xlate(struct iio_dev *indio_dev,
+@@ -1368,12 +1419,23 @@ static int stm32_adc_debugfs_reg_access(struct iio_dev *indio_dev,
+ 					unsigned *readval)
+ {
+ 	struct stm32_adc *adc = iio_priv(indio_dev);
++	struct device *dev = indio_dev->dev.parent;
++	int ret;
++
++	ret = pm_runtime_get_sync(dev);
++	if (ret < 0) {
++		pm_runtime_put_noidle(dev);
++		return ret;
++	}
+ 
+ 	if (!readval)
+ 		stm32_adc_writel(adc, reg, writeval);
+ 	else
+ 		*readval = stm32_adc_readl(adc, reg);
+ 
++	pm_runtime_mark_last_busy(dev);
++	pm_runtime_put_autosuspend(dev);
++
+ 	return 0;
+ }
+ 
+@@ -1459,18 +1521,19 @@ static int stm32_adc_dma_start(struct iio_dev *indio_dev)
+ static int stm32_adc_buffer_postenable(struct iio_dev *indio_dev)
+ {
+ 	struct stm32_adc *adc = iio_priv(indio_dev);
++	struct device *dev = indio_dev->dev.parent;
+ 	int ret;
+ 
+-	if (adc->cfg->prepare) {
+-		ret = adc->cfg->prepare(adc);
+-		if (ret)
+-			return ret;
++	ret = pm_runtime_get_sync(dev);
++	if (ret < 0) {
++		pm_runtime_put_noidle(dev);
++		return ret;
+ 	}
+ 
+ 	ret = stm32_adc_set_trig(indio_dev, indio_dev->trig);
+ 	if (ret) {
+ 		dev_err(&indio_dev->dev, "Can't set trigger\n");
+-		goto err_unprepare;
++		goto err_pm_put;
+ 	}
+ 
+ 	ret = stm32_adc_dma_start(indio_dev);
+@@ -1498,9 +1561,9 @@ static int stm32_adc_buffer_postenable(struct iio_dev *indio_dev)
+ 		dmaengine_terminate_all(adc->dma_chan);
+ err_clr_trig:
+ 	stm32_adc_set_trig(indio_dev, NULL);
+-err_unprepare:
+-	if (adc->cfg->unprepare)
+-		adc->cfg->unprepare(adc);
++err_pm_put:
++	pm_runtime_mark_last_busy(dev);
++	pm_runtime_put_autosuspend(dev);
+ 
+ 	return ret;
+ }
+@@ -1508,6 +1571,7 @@ static int stm32_adc_buffer_postenable(struct iio_dev *indio_dev)
+ static int stm32_adc_buffer_predisable(struct iio_dev *indio_dev)
+ {
+ 	struct stm32_adc *adc = iio_priv(indio_dev);
++	struct device *dev = indio_dev->dev.parent;
+ 	int ret;
+ 
+ 	adc->cfg->stop_conv(adc);
+@@ -1524,8 +1588,8 @@ static int stm32_adc_buffer_predisable(struct iio_dev *indio_dev)
+ 	if (stm32_adc_set_trig(indio_dev, NULL))
+ 		dev_err(&indio_dev->dev, "Can't clear trigger\n");
+ 
+-	if (adc->cfg->unprepare)
+-		adc->cfg->unprepare(adc);
++	pm_runtime_mark_last_busy(dev);
++	pm_runtime_put_autosuspend(dev);
+ 
+ 	return ret;
+ }
+@@ -1864,26 +1928,17 @@ static int stm32_adc_probe(struct platform_device *pdev)
+ 		}
+ 	}
+ 
+-	if (adc->clk) {
+-		ret = clk_prepare_enable(adc->clk);
+-		if (ret < 0) {
+-			dev_err(&pdev->dev, "clk enable failed\n");
+-			return ret;
+-		}
+-	}
+-
+ 	ret = stm32_adc_of_get_resolution(indio_dev);
+ 	if (ret < 0)
+-		goto err_clk_disable;
+-	stm32_adc_set_res(adc);
++		return ret;
+ 
+ 	ret = stm32_adc_chan_of_init(indio_dev);
+ 	if (ret < 0)
+-		goto err_clk_disable;
++		return ret;
+ 
+ 	ret = stm32_adc_dma_request(indio_dev);
+ 	if (ret < 0)
+-		goto err_clk_disable;
++		return ret;
+ 
+ 	ret = iio_triggered_buffer_setup(indio_dev,
+ 					 &iio_pollfunc_store_time,
+@@ -1894,15 +1949,35 @@ static int stm32_adc_probe(struct platform_device *pdev)
+ 		goto err_dma_disable;
+ 	}
+ 
++	/* Get stm32-adc-core PM online */
++	pm_runtime_get_noresume(dev);
++	pm_runtime_set_active(dev);
++	pm_runtime_set_autosuspend_delay(dev, STM32_ADC_HW_STOP_DELAY_MS);
++	pm_runtime_use_autosuspend(dev);
++	pm_runtime_enable(dev);
++
++	ret = stm32_adc_hw_start(dev);
++	if (ret)
++		goto err_buffer_cleanup;
++
+ 	ret = iio_device_register(indio_dev);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "iio dev register failed\n");
+-		goto err_buffer_cleanup;
++		goto err_hw_stop;
+ 	}
+ 
++	pm_runtime_mark_last_busy(dev);
++	pm_runtime_put_autosuspend(dev);
++
+ 	return 0;
+ 
++err_hw_stop:
++	stm32_adc_hw_stop(dev);
++
+ err_buffer_cleanup:
++	pm_runtime_disable(dev);
++	pm_runtime_set_suspended(dev);
++	pm_runtime_put_noidle(dev);
+ 	iio_triggered_buffer_cleanup(indio_dev);
+ 
+ err_dma_disable:
+@@ -1912,9 +1987,6 @@ static int stm32_adc_probe(struct platform_device *pdev)
+ 				  adc->rx_buf, adc->rx_dma_buf);
+ 		dma_release_channel(adc->dma_chan);
+ 	}
+-err_clk_disable:
+-	if (adc->clk)
+-		clk_disable_unprepare(adc->clk);
+ 
+ 	return ret;
+ }
+@@ -1924,7 +1996,12 @@ static int stm32_adc_remove(struct platform_device *pdev)
+ 	struct stm32_adc *adc = platform_get_drvdata(pdev);
+ 	struct iio_dev *indio_dev = iio_priv_to_dev(adc);
+ 
++	pm_runtime_get_sync(&pdev->dev);
+ 	iio_device_unregister(indio_dev);
++	stm32_adc_hw_stop(&pdev->dev);
++	pm_runtime_disable(&pdev->dev);
++	pm_runtime_set_suspended(&pdev->dev);
++	pm_runtime_put_noidle(&pdev->dev);
+ 	iio_triggered_buffer_cleanup(indio_dev);
+ 	if (adc->dma_chan) {
+ 		dma_free_coherent(adc->dma_chan->device->dev,
+@@ -1932,12 +2009,29 @@ static int stm32_adc_remove(struct platform_device *pdev)
+ 				  adc->rx_buf, adc->rx_dma_buf);
+ 		dma_release_channel(adc->dma_chan);
+ 	}
+-	if (adc->clk)
+-		clk_disable_unprepare(adc->clk);
+ 
+ 	return 0;
+ }
+ 
++#if defined(CONFIG_PM)
++static int stm32_adc_runtime_suspend(struct device *dev)
++{
++	return stm32_adc_hw_stop(dev);
++}
++
++static int stm32_adc_runtime_resume(struct device *dev)
++{
++	return stm32_adc_hw_start(dev);
++}
++#endif
++
++static const struct dev_pm_ops stm32_adc_pm_ops = {
++	SET_SYSTEM_SLEEP_PM_OPS(pm_runtime_force_suspend,
++				pm_runtime_force_resume)
++	SET_RUNTIME_PM_OPS(stm32_adc_runtime_suspend, stm32_adc_runtime_resume,
++			   NULL)
++};
++
+ static const struct stm32_adc_cfg stm32f4_adc_cfg = {
+ 	.regs = &stm32f4_adc_regspec,
+ 	.adc_info = &stm32f4_adc_info,
+@@ -1985,6 +2079,7 @@ static int stm32_adc_remove(struct platform_device *pdev)
+ 	.driver = {
+ 		.name = "stm32-adc",
+ 		.of_match_table = stm32_adc_of_match,
++		.pm = &stm32_adc_pm_ops,
+ 	},
+ };
+ module_platform_driver(stm32_adc_driver);
+-- 
+1.9.1

@@ -1,0 +1,925 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (61.164.42.155:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 10 Nov 2018 00:55:13 -0000
+Received: from icoremail.net (unknown [209.85.210.180])
+	by mail-app2 (Coremail) with SMTP id by_KCgC3f7UbxOVbIFRpAQ--.31975S3;
+	Sat, 10 Nov 2018 01:30:04 +0800 (CST)
+Received: from mail-pf1-f180.google.com (unknown [209.85.210.180])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwAH5UAYxOVbdoIjAA--.763S3;
+	Sat, 10 Nov 2018 01:30:00 +0800 (CST)
+Received: by mail-pf1-f180.google.com with SMTP id b81-v6so725319pfe.11
+        for <xuliker@zju.edu.cn>; Fri, 09 Nov 2018 09:30:00 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :subject:to:cc:references:from:organization:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding:sender:precedence:list-id;
+        bh=a7CJX3NeNOmBonNZb043f7i7gv59XU57v6fHeUPo1Rc=;
+        b=Z2biqhKIWE2Q8TJUwwe6k5xf5SAbQBVg1BNfhMq1xWDwIojcwnRFnSz7Js1zdMvlc0
+         Sqsc6wZOrpuxmnJg4BVVtrInOKhv5Qk19Sqd2IJlpwLlSgFJjuR/1OhZQJPntITTqpIM
+         /C9/aTftftqOHySQoB2+PKcXp7pBc5ORyX9uvZxcnBkzl0qwzRezWAM3wtE0wMGouhC2
+         AaUeQTgkAKQSpbUCPByYr9ITGRV+jqGEVlxbZh/lhz9xmv10syl5zZ+2BoTNnmgXS7Zd
+         XOwcPKC65KytuMUa2WNWro5G6DrU2QO5hvJMWnQiXIlDnqIt0lWLz9dDHuOmuNmXRgo1
+         GcwA==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=intel.com
+X-Gm-Message-State: AGRZ1gJ58ikh5v/KzpfJ9j2yOLZkAhOONIEBSAbq1Vdf6quvZOqpnxuE
+	AjjYBpJRR7DdHRHTbrMfEJHZhpioujzs5dYCM9IB9eXMAwJA5/QjRQ==
+X-Received: by 2002:a65:64d5:: with SMTP id t21-v6mr8472700pgv.428.1541784600243;
+        Fri, 09 Nov 2018 09:30:00 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp166869pjt;
+        Fri, 9 Nov 2018 09:29:58 -0800 (PST)
+X-Google-Smtp-Source: AJdET5fcCEp1Ta48wEKUkHf+UTUsDxvJJSEOIkQ6UQ7yHbukYI/9NiBSXMSMolx+mjwt0og75MRq
+X-Received: by 2002:a63:3858:: with SMTP id h24mr8027408pgn.300.1541784598539;
+        Fri, 09 Nov 2018 09:29:58 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1541784598; cv=none;
+        d=google.com; s=arc-20160816;
+        b=Y/Q6cHJSgSGj1bf+Pxxq7RPv1z5wzAvEvvCUvIUTysYEj2RwDO9fx6Z5rdqZm6HQP8
+         ju9JcohzmMTlJLQ08mH65D85bvRNNSXKUk+R4YBpAFYMA3HyWKDIhPlr6HG1kQFiTbx/
+         KqCrL8G0tcXOL2szo0tFxaifZ1WbJYsUtPf2A6WFC2K0wIDes77pSrhe0Tgr/2h2uPC9
+         u2bsm1lZbFBxSHgx2NWdbKebFEngOblxWzoHQVf7/bZS7xM/8CNhA9NWAl6akpihjXbO
+         vAcl+N9i5qIDyvo/k4MnfkZyDIxHbuoTYptsFAZ42Nfpr/c96bwTf6JW+x4vrr3vGQBB
+         qUHQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:content-transfer-encoding
+         :content-language:in-reply-to:mime-version:user-agent:date
+         :message-id:organization:from:references:cc:to:subject;
+        bh=a7CJX3NeNOmBonNZb043f7i7gv59XU57v6fHeUPo1Rc=;
+        b=EeUw+a+jeExHxmupQ+kLt94j3+d0beX+Cb2uNMU6Sy7WXMIBjXjCs6ihLRdTeJSy/i
+         2VIn9Y40jnlW1ZJ/TvdBzxL0yDYN6axwjzAZFgKg2MWMJQJZ1v9oMw/BCw1hTBDa7ucu
+         d+C6VBUQbsUf21FAEKR3e8izRCqdwxxDu5xYXDoQOcP5dzNz+UdbUe3kUd7f0cAnjZdb
+         NKT2bsL51tw6xXXmLtTzi7snkwivljmnMzBAo4TldNnfNHey5bmtEcH5pJVc4B/PnwkZ
+         36BJmYZkVeiAW5syzONaSn/cXkagGgOBSW80Gac1HwE4TGopaH+WdBD7wH/hRse1XWYQ
+         M3zA==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=intel.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id k193-v6si4923949pfc.15.2018.11.09.09.29.40;
+        Fri, 09 Nov 2018 09:29:58 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1728437AbeKJDK5 (ORCPT <rfc822;tu.k.phung@gmail.com>
+        + 99 others); Fri, 9 Nov 2018 22:10:57 -0500
+Received: from mga01.intel.com ([192.55.52.88]:33699 "EHLO mga01.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727995AbeKJDK5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+        Fri, 9 Nov 2018 22:10:57 -0500
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga004.fm.intel.com ([10.253.24.48])
+  by fmsmga101.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 09 Nov 2018 09:29:25 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.54,483,1534834800"; 
+   d="scan'208";a="104918264"
+Received: from linux.intel.com ([10.54.29.200])
+  by fmsmga004.fm.intel.com with ESMTP; 09 Nov 2018 09:29:24 -0800
+Received: from [10.252.29.174] (abudanko-mobl.ccr.corp.intel.com [10.252.29.174])
+        by linux.intel.com (Postfix) with ESMTP id 865B3580117;
+        Fri,  9 Nov 2018 09:29:21 -0800 (PST)
+Subject: Re: [PATCH v15 0/3]: perf: reduce data loss when profiling highly
+ parallel CPU bound workloads
+To: Jiri Olsa <jolsa@redhat.com>
+Cc: Peter Zijlstra <peterz@infradead.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        Arnaldo Carvalho de Melo <acme@kernel.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Andi Kleen <ak@linux.intel.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+References: <75e779bf-dc6b-ea24-67a5-f53a39bb7374@linux.intel.com>
+ <20181109082242.GJ29732@krava>
+From: Alexey Budankov <alexey.budankov@linux.intel.com>
+Organization: Intel Corp.
+Message-ID: <ceca593e-16d2-e305-25e5-c055db9f9191@linux.intel.com>
+Date: Fri, 9 Nov 2018 20:29:19 +0300
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:52.0) Gecko/20100101
+ Thunderbird/52.9.1
+MIME-Version: 1.0
+In-Reply-To: <20181109082242.GJ29732@krava>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwAH5UAYxOVbdoIjAA--.763S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvAXoWfZr1Uur1fJFWfKrWrJryUGFg_yoW8tFyxAo
+	WIqa1kJr18JrWxuasFgr1xGrWrZws0k3s3JrWfWwn5J3Wrur1j9Fy7Gw4aq347Zw1qkasI
+	vFy0gayrWF4kCr1fn29KB7ZKAUJUUUUU529EdanIXcx71UUUUj7v73VFW2AGmfu7jjvjm3
+	AaLaJ3UjIYCTnIWjp_UUUOa7k0a2IF6w4kM7kC6x804xWl14x267AKxVWUJVW8JwAFIxvE
+	14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK021l84ACjcxK6xIIjx
+	v20xvE14v26F1j6w1UM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26F4j6r4UJwA2z4x0Y4vE
+	x4A2jsIE14v26F4UJVW0owA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_Cr1j6rxdM2AIxVAIcx
+	kEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v2
+	6r1Y6r17McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IY64
+	vIr41l7I0Y6sxI4wCYjI0SjxkI62AI1cAE67vIY487MxkF7I0Ew4C26cxK6c8Ij28IcwCY
+	1Ik26cxK6xAEc7vF6xCjj44lc2xSY4AK6IIF6r4lc2IjII80xcxEwVAKI48JMxvI42IY6x
+	IIjxv20xvE14v26r4j6ryUMxvI42IY6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1lcIIF0xvE
+	x4A2jsIE14v26r4UJVWxJr1lcIIF0xvEx4A2jsIEc7CjxVAFwI0_Gr1j6F4UJwCF04k20x
+	vY0x0EwIxGrwCF04k20xvEw4C26cxK6c8Ij28IcwCF72vE77IF4wCFx2IqxVCFs4IE7xkE
+	bVWUJVW8JwC20s026c02F40E14v26r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67
+	AF67kF1VAFwI0_Jw0_GFylIxkGc2Ij64vIr41lIxAIcVCF04k26cxKx2IYs7xG6r4j6FyU
+	YxBIdaVFxhVjvjDU0xZFpf9x07bPqXLUUUUU=
+
+Hi,
+On 09.11.2018 11:22, Jiri Olsa wrote:
+> On Tue, Nov 06, 2018 at 11:53:02AM +0300, Alexey Budankov wrote:
+>>
+<SNIP>
+>>  Alexey Budankov (3):
+>> 	perf util: map data buffer for preserving collected data
+>> 	perf record: enable asynchronous trace writing
+>> 	perf record: extend trace writing to multi AIO
+> 
+> FYI I was rebasing my threads branch on top of this and
+> first 2 won't apply anymore on Arnaldo's perf/core
+
+Thanks for the info. git apply -3 resolves rebasing issue.
+Below is the whole patch for Arnaldo's perf/core.
+
+-Alexey
+
+---
+ tools/build/Makefile.feature             |   6 +-
+ tools/build/feature/Makefile             |   6 +-
+ tools/build/feature/test-all.c           |   5 +
+ tools/build/feature/test-libaio.c        |  16 ++
+ tools/perf/Documentation/perf-record.txt |   5 +
+ tools/perf/Makefile.config               |   6 +
+ tools/perf/Makefile.perf                 |   7 +-
+ tools/perf/builtin-record.c              | 255 ++++++++++++++++++++++++++++++-
+ tools/perf/perf.h                        |   1 +
+ tools/perf/util/evlist.c                 |   6 +-
+ tools/perf/util/evlist.h                 |   2 +-
+ tools/perf/util/mmap.c                   | 146 +++++++++++++++++-
+ tools/perf/util/mmap.h                   |  26 +++-
+ 13 files changed, 473 insertions(+), 14 deletions(-)
+
+diff --git a/tools/build/Makefile.feature b/tools/build/Makefile.feature
+index f216b2f5c3d7..185b1932b25a 100644
+--- a/tools/build/Makefile.feature
++++ b/tools/build/Makefile.feature
+@@ -68,7 +68,8 @@ FEATURE_TESTS_BASIC :=                  \
+         sched_getcpu			\
+         sdt				\
+         setns				\
+-        libopencsd
++        libopencsd			\
++        libaio
+ 
+ # FEATURE_TESTS_BASIC + FEATURE_TESTS_EXTRA is the complete list
+ # of all feature tests
+@@ -114,7 +115,8 @@ FEATURE_DISPLAY ?=              \
+          zlib                   \
+          lzma                   \
+          get_cpuid              \
+-         bpf
++         bpf			\
++         libaio
+ 
+ # Set FEATURE_CHECK_(C|LD)FLAGS-all for all FEATURE_TESTS features.
+ # If in the future we need per-feature checks/flags for features not
+diff --git a/tools/build/feature/Makefile b/tools/build/feature/Makefile
+index 0516259be70f..468817a6bc44 100644
+--- a/tools/build/feature/Makefile
++++ b/tools/build/feature/Makefile
+@@ -58,7 +58,8 @@ FILES=                                          \
+          test-libopencsd.bin			\
+          test-clang.bin				\
+          test-llvm.bin				\
+-         test-llvm-version.bin
++         test-llvm-version.bin			\
++         test-libaio.bin
+ 
+ FILES := $(addprefix $(OUTPUT),$(FILES))
+ 
+@@ -285,6 +286,9 @@ $(OUTPUT)test-clang.bin:
+ 
+ -include $(OUTPUT)*.d
+ 
++$(OUTPUT)test-libaio.bin:
++	$(BUILD) -lrt
++
+ ###############################
+ 
+ clean:
+diff --git a/tools/build/feature/test-all.c b/tools/build/feature/test-all.c
+index 8dc20a61341f..19ca9c87cc61 100644
+--- a/tools/build/feature/test-all.c
++++ b/tools/build/feature/test-all.c
+@@ -166,6 +166,10 @@
+ # include "test-libopencsd.c"
+ #undef main
+ 
++#define main main_test_libaio
++# include "test-libaio.c"
++#undef main
++
+ int main(int argc, char *argv[])
+ {
+ 	main_test_libpython();
+@@ -204,6 +208,7 @@ int main(int argc, char *argv[])
+ 	main_test_sdt();
+ 	main_test_setns();
+ 	main_test_libopencsd();
++	main_test_libaio();
+ 
+ 	return 0;
+ }
+diff --git a/tools/build/feature/test-libaio.c b/tools/build/feature/test-libaio.c
+new file mode 100644
+index 000000000000..932133c9a265
+--- /dev/null
++++ b/tools/build/feature/test-libaio.c
+@@ -0,0 +1,16 @@
++// SPDX-License-Identifier: GPL-2.0
++#include <aio.h>
++
++int main(void)
++{
++	struct aiocb aiocb;
++
++	aiocb.aio_fildes  = 0;
++	aiocb.aio_offset  = 0;
++	aiocb.aio_buf     = 0;
++	aiocb.aio_nbytes  = 0;
++	aiocb.aio_reqprio = 0;
++	aiocb.aio_sigevent.sigev_notify = 1 /*SIGEV_NONE*/;
++
++	return (int)aio_return(&aiocb);
++}
+diff --git a/tools/perf/Documentation/perf-record.txt b/tools/perf/Documentation/perf-record.txt
+index 246dee081efd..d232b13ea713 100644
+--- a/tools/perf/Documentation/perf-record.txt
++++ b/tools/perf/Documentation/perf-record.txt
+@@ -435,6 +435,11 @@ Specify vmlinux path which has debuginfo.
+ --buildid-all::
+ Record build-id of all DSOs regardless whether it's actually hit or not.
+ 
++--aio[=n]::
++Use <n> control blocks in asynchronous (Posix AIO) trace writing mode (default: 1, max: 4).
++Asynchronous mode is supported only when linking Perf tool with libc library
++providing implementation for Posix AIO API.
++
+ --all-kernel::
+ Configure all used events to run in kernel space.
+ 
+diff --git a/tools/perf/Makefile.config b/tools/perf/Makefile.config
+index e30d20fb482d..cf8a35450026 100644
+--- a/tools/perf/Makefile.config
++++ b/tools/perf/Makefile.config
+@@ -357,6 +357,12 @@ ifeq ($(feature-glibc), 1)
+   CFLAGS += -DHAVE_GLIBC_SUPPORT
+ endif
+ 
++ifeq ($(feature-libaio), 1)
++  ifndef NO_AIO
++    CFLAGS += -DHAVE_AIO_SUPPORT
++  endif
++endif
++
+ ifdef NO_DWARF
+   NO_LIBDW_DWARF_UNWIND := 1
+ endif
+diff --git a/tools/perf/Makefile.perf b/tools/perf/Makefile.perf
+index d95655489f7e..18c820c1b267 100644
+--- a/tools/perf/Makefile.perf
++++ b/tools/perf/Makefile.perf
+@@ -98,8 +98,13 @@ include ../scripts/utilities.mak
+ # Define LIBCLANGLLVM if you DO want builtin clang and llvm support.
+ # When selected, pass LLVM_CONFIG=/path/to/llvm-config to `make' if
+ # llvm-config is not in $PATH.
+-
++#
+ # Define NO_CORESIGHT if you do not want support for CoreSight trace decoding.
++#
++# Define NO_AIO if you do not want support of Posix AIO based trace
++# streaming for record mode. Currently Posix AIO trace streaming is
++# supported only when linking with glibc.
++#
+ 
+ # As per kernel Makefile, avoid funny character set dependencies
+ unexport LC_ALL
+diff --git a/tools/perf/builtin-record.c b/tools/perf/builtin-record.c
+index 488779bc4c8d..4736dc96c4ca 100644
+--- a/tools/perf/builtin-record.c
++++ b/tools/perf/builtin-record.c
+@@ -124,6 +124,210 @@ static int record__write(struct record *rec, struct perf_mmap *map __maybe_unuse
+ 	return 0;
+ }
+ 
++#ifdef HAVE_AIO_SUPPORT
++static int record__aio_write(struct aiocb *cblock, int trace_fd,
++		void *buf, size_t size, off_t off)
++{
++	int rc;
++
++	cblock->aio_fildes = trace_fd;
++	cblock->aio_buf    = buf;
++	cblock->aio_nbytes = size;
++	cblock->aio_offset = off;
++	cblock->aio_sigevent.sigev_notify = SIGEV_NONE;
++
++	do {
++		rc = aio_write(cblock);
++		if (rc == 0) {
++			break;
++		} else if (errno != EAGAIN) {
++			cblock->aio_fildes = -1;
++			pr_err("failed to queue perf data, error: %m\n");
++			break;
++		}
++	} while (1);
++
++	return rc;
++}
++
++static int record__aio_complete(struct perf_mmap *md, struct aiocb *cblock)
++{
++	void *rem_buf;
++	off_t rem_off;
++	size_t rem_size;
++	int rc, aio_errno;
++	ssize_t aio_ret, written;
++
++	aio_errno = aio_error(cblock);
++	if (aio_errno == EINPROGRESS)
++		return 0;
++
++	written = aio_ret = aio_return(cblock);
++	if (aio_ret < 0) {
++		if (aio_errno != EINTR)
++			pr_err("failed to write perf data, error: %m\n");
++		written = 0;
++	}
++
++	rem_size = cblock->aio_nbytes - written;
++
++	if (rem_size == 0) {
++		cblock->aio_fildes = -1;
++		/*
++		 * md->refcount is incremented in perf_mmap__push() for
++		 * every enqueued aio write request so decrement it because
++		 * the request is now complete.
++		 */
++		perf_mmap__put(md);
++		rc = 1;
++	} else {
++		/*
++		 * aio write request may require restart with the
++		 * reminder if the kernel didn't write whole
++		 * chunk at once.
++		 */
++		rem_off = cblock->aio_offset + written;
++		rem_buf = (void *)(cblock->aio_buf + written);
++		record__aio_write(cblock, cblock->aio_fildes,
++				rem_buf, rem_size, rem_off);
++		rc = 0;
++	}
++
++	return rc;
++}
++
++static int record__aio_sync(struct perf_mmap *md, bool sync_all)
++{
++	struct aiocb **aiocb = md->aio.aiocb;
++	struct aiocb *cblocks = md->aio.cblocks;
++	struct timespec timeout = { 0, 1000 * 1000  * 1 }; /* 1ms */
++	int i, do_suspend;
++
++	do {
++		do_suspend = 0;
++		for (i = 0; i < md->aio.nr_cblocks; ++i) {
++			if (cblocks[i].aio_fildes == -1 || record__aio_complete(md, &cblocks[i])) {
++				if (sync_all)
++					aiocb[i] = NULL;
++				else
++					return i;
++			} else {
++				/*
++				 * Started aio write is not complete yet
++				 * so it has to be waited before the
++				 * next allocation.
++				 */
++				aiocb[i] = &cblocks[i];
++				do_suspend = 1;
++			}
++		}
++		if (!do_suspend)
++			return -1;
++
++		while (aio_suspend((const struct aiocb **)aiocb, md->aio.nr_cblocks, &timeout)) {
++			if (!(errno == EAGAIN || errno == EINTR))
++				pr_err("failed to sync perf data, error: %m\n");
++		}
++	} while (1);
++}
++
++static int record__aio_pushfn(void *to, struct aiocb *cblock, void *bf, size_t size, off_t off)
++{
++	struct record *rec = to;
++	int ret, trace_fd = rec->session->data->file.fd;
++
++	rec->samples++;
++
++	ret = record__aio_write(cblock, trace_fd, bf, size, off);
++	if (!ret) {
++		rec->bytes_written += size;
++		if (switch_output_size(rec))
++			trigger_hit(&switch_output_trigger);
++	}
++
++	return ret;
++}
++
++static off_t record__aio_get_pos(int trace_fd)
++{
++	return lseek(trace_fd, 0, SEEK_CUR);
++}
++
++static void record__aio_set_pos(int trace_fd, off_t pos)
++{
++	lseek(trace_fd, pos, SEEK_SET);
++}
++
++static void record__aio_mmap_read_sync(struct record *rec)
++{
++	int i;
++	struct perf_evlist *evlist = rec->evlist;
++	struct perf_mmap *maps = evlist->mmap;
++
++	if (!rec->opts.nr_cblocks)
++		return;
++
++	for (i = 0; i < evlist->nr_mmaps; i++) {
++		struct perf_mmap *map = &maps[i];
++
++		if (map->base)
++			record__aio_sync(map, true);
++	}
++}
++
++static int nr_cblocks_default = 1;
++static int nr_cblocks_max = 4;
++
++static int record__aio_parse(const struct option *opt,
++			     const char *str,
++			     int unset)
++{
++	struct record_opts *opts = (struct record_opts *)opt->value;
++
++	if (unset) {
++		opts->nr_cblocks = 0;
++	} else {
++		if (str)
++			opts->nr_cblocks = strtol(str, NULL, 0);
++		if (!opts->nr_cblocks)
++			opts->nr_cblocks = nr_cblocks_default;
++	}
++
++	return 0;
++}
++#else /* HAVE_AIO_SUPPORT */
++static int nr_cblocks_max = 0;
++
++static int record__aio_sync(struct perf_mmap *md __maybe_unused, bool sync_all __maybe_unused)
++{
++	return -1;
++}
++
++static int record__aio_pushfn(void *to __maybe_unused, struct aiocb *cblock __maybe_unused,
++		void *bf __maybe_unused, size_t size __maybe_unused, off_t off __maybe_unused)
++{
++	return -1;
++}
++
++static off_t record__aio_get_pos(int trace_fd __maybe_unused)
++{
++	return -1;
++}
++
++static void record__aio_set_pos(int trace_fd __maybe_unused, off_t pos __maybe_unused)
++{
++}
++
++static void record__aio_mmap_read_sync(struct record *rec __maybe_unused)
++{
++}
++#endif
++
++static int record__aio_enabled(struct record *rec)
++{
++	return rec->opts.nr_cblocks > 0;
++}
++
+ static int process_synthesized_event(struct perf_tool *tool,
+ 				     union perf_event *event,
+ 				     struct perf_sample *sample __maybe_unused,
+@@ -329,7 +533,7 @@ static int record__mmap_evlist(struct record *rec,
+ 
+ 	if (perf_evlist__mmap_ex(evlist, opts->mmap_pages,
+ 				 opts->auxtrace_mmap_pages,
+-				 opts->auxtrace_snapshot_mode) < 0) {
++				 opts->auxtrace_snapshot_mode, opts->nr_cblocks) < 0) {
+ 		if (errno == EPERM) {
+ 			pr_err("Permission error mapping pages.\n"
+ 			       "Consider increasing "
+@@ -525,6 +729,8 @@ static int record__mmap_read_evlist(struct record *rec, struct perf_evlist *evli
+ 	int i;
+ 	int rc = 0;
+ 	struct perf_mmap *maps;
++	int trace_fd = rec->data.file.fd;
++	off_t off;
+ 
+ 	if (!evlist)
+ 		return 0;
+@@ -536,13 +742,30 @@ static int record__mmap_read_evlist(struct record *rec, struct perf_evlist *evli
+ 	if (overwrite && evlist->bkw_mmap_state != BKW_MMAP_DATA_PENDING)
+ 		return 0;
+ 
++	if (record__aio_enabled(rec))
++		off = record__aio_get_pos(trace_fd);
++
+ 	for (i = 0; i < evlist->nr_mmaps; i++) {
+ 		struct perf_mmap *map = &maps[i];
+ 
+ 		if (map->base) {
+-			if (perf_mmap__push(map, rec, record__pushfn) != 0) {
+-				rc = -1;
+-				goto out;
++			if (!record__aio_enabled(rec)) {
++				if (perf_mmap__push(map, rec, record__pushfn) != 0) {
++					rc = -1;
++					goto out;
++				}
++			} else {
++				int idx;
++				/*
++				 * Call record__aio_sync() to wait till map->data buffer
++				 * becomes available after previous aio write request.
++				 */
++				idx = record__aio_sync(map, false);
++				if (perf_mmap__aio_push(map, rec, idx, record__aio_pushfn, &off) != 0) {
++					record__aio_set_pos(trace_fd, off);
++					rc = -1;
++					goto out;
++				}
+ 			}
+ 		}
+ 
+@@ -553,6 +776,9 @@ static int record__mmap_read_evlist(struct record *rec, struct perf_evlist *evli
+ 		}
+ 	}
+ 
++	if (record__aio_enabled(rec))
++		record__aio_set_pos(trace_fd, off);
++
+ 	/*
+ 	 * Mark the round finished in case we wrote
+ 	 * at least one event.
+@@ -658,6 +884,8 @@ record__switch_output(struct record *rec, bool at_exit)
+ 	/* Same Size:      "2015122520103046"*/
+ 	char timestamp[] = "InvalidTimestamp";
+ 
++	record__aio_mmap_read_sync(rec);
++
+ 	record__synthesize(rec, true);
+ 	if (target__none(&rec->opts.target))
+ 		record__synthesize_workload(rec, true);
+@@ -1168,6 +1396,8 @@ static int __cmd_record(struct record *rec, int argc, const char **argv)
+ 		record__synthesize_workload(rec, true);
+ 
+ out_child:
++	record__aio_mmap_read_sync(rec);
++
+ 	if (forks) {
+ 		int exit_status;
+ 
+@@ -1301,6 +1531,13 @@ static int perf_record_config(const char *var, const char *value, void *cb)
+ 		var = "call-graph.record-mode";
+ 		return perf_default_config(var, value, cb);
+ 	}
++#ifdef HAVE_AIO_SUPPORT
++	if (!strcmp(var, "record.aio")) {
++		rec->opts.nr_cblocks = strtol(value, NULL, 0);
++		if (!rec->opts.nr_cblocks)
++			rec->opts.nr_cblocks = nr_cblocks_default;
++	}
++#endif
+ 
+ 	return 0;
+ }
+@@ -1706,6 +1943,11 @@ static struct option __record_options[] = {
+ 			  "signal"),
+ 	OPT_BOOLEAN(0, "dry-run", &dry_run,
+ 		    "Parse options then exit"),
++#ifdef HAVE_AIO_SUPPORT
++	OPT_CALLBACK_OPTARG(0, "aio", &record.opts,
++		     &nr_cblocks_default, "n", "Use <n> control blocks in asynchronous trace writing mode (default: 1, max: 4)",
++		     record__aio_parse),
++#endif
+ 	OPT_END()
+ };
+ 
+@@ -1898,6 +2140,11 @@ int cmd_record(int argc, const char **argv)
+ 		goto out;
+ 	}
+ 
++	if (rec->opts.nr_cblocks > nr_cblocks_max)
++		rec->opts.nr_cblocks = nr_cblocks_max;
++	if (verbose > 0)
++		pr_info("nr_cblocks: %d\n", rec->opts.nr_cblocks);
++
+ 	err = __cmd_record(&record, argc, argv);
+ out:
+ 	perf_evlist__delete(rec->evlist);
+diff --git a/tools/perf/perf.h b/tools/perf/perf.h
+index 0ed4a34c74c4..4d40baa45a5f 100644
+--- a/tools/perf/perf.h
++++ b/tools/perf/perf.h
+@@ -83,6 +83,7 @@ struct record_opts {
+ 	clockid_t    clockid;
+ 	u64          clockid_res_ns;
+ 	unsigned int proc_map_timeout;
++	int	     nr_cblocks;
+ };
+ 
+ struct option;
+diff --git a/tools/perf/util/evlist.c b/tools/perf/util/evlist.c
+index 36526d229315..e90575192209 100644
+--- a/tools/perf/util/evlist.c
++++ b/tools/perf/util/evlist.c
+@@ -1018,7 +1018,7 @@ int perf_evlist__parse_mmap_pages(const struct option *opt, const char *str,
+  */
+ int perf_evlist__mmap_ex(struct perf_evlist *evlist, unsigned int pages,
+ 			 unsigned int auxtrace_pages,
+-			 bool auxtrace_overwrite)
++			 bool auxtrace_overwrite, int nr_cblocks)
+ {
+ 	struct perf_evsel *evsel;
+ 	const struct cpu_map *cpus = evlist->cpus;
+@@ -1028,7 +1028,7 @@ int perf_evlist__mmap_ex(struct perf_evlist *evlist, unsigned int pages,
+ 	 * Its value is decided by evsel's write_backward.
+ 	 * So &mp should not be passed through const pointer.
+ 	 */
+-	struct mmap_params mp;
++	struct mmap_params mp = { .nr_cblocks = nr_cblocks };
+ 
+ 	if (!evlist->mmap)
+ 		evlist->mmap = perf_evlist__alloc_mmap(evlist, false);
+@@ -1060,7 +1060,7 @@ int perf_evlist__mmap_ex(struct perf_evlist *evlist, unsigned int pages,
+ 
+ int perf_evlist__mmap(struct perf_evlist *evlist, unsigned int pages)
+ {
+-	return perf_evlist__mmap_ex(evlist, pages, 0, false);
++	return perf_evlist__mmap_ex(evlist, pages, 0, false, 0);
+ }
+ 
+ int perf_evlist__create_maps(struct perf_evlist *evlist, struct target *target)
+diff --git a/tools/perf/util/evlist.h b/tools/perf/util/evlist.h
+index d108d167eb36..868294491194 100644
+--- a/tools/perf/util/evlist.h
++++ b/tools/perf/util/evlist.h
+@@ -162,7 +162,7 @@ unsigned long perf_event_mlock_kb_in_pages(void);
+ 
+ int perf_evlist__mmap_ex(struct perf_evlist *evlist, unsigned int pages,
+ 			 unsigned int auxtrace_pages,
+-			 bool auxtrace_overwrite);
++			 bool auxtrace_overwrite, int nr_cblocks);
+ int perf_evlist__mmap(struct perf_evlist *evlist, unsigned int pages);
+ void perf_evlist__munmap(struct perf_evlist *evlist);
+ 
+diff --git a/tools/perf/util/mmap.c b/tools/perf/util/mmap.c
+index cdb95b3a1213..ab30555d2afc 100644
+--- a/tools/perf/util/mmap.c
++++ b/tools/perf/util/mmap.c
+@@ -153,8 +153,152 @@ void __weak auxtrace_mmap_params__set_idx(struct auxtrace_mmap_params *mp __mayb
+ {
+ }
+ 
++#ifdef HAVE_AIO_SUPPORT
++static int perf_mmap__aio_mmap(struct perf_mmap *map, struct mmap_params *mp)
++{
++	int delta_max, i, prio;
++
++	map->aio.nr_cblocks = mp->nr_cblocks;
++	if (map->aio.nr_cblocks) {
++		map->aio.aiocb = calloc(map->aio.nr_cblocks, sizeof(struct aiocb *));
++		if (!map->aio.aiocb) {
++			pr_debug2("failed to allocate aiocb for data buffer, error %m\n");
++			return -1;
++		}
++		map->aio.cblocks = calloc(map->aio.nr_cblocks, sizeof(struct aiocb));
++		if (!map->aio.cblocks) {
++			pr_debug2("failed to allocate cblocks for data buffer, error %m\n");
++			return -1;
++		}
++		map->aio.data = calloc(map->aio.nr_cblocks, sizeof(void *));
++		if (!map->aio.data) {
++			pr_debug2("failed to allocate data buffer, error %m\n");
++			return -1;
++		}
++		delta_max = sysconf(_SC_AIO_PRIO_DELTA_MAX);
++		for (i = 0; i < map->aio.nr_cblocks; ++i) {
++			map->aio.data[i] = malloc(perf_mmap__mmap_len(map));
++			if (!map->aio.data[i]) {
++				pr_debug2("failed to allocate data buffer area, error %m");
++				return -1;
++			}
++			/*
++			 * Use cblock.aio_fildes value different from -1
++			 * to denote started aio write operation on the
++			 * cblock so it requires explicit record__aio_sync()
++			 * call prior the cblock may be reused again.
++			 */
++			map->aio.cblocks[i].aio_fildes = -1;
++			/*
++			 * Allocate cblocks with priority delta to have
++			 * faster aio write system calls because queued requests
++			 * are kept in separate per-prio queues and adding
++			 * a new request will iterate thru shorter per-prio
++			 * list. Blocks with numbers higher than
++			 *  _SC_AIO_PRIO_DELTA_MAX go with priority 0.
++			 */
++			prio = delta_max - i;
++			map->aio.cblocks[i].aio_reqprio = prio >= 0 ? prio : 0;
++		}
++	}
++
++	return 0;
++}
++
++static void perf_mmap__aio_munmap(struct perf_mmap *map)
++{
++	if (map->aio.data)
++		zfree(&map->aio.data);
++}
++
++int perf_mmap__aio_push(struct perf_mmap *md, void *to, int idx,
++			int push(void *to, struct aiocb *cblock, void *buf, size_t size, off_t off),
++			off_t *off)
++{
++	u64 head = perf_mmap__read_head(md);
++	unsigned char *data = md->base + page_size;
++	unsigned long size, size0 = 0;
++	void *buf;
++	int rc = 0;
++
++	rc = perf_mmap__read_init(md);
++	if (rc < 0)
++		return (rc == -EAGAIN) ? 0 : -1;
++
++	/*
++	 * md->base data is copied into md->data[idx] buffer to
++	 * release space in the kernel buffer as fast as possible,
++	 * thru perf_mmap__consume() below.
++	 *
++	 * That lets the kernel to proceed with storing more
++	 * profiling data into the kernel buffer earlier than other
++	 * per-cpu kernel buffers are handled.
++	 *
++	 * Coping can be done in two steps in case the chunk of
++	 * profiling data crosses the upper bound of the kernel buffer.
++	 * In this case we first move part of data from md->start
++	 * till the upper bound and then the reminder from the
++	 * beginning of the kernel buffer till the end of
++	 * the data chunk.
++	 */
++
++	size = md->end - md->start;
++
++	if ((md->start & md->mask) + size != (md->end & md->mask)) {
++		buf = &data[md->start & md->mask];
++		size = md->mask + 1 - (md->start & md->mask);
++		md->start += size;
++		memcpy(md->aio.data[idx], buf, size);
++		size0 = size;
++	}
++
++	buf = &data[md->start & md->mask];
++	size = md->end - md->start;
++	md->start += size;
++	memcpy(md->aio.data[idx] + size0, buf, size);
++
++	/*
++	 * Increment md->refcount to guard md->data[idx] buffer
++	 * from premature deallocation because md object can be
++	 * released earlier than aio write request started
++	 * on mmap->data[idx] is complete.
++	 *
++	 * perf_mmap__put() is done at record__aio_complete()
++	 * after started request completion.
++	 */
++	perf_mmap__get(md);
++
++	md->prev = head;
++	perf_mmap__consume(md);
++
++	rc = push(to, &md->aio.cblocks[idx], md->aio.data[idx], size0 + size, *off);
++	if (!rc) {
++		*off += size0 + size;
++	} else {
++		/*
++		 * Decrement md->refcount back if aio write
++		 * operation failed to start.
++		 */
++		perf_mmap__put(md);
++	}
++
++	return rc;
++}
++#else
++static int perf_mmap__aio_mmap(struct perf_mmap *map __maybe_unused,
++			       struct mmap_params *mp __maybe_unused)
++{
++	return 0;
++}
++
++static void perf_mmap__aio_munmap(struct perf_mmap *map __maybe_unused)
++{
++}
++#endif
++
+ void perf_mmap__munmap(struct perf_mmap *map)
+ {
++	perf_mmap__aio_munmap(map);
+ 	if (map->base != NULL) {
+ 		munmap(map->base, perf_mmap__mmap_len(map));
+ 		map->base = NULL;
+@@ -197,7 +341,7 @@ int perf_mmap__mmap(struct perf_mmap *map, struct mmap_params *mp, int fd, int c
+ 				&mp->auxtrace_mp, map->base, fd))
+ 		return -1;
+ 
+-	return 0;
++	return perf_mmap__aio_mmap(map, mp);
+ }
+ 
+ static int overwrite_rb_find_range(void *buf, int mask, u64 *start, u64 *end)
+diff --git a/tools/perf/util/mmap.h b/tools/perf/util/mmap.h
+index cc5e2d6d17a9..aeb6942fdb00 100644
+--- a/tools/perf/util/mmap.h
++++ b/tools/perf/util/mmap.h
+@@ -6,9 +6,13 @@
+ #include <linux/types.h>
+ #include <linux/ring_buffer.h>
+ #include <stdbool.h>
++#ifdef HAVE_AIO_SUPPORT
++#include <aio.h>
++#endif
+ #include "auxtrace.h"
+ #include "event.h"
+ 
++struct aiocb;
+ /**
+  * struct perf_mmap - perf's ring buffer mmap details
+  *
+@@ -26,6 +30,14 @@ struct perf_mmap {
+ 	bool		 overwrite;
+ 	struct auxtrace_mmap auxtrace_mmap;
+ 	char		 event_copy[PERF_SAMPLE_MAX_SIZE] __aligned(8);
++#ifdef HAVE_AIO_SUPPORT
++	struct {
++		void		 **data;
++		struct aiocb	 *cblocks;
++		struct aiocb	 **aiocb;
++		int		 nr_cblocks;
++	} aio;
++#endif
+ };
+ 
+ /*
+@@ -57,7 +69,7 @@ enum bkw_mmap_state {
+ };
+ 
+ struct mmap_params {
+-	int			    prot, mask;
++	int			    prot, mask, nr_cblocks;
+ 	struct auxtrace_mmap_params auxtrace_mp;
+ };
+ 
+@@ -85,6 +97,18 @@ union perf_event *perf_mmap__read_event(struct perf_mmap *map);
+ 
+ int perf_mmap__push(struct perf_mmap *md, void *to,
+ 		    int push(struct perf_mmap *map, void *to, void *buf, size_t size));
++#ifdef HAVE_AIO_SUPPORT
++int perf_mmap__aio_push(struct perf_mmap *md, void *to, int idx,
++			int push(void *to, struct aiocb *cblock, void *buf, size_t size, off_t off),
++			off_t *off);
++#else
++static inline int perf_mmap__aio_push(struct perf_mmap *md __maybe_unused, void *to __maybe_unused, int idx __maybe_unused,
++	int push(void *to, struct aiocb *cblock, void *buf, size_t size, off_t off) __maybe_unused,
++	off_t *off __maybe_unused)
++{
++	return 0;
++}
++#endif
+ 
+ size_t perf_mmap__mmap_len(struct perf_mmap *map);

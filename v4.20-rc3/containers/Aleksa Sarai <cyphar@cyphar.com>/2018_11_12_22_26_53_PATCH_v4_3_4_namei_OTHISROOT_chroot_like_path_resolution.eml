@@ -1,0 +1,249 @@
+Return-Path: <unknown>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (61.164.42.155:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 12 Nov 2018 15:16:42 -0000
+Received: from icoremail.net (unknown [140.211.169.12])
+	by mail-app2 (Coremail) with SMTP id by_KCgCn35gOjulbLi1+AQ--.37792S3;
+	Mon, 12 Nov 2018 22:28:31 +0800 (CST)
+Received: from mail.linuxfoundation.org (unknown [140.211.169.12])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwCHbkoLjulbQScyAA--.2318S3;
+	Mon, 12 Nov 2018 22:28:28 +0800 (CST)
+Received: from mail.linux-foundation.org (localhost [127.0.0.1])
+	by mail.linuxfoundation.org (Postfix) with ESMTP id 30CA6B3F;
+	Mon, 12 Nov 2018 14:27:41 +0000 (UTC)
+X-Original-To: containers@lists.linux-foundation.org
+Delivered-To: containers@mail.linuxfoundation.org
+Received: from smtp1.linuxfoundation.org (smtp1.linux-foundation.org
+	[172.17.192.35])
+	by mail.linuxfoundation.org (Postfix) with ESMTPS id 91EB386E
+	for <containers@lists.linux-foundation.org>;
+	Mon, 12 Nov 2018 14:27:36 +0000 (UTC)
+X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
+Received: from mx2.mailbox.org (mx2.mailbox.org [80.241.60.215])
+	by smtp1.linuxfoundation.org (Postfix) with ESMTPS id D752180F
+	for <containers@lists.linux-foundation.org>;
+	Mon, 12 Nov 2018 14:27:34 +0000 (UTC)
+Received: from smtp1.mailbox.org (unknown [IPv6:2001:67c:2050:105:465:1:1:0])
+	(using TLSv1.2 with cipher ECDHE-RSA-CHACHA20-POLY1305 (256/256
+	bits)) (No client certificate requested)
+	by mx2.mailbox.org (Postfix) with ESMTPS id 13BF4A11A9;
+	Mon, 12 Nov 2018 15:27:33 +0100 (CET)
+X-Virus-Scanned: amavisd-new at heinlein-support.de
+Received: from smtp1.mailbox.org ([80.241.60.240])
+	by spamfilter01.heinlein-hosting.de (spamfilter01.heinlein-hosting.de
+	[80.241.56.115]) (amavisd-new, port 10030)
+	with ESMTP id erAAsmDweiQD; Mon, 12 Nov 2018 15:27:31 +0100 (CET)
+From: Aleksa Sarai <cyphar@cyphar.com>
+To: Al Viro <viro@zeniv.linux.org.uk>, Jeff Layton <jlayton@kernel.org>,
+	"J. Bruce Fields" <bfields@fieldses.org>, Arnd Bergmann <arnd@arndb.de>,
+	David Howells <dhowells@redhat.com>
+Subject: [PATCH v4 3/4] namei: O_THISROOT: chroot-like path resolution
+Date: Tue, 13 Nov 2018 01:26:53 +1100
+Message-Id: <20181112142654.341-4-cyphar@cyphar.com>
+In-Reply-To: <20181112142654.341-1-cyphar@cyphar.com>
+References: <20181112142654.341-1-cyphar@cyphar.com>
+MIME-Version: 1.0
+X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_LOW
+	autolearn=ham version=3.3.1
+X-Spam-Checker-Version: SpamAssassin 3.3.1 (2010-03-16) on
+	smtp1.linux-foundation.org
+Cc: linux-arch@vger.kernel.org, Jann Horn <jannh@google.com>,
+	linux-api@vger.kernel.org, containers@lists.linux-foundation.org,
+	linux-kernel@vger.kernel.org, Aleksa Sarai <cyphar@cyphar.com>,
+	Eric Biederman <ebiederm@xmission.com>,
+	Andy Lutomirski <luto@kernel.org>, linux-fsdevel@vger.kernel.org,
+	David Drysdale <drysdale@google.com>
+X-BeenThere: containers@lists.linux-foundation.org
+X-Mailman-Version: 2.1.12
+Precedence: list
+List-Id: Linux Containers <containers.lists.linux-foundation.org>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/containers>, 
+	<mailto:containers-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/containers/>
+List-Post: <mailto:containers@lists.linux-foundation.org>
+List-Help: <mailto:containers-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/containers>,
+	<mailto:containers-request@lists.linux-foundation.org?subject=subscribe>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Sender: containers-bounces@lists.linux-foundation.org
+Errors-To: containers-bounces@lists.linux-foundation.org
+X-CM-TRANSID: AQAAfwCHbkoLjulbQScyAA--.2318S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=containers-bounc
+	es@lists.linux-foundation.org;
+X-Coremail-Antispam: 1UD129KBjvJXoW3JFWUJrW5Cr4UXFW3GFyUJrb_yoWxWrW5pF
+	s7GF18KFs7JFy2yws7GFWqyF1av39xGF17AF95W34DAayYqFy0q3ZFgF1YvF9YyFWrZry2
+	qFsagryDCw18XaDanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUU0bIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUU9Gb7Iv0xC_Kw4lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Jr0_JF4l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Jr0_Gr1l84ACjcxK6I8E
+	87Iv67AKxVWUJVW8JwA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_Jr0_Gr1le2I262IYc4CY6c
+	8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_Jrv_
+	JF1lYx0Ex4A2jsIE14v26r1j6r4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvEwIxGrw
+	CjxxvEa2IrMxkF7I0Ew4C26cxK6c8Ij28IcwCY02Avz4vEIxC_Xrylc2IjII80xcxEwVAK
+	I48JMxvI42IY6xIIjxv20xvE14v26r1j6r1xMxvI42IY6xIIjxv20xvEc7CjxVAFwI0_Jr
+	0_Gr1lcIIF0xvEx4A2jsIE14v26r1j6r4UMxvI42IY6I8E87Iv6xkF7I0E14v26r1j6r4U
+	MxAIw28IcxkI7VAKI48JMxAIw28IcVAKzI0EY4vE52x082I5MxCjnVCjjxCrMxC20s026x
+	CaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_
+	JrWlx4CE17CEb7AF67AKxVW8ZVWrXwCIc40Y0x0EwIxGrwCI42IY6xAIw20EY4v20xvaj4
+	0_Gr0_ZrUvcSsGvfC2KfnxnUUI43ZEXa7IUOOVy3UUUUU==
+
+The primary motivation for the need for this flag is container runtimes
+which have to interact with malicious root filesystems in the host
+namespaces. One of the first requirements for a container runtime to be
+secure against a malicious rootfs is that they correctly scope symlinks
+(that is, they should be scoped as though they are chroot(2)ed into the
+container's rootfs) and ".."-style paths[*]. The already-existing O_XDEV
+and O_NOMAGICLINKS[**] help defend against other potential attacks in a
+malicious rootfs scenario.
+
+Currently most container runtimes try to do this resolution in
+userspace[1], causing many potential race conditions. In addition, the
+"obvious" alternative (actually performing a {ch,pivot_}root(2))
+requires a fork+exec (for some runtimes) which is *very* costly if
+necessary for every filesystem operation involving a container.
+
+[*] At the moment, ".." and "magic link" jumping are disallowed for the
+    same reason it is disabled for O_BENEATH -- currently it is not safe
+    to allow it. Future patches may enable it unconditionally once we
+    have resolved the possible races (for "..") and semantics (for
+    "magic link" jumping).
+
+The most significant openat(2) semantic change with O_THISROOT is that
+absolute pathnames no longer cause dirfd to be ignored completely. The
+rationale is that O_THISROOT must necessarily chroot-scope symlinks with
+absolute paths to dirfd, and so doing it for the base path seems to be
+the most consistent behaviour (and also avoids foot-gunning users who
+want to scope paths that are absolute).
+
+Currently this is only enabled for openat(2), and similar to O_BENEATH
+and family requires more discussion about extending it to more *at(2)
+syscalls as well as extending AT_EMPTY_PATH support.
+
+[1]: https://github.com/cyphar/filepath-securejoin
+
+Cc: Eric Biederman <ebiederm@xmission.com>
+Cc: Christian Brauner <christian@brauner.io>
+Cc: <linux-api@vger.kernel.org>
+Signed-off-by: Aleksa Sarai <cyphar@cyphar.com>
+---
+ fs/fcntl.c                       | 2 +-
+ fs/namei.c                       | 6 +++---
+ fs/open.c                        | 4 +++-
+ include/linux/fcntl.h            | 2 +-
+ include/linux/namei.h            | 1 +
+ include/uapi/asm-generic/fcntl.h | 3 +++
+ 6 files changed, 12 insertions(+), 6 deletions(-)
+
+diff --git a/fs/fcntl.c b/fs/fcntl.c
+index e343618736f7..4c36c5b9fdb9 100644
+--- a/fs/fcntl.c
++++ b/fs/fcntl.c
+@@ -1031,7 +1031,7 @@ static int __init fcntl_init(void)
+ 	 * Exceptions: O_NONBLOCK is a two bit define on parisc; O_NDELAY
+ 	 * is defined as O_NONBLOCK on some platforms and not on others.
+ 	 */
+-	BUILD_BUG_ON(25 - 1 /* for O_RDONLY being 0 */ !=
++	BUILD_BUG_ON(26 - 1 /* for O_RDONLY being 0 */ !=
+ 		HWEIGHT32(
+ 			(VALID_OPEN_FLAGS & ~(O_NONBLOCK | O_NDELAY)) |
+ 			__FMODE_EXEC | __FMODE_NONOTIFY));
+diff --git a/fs/namei.c b/fs/namei.c
+index b8d2bee89b78..459faea5b832 100644
+--- a/fs/namei.c
++++ b/fs/namei.c
+@@ -1097,7 +1097,7 @@ const char *get_link(struct nameidata *nd)
+ 			if (unlikely(nd->flags & LOOKUP_NO_MAGICLINKS))
+ 				return ERR_PTR(-ELOOP);
+ 			/* Not currently safe. */
+-			if (unlikely(nd->flags & LOOKUP_BENEATH))
++			if (unlikely(nd->flags & (LOOKUP_BENEATH | LOOKUP_CHROOT)))
+ 				return ERR_PTR(-EXDEV);
+ 		}
+ 		if (IS_ERR_OR_NULL(res))
+@@ -1746,7 +1746,7 @@ static inline int handle_dots(struct nameidata *nd, int type)
+ 		 * cause our parent to have moved outside of the root and us to skip
+ 		 * over it.
+ 		 */
+-		if (unlikely(nd->flags & LOOKUP_BENEATH))
++		if (unlikely(nd->flags & (LOOKUP_BENEATH | LOOKUP_CHROOT)))
+ 			return -EXDEV;
+ 		if (!nd->root.mnt)
+ 			set_root(nd);
+@@ -2297,7 +2297,7 @@ static const char *path_init(struct nameidata *nd, unsigned flags)
+ 
+ 	nd->m_seq = read_seqbegin(&mount_lock);
+ 
+-	if (unlikely(nd->flags & LOOKUP_BENEATH)) {
++	if (unlikely(nd->flags & (LOOKUP_BENEATH | LOOKUP_CHROOT))) {
+ 		error = dirfd_path_init(nd);
+ 		if (unlikely(error))
+ 			return ERR_PTR(error);
+diff --git a/fs/open.c b/fs/open.c
+index 3e73f940f56e..4ba44b07f3ff 100644
+--- a/fs/open.c
++++ b/fs/open.c
+@@ -960,7 +960,7 @@ static inline int build_open_flags(int flags, umode_t mode, struct open_flags *o
+ 		 * cannot have anything other than the below set of flags
+ 		 */
+ 		flags &= O_DIRECTORY | O_NOFOLLOW | O_PATH | O_BENEATH |
+-			 O_XDEV | O_NOSYMLINKS | O_NOMAGICLINKS;
++			 O_XDEV | O_NOSYMLINKS | O_NOMAGICLINKS | O_THISROOT;
+ 		acc_mode = 0;
+ 	}
+ 
+@@ -997,6 +997,8 @@ static inline int build_open_flags(int flags, umode_t mode, struct open_flags *o
+ 		lookup_flags |= LOOKUP_NO_MAGICLINKS;
+ 	if (flags & O_NOSYMLINKS)
+ 		lookup_flags |= LOOKUP_NO_SYMLINKS;
++	if (flags & O_THISROOT)
++		lookup_flags |= LOOKUP_CHROOT;
+ 	op->lookup_flags = lookup_flags;
+ 	return 0;
+ }
+diff --git a/include/linux/fcntl.h b/include/linux/fcntl.h
+index 864399c2fdd2..46c92bbfce4a 100644
+--- a/include/linux/fcntl.h
++++ b/include/linux/fcntl.h
+@@ -10,7 +10,7 @@
+ 	 O_APPEND | O_NDELAY | O_NONBLOCK | O_NDELAY | __O_SYNC | O_DSYNC | \
+ 	 FASYNC	| O_DIRECT | O_LARGEFILE | O_DIRECTORY | O_NOFOLLOW | \
+ 	 O_NOATIME | O_CLOEXEC | O_PATH | __O_TMPFILE | O_BENEATH | O_XDEV | \
+-	 O_NOMAGICLINKS | O_NOSYMLINKS)
++	 O_NOMAGICLINKS | O_NOSYMLINKS | O_THISROOT)
+ 
+ #ifndef force_o_largefile
+ #define force_o_largefile() (BITS_PER_LONG != 32)
+diff --git a/include/linux/namei.h b/include/linux/namei.h
+index 82b5039d27a6..b6865eda86d5 100644
+--- a/include/linux/namei.h
++++ b/include/linux/namei.h
+@@ -53,6 +53,7 @@ enum {LAST_NORM, LAST_ROOT, LAST_DOT, LAST_DOTDOT, LAST_BIND};
+ #define LOOKUP_NO_MAGICLINKS	0x040000 /* No /proc/$pid/fd/ "symlink" crossing. */
+ #define LOOKUP_NO_SYMLINKS	0x080000 /* No symlink crossing *at all*.
+ 					    Implies LOOKUP_NO_MAGICLINKS. */
++#define LOOKUP_CHROOT		0x100000 /* Treat dirfd as %current->fs->root. */
+ 
+ extern int path_pts(struct path *path);
+ 
+diff --git a/include/uapi/asm-generic/fcntl.h b/include/uapi/asm-generic/fcntl.h
+index b2d3811843e7..194f5de9ba51 100644
+--- a/include/uapi/asm-generic/fcntl.h
++++ b/include/uapi/asm-generic/fcntl.h
+@@ -113,6 +113,9 @@
+ #ifndef O_NOSYMLINKS
+ #define O_NOSYMLINKS	01000000000
+ #endif
++#ifndef O_THISROOT
++#define O_THISROOT	02000000000
++#endif
+ 
+ #define F_DUPFD		0	/* dup */
+ #define F_GETFD		1	/* get close_on_exec */
+-- 
+2.19.1
+
+_______________________________________________
+Containers mailing list
+Containers@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/containers

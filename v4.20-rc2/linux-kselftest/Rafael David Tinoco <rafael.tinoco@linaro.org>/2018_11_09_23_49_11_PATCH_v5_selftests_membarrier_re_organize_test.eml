@@ -1,0 +1,769 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (61.164.42.155:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 10 Nov 2018 00:54:11 -0000
+Received: from icoremail.net (unknown [209.85.214.182])
+	by mail-app2 (Coremail) with SMTP id by_KCgDXv9K7rOVbHtJoAQ--.32217S3;
+	Fri, 09 Nov 2018 23:50:23 +0800 (CST)
+Received: from mail-pl1-f182.google.com (unknown [209.85.214.182])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwAnBEC0rOVbWzcjAA--.129S3;
+	Fri, 09 Nov 2018 23:50:12 +0800 (CST)
+Received: by mail-pl1-f182.google.com with SMTP id r3-v6so369171pls.12
+        for <xuliker@zju.edu.cn>; Fri, 09 Nov 2018 07:50:12 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:delivered-to:dkim-signature:from:to:cc:subject
+         :date:message-id:in-reply-to:references:mime-version
+         :content-transfer-encoding:sender:precedence:list-id;
+        bh=pIUvwIgsSfIYRUVaDVeKFS78IbUSIGODtjgXLvqenYI=;
+        b=XAFoC2k5rxBtmk049UnX174VAasE9Jn1bSgG2BMsnvmRwbMZVso1wdgdwLirN/lwcj
+         kG4+b9h+FqHarVntMlcrhV0YGTVo0Zar7SwXKAFZ+nJlT6ZJw7VRK2MbLzjHtO2gQr9Y
+         MKChIr2RlYc68BUWcN2eq6lezT87i/ljkZgUt11TXhXl5+Qzz+LtLH6PKo6LU7SU+PLT
+         /gZwCx6r4HCYuzhq3Y377mFCos3N0gD7E/DhOYHVnOVGYvH4+MZQmCSxkLnrSbnoOP+b
+         QZ4tWvgXLIEkqCl+266bBFbn1vigizYNRhGM2J4VJ+61HBPfv2YcRm/Kt5QGTOpGAvUB
+         jWag==
+X-Gm-Message-State: AGRZ1gLF0SxDPUhL24BYqG54Ym7nwc0vIDfUp5dpqxaKphsthCganF8f
+	n0yGqyFLKgqVZcmDmUn6NRt00LyNAtMlAG+k7gv+VjuaTo2K0o4Wtw==
+X-Received: by 2002:a17:902:8e81:: with SMTP id bg1-v6mr9406487plb.192.1541778612151;
+        Fri, 09 Nov 2018 07:50:12 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp52837pjt;
+        Fri, 9 Nov 2018 07:50:10 -0800 (PST)
+X-Google-Smtp-Source: AJdET5cpB5RAH5vyNdM+2NMDU7qwvGkipWcJ5vEvQXNExGlerw9M13H63P6O+UdsmojDsJer6lhr
+X-Received: by 2002:a17:902:107:: with SMTP id 7-v6mr9561894plb.267.1541778610837;
+        Fri, 09 Nov 2018 07:50:10 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1541778610; cv=none;
+        d=google.com; s=arc-20160816;
+        b=Yr91MqBr4egxM1PrAf6ObrxuKKjsoVhMBf0vX1ZBIFO1RRIOz7RXwQ+NZRtEHN2WZZ
+         ErM04yNVOndsFqxZqtw2rYRuppOw0uevzO/EEsbbCeqm++QS/o3gSMRyV44X08ybJ6IS
+         F18zqfOQ2HQ9ejnitGjr83HJngH1mk3lp1dacohFW5j4BYwsRSDKya06W4JYAPOxmLa+
+         nYBul1WQutZeGlhim25DrKEk7s4SiwHR5+9BFSaBFZxGLmrtaA8Q2Vy4Hrscp433bxvp
+         8TUKh1N25MegVJLG/YbTu4h1IzZBozK9w5ek8pLcGSxdWPKQxEHJVjgr/3WHZ/Z0erYR
+         IYSA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:content-transfer-encoding:mime-version
+         :references:in-reply-to:message-id:date:subject:cc:to:from
+         :dkim-signature;
+        bh=pIUvwIgsSfIYRUVaDVeKFS78IbUSIGODtjgXLvqenYI=;
+        b=G9myKPIO92mUi2ruPTTmCngv9PG0Od2Z0OBlAOcPzlLGlNE4sCSMrRMwZIP3A7a+4P
+         IC6nMeQ00vrmOducKALiy5g29WeplPwMRQYVgN2Fy+qGdeN3Ow8lCIPRAOSN+zytKziX
+         3TJpcMge9SGhhKwhacIYv1RxJQ3aJx0MjMNawzZDw1AquwbWENHw7L3QPu3PRVM7cOiG
+         R49ERPhJI7zrAo8mhizWhmiIzPfGWEn9oy+vDOQaFmHbIh6hhCltSFpRXC9jbvrP2EYq
+         bqh88AxPhYuMgglpOUQgnEB2NArl9QwE/OISFxLK7nLf1mAI1SfAbA+2Y9BGi8jzIRxm
+         vEUw==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@linaro.org header.s=google header.b=I5X8WR1F;
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;
+       dmarc=pass (p=NONE sp=NONE dis=NONE) header.from=linaro.org
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id m3-v6si8135143pld.435.2018.11.09.07.49.34;
+        Fri, 09 Nov 2018 07:50:10 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1728167AbeKJBa1 (ORCPT <rfc822;tu.k.phung@gmail.com>
+        + 99 others); Fri, 9 Nov 2018 20:30:27 -0500
+Received: from mail-qk1-f195.google.com ([209.85.222.195]:39732 "EHLO
+        mail-qk1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727806AbeKJBa1 (ORCPT
+        <rfc822;linux-kernel@vger.kernel.org>);
+        Fri, 9 Nov 2018 20:30:27 -0500
+Received: by mail-qk1-f195.google.com with SMTP id e4so2283808qkh.6
+        for <linux-kernel@vger.kernel.org>; Fri, 09 Nov 2018 07:49:17 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=pIUvwIgsSfIYRUVaDVeKFS78IbUSIGODtjgXLvqenYI=;
+        b=I5X8WR1Fihu1usO84VaIC9n1r/tRLaT+UsmPH1InPfw1PuUcy5W61J5pTPd82FLXdD
+         Densm3E2quCs8CTJIdDOp7pw2OfZQTH9ujmWo43tPelHYBUv3xdMN5K7DnkO8ugiltkB
+         WaFvrqumibIro/jegTiOXF6an6vDMnt1fwkug=
+X-Received: by 2002:ac8:33fc:: with SMTP id d57mr8865557qtb.82.1541778556661;
+        Fri, 09 Nov 2018 07:49:16 -0800 (PST)
+Received: from workstation.celeiro.br ([168.194.163.12])
+        by smtp.gmail.com with ESMTPSA id a3sm1916081qta.21.2018.11.09.07.49.13
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 09 Nov 2018 07:49:15 -0800 (PST)
+From: Rafael David Tinoco <rafael.tinoco@linaro.org>
+To: shuah@kernel.org
+Cc: linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org,
+        rafael.tinoco@linaro.org, peterz@infradead.org, tglx@linutronix.de,
+        mingo@kernel.org, mathieu.desnoyers@efficios.com
+Subject: [PATCH v5] selftests: membarrier: re-organize test
+Date: Fri,  9 Nov 2018 13:49:11 -0200
+Message-Id: <20181109154911.24464-1-rafael.tinoco@linaro.org>
+X-Mailer: git-send-email 2.19.1
+In-Reply-To: <dcc20b51-3069-6854-3190-b8958e2f9b96@kernel.org>
+References: <dcc20b51-3069-6854-3190-b8958e2f9b96@kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwAnBEC0rOVbWzcjAA--.129S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvAXoW3Aw45ZFWkAw4kZF4DWr4kWFg_yoW8Cr13to
+	Za9w4xJa1fGFyxur97tw1UJF4xA3WDGF15AFyrJw40yF97X3y5Aw1jkw4fWrWSgr1jqFZr
+	W3Z2gF1fJr4kXrn3n29KB7ZKAUJUUUUU529EdanIXcx71UUUUj7v73VFW2AGmfu7jjvjm3
+	AaLaJ3UjIYCTnIWjp_UUUYy7k0a2IF6w4kM7kC6x804xWl14x267AKxVWUJVW8JwAFIxvE
+	14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK021l84ACjcxK6xIIjx
+	v20xvE14v26F1j6w1UM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26F4j6r4UJwA2z4x0Y4vE
+	x4A2jsIE14v26rxl6s0DM28EF7xvwVC2z280aVCY1x0267AKxVW0oVCq3wAS0I0E0xvYzx
+	vE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AKxVWU
+	JVWUGwAv7VC2z280aVAFwI0_Gr0_Cr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcxkI7V
+	AKI48JMx02cVCv0xWlc7CjxVAKzI0EY4vE52x082I5MxkI7II2jI8vz4vEwIxGrwCYIxAI
+	cVC0I7IYx2IY67AKxVW8JVW5JwCYIxAIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMxvI42
+	IY6I8E87Iv67AKxVW0oVCq3wCYIxAIcVC2z280aVCY1x0267AKxVW0oVCq3wCF04k20xvY
+	0x0EwIxGrwCF04k20xvEw4C26cxK6c8Ij28IcwCF72vE77IF4wCFx2IqxVCFs4IE7xkEbV
+	WUJVW8JwC20s026c02F40E14v26r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF
+	67kF1VAFwI0_Jw0_GFylIxkGc2Ij64vIr41lIxAIcVCF04k26cxKx2IYs7xG6r4j6FyUYx
+	BIdaVFxhVjvjDU0xZFpf9x07bSCJQUUUUU=
+
+This commit re-organizes membarrier test, solving issues when testing
+LTS kernels. Now, the code:
+
+ - always run the same amount of tests (even on older kernels).
+ - allows each test to succeed, fail or be skipped independently.
+ - allows testing features even when explicitly unsupported (force=1).
+ - checks false positive/negative by checking ret code and errno.
+ - can be extended easily: to expand an array with commands.
+
+Note: like this, the test is pretty close to the LTP membarrier basic
+tests, and both can be maintained together.
+
+Link: https://bugs.linaro.org/show_bug.cgi?id=3771
+Link: http://lists.linux.it/pipermail/ltp/2018-October/009578.html
+Signed-off-by: Rafael David Tinoco <rafael.tinoco@linaro.org>
+---
+ .../selftests/membarrier/membarrier_test.c    | 566 ++++++++++--------
+ 1 file changed, 314 insertions(+), 252 deletions(-)
+
+diff --git a/tools/testing/selftests/membarrier/membarrier_test.c b/tools/testing/selftests/membarrier/membarrier_test.c
+index 6793f8ecc8e7..7eb0e2395cbd 100644
+--- a/tools/testing/selftests/membarrier/membarrier_test.c
++++ b/tools/testing/selftests/membarrier/membarrier_test.c
+@@ -8,305 +8,367 @@
+ 
+ #include "../kselftest.h"
+ 
++#define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
++
++struct test_case {
++	char testname[80];
++	int command;		/* membarrier cmd                            */
++	int needregister;	/* membarrier cmd needs register cmd	     */
++	int flags;		/* flags for given membarrier cmd	     */
++	long exp_ret;		/* expected return code for given cmd        */
++	int exp_errno;		/* expected errno for given cmd failure      */
++	int enabled;		/* enabled, despite results from CMD_QUERY   */
++	int always;		/* CMD_QUERY should always enable this test  */
++	int force;		/* force if CMD_QUERY reports not enabled    */
++	int force_exp_errno;	/* expected errno after forced cmd           */
++};
++
++struct test_case tc[] = {
++	{
++	 /*
++	  * case 00) invalid cmd
++	  *     - enabled by default
++	  *     - should always fail with EINVAL
++	  */
++	 .testname = "cmd_fail",
++	 .command = -1,
++	 .exp_ret = -1,
++	 .exp_errno = EINVAL,
++	 .enabled = 1,
++	 },
++	{
++	 /*
++	  * case 01) invalid flags
++	  *     - enabled by default
++	  *     - should always fail with EINVAL
++	  */
++	 .testname = "cmd_flags_fail",
++	 .command = MEMBARRIER_CMD_QUERY,
++	 .flags = 1,
++	 .exp_ret = -1,
++	 .exp_errno = EINVAL,
++	 .enabled = 1,
++	 },
++	{
++	 /*
++	  * case 02) global barrier
++	  *     - should ALWAYS be enabled by CMD_QUERY
++	  *     - should always succeed
++	  */
++	 .testname = "cmd_global_success",
++	 .command = MEMBARRIER_CMD_GLOBAL,
++	 .flags = 0,
++	 .exp_ret = 0,
++	 .always = 1,
++	 },
++	 /*
++	  * commit 22e4ebb975 (v4.14-rc1) added cases 03, 04 and 05 features:
++	  */
++	{
++	 /*
++	  * case 03) private expedited barrier with no registrations
++	  *     - should fail with errno=EPERM due to no registrations
++	  *     - or be skipped if unsupported by running kernel
++	  */
++	 .testname = "cmd_private_expedited_fail",
++	 .command = MEMBARRIER_CMD_PRIVATE_EXPEDITED,
++	 .flags = 0,
++	 .exp_ret = -1,
++	 .exp_errno = EPERM,
++	 },
++	{
++	 /*
++	  * case 04) register private expedited
++	  *     - should succeed when supported by running kernel
++	  *     - or fail with errno=EINVAL if unsupported and forced
++	  */
++	 .testname = "cmd_private_expedited_register_success",
++	 .command = MEMBARRIER_CMD_REGISTER_PRIVATE_EXPEDITED,
++	 .flags = 0,
++	 .exp_ret = 0,
++	 .force = 1,
++	 .force_exp_errno = EINVAL,
++	 },
++	{
++	 /*
++	  * case 05) private expedited barrier with registration
++	  *     - should succeed due to existing registration
++	  *     - or fail with errno=EINVAL if unsupported and forced
++	  *     - NOTE: commit 70216e18e5 (v4.16-rc1) changed behavior:
++	  *     -       (a) if unsupported, and forced, < 4.16 , errno is EINVAL
++	  *     -       (b) if unsupported, and forced, >= 4.16, errno is EPERM
++	  */
++	 .testname = "cmd_private_expedited_success",
++	 .needregister = MEMBARRIER_CMD_REGISTER_PRIVATE_EXPEDITED,
++	 .command = MEMBARRIER_CMD_PRIVATE_EXPEDITED,
++	 .flags = 0,
++	 .exp_ret = 0,
++	 .force = 1,
++	 .force_exp_errno = EPERM,
++	 },
++	 /*
++	  * commit 70216e18e5 (v4.16-rc1) added cases 06, 07 and 08 features:
++	  */
++	{
++	 /*
++	  * case 06) private expedited sync core barrier with no registrations
++	  *     - should fail with errno=EPERM due to no registrations
++	  *     - or be skipped if unsupported by running kernel
++	  */
++	 .testname = "cmd_private_expedited_sync_core_fail",
++	 .command = MEMBARRIER_CMD_PRIVATE_EXPEDITED_SYNC_CORE,
++	 .flags = 0,
++	 .exp_ret = -1,
++	 .exp_errno = EPERM,
++	 },
++	{
++	 /*
++	  * case 07) register private expedited sync core
++	  *     - should succeed when supported by running kernel
++	  *     - or fail with errno=EINVAL if unsupported and forced
++	  */
++	 .testname = "cmd_private_expedited_sync_core_register_success",
++	 .command = MEMBARRIER_CMD_REGISTER_PRIVATE_EXPEDITED_SYNC_CORE,
++	 .flags = 0,
++	 .exp_ret = 0,
++	 .force = 1,
++	 .force_exp_errno = EINVAL,
++	 },
++	{
++	 /*
++	  * case 08) private expedited sync core barrier with registration
++	  *     - should succeed due to existing registration
++	  *     - or fail with errno=EINVAL if unsupported and forced
++	  */
++	 .testname = "cmd_private_expedited_sync_core_success",
++	 .needregister = MEMBARRIER_CMD_REGISTER_PRIVATE_EXPEDITED_SYNC_CORE,
++	 .command = MEMBARRIER_CMD_PRIVATE_EXPEDITED_SYNC_CORE,
++	 .flags = 0,
++	 .exp_ret = 0,
++	 .force = 1,
++	 .force_exp_errno = EINVAL,
++	 },
++	 /*
++	  * commit c5f58bd58f4 (v4.16-rc1) added cases 09, 10 and 11 features:
++	  */
++	{
++	 /*
++	  * case 09) global expedited barrier with no registrations
++	  *     - should never fail due to no registrations
++	  *     - or be skipped if unsupported by running kernel
++	  */
++	 .testname = "cmd_global_expedited_success",
++	 .command = MEMBARRIER_CMD_GLOBAL_EXPEDITED,
++	 .flags = 0,
++	 .exp_ret = 0,
++	 },
++	{
++	 /*
++	  * case 10) register global expedited
++	  *     - should succeed when supported by running kernel
++	  *     - or fail with errno=EINVAL if unsupported and forced
++	  */
++	 .testname = "cmd_global_expedited_register_success",
++	 .command = MEMBARRIER_CMD_REGISTER_GLOBAL_EXPEDITED,
++	 .flags = 0,
++	 .exp_ret = 0,
++	 .force = 1,
++	 .force_exp_errno = EINVAL,
++	 },
++	{
++	 /*
++	  * case 11) global expedited barrier with registration
++	  *     - should also succeed with registrations
++	  *     - or fail with errno=EINVAL if unsupported and forced
++	  */
++	 .testname = "cmd_global_expedited_success",
++	 .needregister = MEMBARRIER_CMD_REGISTER_GLOBAL_EXPEDITED,
++	 .command = MEMBARRIER_CMD_GLOBAL_EXPEDITED,
++	 .flags = 0,
++	 .exp_ret = 0,
++	 .force = 1,
++	 .force_exp_errno = EINVAL,
++	 },
++};
++
++#define passed_ok(_test)						       \
++	do {								       \
++		ksft_test_result_pass("membarrier(2): %s passed.\n",	       \
++			_test.testname);				       \
++		return;							       \
++	} while (0)
++
++#define passed_unexpec(_test)						       \
++	do {								       \
++		ksft_exit_fail_msg("membarrier(2): %s passed unexpectedly. "   \
++			"ret = %ld with errno %d were expected. (force: %d)\n",\
++			_test.testname, _test.exp_ret, _test.exp_errno,        \
++			_test.force);					       \
++		return;							       \
++	} while (0)
++
++#define failed_ok(_test)						       \
++	do {								       \
++		ksft_test_result_pass("membarrier(2): %s failed as "	       \
++			"expected.\n", _test.testname);			       \
++		return;							       \
++	} while (0)
++
++#define failed_ok_unsupported(_test)					       \
++	do {								       \
++		ksft_test_result_pass("membarrier(2): %s failed as expected.\n"\
++			"(unsupported)", _test.testname);		       \
++		return;							       \
++	} while (0)
++
++#define failed_not_ok(_test, _gotret, _goterr)				       \
++	do {								       \
++		ksft_exit_fail_msg("membarrier(2): %s failed. "		       \
++			"ret = %ld when expected was %ld. "		       \
++			"errno = %d when expected was %d. (force: %d)\n",      \
++			_test.testname, _gotret, _test.exp_ret, _goterr,       \
++			_test.exp_errno, _test.force);			       \
++		return;							       \
++	} while (0)
++
++#define failed_unexpec(_test, _gotret, _goterr) 			       \
++	do {								       \
++		ksft_exit_fail_msg("membarrier(2): %s failed unexpectedly. "   \
++			"Got ret = %ld with errno %d. (force: %d)\n",	       \
++			_test.testname, _gotret, _goterr, _test.force);	       \
++		return;							       \
++	} while (0)
++
++#define skipped(_test)							       \
++	do {								       \
++		ksft_test_result_pass("membarrier(2): %s skipped (unsupp)\n",  \
++			_test.testname);				       \
++		return;							       \
++	} while (0)
++
++#define skipped_fail(_test)						       \
++	do {								       \
++		ksft_exit_fail_msg("membarrier(2): %s reported as "	       \
++			"unsupported\n", _test.testname);		       \
++		return;							       \
++	} while (0)
++
+ static int sys_membarrier(int cmd, int flags)
+ {
+ 	return syscall(__NR_membarrier, cmd, flags);
+ }
+ 
+-static int test_membarrier_cmd_fail(void)
++static void test_membarrier_setup(void)
+ {
+-	int cmd = -1, flags = 0;
+-	const char *test_name = "sys membarrier invalid command";
++	size_t i;
++	int ret;
+ 
+-	if (sys_membarrier(cmd, flags) != -1) {
+-		ksft_exit_fail_msg(
+-			"%s test: command = %d, flags = %d. Should fail, but passed\n",
+-			test_name, cmd, flags);
+-	}
+-	if (errno != EINVAL) {
+-		ksft_exit_fail_msg(
+-			"%s test: flags = %d. Should return (%d: \"%s\"), but returned (%d: \"%s\").\n",
+-			test_name, flags, EINVAL, strerror(EINVAL),
+-			errno, strerror(errno));
++	ret = sys_membarrier(MEMBARRIER_CMD_QUERY, 0);
++	if (ret < 0) {
++		if (errno == ENOSYS)
++			ksft_test_result_skip("membarrier(2): not supported\n");
+ 	}
+ 
+-	ksft_test_result_pass(
+-		"%s test: command = %d, flags = %d, errno = %d. Failed as expected\n",
+-		test_name, cmd, flags, errno);
+-	return 0;
+-}
+-
+-static int test_membarrier_flags_fail(void)
+-{
+-	int cmd = MEMBARRIER_CMD_QUERY, flags = 1;
+-	const char *test_name = "sys membarrier MEMBARRIER_CMD_QUERY invalid flags";
+-
+-	if (sys_membarrier(cmd, flags) != -1) {
+-		ksft_exit_fail_msg(
+-			"%s test: flags = %d. Should fail, but passed\n",
+-			test_name, flags);
++	for (i = 0; i < ARRAY_SIZE(tc); i++) {
++		if ((tc[i].command > 0) && (ret & tc[i].command))
++			tc[i].enabled = 1;
+ 	}
+-	if (errno != EINVAL) {
+-		ksft_exit_fail_msg(
+-			"%s test: flags = %d. Should return (%d: \"%s\"), but returned (%d: \"%s\").\n",
+-			test_name, flags, EINVAL, strerror(EINVAL),
+-			errno, strerror(errno));
+-	}
+-
+-	ksft_test_result_pass(
+-		"%s test: flags = %d, errno = %d. Failed as expected\n",
+-		test_name, flags, errno);
+-	return 0;
+ }
+ 
+-static int test_membarrier_global_success(void)
++static void test_membarrier_run(unsigned int i)
+ {
+-	int cmd = MEMBARRIER_CMD_GLOBAL, flags = 0;
+-	const char *test_name = "sys membarrier MEMBARRIER_CMD_GLOBAL";
++	int ret, err = 0;
+ 
+-	if (sys_membarrier(cmd, flags) != 0) {
+-		ksft_exit_fail_msg(
+-			"%s test: flags = %d, errno = %d\n",
+-			test_name, flags, errno);
+-	}
++	/* not enabled and not enforced: test is skipped */
+ 
+-	ksft_test_result_pass(
+-		"%s test: flags = %d\n", test_name, flags);
+-	return 0;
+-}
++	if (!tc[i].enabled && !tc[i].force) {
+ 
+-static int test_membarrier_private_expedited_fail(void)
+-{
+-	int cmd = MEMBARRIER_CMD_PRIVATE_EXPEDITED, flags = 0;
+-	const char *test_name = "sys membarrier MEMBARRIER_CMD_PRIVATE_EXPEDITED not registered failure";
++		if (tc[i].always == 0)
++			skipped(tc[i]);
+ 
+-	if (sys_membarrier(cmd, flags) != -1) {
+-		ksft_exit_fail_msg(
+-			"%s test: flags = %d. Should fail, but passed\n",
+-			test_name, flags);
+-	}
+-	if (errno != EPERM) {
+-		ksft_exit_fail_msg(
+-			"%s test: flags = %d. Should return (%d: \"%s\"), but returned (%d: \"%s\").\n",
+-			test_name, flags, EPERM, strerror(EPERM),
+-			errno, strerror(errno));
++		skipped_fail(tc[i]);
+ 	}
+ 
+-	ksft_test_result_pass(
+-		"%s test: flags = %d, errno = %d\n",
+-		test_name, flags, errno);
+-	return 0;
+-}
++	/* iterations: registration needed for some cases */
+ 
+-static int test_membarrier_register_private_expedited_success(void)
+-{
+-	int cmd = MEMBARRIER_CMD_REGISTER_PRIVATE_EXPEDITED, flags = 0;
+-	const char *test_name = "sys membarrier MEMBARRIER_CMD_REGISTER_PRIVATE_EXPEDITED";
+-
+-	if (sys_membarrier(cmd, flags) != 0) {
+-		ksft_exit_fail_msg(
+-			"%s test: flags = %d, errno = %d\n",
+-			test_name, flags, errno);
++	if (tc[i].needregister && tc[i].enabled) {
++		ret = sys_membarrier(tc[i].needregister, 0);
++		if (ret < 0) {
++			ksft_test_result_fail("membarrier(2): %s could not"
++					"register\n", tc[i].testname);
++		}
+ 	}
+ 
+-	ksft_test_result_pass(
+-		"%s test: flags = %d\n",
+-		test_name, flags);
+-	return 0;
+-}
++	ret = sys_membarrier(tc[i].command, tc[i].flags);
++	err = errno;
+ 
+-static int test_membarrier_private_expedited_success(void)
+-{
+-	int cmd = MEMBARRIER_CMD_PRIVATE_EXPEDITED, flags = 0;
+-	const char *test_name = "sys membarrier MEMBARRIER_CMD_PRIVATE_EXPEDITED";
++	/* enabled and not enforced: regular expected results only */
+ 
+-	if (sys_membarrier(cmd, flags) != 0) {
+-		ksft_exit_fail_msg(
+-			"%s test: flags = %d, errno = %d\n",
+-			test_name, flags, errno);
+-	}
++	if (tc[i].enabled && !tc[i].force) {
+ 
+-	ksft_test_result_pass(
+-		"%s test: flags = %d\n",
+-		test_name, flags);
+-	return 0;
+-}
++		if (ret >= 0 && tc[i].exp_ret == ret)
++			passed_ok(tc[i]);
+ 
+-static int test_membarrier_private_expedited_sync_core_fail(void)
+-{
+-	int cmd = MEMBARRIER_CMD_PRIVATE_EXPEDITED_SYNC_CORE, flags = 0;
+-	const char *test_name = "sys membarrier MEMBARRIER_CMD_PRIVATE_EXPEDITED_SYNC_CORE not registered failure";
+-
+-	if (sys_membarrier(cmd, flags) != -1) {
+-		ksft_exit_fail_msg(
+-			"%s test: flags = %d. Should fail, but passed\n",
+-			test_name, flags);
+-	}
+-	if (errno != EPERM) {
+-		ksft_exit_fail_msg(
+-			"%s test: flags = %d. Should return (%d: \"%s\"), but returned (%d: \"%s\").\n",
+-			test_name, flags, EPERM, strerror(EPERM),
+-			errno, strerror(errno));
+-	}
+-
+-	ksft_test_result_pass(
+-		"%s test: flags = %d, errno = %d\n",
+-		test_name, flags, errno);
+-	return 0;
+-}
+-
+-static int test_membarrier_register_private_expedited_sync_core_success(void)
+-{
+-	int cmd = MEMBARRIER_CMD_REGISTER_PRIVATE_EXPEDITED_SYNC_CORE, flags = 0;
+-	const char *test_name = "sys membarrier MEMBARRIER_CMD_REGISTER_PRIVATE_EXPEDITED_SYNC_CORE";
+-
+-	if (sys_membarrier(cmd, flags) != 0) {
+-		ksft_exit_fail_msg(
+-			"%s test: flags = %d, errno = %d\n",
+-			test_name, flags, errno);
++		if (ret < 0) {
++			if (tc[i].exp_ret == ret)
++				failed_ok(tc[i]);
++			else
++				failed_not_ok(tc[i], ret, err);
++		}
+ 	}
+ 
+-	ksft_test_result_pass(
+-		"%s test: flags = %d\n",
+-		test_name, flags);
+-	return 0;
+-}
++	/* not enabled and enforced: failure and expected errors */
+ 
+-static int test_membarrier_private_expedited_sync_core_success(void)
+-{
+-	int cmd = MEMBARRIER_CMD_PRIVATE_EXPEDITED, flags = 0;
+-	const char *test_name = "sys membarrier MEMBARRIER_CMD_PRIVATE_EXPEDITED_SYNC_CORE";
++	if (!tc[i].enabled && tc[i].force) {
+ 
+-	if (sys_membarrier(cmd, flags) != 0) {
+-		ksft_exit_fail_msg(
+-			"%s test: flags = %d, errno = %d\n",
+-			test_name, flags, errno);
+-	}
++		if (ret >= 0)
++			passed_unexpec(tc[i]);
+ 
+-	ksft_test_result_pass(
+-		"%s test: flags = %d\n",
+-		test_name, flags);
+-	return 0;
+-}
+-
+-static int test_membarrier_register_global_expedited_success(void)
+-{
+-	int cmd = MEMBARRIER_CMD_REGISTER_GLOBAL_EXPEDITED, flags = 0;
+-	const char *test_name = "sys membarrier MEMBARRIER_CMD_REGISTER_GLOBAL_EXPEDITED";
+-
+-	if (sys_membarrier(cmd, flags) != 0) {
+-		ksft_exit_fail_msg(
+-			"%s test: flags = %d, errno = %d\n",
+-			test_name, flags, errno);
++		if (ret < 0) {
++			if (tc[i].force_exp_errno == err)
++				failed_ok_unsupported(tc[i]);
++			else
++				failed_unexpec(tc[i], ret, err);
++		}
+ 	}
+ 
+-	ksft_test_result_pass(
+-		"%s test: flags = %d\n",
+-		test_name, flags);
+-	return 0;
+-}
++	/* enabled and enforced: tricky */
+ 
+-static int test_membarrier_global_expedited_success(void)
+-{
+-	int cmd = MEMBARRIER_CMD_GLOBAL_EXPEDITED, flags = 0;
+-	const char *test_name = "sys membarrier MEMBARRIER_CMD_GLOBAL_EXPEDITED";
++	if (tc[i].enabled && tc[i].force) {
+ 
+-	if (sys_membarrier(cmd, flags) != 0) {
+-		ksft_exit_fail_msg(
+-			"%s test: flags = %d, errno = %d\n",
+-			test_name, flags, errno);
+-	}
++		if (ret >= 0) {
++			if (tc[i].exp_ret == ret)
++				passed_ok(tc[i]);
++			else
++				passed_unexpec(tc[i]);
++		}
+ 
+-	ksft_test_result_pass(
+-		"%s test: flags = %d\n",
+-		test_name, flags);
+-	return 0;
+-}
++		if (ret < 0) {
+ 
+-static int test_membarrier(void)
+-{
+-	int status;
+-
+-	status = test_membarrier_cmd_fail();
+-	if (status)
+-		return status;
+-	status = test_membarrier_flags_fail();
+-	if (status)
+-		return status;
+-	status = test_membarrier_global_success();
+-	if (status)
+-		return status;
+-	status = test_membarrier_private_expedited_fail();
+-	if (status)
+-		return status;
+-	status = test_membarrier_register_private_expedited_success();
+-	if (status)
+-		return status;
+-	status = test_membarrier_private_expedited_success();
+-	if (status)
+-		return status;
+-	status = sys_membarrier(MEMBARRIER_CMD_QUERY, 0);
+-	if (status < 0) {
+-		ksft_test_result_fail("sys_membarrier() failed\n");
+-		return status;
+-	}
+-	if (status & MEMBARRIER_CMD_PRIVATE_EXPEDITED_SYNC_CORE) {
+-		status = test_membarrier_private_expedited_sync_core_fail();
+-		if (status)
+-			return status;
+-		status = test_membarrier_register_private_expedited_sync_core_success();
+-		if (status)
+-			return status;
+-		status = test_membarrier_private_expedited_sync_core_success();
+-		if (status)
+-			return status;
+-	}
+-	/*
+-	 * It is valid to send a global membarrier from a non-registered
+-	 * process.
+-	 */
+-	status = test_membarrier_global_expedited_success();
+-	if (status)
+-		return status;
+-	status = test_membarrier_register_global_expedited_success();
+-	if (status)
+-		return status;
+-	status = test_membarrier_global_expedited_success();
+-	if (status)
+-		return status;
+-	return 0;
+-}
++			if (tc[i].exp_ret == ret) {
+ 
+-static int test_membarrier_query(void)
+-{
+-	int flags = 0, ret;
++				if (tc[i].exp_errno == err)
++					failed_ok(tc[i]);
++				else
++					failed_unexpec(tc[i], ret, err);
++			}
+ 
+-	ret = sys_membarrier(MEMBARRIER_CMD_QUERY, flags);
+-	if (ret < 0) {
+-		if (errno == ENOSYS) {
+-			/*
+-			 * It is valid to build a kernel with
+-			 * CONFIG_MEMBARRIER=n. However, this skips the tests.
+-			 */
+-			ksft_exit_skip(
+-				"sys membarrier (CONFIG_MEMBARRIER) is disabled.\n");
++			/* unknown on force failure if enabled and forced */
++			failed_unexpec(tc[i], ret, err);
+ 		}
+-		ksft_exit_fail_msg("sys_membarrier() failed\n");
+ 	}
+-	if (!(ret & MEMBARRIER_CMD_GLOBAL))
+-		ksft_exit_skip(
+-			"sys_membarrier unsupported: CMD_GLOBAL not found.\n");
+-
+-	ksft_test_result_pass("sys_membarrier available\n");
+-	return 0;
+ }
+ 
+ int main(int argc, char **argv)
+ {
++	size_t i;
++
+ 	ksft_print_header();
+ 
+-	test_membarrier_query();
+-	test_membarrier();
++	test_membarrier_setup();
++
++	for (i = 0; i < ARRAY_SIZE(tc); i++)
++		test_membarrier_run(i);
+ 
+ 	return ksft_exit_pass();
+ }
+-- 
+2.19.1

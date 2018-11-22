@@ -1,0 +1,184 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 15 Nov 2018 08:32:11 -0000
+Received: from icoremail.net (unknown [209.85.214.173])
+	by mail-app2 (Coremail) with SMTP id by_KCgC3f+1MLu1b8FyYAQ--.44951S3;
+	Thu, 15 Nov 2018 16:29:01 +0800 (CST)
+Received: from mail-pl1-f173.google.com (unknown [209.85.214.173])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwBHLUlKLu1bjL9CAA--.5747S3;
+	Thu, 15 Nov 2018 16:28:58 +0800 (CST)
+Received: by mail-pl1-f173.google.com with SMTP id t13so6167969ply.13
+        for <xuliker@zju.edu.cn>; Thu, 15 Nov 2018 00:28:58 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-transfer-encoding:content-language
+         :sender:precedence:list-id;
+        bh=3Q16SmQ7tW9WYb+25jAGdmw8kKMEdDt9VVkTQayxkvM=;
+        b=hPL5xBgU159kw5v0eu68T3W0gFJPb+tTWwLzbVAdXh1QsMb7Ndv5LlDFb06/xLYSZb
+         xTjHkBby4iPgnos4KklG1SWwaMbwE5cVPbEPMfZPQj1weJD/J8q1iayGQ43UqLQkpA1l
+         kp9Au7FuO4FRW+oJe3h9Npz7lYGCLkbwf2cqtnbaXtUfqxgnJkumaiz9NmcxIwfAE3/L
+         NyFTV0VtEX1b/T4wLq4bN1hwCDt0CwulmQVNuoJd04CJ3KhugYG2xBn1FY2zex6msaBU
+         l3KLwY1/we1DtiqG7BioeCX0PHZ11/kJcpLeCihpXurtH7qvtRjBBc01cV5Li9IlrMKn
+         YAlQ==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=redhat.com
+X-Gm-Message-State: AGRZ1gJeWMhDn40pKxpBvN1UBjhxVogFqYTwaaas3QmQmW6JK0IUOnqz
+	hsM0spU/PEolCEw9cjL8ih3MZz0FXMc1fL69OUO0Oo3a3U8uAEBCiQ==
+X-Received: by 2002:a17:902:108a:: with SMTP id c10-v6mr5197884pla.171.1542270537814;
+        Thu, 15 Nov 2018 00:28:57 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:d106:0:0:0:0 with SMTP id l6-v6csp277756pju;
+        Thu, 15 Nov 2018 00:28:57 -0800 (PST)
+X-Google-Smtp-Source: AJdET5fvl0BLstYgEW0mEcSegrmNv9DSaoI31RL+ukDgfuUlC7Jri2iaPe2m7vlpyhw/Nx80bAKb
+X-Received: by 2002:a17:902:6e08:: with SMTP id u8-v6mr5299641plk.64.1542270537115;
+        Thu, 15 Nov 2018 00:28:57 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542270537; cv=none;
+        d=google.com; s=arc-20160816;
+        b=DWOEwkojphiUgSRTZZm24NOws73I8o8wN8fYJmhJy3HNqRb64IvNs319TRpb3aazTz
+         3CCA1xdwR3kMEorFX31lt8EVN7om3X2sGi701Vf8dNrCTQZpqW2byEW+Q+jHUToludit
+         oJCd8AUtpW8rDdpp1fyWQnrgaz8cmPZ4+4C5VwZbl8y86Q7du/oquJnYYY2lur5de9iS
+         uxzLnwgFOIFvQ1QjgMVvwb2twvsZdJGCNhIwPlbwj3CPBZ7DGGN5KHcjaalMvSYYTJ7t
+         axIAqaSwDHyL8HKawCMhEliwEH507UHgUGvQ9ilO12HljZ0DRPODI+cIpMlq5UV4KLtF
+         nwuQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:content-language
+         :content-transfer-encoding:in-reply-to:mime-version:user-agent:date
+         :message-id:from:references:cc:to:subject;
+        bh=3Q16SmQ7tW9WYb+25jAGdmw8kKMEdDt9VVkTQayxkvM=;
+        b=Fty8biD6eAaaujTlJQaHAgw2UnWsdwSjVungV10S6uBf20P8bAkyzCKJeJuNZ+yuQ6
+         u4vQ/JA9o+HlH3v2h3rz0h9TtVwdi2x7/KhsAoqREytC32fJ2miNMyEnkS4eClprxchm
+         LR5MMm/0sp9Jcqu/QHnfFvxb1m6UDlPCLKQn7W5fbRegNurSEdVM5u06rqfiRv0dAHCd
+         bpc+xZXtbg2j31+M8S4i8dmjSaYdxoViYprfeHUIrlkYGftES0JjrNhb+DsE9JB/LhGs
+         vplxg5PLp9gPxqppZ6BYIrOS3fwzYXwMhulp+szQXxLRfYzDq5O979ThYUFgoDpqP8Tb
+         aOWQ==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=redhat.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id p10-v6si26373019plk.77.2018.11.15.00.28.43;
+        Thu, 15 Nov 2018 00:28:57 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1728904AbeKOSeu (ORCPT <rfc822;nodee764@gmail.com> + 99 others);
+        Thu, 15 Nov 2018 13:34:50 -0500
+Received: from mx1.redhat.com ([209.132.183.28]:37182 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728757AbeKOSeu (ORCPT <rfc822;kvm@vger.kernel.org>);
+        Thu, 15 Nov 2018 13:34:50 -0500
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 28AE658E31;
+        Thu, 15 Nov 2018 08:28:00 +0000 (UTC)
+Received: from [10.72.12.185] (ovpn-12-185.pek2.redhat.com [10.72.12.185])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 2A568608E1;
+        Thu, 15 Nov 2018 08:27:52 +0000 (UTC)
+Subject: Re: [RFC] Discuss about an new idea "Vsock over Virtio-net"
+To: "Michael S. Tsirkin" <mst@redhat.com>,
+        jiangyiwen <jiangyiwen@huawei.com>
+Cc: stefanha@redhat.com, stefanha@gmail.com, netdev@vger.kernel.org,
+        kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+References: <5BECEE53.7090408@huawei.com>
+ <20181115015547-mutt-send-email-mst@kernel.org> <5BED2267.8030306@huawei.com>
+ <20181115025622-mutt-send-email-mst@kernel.org>
+From: Jason Wang <jasowang@redhat.com>
+Message-ID: <a1a88696-773d-6e1e-e0c3-f363e235aa84@redhat.com>
+Date: Thu, 15 Nov 2018 16:27:50 +0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.2.1
+MIME-Version: 1.0
+In-Reply-To: <20181115025622-mutt-send-email-mst@kernel.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+Content-Language: en-US
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.39]); Thu, 15 Nov 2018 08:28:00 +0000 (UTC)
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwBHLUlKLu1bjL9CAA--.5747S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW7AF48CFWkKF1kCw1xtFyrZwb_yoW8tF17pF
+	WayF1ayF4DtF15Ar40yr15XF40yrsxXr4UW34rWr1Fywn0yrnavr1xGr48ur97CrZ5uF1j
+	qFWjy3sxX34qyrJanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUQqb7Iv0xC_tr1lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2
+	z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s0DM2AIxVAIcxkEcV
+	Aq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1j
+	6r18McIj6I8E87Iv67AKxVW8JVWxJwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IY64vIr4
+	1l7I0Y6sxI4wCYjI0SjxkI62AI1cAE67vIY487MxkF7I0Ew4C26cxK6c8Ij28IcwCY1Ik2
+	6cxK6xAEc7vF6xCjj44lc2xSY4AK6IIF6r43MxkI7II2jI8vz4vEwIxGrwCYIxAIcVC0I7
+	IYx2IY67AKxVWUCVW8JwCYIxAIcVC0I7IYx2IY6xkF7I0E14v26r1j6r4UMxvI42IY6I8E
+	87Iv67AKxVWxJr0_GcWlcIIF0xvEx4A2jsIEc7CjxVAFwI0_Cr1j6rxdMxAIw28IcxkI7V
+	AKI48JMxAIw28IcVAKzI0EY4vE52x082I5MxCjnVCjjxCrMxC20s026xCaFVCjc4AY6r1j
+	6r4UMxCIbckI1I0E14v26r126r1DMI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxVCjr7xvwV
+	AFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWUtVW8ZwCIc40Y0x0EwIxGrwCI42IY6xAIw20E
+	Y4v20xvaj40_Gr0_ZrUvcSsGvfC2KfnxnUUI43ZEXa7IU5m_M3UUUUU==
+
+
+On 2018/11/15 下午4:10, Michael S. Tsirkin wrote:
+> On Thu, Nov 15, 2018 at 03:38:15PM +0800, jiangyiwen wrote:
+>> On 2018/11/15 15:04, Michael S. Tsirkin wrote:
+>>> On Thu, Nov 15, 2018 at 11:56:03AM +0800, jiangyiwen wrote:
+>>>> Hi Stefan, Michael, Jason and everyone,
+>>>>
+>>>> Several days ago, I discussed with jason about "Vsock over Virtio-net".
+>>>> This idea has two advantages:
+>>>> First, it can use many great features of virtio-net, like batching,
+>>>> mergeable rx buffer and multiqueue, etc.
+>>>> Second, it can reduce many duplicate codes and make it easy to be
+>>>> maintained.
+>>> I'm not sure I get the motivation. Which features of
+>>> virtio net are relevant to vsock? The ones that you mention
+>>> all seem to be mostly of use to the networking stack.
+>>>
+>>>
+>>>> Before the implement, I want to discuss with everyone again, and
+>>>> want to know everyone's suggestions.
+>>>>
+>>>> After the discussion, based on this point I will try to implement
+>>>> this idea, but I am not familiar with the virtio-net, that is a
+>>>> pity.:(
+>>>>
+>>>> -------------------------Simple idea------------------------------
+>>>>
+>>>> 1. The packet layout will become as follows:
+>>>>
+>>>> +---------------------------------+
+>>>> |        Virtio-net header        |
+>>>> |(struct virtio_net_hdr_mrg_rxbuf)|
+>>> Which fields in virtio_net_hdr_mrg_rxbuf are of interest to vsock?
+>>>
+>> Hi Michael,
+>>
+>> Yes, currently vsock has poor performance, first, it only support transport
+>> small packet, in order to make the balance between performance and guest memory.
+>>
+>> In order to solve this problem, there are two features vsock can used,
+>> mergeable rx buffer and multiqueue. Based on this, there are some shared
+>> codes vsock can use.
+>>
+>> Thanks,
+>> Yiwen.
+> Supporting more queues with vsock is probably significantly
+> less work than a completely new interface.
+> For mergeable, as buffers are split arbitrarily, why can't you combine
+> them within guest driver before sending them up the stack?
+
+
+I don't get this question. But I think the fact that we use mergeable 
+buffer by default for virtio-net answer the question. Or anything 
+special in vsock?
+
+Thanks
+
+
+> Probably better than relying on host to do it.
+>

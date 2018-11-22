@@ -1,0 +1,170 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (61.164.42.155:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 08 Nov 2018 10:29:47 -0000
+Received: from icoremail.net (unknown [209.85.215.172])
+	by mail-app2 (Coremail) with SMTP id by_KCgDHH+agDeRbnztfAQ--.28482S3;
+	Thu, 08 Nov 2018 18:19:15 +0800 (CST)
+Received: from mail-pg1-f172.google.com (unknown [209.85.215.172])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwB38EycDeRbqTkcAA--.977S3;
+	Thu, 08 Nov 2018 18:19:08 +0800 (CST)
+Received: by mail-pg1-f172.google.com with SMTP id z17-v6so8684185pgv.3
+        for <xuliker@zju.edu.cn>; Thu, 08 Nov 2018 02:19:08 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :from:to:subject:date:message-id:in-reply-to:references:mime-version
+         :sender:precedence:list-id;
+        bh=2WuWaaFP3429exA0umwDiN0bPJXRTHfJmWQr1u3+nfI=;
+        b=rbtwcmhySqHUGG5/UXSdey0p9IEvvpXzT4KYqr0SNdwkKO8jTibK038gTeTtl+1YyK
+         2UjuIPJrJ+r0YlSbxIFJpefhkdWkHUmKCbaBQWGk4jqJyyLHIEl7DyJhW/jiQipMhIOB
+         hYhdojZdvdoL0Z8gJ2CIeH6k++0o4Qx7BLnoddfrxP9RXfAh1H878GbWaLtM9/nNW9k8
+         dynKMI1fnnD5hkt9IMu6E6RsX7XeckpK7exDDXSt3+DOGbnr1wgCif92k6GtldZkwEYj
+         2hneT4ubUylzAG0Vp9j9qvHglj1owVnsuzLgg9/Rpojf6LRNS9VPjbStuLh2oWKmcWw+
+         iaxg==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org
+X-Gm-Message-State: AGRZ1gIshyr8/v8ejp1mD7AZb+1SgT1CU+ev1FaL14hyf49U5LP+i6g+
+	bbUYek/cbWTPYYSFkonOMqLPyHs05rOFKPL8xtCtseMQY/QWMnFtNA==
+X-Received: by 2002:a62:ce8e:: with SMTP id y136-v6mr3960218pfg.201.1541672348247;
+        Thu, 08 Nov 2018 02:19:08 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp7539pjt;
+        Thu, 8 Nov 2018 02:19:07 -0800 (PST)
+X-Google-Smtp-Source: AJdET5dEPdSoH2ux1nSzlp8pk7DPyalybj0j+ON/iZvWUEGR99Dp+Fon73gNEetn6sy8ahe2Xtx1
+X-Received: by 2002:a17:902:9a04:: with SMTP id v4-v6mr3845324plp.247.1541672347576;
+        Thu, 08 Nov 2018 02:19:07 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1541672347; cv=none;
+        d=google.com; s=arc-20160816;
+        b=EVSkJNksXsFzvvuOuWy34hkww6MCEcuJaYsRabHyKBrPJ5syMuDxJzeBFOFApyIa6E
+         exatlQ8S9kyXn9ILydnfmHD5IOPPkgwiYYBKl0BwbYAQBiVIatjpvnzUQ7A/AKBCBJzO
+         dCtbnwj9lKrvGRj1zcW+S3OpAjBErkrMkS4wByRDz5Wo6eN7Of/dhE0k3OTBFtmQgdIf
+         D8WfbxeXF+k9waT3E4q9gMYku9YZlTs6BT5jyvYrWPSHHaK3KZvsYQPhqR5fqfWEkW2+
+         WfQOpUgDGZrX8Wn2L7piFzWIrzQd6h+LCFeXdLWGIUP2Io0pgnw44ZMD/eNSSyWFLXKI
+         1UEg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:mime-version:references:in-reply-to
+         :message-id:date:subject:to:from;
+        bh=2WuWaaFP3429exA0umwDiN0bPJXRTHfJmWQr1u3+nfI=;
+        b=mA8ACOytea37NV50xMoyaSOFVrCVYe+oMx6JABhgibAMQX6O7VNV3fwVeq5DhcZBkq
+         y0quIbPKZeEBJOh7Y6EumGWYxq+04CKDsDfgIjdxo5KsrsyT47PWMza3LeM0Y6NObjKQ
+         1QRXi4VAjBRx2ZUem4qmHs82dymM4dyC4WSe89KMX15Du0m5ZDdlWuyuBtqh/ugzMLQE
+         J9NOVqTnUipkgXWAmSB87UsRtUZm4wq+jdK7XtDGsdq3+t/Sm9v/TS+vnZA2a5S5e4eK
+         K3QBJS3/7MoQCqL5Rdosi5SurlYaY3FWB1LZ8xbAU51zA1j0oDvh1uKl10Lz0FSCWLTB
+         qLWw==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id p14-v6si3791944plq.271.2018.11.08.02.18.54;
+        Thu, 08 Nov 2018 02:19:07 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1727028AbeKHTx2 (ORCPT <rfc822;fanshuming2011@gmail.com>
+        + 99 others); Thu, 8 Nov 2018 14:53:28 -0500
+Received: from szxga07-in.huawei.com ([45.249.212.35]:45064 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726509AbeKHTx1 (ORCPT <rfc822;kvm@vger.kernel.org>);
+        Thu, 8 Nov 2018 14:53:27 -0500
+Received: from DGGEMS405-HUB.china.huawei.com (unknown [172.30.72.59])
+        by Forcepoint Email with ESMTP id 1173EFD305648;
+        Thu,  8 Nov 2018 18:18:39 +0800 (CST)
+Received: from ros.huawei.com (10.143.28.118) by
+ DGGEMS405-HUB.china.huawei.com (10.3.19.205) with Microsoft SMTP Server id
+ 14.3.408.0; Thu, 8 Nov 2018 18:18:34 +0800
+From: Dongjiu Geng <gengdongjiu@huawei.com>
+To: <imammedo@redhat.com>, <mst@redhat.com>,
+        <peter.maydell@linaro.org>, <pbonzini@redhat.com>,
+        <mtosatti@redhat.com>, <rth@twiddle.net>, <ehabkost@redhat.com>,
+        <kvm@vger.kernel.org>, <shannon.zhaosl@gmail.com>,
+        <qemu-devel@nongnu.org>, <qemu-arm@nongnu.org>,
+        <gengdongjiu@huawei.com>
+Subject: [PATCH v15 04/10] acpi: add build_append_ghes_generic_status() helper for Generic Error Status Block
+Date: Thu, 8 Nov 2018 02:15:47 -0800
+Message-ID: <1541672153-15529-5-git-send-email-gengdongjiu@huawei.com>
+X-Mailer: git-send-email 2.7.4
+In-Reply-To: <1541672153-15529-1-git-send-email-gengdongjiu@huawei.com>
+References: <1541672153-15529-1-git-send-email-gengdongjiu@huawei.com>
+MIME-Version: 1.0
+Content-Type: text/plain
+X-Originating-IP: [10.143.28.118]
+X-CFilter-Loop: Reflected
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwB38EycDeRbqTkcAA--.977S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW7uw4UCFy8JF15ur4xAryftFb_yoW8ur45p3
+	yqq397KrZ8GF1xJw1UCwnrKFn5X3ykK34jg3Wqyr18CFWxGw48Kas0grW293W7K3s7Jrsx
+	Ga1Yg3WUuws2vr7anT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUPIb7Iv0xC_Cr1lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2
+	z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s0DM2AIxVAIcxkEcV
+	Aq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1j
+	6r18McIj6I8E87Iv67AKxVW8JVWxJwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IYc2Ij64
+	vIr41l7I0Y6sxI4wCY1x0264kExVAvwVAq07x20xylc7Ca8VAvwVCFzxkY4VCF77xAMxkI
+	ecxEwVCI4VW8twCY0x0Ix7I2Y4AK64vIr41lcIIF0xvE2Ix0cI8IcVAFwI0_Xr0_Ar1lcI
+	IF0xvE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwCYIxAIcVC2z280aVAFwI0_Cr1j6rxdMxvI
+	42IY6I8E87Iv6xkF7I0E14v26F4UJVW0owCF04k20xvY0x0EwIxGrwCF04k20xvEw4C26c
+	xK6c8Ij28IcwCF72vE77IF4wCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v2
+	6r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_Jw0_GFylIxkGc2
+	Ij64vIr41lIxAIcVCF04k26cxKx2IYs7xG6r4j6FyUYxBIdaVFxhVjvjDU0xZFpf9x07b0
+	ksgUUUUU=
+
+It will help to add Generic Error Status Block to ACPI tables
+without using packed C structures and avoid endianness
+issues as API doesn't need explicit conversion.
+
+Signed-off-by: Dongjiu Geng <gengdongjiu@huawei.com>
+---
+ hw/acpi/aml-build.c         | 14 ++++++++++++++
+ include/hw/acpi/aml-build.h |  6 ++++++
+ 2 files changed, 20 insertions(+)
+
+diff --git a/hw/acpi/aml-build.c b/hw/acpi/aml-build.c
+index 00b166e..5923248 100644
+--- a/hw/acpi/aml-build.c
++++ b/hw/acpi/aml-build.c
+@@ -296,6 +296,20 @@ void build_append_ghes_notify(GArray *table, const uint8_t type,
+         build_append_int_noprefix(table, error_threshold_window, 4);
+ }
+ 
++/* Generic Error Status Block
++ * ACPI 4.0: 17.3.2.6.1 Generic Error Data
++ */
++void build_append_ghes_generic_status(GArray *table, uint32_t block_status,
++                      uint32_t raw_data_offset, uint32_t raw_data_length,
++                      uint32_t data_length, uint32_t error_severity)
++{
++    build_append_int_noprefix(table, block_status, 4);
++    build_append_int_noprefix(table, raw_data_offset, 4);
++    build_append_int_noprefix(table, raw_data_length, 4);
++    build_append_int_noprefix(table, data_length, 4);
++    build_append_int_noprefix(table, error_severity, 4);
++}
++
+ /* Generic Error Data Entry
+  * ACPI 4.0: 17.3.2.6.1 Generic Error Data
+  */
+diff --git a/include/hw/acpi/aml-build.h b/include/hw/acpi/aml-build.h
+index 147eb38..657a0d5 100644
+--- a/include/hw/acpi/aml-build.h
++++ b/include/hw/acpi/aml-build.h
+@@ -423,6 +423,12 @@ void build_append_ghes_generic_data(GArray *table, const char *section_type,
+                                     uint32_t error_data_length, uint8_t *fru_id,
+                                     uint8_t *fru_text, uint64_t time_stamp);
+ 
++void
++build_append_ghes_generic_status(GArray *table, uint32_t block_status,
++                                 uint32_t raw_data_offset,
++                                 uint32_t raw_data_length,
++                                 uint32_t data_length, uint32_t error_severity);
++
+ void build_srat_memory(AcpiSratMemoryAffinity *numamem, uint64_t base,
+                        uint64_t len, int node, MemoryAffinityFlags flags);
+ 
+-- 
+1.8.3.1

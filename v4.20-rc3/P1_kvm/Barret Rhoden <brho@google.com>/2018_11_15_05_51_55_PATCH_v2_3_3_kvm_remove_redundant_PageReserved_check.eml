@@ -1,0 +1,156 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 15 Nov 2018 00:43:51 -0000
+Received: from icoremail.net (unknown [209.85.215.178])
+	by mail-app2 (Coremail) with SMTP id by_KCgDXv5r8pexb1bKTAQ--.44167S3;
+	Thu, 15 Nov 2018 06:47:25 +0800 (CST)
+Received: from mail-pg1-f178.google.com (unknown [209.85.215.178])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwCHb0v6pexbEIpAAA--.8757S3;
+	Thu, 15 Nov 2018 06:47:22 +0800 (CST)
+Received: by mail-pg1-f178.google.com with SMTP id f8-v6so8034710pgq.5
+        for <xuliker@zju.edu.cn>; Wed, 14 Nov 2018 14:47:22 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:delivered-to:dkim-signature:date:in-reply-to
+         :message-id:mime-version:references:subject:from:to:cc:sender
+         :precedence:list-id;
+        bh=cef6YNlIU1qhqW6QfENAl8n18Yhm93q9fZZO+r6oQn0=;
+        b=LJG5UTgYLEqM4X1UbyXto4YPH9+Y59xttrEMXgZmz8rKjziEFvkGSuTV8BmvS2/05l
+         GtsqpXurl0Z9PWNYEQnV1vhm2GKxMzVxduWgZ4ADIIERrgFfehVAPzafcghkEYjorsRo
+         F3a15av/739whKg6jR5P0+RhwcYuUYnnb254SAag0Xa17E73rDpXCbqGI3H+Z2Bv4K0Z
+         NkS6bkZUGPsNDdtRtYWGk90urOP8sFdQm7dvqW9CShNVEo36ydXv5xPjTtPKsArX4hdJ
+         wzVeeH3UNNJTz0SgZiKPJgi17+7uPsAIlRX+2sztp+xAn3hiGk1O0zTdV0RI1aeLH2KY
+         pLmw==
+X-Gm-Message-State: AGRZ1gKoU85z/he4uKCTnuF4YNgRv5L54u9M3JpQGEZucZagpoJJmc3j
+	oFJA3fLzcCg85DmlZ0eIRQbxwrjQ6Pz3jp22mxPh6FXdxxILbW+qLw==
+X-Received: by 2002:a63:1e17:: with SMTP id e23mr3488551pge.130.1542235641969;
+        Wed, 14 Nov 2018 14:47:21 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp6409972pjt;
+        Wed, 14 Nov 2018 14:47:21 -0800 (PST)
+X-Google-Smtp-Source: AJdET5dL0S2rkjmJpZTIRLNV3ImFb010UtjA/8v7hhKysIlKLbdvQemlxSXwgIgAjnPa4jAlF1OO
+X-Received: by 2002:a17:902:7848:: with SMTP id e8mr3874751pln.100.1542235641381;
+        Wed, 14 Nov 2018 14:47:21 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542235641; cv=none;
+        d=google.com; s=arc-20160816;
+        b=p603/X6+bH+mCE+LQl4o+rTPzSvfMQboPvKokh1YZ9D05RW7eouUVOXznTUMv4eeH2
+         7uMqiKEOzkPahDWHpDy7LkXenGeLuWIGd+cUpimzoQ2KuSVTFAi+4CmnqQ6L3uO3MLXw
+         YklS25uRhfVmWQFLQ9HThloBayF8MwREfX4JlRKe94sbnW31tZME3V89bvEXX9L4n+nJ
+         CKGKif8t7leaTOCtxA/SUXDl5fHg5qzKncsOmKx2RzWAtkvOc6lcXje9g8uRnuEiIXFw
+         myq0l1MU40up4ouVkjJJdb6SrRfyybYHydV7fWxnLnxAlMtLEtjAjpUVylHNzyjLi6s6
+         QLNw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:cc:to:from:subject:references
+         :mime-version:message-id:in-reply-to:date:dkim-signature;
+        bh=cef6YNlIU1qhqW6QfENAl8n18Yhm93q9fZZO+r6oQn0=;
+        b=iitYX0D+8Rq+8f/wf88XEJIOvV87cjwkP+h9c96DHFSqegKa6DannkjEy5b2mp1M51
+         uwS+c/DL1kFPQCUjdrLqrg3o1PWc/fwiRKvcpfSsYcbPMtCPZb8hfefhiPTlM4mWI/5d
+         v4uX4tgIRCLucEv+K768363L9+Z8lJneJDJZfuWAvg7+CyAVHcIDp8d/yAUFyM494qpY
+         s0rle97DsqSQUbG4D8dwrjK872ZRvCep7LB54Q/dng0thPILBF2DaS4mOyDCncCh/zIa
+         Ok2pLhHLFQo/U5xxcfr21CIP/JpqYQDeOGRcYdOPAdmzxwsbynBZlbAPMb1DUYCWAUyK
+         Tytw==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@google.com header.s=20161025 header.b=t7HWcSyS;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;
+       dmarc=pass (p=REJECT sp=REJECT dis=NONE) header.from=google.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id j14si13401238pgg.44.2018.11.14.14.47.07;
+        Wed, 14 Nov 2018 14:47:21 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1728405AbeKOIv6 (ORCPT <rfc822;nodee764@gmail.com> + 99 others);
+        Thu, 15 Nov 2018 03:51:58 -0500
+Received: from mail-yw1-f74.google.com ([209.85.161.74]:38643 "EHLO
+        mail-yw1-f74.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728393AbeKOIv6 (ORCPT <rfc822;kvm@vger.kernel.org>);
+        Thu, 15 Nov 2018 03:51:58 -0500
+Received: by mail-yw1-f74.google.com with SMTP id v11-v6so9707390ywv.5
+        for <kvm@vger.kernel.org>; Wed, 14 Nov 2018 14:46:47 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=date:in-reply-to:message-id:mime-version:references:subject:from:to
+         :cc;
+        bh=cef6YNlIU1qhqW6QfENAl8n18Yhm93q9fZZO+r6oQn0=;
+        b=t7HWcSySxUpO/OZdd5gwxbvVhUTog5gHX0Cq0W3jWFJ8gs/5iH5jhylAWeqcu9uzCx
+         ksb/W0m5Omr+FwduH5FwBuwQmdkakggEOJBYBk90mW9uRLgSHz7am3k5c6qB/yk0MYdl
+         WA6oik/LsDoixfzHWqSwqk6ddkxH2wjww0xI3b8VYw4YD4GefiBNQMKRVCJdI2ZlIARq
+         6ybykly4+8x/M5IWUeIAMuEDE3ZeFpgWZtIv1fND5ujnvNFbhy294N8A/3L3mgwmphLz
+         wfUeKDy933l8XM6JHYShKMNZW3kxfxMozztfGcY1S7ySG1xGwvVgjhle3K7XTa4G59mj
+         qrHQ==
+X-Received: by 2002:a81:5f55:: with SMTP id t82-v6mr1740879ywb.24.1542232389390;
+ Wed, 14 Nov 2018 13:53:09 -0800 (PST)
+Date: Wed, 14 Nov 2018 16:51:55 -0500
+In-Reply-To: <20181114215155.259978-1-brho@google.com>
+Message-Id: <20181114215155.259978-4-brho@google.com>
+Mime-Version: 1.0
+References: <20181109203921.178363-1-brho@google.com> <20181114215155.259978-1-brho@google.com>
+X-Mailer: git-send-email 2.19.1.1215.g8438c0b245-goog
+Subject: [PATCH v2 3/3] kvm: remove redundant PageReserved() check
+From: Barret Rhoden <brho@google.com>
+To: Dan Williams <dan.j.williams@intel.com>,
+        Dave Jiang <dave.jiang@intel.com>,
+        Ross Zwisler <zwisler@kernel.org>,
+        Vishal Verma <vishal.l.verma@intel.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        "=?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?=" <rkrcmar@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>
+Cc: linux-nvdimm@lists.01.org, linux-kernel@vger.kernel.org,
+        "H. Peter Anvin" <hpa@zytor.com>, x86@kernel.org,
+        kvm@vger.kernel.org, yu.c.zhang@intel.com, yi.z.zhang@intel.com
+Content-Type: text/plain; charset="UTF-8"
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwCHb0v6pexbEIpAAA--.8757S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvdXoW7Xr1kCw4xur1xGF1ftw1rCrg_yoW3Wwc_Cr
+	Wjqan3XFW8trnI9Fn2gwnxXFWruanYyw40ka15Kry3CF97Gw43Jr1DJa98X3yvg397uFW3
+	ZF4qvrn3Kw1jkjkaLaAFLSUrUUUUUb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAU7a7-sFnT
+	9fnUUIcSsGvfJTRUUUbSkYjsxI4VWxJwAYFVCjjxCrM7AC8VAFwI0_Jr0_Gr1l1IIY67AE
+	w4v_Jr0_Jr4l8cAvFVAK0II2c7xJM28CjxkF64kEwVA0rcxSw2x7M28EF7xvwVC0I7IYx2
+	IY67AKxVWDJVCq3wA2z4x0Y4vE2Ix0cI8IcVCY1x0267AKxVW8Jr0_Cr1UM28EF7xvwVC2
+	z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s0DM2AIxVAIcxkEcV
+	Aq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1Y
+	6r17McIj6I8E87Iv67AKxVW8JVWxJwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IYc2Ij64
+	vIr41l7I0Y6sxI4wCY1x0264kExVAvwVAq07x20xylc2xSY4AK6IIF6Fylc2IjII80xcxE
+	wVAKI48JMxvI42IY6xIIjxv20xvE14v26w1j6s0DMxvI42IY6xIIjxv20xvEc7CjxVAFwI
+	0_Gr1j6F4UJwCYIxAIcVC2z280aVAFwI0_Gr1j6F4UJwCYIxAIcVC2z280aVCY1x0267AK
+	xVW8Jr0_Cr1UMxAIw28IcxkI7VAKI48JMxAIw28IcVAKzI0EY4vE52x082I5MxCjnVCjjx
+	CrMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxVCjr7xv
+	wVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVW8ZVWrXwCIc40Y0x0EwIxGrwCI42IY6xAIw2
+	0EY4v20xvaj40_Jr0_JF7vcSsGvfC2KfnxnUUI43ZEXa7IU502NtUUUUU==
+
+kvm_is_reserved_pfn() already checks PageReserved().
+
+Signed-off-by: Barret Rhoden <brho@google.com>
+---
+ virt/kvm/kvm_main.c | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
+
+diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+index 2679e476b6c3..e0ea6d7dac14 100644
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -1700,12 +1700,8 @@ EXPORT_SYMBOL_GPL(kvm_release_pfn_dirty);
+ 
+ void kvm_set_pfn_dirty(kvm_pfn_t pfn)
+ {
+-	if (!kvm_is_reserved_pfn(pfn)) {
+-		struct page *page = pfn_to_page(pfn);
+-
+-		if (!PageReserved(page))
+-			SetPageDirty(page);
+-	}
++	if (!kvm_is_reserved_pfn(pfn))
++		SetPageDirty(pfn_to_page(pfn));
+ }
+ EXPORT_SYMBOL_GPL(kvm_set_pfn_dirty);
+ 
+-- 
+2.19.1.1215.g8438c0b245-goog

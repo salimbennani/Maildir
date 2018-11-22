@@ -1,0 +1,390 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 22 Nov 2018 00:32:50 -0000
+Received: from icoremail.net (unknown [209.85.214.173])
+	by mail-app2 (Coremail) with SMTP id by_KCgDXv_pCRfVb_onHAQ--.58509S3;
+	Wed, 21 Nov 2018 19:45:07 +0800 (CST)
+Received: from mail-pl1-f173.google.com (unknown [209.85.214.173])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwAX_Ec9RfVbIzZjAA--.292S3;
+	Wed, 21 Nov 2018 19:45:02 +0800 (CST)
+Received: by mail-pl1-f173.google.com with SMTP id f12-v6so5204985plo.1
+        for <xuliker@zju.edu.cn>; Wed, 21 Nov 2018 03:45:02 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:delivered-to:dkim-signature:from:to:cc:subject
+         :date:message-id:sender:precedence:list-id;
+        bh=MGmzSFD9yA9B8zvndJgZDTVvOwRl+YrBF/tFuCK8eBs=;
+        b=r0sx6ZXn+0IJLIzB/45/pR5rc4J/qmhqMcOGnRIDT+V4UDxjpVt2b/ky7bPZySIykn
+         1mwQ1lbgHBZec/aMWu+FKuZTRCl8Fr44hZ7o0c7DVar8FLXt8G2b6x2pid6w1nG3HOFt
+         iOdnMeajSniX8P7okWZb6ahIqvlakrw0pT5HzbX8mbzsxjwho3Qakfx7IVFtqfAgnrwt
+         fcqpfQlpQqiP3Mtsi9Kam2nvsdNG/hQp9Uapob6UGm2W1ue0W41msv2oHzejOvIQy5xe
+         F+gX/r9VyLqN1dkADArYWTP1MNy4Hii6eVq9KST5gQkBUo0bA8Zwpq8dFM+SejsEJEFj
+         PNQA==
+X-Gm-Message-State: AGRZ1gJS8m0rTOe7Vx0XE9fOSu1nSazwwZCl0HjlG6gnxk+YvU5OmD4p
+	Epo1eg0db7XiTfftkvYOvQ7wqxbw79TTNrjD5QQhmgmL8wleVao=
+X-Received: by 2002:a62:520b:: with SMTP id g11mr6511631pfb.53.1542800701631;
+        Wed, 21 Nov 2018 03:45:01 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:d106:0:0:0:0 with SMTP id l6-v6csp1834821pju;
+        Wed, 21 Nov 2018 03:45:00 -0800 (PST)
+X-Google-Smtp-Source: AFSGD/UVk3UB4CEJl6fTiVDkDXa9/KFCMxbKm2/Ne5La1efJi52U8wKmg7LGq1dxBIS1kWSYE68r
+X-Received: by 2002:a63:f844:: with SMTP id v4mr5621487pgj.82.1542800700254;
+        Wed, 21 Nov 2018 03:45:00 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542800700; cv=none;
+        d=google.com; s=arc-20160816;
+        b=sGXmUrVqAGXBq7iUOPwoaTyo/ReU2o5HzRWKQxorBlqewIDbYK3Zzacr2hhiVeczs6
+         DIvxLfiBBvEr8VCBQXri9h0XiQ+3ZAW05DKz7Q9mAEefodm/32REvxCi5B/hU1uoDWcG
+         SWKFr6vMPLBQitl7/5XOH//fomMv7BCoF5Hbx3yN3xJCXQpu1xD3rpovh6U9cMKB87y7
+         wVQLoKBre4NkwbmPR5gDQlPO3OaUINiZ+SGNOLtBXw9Qx1/FzBoK8fNE3KlO2ttS4GxD
+         XqdcmdHWnKMJwiL4Z5aAJe5WbakFzz50Gwcnc1yZt/MR1bCzW8bjcUn45zPKVg2vU2hO
+         la5w==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:message-id:date:subject:cc:to:from
+         :dkim-signature;
+        bh=MGmzSFD9yA9B8zvndJgZDTVvOwRl+YrBF/tFuCK8eBs=;
+        b=JFbztHIEknZeht8ZPzj9RCauQFxpIhWNgz1rVIKktLoNAJlCIlFR5i/kuf/PB66ewD
+         QOfYddYqEr458pk3wSMuKLLHF11WzUnLOuVuTE7dz7ld9BYgXXFdfqYZ3UamTwKEwF9j
+         /qySqGSA8J6Lk6MD8pq2fnIjO9eO26XWBlxqSixLVMtVCs4J17RaNA+3F5GTZxqfvSdO
+         3iG8OAqgDvWwD1IIROTvX3vt5rxMtiDFJv0FzuiseKbLnIthiOeLgqJoIjnouBnhaBEN
+         VQp2MiEJWB5h4+w4bqnXvNu2sblmp/8eM3gMsX1Zc+c96Y5w4XErBssRNxBt5EdbMVXM
+         zvuA==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@gmail.com header.s=20161025 header.b=Auynbds0;
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;
+       dmarc=pass (p=NONE sp=QUARANTINE dis=NONE) header.from=gmail.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id 1-v6si49856091plq.243.2018.11.21.03.44.46;
+        Wed, 21 Nov 2018 03:45:00 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1730253AbeKUWEQ (ORCPT <rfc822;nullbytes00@gmail.com>
+        + 99 others); Wed, 21 Nov 2018 17:04:16 -0500
+Received: from mail-pl1-f194.google.com ([209.85.214.194]:44679 "EHLO
+        mail-pl1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729179AbeKUWEP (ORCPT
+        <rfc822;linux-kernel@vger.kernel.org>);
+        Wed, 21 Nov 2018 17:04:15 -0500
+Received: by mail-pl1-f194.google.com with SMTP id s5-v6so5138773plq.11
+        for <linux-kernel@vger.kernel.org>; Wed, 21 Nov 2018 03:30:13 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id;
+        bh=MGmzSFD9yA9B8zvndJgZDTVvOwRl+YrBF/tFuCK8eBs=;
+        b=Auynbds0y+t11pga665KudTb3qzoA0hVnSMQXYHO2LeMWy7KasJBWj0Uc6q3LHhNUa
+         WKDddVr6NHNlAd/F7jpkCBZyl3Toa8rtKC/IzfCdXU1tLXwjl73ym5NxlLm9DiDX9MXg
+         EGxQF9XgO4TxqchQpRA9zefE0BZqUX64246mh2xxaJTaZThzHQUxabVeGQyPGLgxl0qw
+         n+4axQE2QJUs9vzp2+Kn3KhW1jbpoojQK2sawy6IKJtCxxT3S61mBbuED4A/h/+bI/kN
+         ciGqTHbDS3azel7+pCCcdH74aFzigQkbdAamBkUhSYefpjeIjBxNwudMAG8SG/f55NQj
+         YspA==
+X-Received: by 2002:a62:d148:: with SMTP id t8mr6556778pfl.52.1542799812778;
+        Wed, 21 Nov 2018 03:30:12 -0800 (PST)
+Received: from dest.didichuxing.com ([203.100.54.194])
+        by smtp.gmail.com with ESMTPSA id t13sm90753952pgr.42.2018.11.21.03.30.09
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 21 Nov 2018 03:30:12 -0800 (PST)
+From: ufo19890607@gmail.com
+To: akpm@linux-foundation.org, mhocko@suse.com, rientjes@google.com,
+        kirill.shutemov@linux.intel.com, aarcange@redhat.com,
+        penguin-kernel@i-love.sakura.ne.jp, guro@fb.com,
+        yang.s@alibaba-inc.com
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+        yuzhoujian@didichuxing.com
+Subject: [PATCH v15 1/2] Reorganize the oom report in dump_header
+Date: Wed, 21 Nov 2018 19:29:58 +0800
+Message-Id: <1542799799-36184-1-git-send-email-ufo19890607@gmail.com>
+X-Mailer: git-send-email 1.8.3.1
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwAX_Ec9RfVbIzZjAA--.292S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW3urWfKw4rtry7Gw48Xw4Utwb_yoWDCr45pF
+	93K34UJa1kAF4a9an7tasF9r1fJ397Ga43Cr97C34xAF43Xr1Ivay7tr1jvFyDuas8JF4j
+	yFs0vw1kuFn8ta7anT9S1TB71UUUUUUqnTZGkaVYY2UrUUUU0bIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUQ2b7Iv0xC_Kw4lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Xr0_Ar1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1l84ACjcxK6I8E
+	87Iv67AKxVW0oVCq3wA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_GcCE3s1lnxkEFVAIw20F6c
+	xK64vIFxWle2I262IYc4CY6c8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2Wl
+	Yx0E2Ix0cI8IcVAFwI0_Jrv_JF1lYx0Ex4A2jsIE14v26F4j6r4UJwAm72CE4IkC6x0Yz7
+	v_Jr0_Gr1lF7xvr2IYc2Ij64vIr41lw4CEc2x0rVAKj4xxMx02cVCv0xWlc7CjxVAKzI0E
+	Y4vE52x082I5MxkFs20EY4vE44CYbxCE4x80FwCY02Avz4vEIxC_Gw4lc2IjII80xcxEwV
+	AKI48JMxvI42IY6xIIjxv20xvE14v26r4j6ryUMxvI42IY6xIIjxv20xvEc7CjxVAFwI0_
+	Gr0_Cr1lcIIF0xvEx4A2jsIE14v26F4UJVW0owCYIxAIcVC2z280aVCY1x0267AKxVWxJr
+	0_GcWl42xK82IYc2Ij64vIr41l42xK82IY64kExVAvwVAq07x20xyl4x8a6x804xWl4I8I
+	3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x8GjcxK67AKxV
+	WUGVWUWwC2zVAF1VAY17CE14v26r1q6r43MIIYrxkI7VAKI48JMIIF0xvE42xK8VAvwI8I
+	cIk0rVWUCVW8JbIYCTnIWIevJa73UjIFyTuYvjxUQjNKUUUUU
+
+From: yuzhoujian <yuzhoujian@didichuxing.com>
+
+OOM report contains several sections. The first one is the allocation
+context that has triggered the OOM. Then we have cpuset context
+followed by the stack trace of the OOM path. The tird one is the OOM
+memory information. Followed by the current memory state of all system
+tasks. At last, we will show oom eligible tasks and the information
+about the chosen oom victim.
+
+One thing that makes parsing more awkward than necessary is that we do
+not have a single and easily parsable line about the oom context. This
+patch is reorganizing the oom report to
+1) who invoked oom and what was the allocation request
+[  515.902945] tuned invoked oom-killer: gfp_mask=0x6200ca(GFP_HIGHUSER_MOVABLE), order=0, oom_score_adj=0
+
+2) OOM stack trace
+[  515.904273] CPU: 24 PID: 1809 Comm: tuned Not tainted 4.20.0-rc3+ #3
+[  515.905518] Hardware name: Inspur SA5212M4/YZMB-00370-107, BIOS 4.1.10 11/14/2016
+[  515.906821] Call Trace:
+[  515.908062]  dump_stack+0x5a/0x73
+[  515.909311]  dump_header+0x55/0x28c
+[  515.914260]  oom_kill_process+0x2d8/0x300
+[  515.916708]  out_of_memory+0x145/0x4a0
+[  515.917932]  __alloc_pages_slowpath+0x7d2/0xa16
+[  515.919157]  __alloc_pages_nodemask+0x277/0x290
+[  515.920367]  filemap_fault+0x3d0/0x6c0
+[  515.921529]  ? filemap_map_pages+0x2b8/0x420
+[  515.922709]  ext4_filemap_fault+0x2c/0x40 [ext4]
+[  515.923884]  __do_fault+0x20/0x80
+[  515.925032]  __handle_mm_fault+0xbc0/0xe80
+[  515.926195]  handle_mm_fault+0xfa/0x210
+[  515.927357]  __do_page_fault+0x233/0x4c0
+[  515.928506]  do_page_fault+0x32/0x140
+[  515.929646]  ? page_fault+0x8/0x30
+[  515.930770]  page_fault+0x1e/0x30
+
+3) OOM memory information
+[  515.958093] Mem-Info:
+[  515.959647] active_anon:26501758 inactive_anon:1179809 isolated_anon:0
+ active_file:4402672 inactive_file:483963 isolated_file:1344
+ unevictable:0 dirty:4886753 writeback:0 unstable:0
+ slab_reclaimable:148442 slab_unreclaimable:18741
+ mapped:1347 shmem:1347 pagetables:58669 bounce:0
+ free:88663 free_pcp:0 free_cma:0
+...
+
+4) current memory state of all system tasks
+[  516.079544] [    744]     0   744     9211     1345   114688       82             0 systemd-journal
+[  516.082034] [    787]     0   787    31764        0   143360       92             0 lvmetad
+[  516.084465] [    792]     0   792    10930        1   110592      208         -1000 systemd-udevd
+[  516.086865] [   1199]     0  1199    13866        0   131072      112         -1000 auditd
+[  516.089190] [   1222]     0  1222    31990        1   110592      157             0 smartd
+[  516.091477] [   1225]     0  1225     4864       85    81920       43             0 irqbalance
+[  516.093712] [   1226]     0  1226    52612        0   258048      426             0 abrtd
+[  516.112128] [   1280]     0  1280   109774       55   299008      400             0 NetworkManager
+[  516.113998] [   1295]     0  1295    28817       37    69632       24             0 ksmtuned
+[  516.144596] [  10718]     0 10718  2622484  1721372 15998976   267219             0 panic
+[  516.145792] [  10719]     0 10719  2622484  1164767  9818112    53576             0 panic
+[  516.146977] [  10720]     0 10720  2622484  1174361  9904128    53709             0 panic
+[  516.148163] [  10721]     0 10721  2622484  1209070 10194944    54824             0 panic
+[  516.149329] [  10722]     0 10722  2622484  1745799 14774272    91138             0 panic
+
+5) oom context (contrains and the chosen victim).
+oom-kill:constraint=CONSTRAINT_NONE,nodemask=(null),cpuset=/,mems_allowed=0-1,task=panic,pid=10737,uid=0
+
+An admin can easily get the full oom context at a single line which
+makes parsing much easier.
+
+Signed-off-by: yuzhoujian <yuzhoujian@didichuxing.com>
+---
+Changes since v14:
+- add the dump_oom_summary for the single line output of oom context.
+- fix the null pointer in the dump_header.
+
+Changes since v13:
+- remove the spaces for printing pid and uid.
+
+Changes since v12:
+- print the cpuset and memory allocation information after oom victim comm, pid.
+
+Changes since v11:
+- move the array of const char oom_constraint_text to oom_kill.c
+- add the cpuset information in the one line output.
+
+Changes since v10:
+- divide the patch v8 into two parts. One part is to add the array of const char and put enum
+  oom_constaint into oom.h; the other adds a new func to print the missing information for the system-
+  wide oom report.
+
+Changes since v9:
+- divide the patch v8 into two parts. One part is to move enum oom_constraint into memcontrol.h; the
+  other refactors the output info in the dump_header.
+- replace orgin_memcg and kill_memcg with oom_memcg and task_memcg resptively.
+
+Changes since v8:
+- add the constraint in the oom_control structure.
+- put enum oom_constraint and constraint array into the oom.h file.
+- simplify the description for mem_cgroup_print_oom_context.
+
+Changes since v7:
+- add the constraint parameter to dump_header and oom_kill_process.
+- remove the static char array in the mem_cgroup_print_oom_context, and
+  invoke pr_cont_cgroup_path to print memcg' name.
+- combine the patchset v6 into one.
+
+Changes since v6:
+- divide the patch v5 into two parts. One part is to add an array of const char and
+  put enum oom_constraint into the memcontrol.h; the other refactors the output
+  in the dump_header.
+- limit the memory usage for the static char array by using NAME_MAX in the mem_cgroup_print_oom_context.
+- eliminate the spurious spaces in the oom's output and fix the spelling of "constrain".
+
+Changes since v5:
+- add an array of const char for each constraint.
+- replace all of the pr_cont with a single line print of the pr_info.
+- put enum oom_constraint into the memcontrol.c file for printing oom constraint.
+
+Changes since v4:
+- rename the helper's name to mem_cgroup_print_oom_context.
+- rename the mem_cgroup_print_oom_info to mem_cgroup_print_oom_meminfo.
+- add the constrain info in the dump_header.
+
+Changes since v3:
+- rename the helper's name to mem_cgroup_print_oom_memcg_name.
+- add the rcu lock held to the helper.
+- remove the print info of memcg's name in mem_cgroup_print_oom_info.
+
+Changes since v2:
+- add the mem_cgroup_print_memcg_name helper to print the memcg's
+  name which contains the task that will be killed by the oom-killer.
+
+Changes since v1:
+- replace adding mem_cgroup_print_oom_info with printing the memcg's
+  name only.
+
+ include/linux/oom.h    | 10 ++++++++++
+ kernel/cgroup/cpuset.c |  4 ++--
+ mm/oom_kill.c          | 29 ++++++++++++++++++++---------
+ mm/page_alloc.c        |  4 ++--
+ 4 files changed, 34 insertions(+), 13 deletions(-)
+
+diff --git a/include/linux/oom.h b/include/linux/oom.h
+index 69864a5..d079920 100644
+--- a/include/linux/oom.h
++++ b/include/linux/oom.h
+@@ -15,6 +15,13 @@
+ struct mem_cgroup;
+ struct task_struct;
+ 
++enum oom_constraint {
++	CONSTRAINT_NONE,
++	CONSTRAINT_CPUSET,
++	CONSTRAINT_MEMORY_POLICY,
++	CONSTRAINT_MEMCG,
++};
++
+ /*
+  * Details of the page allocation that triggered the oom killer that are used to
+  * determine what should be killed.
+@@ -42,6 +49,9 @@ struct oom_control {
+ 	unsigned long totalpages;
+ 	struct task_struct *chosen;
+ 	unsigned long chosen_points;
++
++	/* Used to print the constraint info. */
++	enum oom_constraint constraint;
+ };
+ 
+ extern struct mutex oom_lock;
+diff --git a/kernel/cgroup/cpuset.c b/kernel/cgroup/cpuset.c
+index 266f10c..9510a5b 100644
+--- a/kernel/cgroup/cpuset.c
++++ b/kernel/cgroup/cpuset.c
+@@ -2666,9 +2666,9 @@ void cpuset_print_current_mems_allowed(void)
+ 	rcu_read_lock();
+ 
+ 	cgrp = task_cs(current)->css.cgroup;
+-	pr_info("%s cpuset=", current->comm);
++	pr_cont(",cpuset=");
+ 	pr_cont_cgroup_name(cgrp);
+-	pr_cont(" mems_allowed=%*pbl\n",
++	pr_cont(",mems_allowed=%*pbl",
+ 		nodemask_pr_args(&current->mems_allowed));
+ 
+ 	rcu_read_unlock();
+diff --git a/mm/oom_kill.c b/mm/oom_kill.c
+index 6589f60..2c686d2 100644
+--- a/mm/oom_kill.c
++++ b/mm/oom_kill.c
+@@ -245,11 +245,11 @@ unsigned long oom_badness(struct task_struct *p, struct mem_cgroup *memcg,
+ 	return points > 0 ? points : 1;
+ }
+ 
+-enum oom_constraint {
+-	CONSTRAINT_NONE,
+-	CONSTRAINT_CPUSET,
+-	CONSTRAINT_MEMORY_POLICY,
+-	CONSTRAINT_MEMCG,
++static const char * const oom_constraint_text[] = {
++	[CONSTRAINT_NONE] = "CONSTRAINT_NONE",
++	[CONSTRAINT_CPUSET] = "CONSTRAINT_CPUSET",
++	[CONSTRAINT_MEMORY_POLICY] = "CONSTRAINT_MEMORY_POLICY",
++	[CONSTRAINT_MEMCG] = "CONSTRAINT_MEMCG",
+ };
+ 
+ /*
+@@ -428,16 +428,25 @@ static void dump_tasks(struct mem_cgroup *memcg, const nodemask_t *nodemask)
+ 	rcu_read_unlock();
+ }
+ 
++static void dump_oom_summary(struct oom_control *oc, struct task_struct *victim)
++{
++	/* one line summary of the oom killer context. */
++	pr_info("oom-kill:constraint=%s,nodemask=%*pbl",
++			oom_constraint_text[oc->constraint],
++			nodemask_pr_args(oc->nodemask));
++	cpuset_print_current_mems_allowed();
++	pr_cont(",task=%s,pid=%d,uid=%d\n", victim->comm, victim->pid,
++		from_kuid(&init_user_ns, task_uid(victim)));
++}
++
+ static void dump_header(struct oom_control *oc, struct task_struct *p)
+ {
+-	pr_warn("%s invoked oom-killer: gfp_mask=%#x(%pGg), nodemask=%*pbl, order=%d, oom_score_adj=%hd\n",
+-		current->comm, oc->gfp_mask, &oc->gfp_mask,
+-		nodemask_pr_args(oc->nodemask), oc->order,
++	pr_warn("%s invoked oom-killer: gfp_mask=%#x(%pGg), order=%d, oom_score_adj=%hd\n",
++		current->comm, oc->gfp_mask, &oc->gfp_mask, oc->order,
+ 			current->signal->oom_score_adj);
+ 	if (!IS_ENABLED(CONFIG_COMPACTION) && oc->order)
+ 		pr_warn("COMPACTION is disabled!!!\n");
+ 
+-	cpuset_print_current_mems_allowed();
+ 	dump_stack();
+ 	if (is_memcg_oom(oc))
+ 		mem_cgroup_print_oom_info(oc->memcg, p);
+@@ -448,6 +457,8 @@ static void dump_header(struct oom_control *oc, struct task_struct *p)
+ 	}
+ 	if (sysctl_oom_dump_tasks)
+ 		dump_tasks(oc->memcg, oc->nodemask);
++	if (p)
++		dump_oom_summary(oc, p);
+ }
+ 
+ /*
+diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+index 6847177..e7cff0b 100644
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -3413,13 +3413,13 @@ void warn_alloc(gfp_t gfp_mask, nodemask_t *nodemask, const char *fmt, ...)
+ 	va_start(args, fmt);
+ 	vaf.fmt = fmt;
+ 	vaf.va = &args;
+-	pr_warn("%s: %pV, mode:%#x(%pGg), nodemask=%*pbl\n",
++	pr_warn("%s: %pV, mode:%#x(%pGg), nodemask=%*pbl",
+ 			current->comm, &vaf, gfp_mask, &gfp_mask,
+ 			nodemask_pr_args(nodemask));
+ 	va_end(args);
+ 
+ 	cpuset_print_current_mems_allowed();
+-
++	pr_cont("\n");
+ 	dump_stack();
+ 	warn_alloc_show_mem(gfp_mask, nodemask);
+ }
+-- 
+1.8.3.1

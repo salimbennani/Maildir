@@ -1,0 +1,215 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (61.164.42.155:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 08 Nov 2018 10:27:59 -0000
+Received: from icoremail.net (unknown [209.85.215.175])
+	by mail-app2 (Coremail) with SMTP id by_KCgDHH94m1eNbQeBdAQ--.27941S3;
+	Thu, 08 Nov 2018 14:18:14 +0800 (CST)
+Received: from mail-pg1-f175.google.com (unknown [209.85.215.175])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwB38Ewd1eNb+0UbAA--.6110S3;
+	Thu, 08 Nov 2018 14:18:05 +0800 (CST)
+Received: by mail-pg1-f175.google.com with SMTP id 70so2832394pgh.8
+        for <xuliker@zju.edu.cn>; Wed, 07 Nov 2018 22:18:05 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:delivered-to:dkim-signature:date:from:to:cc
+         :subject:message-id:references:mime-version:content-disposition
+         :in-reply-to:user-agent:sender:precedence:list-id;
+        bh=Ov/CHYVIFJVOhZQs37VDkYDSMQGr8+d5ODTE86SULQw=;
+        b=rCr0hpa7RNXMqQ29Gqv3wvGt1LA2qemm7rt3aFsSJnBSW7f4LcEtTAeyc1z5qHqFPH
+         5GKRAS0e2F0Z6Q4D6iTSVsnhXPCWOI5Ih3UztzGSfzXwbdgxNkBONerFEnSY9dQlRadK
+         t1k/cRHkR+adv2R/4WIeyGYl83OZeQbmcZOXq4EF9rYKCv10m/PHw9/Qwb6AZZUE/VkV
+         MDjgg99vFMcQ8YEPrDBaMUaC2/Z/CxBgAkV4cyfAmtlgZ1w+AUXp8UrBlvL0owBkG8P/
+         Uktx4JgkghOWNcqEt4vMx6ExqFkSLtG0wTNfG0s8TTj9O555IAY70rN9Ly3irO9Eow3M
+         THEg==
+X-Gm-Message-State: AGRZ1gKRSUQWGObCUDb08BVsP8A7m9UjXhJd9gierAvzpQ28DpJrcHM9
+	uxhV6B0T8q8U15F1MXtjqcMlGE54z/cXVFsw6TQvigOu4H6rfiCgfg==
+X-Received: by 2002:a62:5e83:: with SMTP id s125-v6mr3305846pfb.232.1541657885133;
+        Wed, 07 Nov 2018 22:18:05 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp140134pjt;
+        Wed, 7 Nov 2018 22:18:04 -0800 (PST)
+X-Google-Smtp-Source: AJdET5cySeJXDQdLVe2HpHeI7JIsGbqJyzJokEZTJ/RtKMizfp3GOxtKl1TzX35NSWvQJj5GfpFq
+X-Received: by 2002:a62:8a0d:: with SMTP id y13-v6mr3365759pfd.142.1541657883983;
+        Wed, 07 Nov 2018 22:18:03 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1541657883; cv=none;
+        d=google.com; s=arc-20160816;
+        b=AXjQneTA0F1c4mGqHE20FOFJ4ViWy3+Cg6z82HdAOwYHds0pGsW61EADeOjoDeiwRJ
+         I3At8SeEVJJizXehBMY6okzckxd++CMPE4R2zlUsizvwScey6Zr9CIkjGEGahdHnRDh8
+         3iFVSuyvJ+uX+IkHVwHXoZHCxdxDwjfELdeqPGQbA/nSFVTmHnlL4JgZnvP6rF7lCTFN
+         +yBmqibbKBV3guTI6M+zTfyJm4DEOlFCoNh0AGXnbs6rvBvSkyL8Sa3C5dOgba0pbNZw
+         bQqxg5hBgg4eeLd4rMqHa9XMEbJfbHVj4FCpW1mhhjpaT4JQoutu/Jrl6OJh5qbhqbhM
+         8voA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:user-agent:in-reply-to
+         :content-disposition:mime-version:references:message-id:subject:cc
+         :to:from:date:dkim-signature;
+        bh=Ov/CHYVIFJVOhZQs37VDkYDSMQGr8+d5ODTE86SULQw=;
+        b=VKBAfq0m8vGtaGe4XeHkrcw/ng16YG4WNYF9Tno1snEcpMa1wbpxs/YbDQJ/Flzok9
+         x5LxbRnPibb9zsj/TA6yFnqx8QCMPMh+S7bGZU1DGpvaauWGgay+4n15Yx+nleEk0ok3
+         DcyFKrWBlSz6tEFxHSo8GmsmgFkVy0Sdarl6zgTMNU00kvu5ntbaql6pZ0fsewNz3Qie
+         cRTecBi6dI6aA72kDdhNGOAYBykTFsSXdidh10ZnAfpfCoLrsKmv2Eawj6Y1FVMtGUZP
+         BmHGhRp1XAU8gz/trOTdghcPxhIUP1Kh6AiHprJeNSdeM3cBqiIgu5v3aEYQ+rhx4SCV
+         4QQQ==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@gibson.dropbear.id.au header.s=201602 header.b=ZGecsgN5;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id r17-v6si2936260pgh.56.2018.11.07.22.17.50;
+        Wed, 07 Nov 2018 22:18:03 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1726686AbeKHPvc (ORCPT <rfc822;fanshuming2011@gmail.com>
+        + 99 others); Thu, 8 Nov 2018 10:51:32 -0500
+Received: from ozlabs.org ([203.11.71.1]:34195 "EHLO ozlabs.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726342AbeKHPvb (ORCPT <rfc822;kvm@vger.kernel.org>);
+        Thu, 8 Nov 2018 10:51:31 -0500
+Received: by ozlabs.org (Postfix, from userid 1007)
+        id 42rCkS6SRSz9sBk; Thu,  8 Nov 2018 17:17:36 +1100 (AEDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+        d=gibson.dropbear.id.au; s=201602; t=1541657856;
+        bh=9aMtEMZOJeWZocuVMX9YvCGvp/AQSrx89Fkb+hrN9gY=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=ZGecsgN56wII3Lp5I+7FlI+VeAFNNGRhUa1eiUibh7XNVdaXSnimfVqe6CjphSeW3
+         NAg1e1AXPUKJf1YSynoJu6f7FBYS6ErVuTQd9ZyYVXxN6f4wPras2u3DE3AVKnBZQc
+         fcNrdVFZKkNXOMzcklHG1A0F5B+4KlUDkU04t6qM=
+Date: Thu, 8 Nov 2018 17:04:22 +1100
+From: David Gibson <david@gibson.dropbear.id.au>
+To: Alexey Kardashevskiy <aik@ozlabs.ru>
+Cc: linuxppc-dev@lists.ozlabs.org, kvm-ppc@vger.kernel.org,
+        kvm@vger.kernel.org, Alex Williamson <alex.williamson@redhat.com>,
+        Alistair Popple <alistair@popple.id.au>,
+        Reza Arbab <arbab@linux.ibm.com>
+Subject: Re: [PATCH kernel 1/3] vfio_pci: Allow mapping extra regions
+Message-ID: <20181108060422.GP5575@umbus.fritz.box>
+References: <20181015094233.1324-1-aik@ozlabs.ru>
+ <20181015094233.1324-2-aik@ozlabs.ru>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="AwNVUpjOmSj7UnwZ"
+Content-Disposition: inline
+In-Reply-To: <20181015094233.1324-2-aik@ozlabs.ru>
+User-Agent: Mutt/1.10.1 (2018-07-13)
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwB38Ewd1eNb+0UbAA--.6110S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW7AFWUWF4DKF18AFWxKF15Arb_yoW5JrWxpF
+	Z5XFyF9rW8tryxur1DAFy7ZFZ0v3ZYvFyI9ay7Ww1a9w1ay3WUGr4Fy3W2yFW3C3yUCF1U
+	Xr1jkFyDua45XF7anT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUmKb7Iv0xC_KF4lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Xr0_Ar1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1l84ACjcxK6I8E
+	87Iv67AKxVW0oVCq3wA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_GcCE3s1lnx0Ee4C267I2x7
+	xF54xIwI0E7I0Y6sxI4wAS0I0E0xvYzxvE52x082IY62kv0487M2AExVA0xI801c8C04v7
+	Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AKxVWUJVWUGwAv7VC2z280aV
+	AFwI0_Gr0_Cr1lOx8S6xCaFVCjc4AY6r1j6r4UMx02cVCv0xWlc7CjxVAKzI0EY4vE52x0
+	82I5MxkFs20EY4vE44CYbxCE4x80FwCY02Avz4vEIxC_GF1lc2IjII80xcxEwVAKI48JMx
+	vI42IY6xIIjxv20xvE14v26r1I6r4UMxvI42IY6xIIjxv20xvEc7CjxVAFwI0_Jr0_Gr1l
+	cIIF0xvEx4A2jsIE14v26F4UJVW0owCYIxAIcVC2z280aVCY1x0267AKxVWxJr0_GcWl42
+	xK82IYc2Ij64vIr41l42xK82IY64kExVAvwVAq07x20xyl4x8a6x804xWl4I8I3I0E4IkC
+	6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x8GjcxK67AKxVWUGVWUWw
+	C2zVAF1VAY17CE14v26r1q6r43MIIYrxkI7VAKI48JMIIF0xvE42xK8VAvwI8IcIk0rVW8
+	JVW3JbIYCTnIWIevJa73UjIFyTuYvjxUSVWLUUUUU
+
+
+--AwNVUpjOmSj7UnwZ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Mon, Oct 15, 2018 at 08:42:31PM +1100, Alexey Kardashevskiy wrote:
+65;5402;1c> So far we only allowed mapping of MMIO BARs to the userspace. H=
+owever
+> there there are GPUs with on-board coherent RAM accessible via side
+> channels which we also want to map to the userspace. The first client
+> for this is NVIDIA V100 GPU with NVLink2 direct links to a POWER9
+> NPU-enabled CPU; such GPUs have 16GB RAM which is coherently mapped
+> to the system address space, we are going to export these as an extra
+> PCI region.
+>=20
+> We already support extra PCI regions and this adds support for mapping
+> them to the userspace.
+>=20
+> Signed-off-by: Alexey Kardashevskiy <aik@ozlabs.ru>
+
+Reviewed-by: David Gibson <david@gibson.dropbear.id.au>
+
+> ---
+> Changes:
+> v2:
+> * reverted one of mistakenly removed error checks
+> ---
+>  drivers/vfio/pci/vfio_pci_private.h | 3 +++
+>  drivers/vfio/pci/vfio_pci.c         | 8 ++++++++
+>  2 files changed, 11 insertions(+)
+>=20
+> diff --git a/drivers/vfio/pci/vfio_pci_private.h b/drivers/vfio/pci/vfio_=
+pci_private.h
+> index cde3b5d..86aab05 100644
+> --- a/drivers/vfio/pci/vfio_pci_private.h
+> +++ b/drivers/vfio/pci/vfio_pci_private.h
+> @@ -59,6 +59,9 @@ struct vfio_pci_regops {
+>  		      size_t count, loff_t *ppos, bool iswrite);
+>  	void	(*release)(struct vfio_pci_device *vdev,
+>  			   struct vfio_pci_region *region);
+> +	int	(*mmap)(struct vfio_pci_device *vdev,
+> +			struct vfio_pci_region *region,
+> +			struct vm_area_struct *vma);
+>  };
+> =20
+>  struct vfio_pci_region {
+> diff --git a/drivers/vfio/pci/vfio_pci.c b/drivers/vfio/pci/vfio_pci.c
+> index d9af440..7923314 100644
+> --- a/drivers/vfio/pci/vfio_pci.c
+> +++ b/drivers/vfio/pci/vfio_pci.c
+> @@ -1126,6 +1126,14 @@ static int vfio_pci_mmap(void *device_data, struct=
+ vm_area_struct *vma)
+>  		return -EINVAL;
+>  	if ((vma->vm_flags & VM_SHARED) =3D=3D 0)
+>  		return -EINVAL;
+> +	if (index >=3D VFIO_PCI_NUM_REGIONS) {
+> +		int regnum =3D index - VFIO_PCI_NUM_REGIONS;
+> +		struct vfio_pci_region *region =3D vdev->region + regnum;
+> +
+> +		if (region && region->ops && region->ops->mmap)
+> +			return region->ops->mmap(vdev, region, vma);
+> +		return -EINVAL;
+> +	}
+>  	if (index >=3D VFIO_PCI_ROM_REGION_INDEX)
+>  		return -EINVAL;
+>  	if (!vdev->bar_mmap_supported[index])
+
+--=20
+David Gibson			| I'll have my music baroque, and my code
+david AT gibson.dropbear.id.au	| minimalist, thank you.  NOT _the_ _other_
+				| _way_ _around_!
+http://www.ozlabs.org/~dgibson
+
+--AwNVUpjOmSj7UnwZ
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEEdfRlhq5hpmzETofcbDjKyiDZs5IFAlvj0eIACgkQbDjKyiDZ
+s5Kh/Q/9EDTEywNiv2jB25o+GG9jDesXxhv2omzhGl/zfTYBKecgx0yaL5adZqNi
+mVvnWIF+HaQvKzrSoJ2Lc/ebEHNwLF84hpepoHBY4V6jI3O5xmsuwdZNGYmKtrYt
+1Ga7iMFmLHnDggm9NHJIENXCb3aSrGczMNDHrso2Pbf7XbAc4RVdI6AvENG8da4e
+9ub0n/XeyqxAMEVLDKn8hjpSFa+eL2QtqVyIpz1pr/QeEDZ+/IF4c76a+d19Nk3n
+ilcQkVOHvvaGp9BL2JypZ2NiKDHhEQwNZSE6BKP7HtjoSkqDeUcsJgurEPJzgQ1C
+SH1ae9XLahVUwq/V3NIf2uu9hLVG/nfkuLPmM3QIDr6gg151LjA4+5FTHXzSSwDs
+s8xoqzFbA01tl8EFJ1CihfsiaoxC3glZlrHTYgVafBvhj0dH/xgZ228MY4diuiq1
+8S0AzD0TeLraralYTdJL/IgO3orXOsmrroqZVStG6NxAX3YlIlAoA6geAJ3I5U+C
+2h+Xeg3fy2DKHRkD7J/2/vN3yQL8iHRU4Sp1qyS2GQ4/xamALL4u+Z5SA0YVABPB
+oIf5vgRKzvUzQUvbwsCsbumXb7/ehLyFH5lAS3OITz4JtCRPK6J/HFfmDE3rgTjZ
+LZ5b8buJbPOIzKQzuG6tRmmwk4MV4DNO8KF85+Km7nTqB7YyaSA=
+=za5f
+-----END PGP SIGNATURE-----
+
+--AwNVUpjOmSj7UnwZ--

@@ -1,0 +1,161 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 15 Nov 2018 00:43:41 -0000
+Received: from icoremail.net (unknown [209.85.214.177])
+	by mail-app2 (Coremail) with SMTP id by_KCgDHHyYVpexbFK2TAQ--.44788S3;
+	Thu, 15 Nov 2018 06:43:34 +0800 (CST)
+Received: from mail-pl1-f177.google.com (unknown [209.85.214.177])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwB38EwTpexbAIdAAA--.804S3;
+	Thu, 15 Nov 2018 06:43:31 +0800 (CST)
+Received: by mail-pl1-f177.google.com with SMTP id t13so5502330ply.13
+        for <xuliker@zju.edu.cn>; Wed, 14 Nov 2018 14:43:31 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:delivered-to:dkim-signature:date:in-reply-to
+         :message-id:mime-version:references:subject:from:to:cc:sender
+         :precedence:list-id;
+        bh=xkTfZ5o1GNAQFrsBpd9b1qpDiRwW7hTYlCyvxR2DUV4=;
+        b=CMk0dcGGREqUlybZ9cc0iod4kSOSVeIWdOGcKhetzrgZoSfpYW83uCUpydLq8tVvVE
+         +L7XKujNSCzxYqCK4CqgyX+iruWW7zsGSZSzakO38QUcHxlml/QgFrnQjiu3x02vlfd3
+         ctVsCgh6SMMddSR0rP+6S/gJbIN3DLRhfqXO1e2+nIG5JIs8Pm5fMD4TynV3itSqxwH0
+         G2t87Gm8CR65mu/ovvfPK/VMFY17/ppGI0PgE0oA1sJqO2GLuICegyt38PHiXswJ73ES
+         xgIu5o85sn9mbbZhkmul1I/wz7epV5B9eKHxnoJL0suJRq+kID+QNc4d/x5ArFds5k7R
+         3AOA==
+X-Gm-Message-State: AGRZ1gJoUvFlqGf2KcavpQPqRNWbV3le/I/EXAKs33J0g4cQBSOcn2Lp
+	a5YLNn/D5ZcT4SR2y9AUINUgG1Nzsy5vDIA+hwjMM16t9KQaBh/RGw==
+X-Received: by 2002:a17:902:9698:: with SMTP id n24-v6mr3865658plp.9.1542235411170;
+        Wed, 14 Nov 2018 14:43:31 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp6406878pjt;
+        Wed, 14 Nov 2018 14:43:30 -0800 (PST)
+X-Google-Smtp-Source: AJdET5fgLUShCOAsneKlBKhLhOInswQC7qdVHB7LaGsn8sl2H3UcENji5WZBdqJICQtPhNRRytpP
+X-Received: by 2002:a62:1541:: with SMTP id 62mr3873041pfv.230.1542235410460;
+        Wed, 14 Nov 2018 14:43:30 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542235410; cv=none;
+        d=google.com; s=arc-20160816;
+        b=qiOlTgKAKFKFNOdereFbeJPCxuuOWW8pyFYQR4QTZfM6Y6XtabLK+SEKfyNnwXkQZg
+         nxjQTXMn/KdX/DpXh8cY26hCaTSZJBeVkAQB/YxjRZm7c1SX0KJVtkDPB9pKC5amcXR2
+         hrjvP6QOQjVhMADpaWxKN5B7HN+HT+7zeJhUc4x+p+1dh1/JkqFQpuScDcbOlGoRwLMr
+         AHFwVFtMzhQFHCr7IU//FAIpSbv4hsP4F68d6QGKdc/3ISdPtO26vxV3Rhf+DH1VGPFI
+         R2mLz1jogKUr7zolWqEnfgCB5zMmHX4NYMyL3uwVPTlJQuKCnoyuSH2nYhnNQVddKU0b
+         Vhrg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:cc:to:from:subject:references
+         :mime-version:message-id:in-reply-to:date:dkim-signature;
+        bh=xkTfZ5o1GNAQFrsBpd9b1qpDiRwW7hTYlCyvxR2DUV4=;
+        b=EuByIsp1QltSvm01bLn3Kws+90uURMj6B2420eQd/5bBlmpqv8xGQopeNRIs0EUoH3
+         t63Se3Jc7Td4vw1laKzK46ZQoxsQm1A3MpCt+DV+IksDTT6ltpgms7gWycZ2WtFXNoLx
+         zgLGV53Dwm0hZxhYjYXCGRiPUSVVg3MteMCwl934tiL6u5vJdP6N+Ioc62hxFGMb2Llx
+         wP4GpKpNTq//lkEFldLuxb5Q1EmPVEd42gyZTMCzTM+P4XbnBrYb2vMaHSEiMdVnLdaQ
+         8X355R83M2/02tFGd70UNU45NN1npoDlriXLQ+KMVow5CqBBpXVFXtaEU8BSzXp4Pi5c
+         rH+A==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@google.com header.s=20161025 header.b=ef8CFGTa;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;
+       dmarc=pass (p=REJECT sp=REJECT dis=NONE) header.from=google.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id a2si24632865pgm.154.2018.11.14.14.43.15;
+        Wed, 14 Nov 2018 14:43:30 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1728757AbeKOI1V (ORCPT <rfc822;nodee764@gmail.com> + 99 others);
+        Thu, 15 Nov 2018 03:27:21 -0500
+Received: from mail-qk1-f202.google.com ([209.85.222.202]:52121 "EHLO
+        mail-qk1-f202.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728673AbeKOI1V (ORCPT <rfc822;kvm@vger.kernel.org>);
+        Thu, 15 Nov 2018 03:27:21 -0500
+Received: by mail-qk1-f202.google.com with SMTP id 67so40415313qkj.18
+        for <kvm@vger.kernel.org>; Wed, 14 Nov 2018 14:22:17 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=date:in-reply-to:message-id:mime-version:references:subject:from:to
+         :cc;
+        bh=xkTfZ5o1GNAQFrsBpd9b1qpDiRwW7hTYlCyvxR2DUV4=;
+        b=ef8CFGTaYqRT3qssdlIdyUqI6URrez8hYU2ly3uwI3tjP5B6BLKMvRGvCRurmwHxgV
+         Dtg2mq6qMjU7LiQmjhC6E4W1HaDfq1V+9cLaiIVCWAd6X/3lOtgzHnw0OpeKY3d2nbPo
+         4i1MQtPNWqYmVPGasoP5r0rr754/NZIAG7L1niE6xC4TN2kBWD/c3dsNn7G65D+2LSVj
+         GUQ9uPURBiITXtQHjOhue7vCq+xs4e69c3b3daG/+TBFUN1OgW6Vmt2mQigFXhfW9EeD
+         8hOJPdyNt8Pnz5x2EaE1V1VvQm1TWZ5fGbg/at6VmyNmNOy2ePI+/C52wsLVki/hkh5s
+         H8QA==
+X-Received: by 2002:a0c:b7a8:: with SMTP id l40mr2581731qve.4.1542232379110;
+ Wed, 14 Nov 2018 13:52:59 -0800 (PST)
+Date: Wed, 14 Nov 2018 16:51:52 -0500
+In-Reply-To: <20181109203921.178363-1-brho@google.com>
+Message-Id: <20181114215155.259978-1-brho@google.com>
+Mime-Version: 1.0
+References: <20181109203921.178363-1-brho@google.com>
+X-Mailer: git-send-email 2.19.1.1215.g8438c0b245-goog
+Subject: [PATCH v2 0/3] kvm: Use huge pages for DAX-backed files
+From: Barret Rhoden <brho@google.com>
+To: Dan Williams <dan.j.williams@intel.com>,
+        Dave Jiang <dave.jiang@intel.com>,
+        Ross Zwisler <zwisler@kernel.org>,
+        Vishal Verma <vishal.l.verma@intel.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        "=?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?=" <rkrcmar@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>
+Cc: linux-nvdimm@lists.01.org, linux-kernel@vger.kernel.org,
+        "H. Peter Anvin" <hpa@zytor.com>, x86@kernel.org,
+        kvm@vger.kernel.org, yu.c.zhang@intel.com, yi.z.zhang@intel.com
+Content-Type: text/plain; charset="UTF-8"
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwB38EwTpexbAIdAAA--.804S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvdXoWrZFWxZFyrWw4xZF1fZw1fZwb_yoWkWFXEqa
+	y0ya4rAr1UXFWDJFyUt3W7Jry5CFWUXr18JFy8tr4YkF9rJFnrGr42yrWUZF17Xa18CFW5
+	WryUZw1Fvr15ZjkaLaAFLSUrUUUUUb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAU7a7-sFnT
+	9fnUUIcSsGvfJTRUUUbgxYjsxI4VW3JwAYFVCjjxCrM7AC8VAFwI0_Jr0_Gr1l1IIY67AE
+	w4v_Jr0_Jr4l8cAvFVAK0II2c7xJM28CjxkF64kEwVA0rcxSw2x7M28EF7xvwVC0I7IYx2
+	IY67AKxVWDJVCq3wA2z4x0Y4vE2Ix0cI8IcVCY1x0267AKxVW8Jr0_Cr1UM28EF7xvwVC2
+	z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s0DM2AIxVAIcxkEcV
+	Aq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1Y
+	6r17McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IYc2Ij64
+	vIr41l7I0Y6sxI4wCY1x0264kExVAvwVAq07x20xylc7Ca8VAvwVCFzxkY4VCF77xAMxkI
+	ecxEwVCI4VW3MxkI7II2jI8vz4vEwIxGrwCYIxAIcVC0I7IYx2IY67AKxVWDJVCq3wCYIx
+	AIcVC0I7IYx2IY6xkF7I0E14v26r4UJVWxJr1lcIIF0xvEx4A2jsIE14v26r4UJVWxJr1l
+	cIIF0xvEx4A2jsIEc7CjxVAFwI0_Gr1j6F4UJwCF04k20xvY0x0EwIxGrwCF04k20xvEw4
+	C26cxK6c8Ij28IcwCF72vE77IF4wCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E
+	14v26r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_GFv_WrylIx
+	kGc2Ij64vIr41lIxAIcVCF04k26cxKx2IYs7xG6r1I6r4UYxBIdaVFxhVjvjDU0xZFpf9x
+	07b0vtAUUUUU=
+
+This patch series depends on dax pages not being PageReserved.  Once
+that is in place, these changes will let KVM use huge pages with
+dax-backed files.  Without the PageReserved change, KVM and DAX still
+work with these patches, simply without huge pages - which is the
+current situation.
+
+RFC/discussion thread:
+https://lore.kernel.org/lkml/20181029210716.212159-1-brho@google.com/
+
+v1 -> v2:
+https://lore.kernel.org/lkml/20181109203921.178363-1-brho@google.com/
+
+- Updated Acks/Reviewed-by
+- Minor touchups
+- Added patch to remove redundant PageReserved() check
+- Rebased onto linux-next
+
+
+Barret Rhoden (3):
+  mm: make dev_pagemap_mapping_shift() externally visible
+  kvm: Use huge pages for DAX-backed files
+  kvm: remove redundant PageReserved() check
+
+ arch/x86/kvm/mmu.c  | 33 +++++++++++++++++++++++++++++++--
+ include/linux/mm.h  |  3 +++
+ mm/memory-failure.c | 38 +++-----------------------------------
+ mm/util.c           | 34 ++++++++++++++++++++++++++++++++++
+ virt/kvm/kvm_main.c |  8 ++------
+ 5 files changed, 73 insertions(+), 43 deletions(-)
+
+-- 
+2.19.1.1215.g8438c0b245-goog

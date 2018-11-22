@@ -1,0 +1,199 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 13 Nov 2018 00:34:58 -0000
+Received: from icoremail.net (unknown [209.85.210.181])
+	by mail-app2 (Coremail) with SMTP id by_KCgC3f+0IFupbOSCBAQ--.38505S3;
+	Tue, 13 Nov 2018 08:08:42 +0800 (CST)
+Received: from mail-pf1-f181.google.com (unknown [209.85.210.181])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwA3FEADFupb_3Y0AA--.2907S3;
+	Tue, 13 Nov 2018 08:08:35 +0800 (CST)
+Received: by mail-pf1-f181.google.com with SMTP id g62so1819435pfd.12
+        for <xuliker@zju.edu.cn>; Mon, 12 Nov 2018 16:08:35 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:delivered-to:dkim-signature:mime-version
+         :in-reply-to:references:from:date:message-id:subject:to:cc
+         :content-transfer-encoding:sender:precedence:list-id;
+        bh=MAWoqY+jPNEcDjrsli6kZXtCkgMqdWJ+t7R1t9be/EM=;
+        b=dYQkvZT7a5HjJOCfx9qVR1fkGO1U4YA0oCdGF4Vqgu4eG6Duf/fbRRZwS7ur68fN78
+         r8BagVuJpuVeh+DsIYw77D5dAozc61ZP4F41FvHJOsq3HnQEp2f6qn3rv6IA9Gg1Gokt
+         4RihQ+img5o8rrNoeEBaF+P2T7z3HTzmuKhlpgFgryiQZXtLefkFPAX22cK5sXm7LFQM
+         plqeoyXgEBwoROj143h+Ro0zKwDy1QFvac+HvtCYo6TulL4sCGV/Y4pdrGVEguDRyfmH
+         9QlxH9sxnESYivDzqLp7PoohqKHPQOmDt7Hdss5c1XJ2/+2HthwQ+jdOH4g6klc4HlL1
+         Y+cQ==
+X-Gm-Message-State: AGRZ1gKJ42HjZ5/1mMs0u572DJlAMmpcKepALYvXexEz9B7C+fjSwXKn
+	dl3mApMae4ZPJbMbTJeliizxdJaPxSa/4vJONYTiEfbbINc+WUaC2A==
+X-Received: by 2002:a62:1f9d:: with SMTP id l29mr912887pfj.14.1542067715273;
+        Mon, 12 Nov 2018 16:08:35 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp3825711pjt;
+        Mon, 12 Nov 2018 16:08:34 -0800 (PST)
+X-Google-Smtp-Source: AJdET5cjhbmHf87PEDE7+0rnHZ77u2k4zNbslTa0Ad/5FIel0bejI9zJ9VQOQqems1aMZgsEx2pW
+X-Received: by 2002:a63:4c6:: with SMTP id 189mr2696010pge.391.1542067714545;
+        Mon, 12 Nov 2018 16:08:34 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542067714; cv=none;
+        d=google.com; s=arc-20160816;
+        b=Idlfng0wo2owaZlE/GHjrGSThKXOEiwbJCdmy2Mss1TqFYvhrQUreQEGy7JWQJeZW8
+         XHERMqHp13kaI/0VcpGCIL9Y0ZNkq3hFzZn5CVkrZ4PH0Wiam0pO2fqlT8IQVXYd3Twi
+         46GmAJ2qWV5hn9cPsrGgbNt+e9s3LONQNqRGJfI69VELKxceWr/maNpKvMeh37EtPB8S
+         IGrboCrZ1HK1QWD0S8icPP68fRMwIA/mpi0kwvQrmCI90oHHhlBN4omn5E+Uhhfs57+o
+         unnTVyq/6KuoS5iZ/g/iBLpRdPkh9vHYbnXmX7ksGM04dGcjVFivVUPzsecS9fAEwJdP
+         5BIQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:content-transfer-encoding:cc:to:subject
+         :message-id:date:from:references:in-reply-to:mime-version
+         :dkim-signature;
+        bh=MAWoqY+jPNEcDjrsli6kZXtCkgMqdWJ+t7R1t9be/EM=;
+        b=sdYPMDKwnBYLyUlxpg9B4L+USw+7F7dJd8r/SyO+Z+8Rf2xMX/FRIPGkr04obvEmv5
+         jgCS8EPmTwtg5OuDeBqx0NgIQeNUK9L1dII10PFJRXl3scwUnWuY9WyQtXFWpRQ23ppL
+         fAyhWmcPM94AzB43ZxOQmXywAVwx8IwwMbVFMzF304oWO3ECgHOZeGK4EMDs9hgYI6LL
+         3owcJHYXslZxim8iDoQC3iYCKwAmW8dKAR7ZHKkLJqkUD1Jx4nXAlJQIC+KLxOi1bqf/
+         YVUZG/jQAPcZFLxveZDGk7e1dxy2IMRsDKhFy/ecxo15rq7aflnprGkKq8kEuVO63WWJ
+         hBGQ==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@google.com header.s=20161025 header.b=UEHjWXEs;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;
+       dmarc=pass (p=REJECT sp=REJECT dis=NONE) header.from=google.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id n2si19032375pgr.67.2018.11.12.16.08.20;
+        Mon, 12 Nov 2018 16:08:34 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1727357AbeKMKDC (ORCPT <rfc822;fanshuming2011@gmail.com>
+        + 99 others); Tue, 13 Nov 2018 05:03:02 -0500
+Received: from mail-ot1-f68.google.com ([209.85.210.68]:37729 "EHLO
+        mail-ot1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725991AbeKMKDC (ORCPT <rfc822;kvm@vger.kernel.org>);
+        Tue, 13 Nov 2018 05:03:02 -0500
+Received: by mail-ot1-f68.google.com with SMTP id 40so9721090oth.4
+        for <kvm@vger.kernel.org>; Mon, 12 Nov 2018 16:07:34 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=mime-version:in-reply-to:references:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=MAWoqY+jPNEcDjrsli6kZXtCkgMqdWJ+t7R1t9be/EM=;
+        b=UEHjWXEsl8NBJ4dlqilMJ80VmyA9qvc9JfhJ7iWM71gxC6/A0b/vZehzLuLSUu5OU9
+         PR1hcJ30+hWSTP1VHCdt9GoBbgUN4N1m1VYFBMVHYBAhSqQen4NEerG62ST+Qf2z4ZSB
+         MnFHQWVWOM9bwk3c3SJPvFGQETq6Qrb2Z5vzGmy5unDEAZqQ8Bkn/oXha99+nC4Z/Phn
+         xGiSAmI6bHziyBubMHsgtspOlvwVoVc8xuaJLS0AEDT4+rnVP87VTuRS2faKAcF1I/gt
+         n4Z0DvMsAyvcdgAAF4RUYI31uvJ4wlIsg9/Z2of4SPm5KoxrLx2tBigz92Df2+xPNTbK
+         upng==
+X-Received: by 2002:a9d:51c2:: with SMTP id d2mr1955524oth.0.1542067654128;
+ Mon, 12 Nov 2018 16:07:34 -0800 (PST)
+MIME-Version: 1.0
+Received: by 2002:ac9:31a7:0:0:0:0:0 with HTTP; Mon, 12 Nov 2018 16:07:33
+ -0800 (PST)
+In-Reply-To: <04AB82C1-F0AC-4BDB-A132-D39A49EA0A9A@oracle.com>
+References: <CALMp9eQ5zWxb2N9fyYz=WcQshwk0L6qQ4D6L6+p_dzMo4H=txA@mail.gmail.com>
+ <20181102034649.43559-1-liran.alon@oracle.com> <12c26c34-8dd1-a442-7826-86b93ff978f8@redhat.com>
+ <20181102165409.GF21191@redhat.com> <f58da4e8-aa40-2659-8db6-42c2b47f5b2f@redhat.com>
+ <20181112161829.GU3602@redhat.com> <20181112165053.GF2293@work-vm>
+ <20181112165437.GW3602@redhat.com> <04AB82C1-F0AC-4BDB-A132-D39A49EA0A9A@oracle.com>
+From: Jim Mattson <jmattson@google.com>
+Date: Mon, 12 Nov 2018 16:07:33 -0800
+Message-ID: <CALMp9eQEJfh=yiwmiUGawPKu1kSwLbLadHh0a=X+4p1Q6vAtHA@mail.gmail.com>
+Subject: Re: [Qemu-devel] [QEMU PATCH v2 0/2]: KVM: i386: Add support for save
+ and restore nested state
+To: Liran Alon <liran.alon@oracle.com>
+Cc: =?UTF-8?Q?Daniel_P=2E_Berrang=C3=A9?= <berrange@redhat.com>,
+        "Dr. David Alan Gilbert" <dgilbert@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Eduardo Habkost <ehabkost@redhat.com>,
+        kvm list <kvm@vger.kernel.org>, mtosatti@redhat.com,
+        qemu-devel@nongnu.org, rth@twiddle.net
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwA3FEADFupb_3Y0AA--.2907S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoWxWw1kXr18Ar15AFW7ArW7CFg_yoW5Xr1xpr
+	y8KayayrsrJF1Syw1I9w1Sqry5tw1xJa45Wrn8Gr92kan09r15Zrnrta1UuFWkAr4rGr1j
+	va1jqa47Zw1UA3DanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUU0bIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUBqb7Iv0xC_Kw4lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_tr0E3s1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr1j6F4UJwA2z4x0Y4vE
+	x4A2jsIE14v26rxl6s0DM28EF7xvwVC2z280aVCY1x0267AKxVW0oVCq3wAS0I0E0xvYzx
+	vE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AKxVWU
+	XVWUAwAv7VC2z280aVAFwI0_Gr0_Cr1lOx8S6xCaFVCjc4AY6r1j6r4UMx02cVCv0xWlc7
+	CjxVAKzI0EY4vE52x082I5MxkFs20EY4vE44CYbxCE4x80FwCY02Avz4vEIxC_twCY0x0I
+	x7I2Y4AK64vIr41lcIIF0xvE2Ix0cI8IcVAFwI0_Gr0_Xr1lcIIF0xvE2Ix0cI8IcVCY1x
+	0267AKxVW8JVWxJwCYIxAIcVC2z280aVAFwI0_Gr1j6F4UJwCYIxAIcVC2z280aVCY1x02
+	67AKxVW8Jr0_Cr1UMxAIw28IcxkI7VAKI48JMxAIw28IcVAKzI0EY4vE52x082I5MxCjnV
+	CjjxCrMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxVCj
+	r7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWUtVW8ZwCIc40Y0x0EwIxGrwCI42IY6x
+	AIw20EY4v20xvaj40_Gr0_ZrUvcSsGvfC2KfnxnUUI43ZEXa7IUOZdbUUUUUU==
+
+On Mon, Nov 12, 2018 at 4:00 PM, Liran Alon <liran.alon@oracle.com> wrote:
+>
+>
+>> On 12 Nov 2018, at 18:54, Daniel P. Berrang=C3=A9 <berrange@redhat.com> =
+wrote:
+>>
+>> On Mon, Nov 12, 2018 at 04:50:54PM +0000, Dr. David Alan Gilbert wrote:
+>>> * Daniel P. Berrang=C3=A9 (berrange@redhat.com) wrote:
+>>>> On Sun, Nov 04, 2018 at 11:19:57PM +0100, Paolo Bonzini wrote:
+>>>>> On 02/11/2018 17:54, Daniel P. Berrang=C3=A9 wrote:
+>>>>>> We have usually followed a rule that new machine types must not
+>>>>>> affect runability of a VM on a host. IOW new machine types should
+>>>>>> not introduce dependancies on specific kernels, or hardware features
+>>>>>> such as CPU flags.
+>>>>>
+>>>>>> Anything that requires a new kernel feature thus ought to be an
+>>>>>> opt-in config tunable on the CLI, separate from machine type
+>>>>>> choice.
+>>>>>
+>>>>> Unless someone tinkered with the module parameters, they could not ev=
+en
+>>>>> use nested virtualization before 4.20.  So for everyone else, "-cpu
+>>>>> ...,+vmx" does count as an "opt-in config tunable on the CLI" that
+>>>>> requires 4.20.
+>>>>>
+>>>>> For those that did tinker with module parameters, we can grandfather =
+in
+>>>>> the old machine types, so that they can use nested virtualization wit=
+h
+>>>>> no live migration support.  For those that did not, however, I don't
+>>>>> think it makes sense to say "oh by the way I really want to be able t=
+o
+>>>>> migrate this VM" on the command line, or even worse on the monitor.
+>>>>
+>>>> IIUC, 4.20 is only required from POV of migration state. Is it thus
+>>>> possible to just register a migration blocker if QEMU is launched
+>>>> on a host with kernel < 4.20.
+>>>>
+>>>> Migration has always been busted historically, so those people using
+>>>> nested VMX already won't be hurt by not having ability to live migrate
+>>>> their VM, but could otherwise continue using them without being forced
+>>>> to upgrade their kernel to fix a feature they're not even using.
+>>>
+>>> Yes, although I am a bit worried we might have a population of users
+>>> that:
+>>>   a) Have enabled nesting
+>>>   b) Run VMs with vmx enabled
+>>
+>>
+>>>   c) Don't normally actually run nested guests
+>>>   d) Currently happily migrate.
+>>
+>> True, and (b) would include anyone using libvirt's  host-model CPU. So i=
+f
+>> you enabled nesting, have host-model for all guests, but only use nestin=
+g
+>> in one of the guests, you'd be doomed.
+>>
+>> Is it possible for QEMU to determine if there are nested guests running =
+or
+>> not and conditionally block migration appropriately to ensure safety ?
+>
+>
+> Only if kernel supports KVM_CAP_NESTED_STATE.
+> See my reply to Dave in this thread.
+
+You could still allow migration if CR4.VMXE is clear.

@@ -1,0 +1,184 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 14 Nov 2018 00:35:01 -0000
+Received: from icoremail.net (unknown [209.85.214.172])
+	by mail-app2 (Coremail) with SMTP id by_KCgDXv5oD8upb0jeHAQ--.40704S3;
+	Tue, 13 Nov 2018 23:47:16 +0800 (CST)
+Received: from mail-pl1-f172.google.com (unknown [209.85.214.172])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwBHHTn_8epb8SY5AA--.1115S3;
+	Tue, 13 Nov 2018 23:47:12 +0800 (CST)
+Received: by mail-pl1-f172.google.com with SMTP id x21-v6so3485437pln.9
+        for <xuliker@zju.edu.cn>; Tue, 13 Nov 2018 07:47:12 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:delivered-to:dkim-signature:from:to:cc:subject
+         :date:message-id:sender:precedence:list-id;
+        bh=qLNwxfI7gXq2DVFDkFwfxUxSDoiyr/b3TN+BgW+5ShU=;
+        b=p/bPp9rFEXtZ0iHLN6CCTmxnDbYQ4R48dXlQFUBScE/+WTYnGzlC9gbAQW29ifbveh
+         y2Zwa4/3FlwuHxCb3fQkOXOm+hhuLRWM7BSgZ6mC2RLTcLi0xbWWA3PNtFeBGTZ6SIM/
+         aAIoUPp2/HUZC9SWOn3axPHDeVLg18XzpW6b2rgrea0RYqDzkEHDp5ZLukoR3TfknnjN
+         uXaMsBRKU/Zqnhm2Q+eN8exHxK3qvg4T+m1OvfYUIiy7CVSC0Qt0TzpDzb2+3K78K20K
+         5tfHB93NMlDlMoQwD49/4/iGaY6sVEQYEY5HDMjAE2Ods7EghD8M6XaS/CcPlCoGXLF7
+         akgQ==
+X-Gm-Message-State: AGRZ1gI8WpR2DL2f7VZ9+aAy1Q3RDeWzn5YTMHSE9mTeKOS0mYEQn2jR
+	lJ5JEdKzQw6tRUN5upxZVMJ+xvPLsgv/aP1DDmAnI/6XrK23Kutx1w==
+X-Received: by 2002:a17:902:704c:: with SMTP id h12mr5643817plt.78.1542124030635;
+        Tue, 13 Nov 2018 07:47:10 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp4629319pjt;
+        Tue, 13 Nov 2018 07:47:09 -0800 (PST)
+X-Google-Smtp-Source: AJdET5ctj6mNaQNQ0edFr306sVudU7+GfL1660JxI2m5zSh2ncf4OL8yssugEmToEcNRbpNnf9d+
+X-Received: by 2002:a17:902:14e:: with SMTP id 72-v6mr5423866plb.299.1542124029951;
+        Tue, 13 Nov 2018 07:47:09 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542124029; cv=none;
+        d=google.com; s=arc-20160816;
+        b=cHPKzYhSGxWNZ767iZy1oZQvlZn2IpLb7uBAkKkCpF7IJVgFraZvA7OnZWs0mfOvX+
+         aFffD+89lvj8JNUyTbROczqYAr0tffW+m6bGu+HKYtHptVUPLiPX1p6hgbFZOFAAZx1D
+         Q8DlcZU9RE1lkDiepxulH3D4Z4Z2KikA80Dr/QYeBti284g3I2j3O1zDAylThD9bhFUR
+         LVFHJAObiHHuY2IYuElV/vJZwTuUFFiIpRfwoxoRckYTCjSlOE1y0xWNk+aMUkR7Baqw
+         yNXf5zSa8yMlzD/OAg+ml+SMSEKcua7h++KbMvEY0bTp3x0s/Ubapd4GLzZnYKe11DMa
+         fJMg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:message-id:date:subject:cc:to:from
+         :dkim-signature;
+        bh=qLNwxfI7gXq2DVFDkFwfxUxSDoiyr/b3TN+BgW+5ShU=;
+        b=IdyXHPmXkazkIU6c0bE+4wv1zA+E/g/v3zjSpL9A6tL0PV/tGeGKQ2IkYzIhvSSAe2
+         vXKfhZowq832BSLKqhXTTGCnT5160MoEs11rIZ4q8BjQnIOvdE/ZjUUjM3cDyFAwfDOC
+         pumMIHdtpBvZg1OAWiA+ZzxQpkVFXcgtx77RjLvZ/kjAKah9HrbOUR2aVcznkIXWhFaY
+         XWxjhiIU22dvHyq064Lm76GLCM8IcKYMrSQlyPOC5qsBQslPCoIYjz9yWgyUQmh+FtcX
+         UbdAW1UddGzff8tZG/ELVebSXLm9+PiWmt8zpeBWFw6F7k5AYTcsvFNw4zNRPum6Ljfg
+         yhwA==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@oracle.com header.s=corp-2018-07-02 header.b=suHMqDa8;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;
+       dmarc=pass (p=NONE sp=NONE dis=NONE) header.from=oracle.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id a6si1346519plz.316.2018.11.13.07.46.55;
+        Tue, 13 Nov 2018 07:47:09 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1731439AbeKNBns (ORCPT <rfc822;fanshuming2011@gmail.com>
+        + 99 others); Tue, 13 Nov 2018 20:43:48 -0500
+Received: from aserp2120.oracle.com ([141.146.126.78]:60444 "EHLO
+        aserp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726932AbeKNBns (ORCPT <rfc822;kvm@vger.kernel.org>);
+        Tue, 13 Nov 2018 20:43:48 -0500
+Received: from pps.filterd (aserp2120.oracle.com [127.0.0.1])
+        by aserp2120.oracle.com (8.16.0.22/8.16.0.22) with SMTP id wADFi30H094051;
+        Tue, 13 Nov 2018 15:45:06 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
+ subject : date : message-id; s=corp-2018-07-02;
+ bh=qLNwxfI7gXq2DVFDkFwfxUxSDoiyr/b3TN+BgW+5ShU=;
+ b=suHMqDa891k7L5QaaQzbVPMbSgxuOPPdWXIjZUGTS5SHuta5QuDBz2+A+/cXogwxHsoy
+ 6DOo9M88BOIbjbhjMQEQfTvDmo4afiyZWjzlTP0g/r5d3xij7UjjSvxOPMZx9i5jpQzt
+ np2tMnanLQHwa8hXnZfpHkr6jERhs6UHLl8X6+vPXMN2OchyA6kcGJ2azYbQbGH1Kf25
+ lSL00nOQBU6qhNurY1M/hl+a/Gp2fm1/Mi0D+FGWIpPyArn72FcxbTD1LIGryFsYPmnA
+ YV8w2QGQEEZFQ6erKXEJyOturnbNdZqM0MJ+9tGa+NFurv8ALJehnEjD1WqJ41cIxpwm PA== 
+Received: from aserv0021.oracle.com (aserv0021.oracle.com [141.146.126.233])
+        by aserp2120.oracle.com with ESMTP id 2nnw6ekj32-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 13 Nov 2018 15:45:06 +0000
+Received: from aserv0122.oracle.com (aserv0122.oracle.com [141.146.126.236])
+        by aserv0021.oracle.com (8.14.4/8.14.4) with ESMTP id wADFj5Em029882
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 13 Nov 2018 15:45:05 GMT
+Received: from abhmp0006.oracle.com (abhmp0006.oracle.com [141.146.116.12])
+        by aserv0122.oracle.com (8.14.4/8.14.4) with ESMTP id wADFj57X007600;
+        Tue, 13 Nov 2018 15:45:05 GMT
+Received: from spark.ravello.local (/213.57.127.2)
+        by default (Oracle Beehive Gateway v4.0)
+        with ESMTP ; Tue, 13 Nov 2018 07:45:04 -0800
+From: Liran Alon <liran.alon@oracle.com>
+To: vkuznets@redhat.com, pbonzini@redhat.com, rkrcmar@redhat.com,
+        kvm@vger.kernel.org
+Cc: idan.brown@oracle.com, Liran Alon <liran.alon@oracle.com>
+Subject: [PATCH] KVM: nVMX: vmcs12 revision_id is always VMCS12_REVISION even when copied from eVMCS
+Date: Tue, 13 Nov 2018 17:44:46 +0200
+Message-Id: <20181113154446.124812-1-liran.alon@oracle.com>
+X-Mailer: git-send-email 2.16.1
+X-Proofpoint-Virus-Version: vendor=nai engine=5900 definitions=9076 signatures=668683
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 malwarescore=0
+ phishscore=0 bulkscore=0 spamscore=0 mlxscore=0 mlxlogscore=999
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.0.1-1807170000 definitions=main-1811130143
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwBHHTn_8epb8SY5AA--.1115S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW7Kw4xuF43JrWrXFyUKFW7Jwb_yoW8ZrWfpa
+	4xWr1qgF4DJFykZ3yxKF4kZ3WFya4kXFn7XrWUuw13Zr4jqFn2yr1S9340qrWSyrWkCryS
+	vF40vws7Z3W5Jw7anT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUPFb7Iv0xC_tr1lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1l84ACjcxK6I8E
+	87Iv67AKxVW0oVCq3wA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_GcCE3s1le2I262IYc4CY6c
+	8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_Jr0_
+	Jr4lYx0Ex4A2jsIE14v26r4j6F4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvY0x0EwI
+	xGrwCjxxvEa2IrMxkF7I0Ew4C26cxK6c8Ij28IcwCY1Ik26cxK6xAEc7vF6xCjj44lc2xS
+	Y4AK6IIF6ryrMxkI7II2jI8vz4vEwIxGrwCYIxAIcVC0I7IYx2IY67AKxVWUCVW8JwCYIx
+	AIcVC0I7IYx2IY6xkF7I0E14v26r1j6r4UMxvI42IY6I8E87Iv67AKxVW0oVCq3wCYIxAI
+	cVC2z280aVCY1x0267AKxVW0oVCq3wCF04k20xvY0x0EwIxGrwCF04k20xvEw4C26cxK6c
+	8Ij28IcwCF72vE77IF4wCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v26r1j
+	6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_JF0_Jw1lIxkGc2Ij64
+	vIr41lIxAIcVCF04k26cxKx2IYs7xG6Fyj6rWUJbIYCTnIWIevJa73UjIFyTuYvjxUgSdg
+	DUUUU
+
+vmcs12 represents the per-CPU cache of L1 active vmcs12.
+
+This cache can be loaded by one of the following:
+1) Guest making a vmcs12 active by exeucting VMPTRLD
+2) Guest specifying eVMCS in VP assist page and executing
+VMLAUNCH/VMRESUME.
+
+Either way, vmcs12 should have revision_id of VMCS12_REVISION.
+Which is not equal to eVMCS revision_id which specifies used
+VersionNumber of eVMCS struct (e.g. KVM_EVMCS_VERSION).
+
+Specifically, this causes an issue in restoring a nested VM state
+because vmx_set_nested_state() verifies that vmcs12->revision_id
+is equal to VMCS12_REVISION which was not true in case vmcs12
+was populated from an eVMCS by vmx_get_nested_state() which calls
+copy_enlightened_to_vmcs12().
+
+Reviewed-by: Darren Kenny <darren.kenny@oracle.com>
+Signed-off-by: Liran Alon <liran.alon@oracle.com>
+---
+ arch/x86/kvm/vmx.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/arch/x86/kvm/vmx.c b/arch/x86/kvm/vmx.c
+index 4555077d69ce..6e92624fe8d6 100644
+--- a/arch/x86/kvm/vmx.c
++++ b/arch/x86/kvm/vmx.c
+@@ -8664,8 +8664,6 @@ static int copy_enlightened_to_vmcs12(struct vcpu_vmx *vmx)
+ 	struct vmcs12 *vmcs12 = vmx->nested.cached_vmcs12;
+ 	struct hv_enlightened_vmcs *evmcs = vmx->nested.hv_evmcs;
+ 
+-	vmcs12->hdr.revision_id = evmcs->revision_id;
+-
+ 	/* HV_VMX_ENLIGHTENED_CLEAN_FIELD_NONE */
+ 	vmcs12->tpr_threshold = evmcs->tpr_threshold;
+ 	vmcs12->guest_rip = evmcs->guest_rip;
+@@ -9390,9 +9388,11 @@ static int nested_vmx_handle_enlightened_vmptrld(struct kvm_vcpu *vcpu,
+ 		 * present in struct hv_enlightened_vmcs, ...). Make sure there
+ 		 * are no leftovers.
+ 		 */
+-		if (from_launch)
+-			memset(vmx->nested.cached_vmcs12, 0,
+-			       sizeof(*vmx->nested.cached_vmcs12));
++		if (from_launch) {
++			struct vmcs12 *vmcs12 = get_vmcs12(vcpu);
++			memset(vmcs12, 0, sizeof(*vmcs12));
++			vmcs12->hdr.revision_id = VMCS12_REVISION;
++		}
+ 
+ 	}
+ 	return 1;
+-- 
+2.16.1

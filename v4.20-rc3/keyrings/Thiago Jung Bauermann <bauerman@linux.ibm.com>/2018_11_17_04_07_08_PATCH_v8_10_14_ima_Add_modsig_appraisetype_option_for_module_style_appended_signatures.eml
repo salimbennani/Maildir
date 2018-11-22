@@ -1,0 +1,338 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (61.164.42.155:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 17 Nov 2018 03:14:09 -0000
+Received: from icoremail.net (unknown [209.85.210.173])
+	by mail-app2 (Coremail) with SMTP id by_KCgDXv96pJO9b+gWlAQ--.49644S3;
+	Sat, 17 Nov 2018 04:12:25 +0800 (CST)
+Received: from mail-pf1-f173.google.com (unknown [209.85.210.173])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwCnjkqkJO9b__tKAA--.1990S3;
+	Sat, 17 Nov 2018 04:12:21 +0800 (CST)
+Received: by mail-pf1-f173.google.com with SMTP id w73so2568829pfk.10
+        for <xuliker@zju.edu.cn>; Fri, 16 Nov 2018 12:12:21 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :from:to:cc:subject:date:in-reply-to:references:message-id:sender
+         :precedence:list-id;
+        bh=AqyPHpRUG/DD9s+1KQAkHX1KWTRichYLlnBSBhxk8vM=;
+        b=jEnKltQanBH1DfzOOHYI+8QzhtEb1u7EZPHRPyj7ndP0oahM8sor1Pnd39dc2l3kHT
+         Bm/jQWJXmktRR/8H3vF3vi7WPrXjO8Z8vT7jx3KF0pyWKnF1PJXtzmyxsgTP3EqtRHXC
+         84cNNTsu8irEphfOZl9ExcH24r/WS1lJtRS/Vnf9z/Py1VLw9GfEI1nQ1ZWpE3e4K08W
+         gTSNTT4h3b9wKVJcJR0Gk1NbtmJAIA0BCTtU0cImu/KqQePaVVrQNV9LxFxiAA+kG5Nj
+         UX79AIm/GUedXM6XkAP44Hj8kej8++oatpLHFg1DX1Fc48QVVCCuWhis3ZnR2SlMJtjI
+         VLsQ==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=ibm.com
+X-Gm-Message-State: AGRZ1gIeJ3D3Z4OIdSFl/qDRsPDMfyJ7QRZee499hxFk4qVjPQZ5E9uv
+	wW9C0wnOi4I6dXJfoyBGbwaD7F8VFVoHAN4WktKcE9Jywj2W5jg=
+X-Received: by 2002:a63:1e17:: with SMTP id e23mr11145414pge.130.1542399140451;
+        Fri, 16 Nov 2018 12:12:20 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:d106:0:0:0:0 with SMTP id l6-v6csp864837pju;
+        Fri, 16 Nov 2018 12:12:19 -0800 (PST)
+X-Google-Smtp-Source: AJdET5c+ASGO5ocUbmgmsGj/Biwo4FJv3sZhdBg6x5riAFY6CcfC+cp6C5PhJtZ1oEFZ4BkIZjbF
+X-Received: by 2002:a17:902:20c5:: with SMTP id v5-v6mr12426305plg.156.1542399139555;
+        Fri, 16 Nov 2018 12:12:19 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542399139; cv=none;
+        d=google.com; s=arc-20160816;
+        b=sTbUVMaCYHp4sdDvZStcq52XfVgFiqyMvX7wtWX/2fQube50k4/1pLSj4Uc8mPjq14
+         8TpgVkyN66mWuJgtTN5wxaLMcMKkXfimHHKWYZmjSVzMAEYUc+K4RQrkLJUgGUZc1/Uh
+         3bJn5uYrWX9oD/cDDpOhHOB089TjI5SsQN45BncePLYHKjoQBOUD4vOO4bHQvgJjNuWj
+         wYOHHjhCPysVB21kew4XzjhnbbRoA8nh5wCD/X5uNTOzO7NkiCvEoZNtQj0DJi2n8kva
+         VWK4oLGqvYXRvJ62tZQPqTV0trzT/6oVRcMdhTFPP2lNbFzQrRYGmlR+9sreTjeRRyZR
+         kWOA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:message-id:references:in-reply-to:date
+         :subject:cc:to:from;
+        bh=AqyPHpRUG/DD9s+1KQAkHX1KWTRichYLlnBSBhxk8vM=;
+        b=PpC4CU1PtcMu0+AlT0OmVt30i5Fa0G4hXPtOTVKZZ+pBajy87lrdI1IZIvpsntjvpx
+         gzbCoZcC5Co+03bo/kPtGFa8kuINtuOQRKpLKejTFmncHhuExEZDeXDwv/4tVEX06NLT
+         NhH8+4io6BWfbZiYaJQQq3UdJuRNztjdYSZ69f98iFaqEIrd3D/0VOAUpAm+v/owPNdh
+         JmDDzggkKCsHMIKXTtwuvI9J2FL4BzCF5oHlPInBty9dFi8ethyCcJds2psORpjYLNEC
+         rAeDXgXtzjGsYWNrq9sjmUjnc9TYr92+ZHQWX6fLrL671HNGK5FxDVqPOpaz2jQe1aQ8
+         7V+Q==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=ibm.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id g22si17311873pfj.222.2018.11.16.12.12.04;
+        Fri, 16 Nov 2018 12:12:19 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1727276AbeKQGYO (ORCPT <rfc822;xjxyklwx@gmail.com> + 99 others);
+        Sat, 17 Nov 2018 01:24:14 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:60184 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725964AbeKQGYN (ORCPT
+        <rfc822;linux-kernel@vger.kernel.org>);
+        Sat, 17 Nov 2018 01:24:13 -0500
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.22/8.16.0.22) with SMTP id wAGKAKF6122626
+        for <linux-kernel@vger.kernel.org>; Fri, 16 Nov 2018 15:10:23 -0500
+Received: from e11.ny.us.ibm.com (e11.ny.us.ibm.com [129.33.205.201])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2nt2cjwj8s-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-kernel@vger.kernel.org>; Fri, 16 Nov 2018 15:10:19 -0500
+Received: from localhost
+        by e11.ny.us.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-kernel@vger.kernel.org> from <bauerman@linux.ibm.com>;
+        Fri, 16 Nov 2018 20:09:11 -0000
+Received: from b01cxnp22036.gho.pok.ibm.com (9.57.198.26)
+        by e11.ny.us.ibm.com (146.89.104.198) with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted;
+        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256/256)
+        Fri, 16 Nov 2018 20:09:05 -0000
+Received: from b01ledav006.gho.pok.ibm.com (b01ledav006.gho.pok.ibm.com [9.57.199.111])
+        by b01cxnp22036.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id wAGK93iC31260838
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
+        Fri, 16 Nov 2018 20:09:04 GMT
+Received: from b01ledav006.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id DA752AC062;
+        Fri, 16 Nov 2018 20:09:03 +0000 (GMT)
+Received: from b01ledav006.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 0051BAC059;
+        Fri, 16 Nov 2018 20:09:00 +0000 (GMT)
+Received: from morokweng.localdomain.com (unknown [9.80.224.199])
+        by b01ledav006.gho.pok.ibm.com (Postfix) with ESMTP;
+        Fri, 16 Nov 2018 20:08:59 +0000 (GMT)
+From: Thiago Jung Bauermann <bauerman@linux.ibm.com>
+To: linux-integrity@vger.kernel.org
+Cc: linux-security-module@vger.kernel.org, keyrings@vger.kernel.org,
+        linux-crypto@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Mimi Zohar <zohar@linux.ibm.com>,
+        Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
+        James Morris <jmorris@namei.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        David Howells <dhowells@redhat.com>,
+        David Woodhouse <dwmw2@infradead.org>,
+        Jessica Yu <jeyu@kernel.org>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jonathan Corbet <corbet@lwn.net>,
+        "AKASHI, Takahiro" <takahiro.akashi@linaro.org>,
+        Thiago Jung Bauermann <bauerman@linux.ibm.com>
+Subject: [PATCH v8 10/14] ima: Add modsig appraise_type option for module-style appended signatures
+Date: Fri, 16 Nov 2018 18:07:08 -0200
+X-Mailer: git-send-email 2.17.2
+In-Reply-To: <20181116200712.14154-1-bauerman@linux.ibm.com>
+References: <20181116200712.14154-1-bauerman@linux.ibm.com>
+X-TM-AS-GCONF: 00
+x-cbid: 18111620-2213-0000-0000-00000318DE72
+X-IBM-SpamModules-Scores: 
+X-IBM-SpamModules-Versions: BY=3.00010063; HX=3.00000242; KW=3.00000007;
+ PH=3.00000004; SC=3.00000270; SDB=6.01118417; UDB=6.00580177; IPR=6.00898526;
+ MB=3.00024197; MTD=3.00000008; XFM=3.00000015; UTC=2018-11-16 20:09:09
+X-IBM-AV-DETECTION: SAVI=unused REMOTE=unused XFE=unused
+x-cbparentid: 18111620-2214-0000-0000-00005C46B11F
+Message-Id: <20181116200712.14154-11-bauerman@linux.ibm.com>
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2018-11-16_11:,,
+ signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ malwarescore=0 suspectscore=1 phishscore=0 bulkscore=0 spamscore=0
+ clxscore=1015 lowpriorityscore=0 mlxscore=0 impostorscore=0
+ mlxlogscore=999 adultscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.0.1-1810050000 definitions=main-1811160179
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwCnjkqkJO9b__tKAA--.1990S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoWxtr4xCF4DZr4UAryfJrWrZrb_yoWxCF17pa
+	9agFy5Gr93XFyIkF93Aa4a9F4fK3yFgFyUW398Ja4vyFnxZ3WUXr1Utry3Cry3Gr1rJFyx
+	tFs0q34Yka1vv37anT9S1TB71UUUUUUqnTZGkaVYY2UrUUUU0bIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUPIb7Iv0xC_Kw4lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1l84ACjcxK6I8E
+	87Iv67AKxVW0oVCq3wA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_GcCE3s1le2I262IYc4CY6c
+	8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_Jr0_
+	Jr4lYx0Ex4A2jsIE14v26r1j6r4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvY0x0EwI
+	xGrwCjxxvEa2IrMxkF7I0Ew4C26cxK6c8Ij28IcwCY1Ik26cxK6xAEc7vF6xCjj44lc2xS
+	Y4AK6IIF6F1lc2IjII80xcxEwVAKI48JMxvI42IY6xIIjxv20xvE14v26r4j6ryUMxvI42
+	IY6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1lcIIF0xvEx4A2jsIE14v26r4UJVWxJr1lcIIF
+	0xvEx4A2jsIEc7CjxVAFwI0_Gr1j6F4UJwCF04k20xvY0x0EwIxGrwCF04k20xvEw4C26c
+	xK6c8Ij28IcwCF72vE77IF4wCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v2
+	6r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_GFv_WrylIxkGc2
+	Ij64vIr41lIxAIcVCF04k26cxKx2IYs7xG6r4j6FyUYxBIdaVFxhVjvjDU0xZFpf9x07bd
+	D7-UUUUU=
+
+Introduce the modsig keyword to the IMA policy syntax to specify that
+a given hook should expect the file to have the IMA signature appended
+to it. Here is how it can be used in a rule:
+
+appraise func=KEXEC_KERNEL_CHECK appraise_type=imasig|modsig
+
+With this rule, IMA will accept either a signature stored in the extended
+attribute or an appended signature.
+
+For now, the rule above will behave exactly the same as if
+appraise_type=imasig was specified. The actual modsig implementation
+will be introduced separately.
+
+Suggested-by: Mimi Zohar <zohar@linux.vnet.ibm.com>
+Signed-off-by: Thiago Jung Bauermann <bauerman@linux.ibm.com>
+---
+ Documentation/ABI/testing/ima_policy |  6 +++++-
+ security/integrity/ima/Kconfig       | 10 +++++++++
+ security/integrity/ima/Makefile      |  1 +
+ security/integrity/ima/ima.h         |  9 ++++++++
+ security/integrity/ima/ima_modsig.c  | 31 ++++++++++++++++++++++++++++
+ security/integrity/ima/ima_policy.c  | 12 +++++++++--
+ security/integrity/integrity.h       |  1 +
+ 7 files changed, 67 insertions(+), 3 deletions(-)
+
+diff --git a/Documentation/ABI/testing/ima_policy b/Documentation/ABI/testing/ima_policy
+index 74c6702de74e..9d1dfd0a8891 100644
+--- a/Documentation/ABI/testing/ima_policy
++++ b/Documentation/ABI/testing/ima_policy
+@@ -37,7 +37,7 @@ Description:
+ 			euid:= decimal value
+ 			fowner:= decimal value
+ 		lsm:  	are LSM specific
+-		option:	appraise_type:= [imasig]
++		option:	appraise_type:= [imasig] [imasig|modsig]
+ 			pcr:= decimal value
+ 
+ 		default policy:
+@@ -103,3 +103,7 @@ Description:
+ 
+ 			measure func=KEXEC_KERNEL_CHECK pcr=4
+ 			measure func=KEXEC_INITRAMFS_CHECK pcr=5
++
++		Example of appraise rule allowing modsig appended signatures:
++
++			appraise func=KEXEC_KERNEL_CHECK appraise_type=imasig|modsig
+diff --git a/security/integrity/ima/Kconfig b/security/integrity/ima/Kconfig
+index a18f8c6d13b5..bba19f9ea184 100644
+--- a/security/integrity/ima/Kconfig
++++ b/security/integrity/ima/Kconfig
+@@ -231,6 +231,16 @@ config IMA_APPRAISE_BOOTPARAM
+ 	  This option enables the different "ima_appraise=" modes
+ 	  (eg. fix, log) from the boot command line.
+ 
++config IMA_APPRAISE_MODSIG
++	bool "Support module-style signatures for appraisal"
++	depends on IMA_APPRAISE
++	default n
++	help
++	   Adds support for signatures appended to files. The format of the
++	   appended signature is the same used for signed kernel modules.
++	   The modsig keyword can be used in the IMA policy to allow a hook
++	   to accept such signatures.
++
+ config IMA_TRUSTED_KEYRING
+ 	bool "Require all keys on the .ima keyring be signed (deprecated)"
+ 	depends on IMA_APPRAISE && SYSTEM_TRUSTED_KEYRING
+diff --git a/security/integrity/ima/Makefile b/security/integrity/ima/Makefile
+index d921dc4f9eb0..31d57cdf2421 100644
+--- a/security/integrity/ima/Makefile
++++ b/security/integrity/ima/Makefile
+@@ -9,5 +9,6 @@ obj-$(CONFIG_IMA) += ima.o
+ ima-y := ima_fs.o ima_queue.o ima_init.o ima_main.o ima_crypto.o ima_api.o \
+ 	 ima_policy.o ima_template.o ima_template_lib.o
+ ima-$(CONFIG_IMA_APPRAISE) += ima_appraise.o
++ima-$(CONFIG_IMA_APPRAISE_MODSIG) += ima_modsig.o
+ ima-$(CONFIG_HAVE_IMA_KEXEC) += ima_kexec.o
+ obj-$(CONFIG_IMA_BLACKLIST_KEYRING) += ima_mok.o
+diff --git a/security/integrity/ima/ima.h b/security/integrity/ima/ima.h
+index f0bc2a182cbf..69c06e2d7bd6 100644
+--- a/security/integrity/ima/ima.h
++++ b/security/integrity/ima/ima.h
+@@ -299,6 +299,15 @@ static inline int ima_read_xattr(struct dentry *dentry,
+ 
+ #endif /* CONFIG_IMA_APPRAISE */
+ 
++#ifdef CONFIG_IMA_APPRAISE_MODSIG
++bool ima_hook_supports_modsig(enum ima_hooks func);
++#else
++static inline bool ima_hook_supports_modsig(enum ima_hooks func)
++{
++	return false;
++}
++#endif /* CONFIG_IMA_APPRAISE_MODSIG */
++
+ /* LSM based policy rules require audit */
+ #ifdef CONFIG_IMA_LSM_RULES
+ 
+diff --git a/security/integrity/ima/ima_modsig.c b/security/integrity/ima/ima_modsig.c
+new file mode 100644
+index 000000000000..84d428cbbca8
+--- /dev/null
++++ b/security/integrity/ima/ima_modsig.c
+@@ -0,0 +1,31 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * IMA support for appraising module-style appended signatures.
++ *
++ * Copyright (C) 2018  IBM Corporation
++ *
++ * Author:
++ * Thiago Jung Bauermann <bauerman@linux.ibm.com>
++ */
++
++#include "ima.h"
++
++/**
++ * ima_hook_supports_modsig - can the policy allow modsig for this hook?
++ *
++ * modsig is only supported by hooks using ima_post_read_file, because only they
++ * preload the contents of the file in a buffer. FILE_CHECK does that in some
++ * cases, but not when reached from vfs_open. POLICY_CHECK can support it, but
++ * it's not useful in practice because it's a text file so deny.
++ */
++bool ima_hook_supports_modsig(enum ima_hooks func)
++{
++	switch (func) {
++	case FIRMWARE_CHECK:
++	case KEXEC_KERNEL_CHECK:
++	case KEXEC_INITRAMFS_CHECK:
++		return true;
++	default:
++		return false;
++	}
++}
+diff --git a/security/integrity/ima/ima_policy.c b/security/integrity/ima/ima_policy.c
+index fd31e42c2bad..3e5a64053aa8 100644
+--- a/security/integrity/ima/ima_policy.c
++++ b/security/integrity/ima/ima_policy.c
+@@ -1034,6 +1034,10 @@ static int ima_parse_rule(char *rule, struct ima_rule_entry *entry)
+ 			ima_log_string(ab, "appraise_type", args[0].from);
+ 			if ((strcmp(args[0].from, "imasig")) == 0)
+ 				entry->flags |= IMA_DIGSIG_REQUIRED;
++			else if (ima_hook_supports_modsig(entry->func) &&
++				 strcmp(args[0].from, "imasig|modsig") == 0)
++				entry->flags |= IMA_DIGSIG_REQUIRED
++						| IMA_MODSIG_ALLOWED;
+ 			else
+ 				result = -EINVAL;
+ 			break;
+@@ -1326,8 +1330,12 @@ int ima_policy_show(struct seq_file *m, void *v)
+ 			}
+ 		}
+ 	}
+-	if (entry->flags & IMA_DIGSIG_REQUIRED)
+-		seq_puts(m, "appraise_type=imasig ");
++	if (entry->flags & IMA_DIGSIG_REQUIRED) {
++		if (entry->flags & IMA_MODSIG_ALLOWED)
++			seq_puts(m, "appraise_type=imasig|modsig ");
++		else
++			seq_puts(m, "appraise_type=imasig ");
++	}
+ 	if (entry->flags & IMA_PERMIT_DIRECTIO)
+ 		seq_puts(m, "permit_directio ");
+ 	rcu_read_unlock();
+diff --git a/security/integrity/integrity.h b/security/integrity/integrity.h
+index ae3c79c63674..a55dcd235dc0 100644
+--- a/security/integrity/integrity.h
++++ b/security/integrity/integrity.h
+@@ -36,6 +36,7 @@
+ #define IMA_NEW_FILE		0x04000000
+ #define EVM_IMMUTABLE_DIGSIG	0x08000000
+ #define IMA_FAIL_UNVERIFIABLE_SIGS	0x10000000
++#define IMA_MODSIG_ALLOWED	0x20000000
+ 
+ #define IMA_DO_MASK		(IMA_MEASURE | IMA_APPRAISE | IMA_AUDIT | \
+ 				 IMA_HASH | IMA_APPRAISE_SUBMASK)

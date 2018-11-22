@@ -1,0 +1,546 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (61.164.42.155:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 13 Nov 2018 15:24:07 -0000
+Received: from icoremail.net (unknown [209.85.215.182])
+	by mail-app2 (Coremail) with SMTP id by_KCgDXv2IYw+pb0hyGAQ--.40882S3;
+	Tue, 13 Nov 2018 20:27:05 +0800 (CST)
+Received: from mail-pg1-f182.google.com (unknown [209.85.215.182])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwAH5UAXw+pbAkw4AA--.14940S3;
+	Tue, 13 Nov 2018 20:27:03 +0800 (CST)
+Received: by mail-pg1-f182.google.com with SMTP id 32-v6so5630967pgu.2
+        for <xuliker@zju.edu.cn>; Tue, 13 Nov 2018 04:27:03 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding:sender:precedence:list-id;
+        bh=5ZoEPAoX1kA+32Uw4imjQc147UHX5b3hf2mwKra0r1s=;
+        b=rMwvTThtJJs8YvrpxoYPg0hEez2V4eVOBh0XfIaRLD9/aXvHEFc6ZoHFTMkSQ++PQ4
+         DxD2x/J8cO6hJndw+HNihNCiJeh6jQo9FUGvL0PeOd/eCecIC4v0yl1OSaao/PchDBP0
+         0LjE62mF7Z/odFQ0dQpsk3PA5ltUE2amUEVI37o+u6GPLPMinc8OFfH12lYx4Xq/avYm
+         cO2+OSdXEJGK5tSmWK1s0Je+02hzSyXy5nDROq/y95bYNUTdiphESIx4vb4uOiwA6Ih7
+         I+V3rWDgkTJi1h3PlvNzOJZReK49t85SxwP6USk0RlyaGjIIJkI9JH9CelspuNQELTZE
+         9zrA==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=intel.com
+X-Gm-Message-State: AGRZ1gIHmPk+jV21tJ/RqGA8mTvSL99PucR9t0HQO51liRxjyWlhxPAr
+	MAhK1ihRMfGi5WsDzUsiTxWHV937+BarywH2Mhg5WAPSPRlyS4L/LA==
+X-Received: by 2002:a63:fd53:: with SMTP id m19mr4628455pgj.340.1542112022997;
+        Tue, 13 Nov 2018 04:27:02 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp4398232pjt;
+        Tue, 13 Nov 2018 04:27:01 -0800 (PST)
+X-Google-Smtp-Source: AJdET5cKFQw0hvyTArFh3ZwtRyefZczeslgmGICrM4SMHEcz6ESIbHG4X0+iqPedz3KMU8o9aq6r
+X-Received: by 2002:a62:9302:: with SMTP id b2-v6mr4948896pfe.108.1542112021535;
+        Tue, 13 Nov 2018 04:27:01 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542112021; cv=none;
+        d=google.com; s=arc-20160816;
+        b=pBDd9yh1gqxXn5w4kCq0uw+VDRbe7D0wTeWr5rD44gZv3jk84Sssd7M1FYzlJNDt7R
+         EvgPHeH0XyAgs7jR6QoaDdPAr4tmGT36j+5drM99ne3ejY6pjYIH/U0wqK96uKDIP4x3
+         uHm6x6D8v19OgQLbYvkg/7gUbB3+6XPfkVkTiu4IVtFyXUNIbFLRN7ewO6Z/AVQUxRf7
+         n30zX92QdlJqPMNQWfAyrb38vac7Qt/5sl7rYbtCc+W/DCDjLO4/wfcnPRIuBu3Sz1wL
+         3u/Womb93X+5IoYrkA41DFUWCNIRoGBSgmqwudYStJmT0lVgwiNf7RLUlDkhSE+hNck/
+         y2Kw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:content-transfer-encoding:mime-version
+         :references:in-reply-to:message-id:date:subject:cc:to:from;
+        bh=5ZoEPAoX1kA+32Uw4imjQc147UHX5b3hf2mwKra0r1s=;
+        b=h7ruc5R0izQxgXkKamdcw68J8sZqO/63z0H5m4xGQg/WYx4v8XIXESGQkupuQXN1vH
+         hHVqLF48JukjYaIqrPusefZ10ELnhaC1+sxdPbhqPAJKtrZPLM/7VIw9lD1mw3LVzqiL
+         tFAlOpxm4jXySKKj7sejAIvNIoxcjmiSg9aaGKdSx34XWJgQWCZgx+zHpdFq0wa8pBOr
+         E21c3YxJeeo8PF/xvpyP4O7Zen4j0z3AUua7QTeSvgOmQvb+qP5pBS1B1Y40frm1agpm
+         xA3CkWDyECa6uzLfIhrh2F0jAYTHpyIbNpEpp/RgGs4yWVI1Fun11OvqMUcZF51MQSOP
+         HOmQ==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=intel.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id a11si18577312pga.198.2018.11.13.04.26.45;
+        Tue, 13 Nov 2018 04:27:01 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1732986AbeKMWYY (ORCPT <rfc822;revogelaar@gmail.com>
+        + 99 others); Tue, 13 Nov 2018 17:24:24 -0500
+Received: from mga05.intel.com ([192.55.52.43]:38809 "EHLO mga05.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1732592AbeKMWYX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+        Tue, 13 Nov 2018 17:24:23 -0500
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga002.jf.intel.com ([10.7.209.21])
+  by fmsmga105.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 13 Nov 2018 04:26:28 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.54,499,1534834800"; 
+   d="scan'208";a="108176386"
+Received: from ibanaga-mobl1.ger.corp.intel.com (HELO localhost) ([10.249.254.77])
+  by orsmga002.jf.intel.com with ESMTP; 13 Nov 2018 04:26:22 -0800
+From: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+To: linux-integrity@vger.kernel.org
+Cc: linux-security-module@vger.kernel.org,
+        James Bottomley <James.Bottomley@HansenPartnership.com>,
+        Tomas Winkler <tomas.winkler@intel.com>,
+        Tadeusz Struk <tadeusz.struk@intel.com>,
+        Stefan Berger <stefanb@linux.vnet.ibm.com>,
+        Nayna Jain <nayna@linux.ibm.com>,
+        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+        Peter Huewe <peterhuewe@gmx.de>,
+        Jason Gunthorpe <jgg@ziepe.ca>, Arnd Bergmann <arnd@arndb.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org (open list)
+Subject: [PATCH v6 01/17] tpm: use tpm_buf in tpm_transmit_cmd() as the IO parameter
+Date: Tue, 13 Nov 2018 14:25:50 +0200
+Message-Id: <20181113122609.21643-2-jarkko.sakkinen@linux.intel.com>
+X-Mailer: git-send-email 2.19.1
+In-Reply-To: <20181113122609.21643-1-jarkko.sakkinen@linux.intel.com>
+References: <20181113122609.21643-1-jarkko.sakkinen@linux.intel.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwAH5UAXw+pbAkw4AA--.14940S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvAXoW3uFykJFWUCr1rCry3uw18AFb_yoW8XF1xKo
+	Z3Xrs0kF1aqr18Wr4Dt3W8K3Z8Z3W3Crs3Ars5Gws09a47t3sFvay5GFWfZay5JF48GFW3
+	Wr1rJa15ZrW7Jan7n29KB7ZKAUJUUUUU529EdanIXcx71UUUUj7v73VFW2AGmfu7jjvjm3
+	AaLaJ3UjIYCTnIWjp_UUUO17k0a2IF6w4kM7kC6x804xWl14x267AKxVWUJVW8JwAFIxvE
+	14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK021l84ACjcxK6xIIjx
+	v20xvE14v26F1j6w1UM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26F4j6r4UJwA2z4x0Y4vE
+	x4A2jsIE14v26rxl6s0DM28EF7xvwVC2z280aVCY1x0267AKxVW0oVCq3wAS0I0E0xvYzx
+	vE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AKxVWU
+	JVWUGwAv7VC2z280aVAFwI0_Gr0_Cr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcxkI7V
+	AKI48JMx02cVCv0xWlc7CjxVAKzI0EY4vE52x082I5MxkFs20EY4vE44CYbxCE4x80FwCY
+	02Avz4vEIxC_Xr1lc2IjII80xcxEwVAKI48JMxvI42IY6xIIjxv20xvE14v26r1I6r4UMx
+	vI42IY6xIIjxv20xvEc7CjxVAFwI0_Jr0_Gr1lcIIF0xvEx4A2jsIE14v26rxl6s0DMxvI
+	42IY6I8E87Iv6xkF7I0E14v26rxl6s0DMxAIw28IcxkI7VAKI48JMxAIw28IcVAKzI0EY4
+	vE52x082I5MxCjnVCjjxCrMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_
+	Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWUtVW8ZwCIc40Y0x
+	0EwIxGrwCI42IY6xAIw20EY4v20xvaj40_JFI_GrUvcSsGvfC2KfnxnUUI43ZEXa7IUOBM
+	NUUUUUU==
+
+Since we pass an initialized struct tpm_buf instance in every call site
+now, it is cleaner to pass that directly to the tpm_transmit_cmd() as
+the TPM command/response buffer.
+
+Fine-tune a little bit tpm_transmit() and tpm_transmit_cmd() comments
+while doing this.
+
+Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Reviewed-by: Stefan Berger <stefanb@linux.ibm.com>
+---
+ drivers/char/tpm/tpm-interface.c  | 67 +++++++++++++++++--------------
+ drivers/char/tpm/tpm-sysfs.c      |  2 +-
+ drivers/char/tpm/tpm.h            |  5 +--
+ drivers/char/tpm/tpm1-cmd.c       | 26 ++++--------
+ drivers/char/tpm/tpm2-cmd.c       | 37 +++++++----------
+ drivers/char/tpm/tpm2-space.c     |  4 +-
+ drivers/char/tpm/tpm_vtpm_proxy.c |  3 +-
+ 7 files changed, 64 insertions(+), 80 deletions(-)
+
+diff --git a/drivers/char/tpm/tpm-interface.c b/drivers/char/tpm/tpm-interface.c
+index d9439f9abe78..64510ed81b46 100644
+--- a/drivers/char/tpm/tpm-interface.c
++++ b/drivers/char/tpm/tpm-interface.c
+@@ -298,23 +298,22 @@ static ssize_t tpm_try_transmit(struct tpm_chip *chip,
+ 
+ /**
+  * tpm_transmit - Internal kernel interface to transmit TPM commands.
++ * @chip:	a TPM chip to use
++ * @space:	a TPM space
++ * @buf:	a TPM command buffer
++ * @bufsiz:	length of the TPM command buffer
++ * @flags:	TPM transmit flags
+  *
+- * @chip: TPM chip to use
+- * @space: tpm space
+- * @buf: TPM command buffer
+- * @bufsiz: length of the TPM command buffer
+- * @flags: tpm transmit flags - bitmap
++ * A wrapper around tpm_try_transmit() that handles TPM2_RC_RETRY returns from
++ * the TPM and retransmits the command after a delay up to a maximum wait of
++ * TPM2_DURATION_LONG.
+  *
+- * A wrapper around tpm_try_transmit that handles TPM2_RC_RETRY
+- * returns from the TPM and retransmits the command after a delay up
+- * to a maximum wait of TPM2_DURATION_LONG.
+- *
+- * Note: TPM1 never returns TPM2_RC_RETRY so the retry logic is TPM2
+- * only
++ * Note that TPM 1.x never returns TPM2_RC_RETRY so the retry logic is TPM 2.0
++ * only.
+  *
+  * Return:
+- *     the length of the return when the operation is successful.
+- *     A negative number for system errors (errno).
++ * * The response length	- OK
++ * * -errno			- A system error
+  */
+ ssize_t tpm_transmit(struct tpm_chip *chip, struct tpm_space *space,
+ 		     u8 *buf, size_t bufsiz, unsigned int flags)
+@@ -365,33 +364,31 @@ ssize_t tpm_transmit(struct tpm_chip *chip, struct tpm_space *space,
+ 	}
+ 	return ret;
+ }
++
+ /**
+  * tpm_transmit_cmd - send a tpm command to the device
+- *    The function extracts tpm out header return code
+- *
+- * @chip: TPM chip to use
+- * @space: tpm space
+- * @buf: TPM command buffer
+- * @bufsiz: length of the buffer
+- * @min_rsp_body_length: minimum expected length of response body
+- * @flags: tpm transmit flags - bitmap
+- * @desc: command description used in the error message
++ * @chip:			a TPM chip to use
++ * @space:			a TPM space
++ * @buf:			a TPM command buffer
++ * @min_rsp_body_length:	minimum expected length of response body
++ * @flags:			TPM transmit flags
++ * @desc:			command description used in the error message
+  *
+  * Return:
+- *     0 when the operation is successful.
+- *     A negative number for system errors (errno).
+- *     A positive number for a TPM error.
++ * * 0		- OK
++ * * -errno	- A system error
++ * * TPM_RC	- A TPM error
+  */
+ ssize_t tpm_transmit_cmd(struct tpm_chip *chip, struct tpm_space *space,
+-			 void *buf, size_t bufsiz,
+-			 size_t min_rsp_body_length, unsigned int flags,
+-			 const char *desc)
++			 struct tpm_buf *buf, size_t min_rsp_body_length,
++			 unsigned int flags, const char *desc)
+ {
+-	const struct tpm_output_header *header = buf;
++	const struct tpm_output_header *header =
++		(struct tpm_output_header *)buf->data;
+ 	int err;
+ 	ssize_t len;
+ 
+-	len = tpm_transmit(chip, space, buf, bufsiz, flags);
++	len = tpm_transmit(chip, space, buf->data, PAGE_SIZE, flags);
+ 	if (len <  0)
+ 		return len;
+ 
+@@ -528,14 +525,22 @@ EXPORT_SYMBOL_GPL(tpm_pcr_extend);
+  */
+ int tpm_send(struct tpm_chip *chip, void *cmd, size_t buflen)
+ {
++	struct tpm_buf buf;
+ 	int rc;
+ 
+ 	chip = tpm_find_get_ops(chip);
+ 	if (!chip)
+ 		return -ENODEV;
+ 
+-	rc = tpm_transmit_cmd(chip, NULL, cmd, buflen, 0, 0,
++	rc = tpm_buf_init(&buf, 0, 0);
++	if (rc)
++		goto out;
++
++	memcpy(buf.data, cmd, buflen);
++	rc = tpm_transmit_cmd(chip, NULL, &buf, 0, 0,
+ 			      "attempting to a send a command");
++	tpm_buf_destroy(&buf);
++out:
+ 	tpm_put_ops(chip);
+ 	return rc;
+ }
+diff --git a/drivers/char/tpm/tpm-sysfs.c b/drivers/char/tpm/tpm-sysfs.c
+index b88e08ec2c59..c2769e55cb6c 100644
+--- a/drivers/char/tpm/tpm-sysfs.c
++++ b/drivers/char/tpm/tpm-sysfs.c
+@@ -53,7 +53,7 @@ static ssize_t pubek_show(struct device *dev, struct device_attribute *attr,
+ 
+ 	tpm_buf_append(&tpm_buf, anti_replay, sizeof(anti_replay));
+ 
+-	rc = tpm_transmit_cmd(chip, NULL, tpm_buf.data, PAGE_SIZE,
++	rc = tpm_transmit_cmd(chip, NULL, &tpm_buf,
+ 			      READ_PUBEK_RESULT_MIN_BODY_SIZE, 0,
+ 			      "attempting to read the PUBEK");
+ 	if (rc) {
+diff --git a/drivers/char/tpm/tpm.h b/drivers/char/tpm/tpm.h
+index f27d1f38a93d..49bca4d1e786 100644
+--- a/drivers/char/tpm/tpm.h
++++ b/drivers/char/tpm/tpm.h
+@@ -503,9 +503,8 @@ enum tpm_transmit_flags {
+ ssize_t tpm_transmit(struct tpm_chip *chip, struct tpm_space *space,
+ 		     u8 *buf, size_t bufsiz, unsigned int flags);
+ ssize_t tpm_transmit_cmd(struct tpm_chip *chip, struct tpm_space *space,
+-			 void *buf, size_t bufsiz,
+-			 size_t min_rsp_body_length, unsigned int flags,
+-			 const char *desc);
++			 struct tpm_buf *buf, size_t min_rsp_body_length,
++			 unsigned int flags, const char *desc);
+ int tpm_get_timeouts(struct tpm_chip *);
+ int tpm_auto_startup(struct tpm_chip *chip);
+ 
+diff --git a/drivers/char/tpm/tpm1-cmd.c b/drivers/char/tpm/tpm1-cmd.c
+index 6f306338953b..f19b7c1ff800 100644
+--- a/drivers/char/tpm/tpm1-cmd.c
++++ b/drivers/char/tpm/tpm1-cmd.c
+@@ -334,11 +334,9 @@ static int tpm1_startup(struct tpm_chip *chip)
+ 
+ 	tpm_buf_append_u16(&buf, TPM_ST_CLEAR);
+ 
+-	rc = tpm_transmit_cmd(chip, NULL, buf.data, PAGE_SIZE, 0, 0,
++	rc = tpm_transmit_cmd(chip, NULL, &buf, 0, 0,
+ 			      "attempting to start the TPM");
+-
+ 	tpm_buf_destroy(&buf);
+-
+ 	return rc;
+ }
+ 
+@@ -462,9 +460,7 @@ int tpm1_pcr_extend(struct tpm_chip *chip, u32 pcr_idx, const u8 *hash,
+ 	tpm_buf_append_u32(&buf, pcr_idx);
+ 	tpm_buf_append(&buf, hash, TPM_DIGEST_SIZE);
+ 
+-	rc = tpm_transmit_cmd(chip, NULL, buf.data, PAGE_SIZE,
+-			      TPM_DIGEST_SIZE, 0, log_msg);
+-
++	rc = tpm_transmit_cmd(chip, NULL, &buf, TPM_DIGEST_SIZE, 0, log_msg);
+ 	tpm_buf_destroy(&buf);
+ 	return rc;
+ }
+@@ -494,11 +490,9 @@ ssize_t tpm1_getcap(struct tpm_chip *chip, u32 subcap_id, cap_t *cap,
+ 		tpm_buf_append_u32(&buf, 4);
+ 		tpm_buf_append_u32(&buf, subcap_id);
+ 	}
+-	rc = tpm_transmit_cmd(chip, NULL, buf.data, PAGE_SIZE,
+-			      min_cap_length, 0, desc);
++	rc = tpm_transmit_cmd(chip, NULL, &buf, min_cap_length, 0, desc);
+ 	if (!rc)
+ 		*cap = *(cap_t *)&buf.data[TPM_HEADER_SIZE + 4];
+-
+ 	tpm_buf_destroy(&buf);
+ 	return rc;
+ }
+@@ -537,7 +531,7 @@ int tpm1_get_random(struct tpm_chip *chip, u8 *dest, size_t max)
+ 	do {
+ 		tpm_buf_append_u32(&buf, num_bytes);
+ 
+-		rc = tpm_transmit_cmd(chip, NULL, buf.data, PAGE_SIZE,
++		rc = tpm_transmit_cmd(chip, NULL, &buf,
+ 				      sizeof(out->rng_data_len), 0,
+ 				      "attempting get random");
+ 		if (rc)
+@@ -583,8 +577,7 @@ int tpm1_pcr_read(struct tpm_chip *chip, u32 pcr_idx, u8 *res_buf)
+ 
+ 	tpm_buf_append_u32(&buf, pcr_idx);
+ 
+-	rc = tpm_transmit_cmd(chip, NULL, buf.data, PAGE_SIZE,
+-			      TPM_DIGEST_SIZE, 0,
++	rc = tpm_transmit_cmd(chip, NULL, &buf, TPM_DIGEST_SIZE, 0,
+ 			      "attempting to read a pcr value");
+ 	if (rc)
+ 		goto out;
+@@ -618,11 +611,8 @@ static int tpm1_continue_selftest(struct tpm_chip *chip)
+ 	if (rc)
+ 		return rc;
+ 
+-	rc = tpm_transmit_cmd(chip, NULL, buf.data, PAGE_SIZE,
+-			      0, 0, "continue selftest");
+-
++	rc = tpm_transmit_cmd(chip, NULL, &buf, 0, 0, "continue selftest");
+ 	tpm_buf_destroy(&buf);
+-
+ 	return rc;
+ }
+ 
+@@ -747,9 +737,7 @@ int tpm1_pm_suspend(struct tpm_chip *chip, u32 tpm_suspend_pcr)
+ 		return rc;
+ 	/* now do the actual savestate */
+ 	for (try = 0; try < TPM_RETRY; try++) {
+-		rc = tpm_transmit_cmd(chip, NULL, buf.data, PAGE_SIZE,
+-				      0, 0, NULL);
+-
++		rc = tpm_transmit_cmd(chip, NULL, &buf, 0, 0, NULL);
+ 		/*
+ 		 * If the TPM indicates that it is too busy to respond to
+ 		 * this command then retry before giving up.  It can take
+diff --git a/drivers/char/tpm/tpm2-cmd.c b/drivers/char/tpm/tpm2-cmd.c
+index a6bec13afa69..2bcf470c8e5d 100644
+--- a/drivers/char/tpm/tpm2-cmd.c
++++ b/drivers/char/tpm/tpm2-cmd.c
+@@ -197,8 +197,8 @@ int tpm2_pcr_read(struct tpm_chip *chip, u32 pcr_idx, u8 *res_buf)
+ 	tpm_buf_append(&buf, (const unsigned char *)pcr_select,
+ 		       sizeof(pcr_select));
+ 
+-	rc = tpm_transmit_cmd(chip, NULL, buf.data, PAGE_SIZE, 0, 0,
+-			res_buf ? "attempting to read a pcr value" : NULL);
++	rc = tpm_transmit_cmd(chip, NULL, &buf, 0, 0, res_buf ?
++			      "attempting to read a pcr value" : NULL);
+ 	if (rc == 0 && res_buf) {
+ 		out = (struct tpm2_pcr_read_out *)&buf.data[TPM_HEADER_SIZE];
+ 		memcpy(res_buf, out->digest, SHA1_DIGEST_SIZE);
+@@ -264,7 +264,7 @@ int tpm2_pcr_extend(struct tpm_chip *chip, u32 pcr_idx, u32 count,
+ 		}
+ 	}
+ 
+-	rc = tpm_transmit_cmd(chip, NULL, buf.data, PAGE_SIZE, 0, 0,
++	rc = tpm_transmit_cmd(chip, NULL, &buf, 0, 0,
+ 			      "attempting extend a PCR value");
+ 
+ 	tpm_buf_destroy(&buf);
+@@ -309,7 +309,7 @@ int tpm2_get_random(struct tpm_chip *chip, u8 *dest, size_t max)
+ 	do {
+ 		tpm_buf_reset(&buf, TPM2_ST_NO_SESSIONS, TPM2_CC_GET_RANDOM);
+ 		tpm_buf_append_u16(&buf, num_bytes);
+-		err = tpm_transmit_cmd(chip, NULL, buf.data, PAGE_SIZE,
++		err = tpm_transmit_cmd(chip, NULL, &buf,
+ 				       offsetof(struct tpm2_get_random_out,
+ 						buffer),
+ 				       0, "attempting get random");
+@@ -362,9 +362,7 @@ void tpm2_flush_context_cmd(struct tpm_chip *chip, u32 handle,
+ 
+ 	tpm_buf_append_u32(&buf, handle);
+ 
+-	(void) tpm_transmit_cmd(chip, NULL, buf.data, PAGE_SIZE, 0, flags,
+-				"flushing context");
+-
++	tpm_transmit_cmd(chip, NULL, &buf, 0, flags, "flushing context");
+ 	tpm_buf_destroy(&buf);
+ }
+ 
+@@ -478,8 +476,7 @@ int tpm2_seal_trusted(struct tpm_chip *chip,
+ 		goto out;
+ 	}
+ 
+-	rc = tpm_transmit_cmd(chip, NULL, buf.data, PAGE_SIZE, 4, 0,
+-			      "sealing data");
++	rc = tpm_transmit_cmd(chip, NULL, &buf, 4, 0, "sealing data");
+ 	if (rc)
+ 		goto out;
+ 
+@@ -561,8 +558,7 @@ static int tpm2_load_cmd(struct tpm_chip *chip,
+ 		goto out;
+ 	}
+ 
+-	rc = tpm_transmit_cmd(chip, NULL, buf.data, PAGE_SIZE, 4, flags,
+-			      "loading blob");
++	rc = tpm_transmit_cmd(chip, NULL, &buf, 4, flags, "loading blob");
+ 	if (!rc)
+ 		*blob_handle = be32_to_cpup(
+ 			(__be32 *) &buf.data[TPM_HEADER_SIZE]);
+@@ -612,8 +608,7 @@ static int tpm2_unseal_cmd(struct tpm_chip *chip,
+ 			     options->blobauth /* hmac */,
+ 			     TPM_DIGEST_SIZE);
+ 
+-	rc = tpm_transmit_cmd(chip, NULL, buf.data, PAGE_SIZE, 6, flags,
+-			      "unsealing");
++	rc = tpm_transmit_cmd(chip, NULL, &buf, 6, flags, "unsealing");
+ 	if (rc > 0)
+ 		rc = -EPERM;
+ 
+@@ -703,7 +698,7 @@ ssize_t tpm2_get_tpm_pt(struct tpm_chip *chip, u32 property_id,  u32 *value,
+ 	tpm_buf_append_u32(&buf, TPM2_CAP_TPM_PROPERTIES);
+ 	tpm_buf_append_u32(&buf, property_id);
+ 	tpm_buf_append_u32(&buf, 1);
+-	rc = tpm_transmit_cmd(chip, NULL, buf.data, PAGE_SIZE, 0, 0, NULL);
++	rc = tpm_transmit_cmd(chip, NULL, &buf, 0, 0, NULL);
+ 	if (!rc) {
+ 		out = (struct tpm2_get_cap_out *)
+ 			&buf.data[TPM_HEADER_SIZE];
+@@ -733,8 +728,7 @@ void tpm2_shutdown(struct tpm_chip *chip, u16 shutdown_type)
+ 	if (rc)
+ 		return;
+ 	tpm_buf_append_u16(&buf, shutdown_type);
+-	tpm_transmit_cmd(chip, NULL, buf.data, PAGE_SIZE, 0, 0,
+-			 "stopping the TPM");
++	tpm_transmit_cmd(chip, NULL, &buf, 0, 0, "stopping the TPM");
+ 	tpm_buf_destroy(&buf);
+ }
+ 
+@@ -763,7 +757,7 @@ static int tpm2_do_selftest(struct tpm_chip *chip)
+ 			return rc;
+ 
+ 		tpm_buf_append_u8(&buf, full);
+-		rc = tpm_transmit_cmd(chip, NULL, buf.data, PAGE_SIZE, 0, 0,
++		rc = tpm_transmit_cmd(chip, NULL, &buf, 0, 0,
+ 				      "attempting the self test");
+ 		tpm_buf_destroy(&buf);
+ 
+@@ -800,7 +794,7 @@ int tpm2_probe(struct tpm_chip *chip)
+ 	tpm_buf_append_u32(&buf, TPM2_CAP_TPM_PROPERTIES);
+ 	tpm_buf_append_u32(&buf, TPM_PT_TOTAL_COMMANDS);
+ 	tpm_buf_append_u32(&buf, 1);
+-	rc = tpm_transmit_cmd(chip, NULL, buf.data, PAGE_SIZE, 0, 0, NULL);
++	rc = tpm_transmit_cmd(chip, NULL, &buf, 0, 0, NULL);
+ 	/* We ignore TPM return codes on purpose. */
+ 	if (rc >=  0) {
+ 		out = (struct tpm_output_header *)buf.data;
+@@ -839,7 +833,7 @@ static ssize_t tpm2_get_pcr_allocation(struct tpm_chip *chip)
+ 	tpm_buf_append_u32(&buf, 0);
+ 	tpm_buf_append_u32(&buf, 1);
+ 
+-	rc = tpm_transmit_cmd(chip, NULL, buf.data, PAGE_SIZE, 9, 0,
++	rc = tpm_transmit_cmd(chip, NULL, &buf, 9, 0,
+ 			      "get tpm pcr allocation");
+ 	if (rc)
+ 		goto out;
+@@ -911,8 +905,7 @@ static int tpm2_get_cc_attrs_tbl(struct tpm_chip *chip)
+ 	tpm_buf_append_u32(&buf, TPM2_CC_FIRST);
+ 	tpm_buf_append_u32(&buf, nr_commands);
+ 
+-	rc = tpm_transmit_cmd(chip, NULL, buf.data, PAGE_SIZE,
+-			      9 + 4 * nr_commands, 0, NULL);
++	rc = tpm_transmit_cmd(chip, NULL, &buf, 9 + 4 * nr_commands, 0, NULL);
+ 	if (rc) {
+ 		tpm_buf_destroy(&buf);
+ 		goto out;
+@@ -969,7 +962,7 @@ static int tpm2_startup(struct tpm_chip *chip)
+ 		return rc;
+ 
+ 	tpm_buf_append_u16(&buf, TPM2_SU_CLEAR);
+-	rc = tpm_transmit_cmd(chip, NULL, buf.data, PAGE_SIZE, 0, 0,
++	rc = tpm_transmit_cmd(chip, NULL, &buf, 0, 0,
+ 			      "attempting to start the TPM");
+ 	tpm_buf_destroy(&buf);
+ 
+diff --git a/drivers/char/tpm/tpm2-space.c b/drivers/char/tpm/tpm2-space.c
+index dcdfde3c253e..1131a8e7b79b 100644
+--- a/drivers/char/tpm/tpm2-space.c
++++ b/drivers/char/tpm/tpm2-space.c
+@@ -83,7 +83,7 @@ static int tpm2_load_context(struct tpm_chip *chip, u8 *buf,
+ 	body_size = sizeof(*ctx) + be16_to_cpu(ctx->blob_size);
+ 	tpm_buf_append(&tbuf, &buf[*offset], body_size);
+ 
+-	rc = tpm_transmit_cmd(chip, NULL, tbuf.data, PAGE_SIZE, 4,
++	rc = tpm_transmit_cmd(chip, NULL, &tbuf, 4,
+ 			      TPM_TRANSMIT_NESTED, NULL);
+ 	if (rc < 0) {
+ 		dev_warn(&chip->dev, "%s: failed with a system error %d\n",
+@@ -132,7 +132,7 @@ static int tpm2_save_context(struct tpm_chip *chip, u32 handle, u8 *buf,
+ 
+ 	tpm_buf_append_u32(&tbuf, handle);
+ 
+-	rc = tpm_transmit_cmd(chip, NULL, tbuf.data, PAGE_SIZE, 0,
++	rc = tpm_transmit_cmd(chip, NULL, &tbuf, 0,
+ 			      TPM_TRANSMIT_NESTED, NULL);
+ 	if (rc < 0) {
+ 		dev_warn(&chip->dev, "%s: failed with a system error %d\n",
+diff --git a/drivers/char/tpm/tpm_vtpm_proxy.c b/drivers/char/tpm/tpm_vtpm_proxy.c
+index 87a0ce47f201..5f95fbfb7f6b 100644
+--- a/drivers/char/tpm/tpm_vtpm_proxy.c
++++ b/drivers/char/tpm/tpm_vtpm_proxy.c
+@@ -417,8 +417,7 @@ static int vtpm_proxy_request_locality(struct tpm_chip *chip, int locality)
+ 
+ 	proxy_dev->state |= STATE_DRIVER_COMMAND;
+ 
+-	rc = tpm_transmit_cmd(chip, NULL, buf.data, tpm_buf_length(&buf), 0,
+-			      TPM_TRANSMIT_NESTED,
++	rc = tpm_transmit_cmd(chip, NULL, &buf, 0, TPM_TRANSMIT_NESTED,
+ 			      "attempting to set locality");
+ 
+ 	proxy_dev->state &= ~STATE_DRIVER_COMMAND;
+-- 
+2.19.1

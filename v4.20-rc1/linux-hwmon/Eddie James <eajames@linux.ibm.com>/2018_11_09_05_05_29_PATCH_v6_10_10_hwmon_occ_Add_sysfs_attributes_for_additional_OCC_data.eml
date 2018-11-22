@@ -1,0 +1,534 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 09 Nov 2018 00:38:07 -0000
+Received: from icoremail.net (unknown [209.85.214.170])
+	by mail-app2 (Coremail) with SMTP id by_KCgDnX9NSpeRb6Z5iAQ--.29859S3;
+	Fri, 09 Nov 2018 05:06:27 +0800 (CST)
+Received: from mail-pl1-f170.google.com (unknown [209.85.214.170])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwA3FEBQpeRbAK4eAA--.1756S3;
+	Fri, 09 Nov 2018 05:06:24 +0800 (CST)
+Received: by mail-pl1-f170.google.com with SMTP id w24-v6so10114021plq.3
+        for <xuliker@zju.edu.cn>; Thu, 08 Nov 2018 13:06:24 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :from:to:cc:subject:date:in-reply-to:references:message-id:sender
+         :precedence:list-id;
+        bh=SzlySQR0el+obNBn5msqxJRszD2AJ/7DNTNfCaxDPtE=;
+        b=SxwWCxsS4LfgnlxyAZwQCql+FdWb8MwFjoJMXwIEqRb2buFUwEXm01NZ6nwOOvhcDt
+         UyR/zRUs6Dn4zvS8PCOjJ/YNTuzTfgjj9RQYpTJfEHBtzVPVH30DY48qXUtCVA4wWRxo
+         8rzKLSNt0Hrl2HrSuMdRefjczHoKDmW4lUFaMCGlB/Q5abvG9/Z73JMB/kBmAwgp2K2S
+         ZzndyRaUN4Eq98l/LOV7k6DKw7D7ad5GLnJbz7XFbTLufIU4bIN+xkdWHkYKepEfx9cu
+         NuXTZsAip5UuJqkBmtrzjoCtjxJ7DYidG7CrpZv8La7u0kmHg6IlHcsLhvZ/iNkUT/zY
+         SVQw==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=ibm.com
+X-Gm-Message-State: AGRZ1gLikQ/0+QUZxXZZjShJQVzqj0t6twT5QS6FmAc4HPYHiqnPSU2V
+	woQD49d8YyJebR7KKgRAZRicx5Lukex48VCpdnXOyHvtXgaomzdiVQ==
+X-Received: by 2002:a17:902:166:: with SMTP id 93-v6mr5973601plb.68.1541711184419;
+        Thu, 08 Nov 2018 13:06:24 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp729269pjt;
+        Thu, 8 Nov 2018 13:06:23 -0800 (PST)
+X-Google-Smtp-Source: AJdET5f22Zz2Ebw2+SXPPxsOnhEJQd/WhWdsd1wJH6aTC3/6MVgNoa/StLotsGaKQDqItphO8jLl
+X-Received: by 2002:a17:902:bc8c:: with SMTP id bb12-v6mr5808011plb.275.1541711183409;
+        Thu, 08 Nov 2018 13:06:23 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1541711183; cv=none;
+        d=google.com; s=arc-20160816;
+        b=HUG5h5XF/lA956aKdpjYzZSyKET15I0gk14OqIUlSjTcLZcGnaY3DU7JjqpzqH/L0y
+         acUP9tcyibn2dTB/1q8USBRjnuMBnDCnrYCWE+Cy5sbO28y7aAr6ejRp+HDYOQabiUgH
+         lHH8dlw+3gwPhUshmjdkSlcR4R/kAPFy+IBhzzt8fpMN4xL3QjWXz+G1ig63r5tOx7BZ
+         0Bf66K7rPVHhoW4vQ+JfyA+5r8MwaOLUWcYSf6GhD2PRJG7ho3VlG1zYtwD3MWhFxLMU
+         IiKeq6vuM+K2nW4i06dq5qtbl7eAK+hk/+TgcqDmDQAR2uGVmJKa+DSU/kwJjHh2Mtwm
+         cFjQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:message-id:references:in-reply-to:date
+         :subject:cc:to:from;
+        bh=SzlySQR0el+obNBn5msqxJRszD2AJ/7DNTNfCaxDPtE=;
+        b=FSWCzm2SUaJdRuIfC2bSeDr8KPW3Ty3vM+sYwMJxQ8iGeUZqRFWvbOkx5jxeUYqIeB
+         ezKVL+WRgbtObZLo0AtUeRaiVzrZ7oPXEJl9Hsst5mnKE0UGxcrimXmD9BDTpC/vUNKQ
+         zZ0mpKGMIMpxscBhqSzOjGZYFeVFBeN6SyVkaici6CvplqC9+z9eDuMxJvdMXN8HlymM
+         jhJgFj72hrIory6ulBZgdGvEz819woVusfyrcIwNm5LqfCdJvZKb0KQdkCr5ZqiGYhYF
+         vuHCGA6TdlKkJUjMmnwrSwl5DvTiNsg24zTS7VVKSUJ9rHT39HBcOgfH6xW57j6H/yuj
+         o3KQ==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=ibm.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id v67-v6si1324112pfv.181.2018.11.08.13.06.08;
+        Thu, 08 Nov 2018 13:06:23 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1727830AbeKIGnI (ORCPT <rfc822;tu.k.phung@gmail.com>
+        + 99 others); Fri, 9 Nov 2018 01:43:08 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:50092 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727806AbeKIGnH (ORCPT
+        <rfc822;linux-kernel@vger.kernel.org>);
+        Fri, 9 Nov 2018 01:43:07 -0500
+Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.22/8.16.0.22) with SMTP id wA8L0Bwb144932
+        for <linux-kernel@vger.kernel.org>; Thu, 8 Nov 2018 16:05:50 -0500
+Received: from e11.ny.us.ibm.com (e11.ny.us.ibm.com [129.33.205.201])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2nmtwtvw6w-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-kernel@vger.kernel.org>; Thu, 08 Nov 2018 16:05:50 -0500
+Received: from localhost
+        by e11.ny.us.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-kernel@vger.kernel.org> from <eajames@linux.ibm.com>;
+        Thu, 8 Nov 2018 21:05:49 -0000
+Received: from b01cxnp23033.gho.pok.ibm.com (9.57.198.28)
+        by e11.ny.us.ibm.com (146.89.104.198) with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted;
+        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256/256)
+        Thu, 8 Nov 2018 21:05:44 -0000
+Received: from b01ledav001.gho.pok.ibm.com (b01ledav001.gho.pok.ibm.com [9.57.199.106])
+        by b01cxnp23033.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id wA8L5hqf23003328
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
+        Thu, 8 Nov 2018 21:05:43 GMT
+Received: from b01ledav001.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 9498A28059;
+        Thu,  8 Nov 2018 21:05:43 +0000 (GMT)
+Received: from b01ledav001.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 82D212805A;
+        Thu,  8 Nov 2018 21:05:42 +0000 (GMT)
+Received: from talon7.ibm.com (unknown [9.41.179.222])
+        by b01ledav001.gho.pok.ibm.com (Postfix) with ESMTP;
+        Thu,  8 Nov 2018 21:05:42 +0000 (GMT)
+From: Eddie James <eajames@linux.ibm.com>
+To: linux-kernel@vger.kernel.org
+Cc: linux-hwmon@vger.kernel.org, devicetree@vger.kernel.org,
+        jdelvare@suse.com, linux-doc@vger.kernel.org,
+        gregkh@linuxfoundation.org, robh+dt@kernel.org,
+        mark.rutland@arm.com, linux@roeck-us.net, rdunlap@infradead.org,
+        benh@kernel.crashing.org, Eddie James <eajames@linux.vnet.ibm.com>,
+        Eddie James <eajames@linux.ibm.com>
+Subject: [PATCH v6 10/10] hwmon (occ): Add sysfs attributes for additional OCC data
+Date: Thu,  8 Nov 2018 15:05:29 -0600
+X-Mailer: git-send-email 1.8.3.1
+In-Reply-To: <1541711129-26631-1-git-send-email-eajames@linux.ibm.com>
+References: <1541711129-26631-1-git-send-email-eajames@linux.ibm.com>
+X-TM-AS-GCONF: 00
+x-cbid: 18110821-2213-0000-0000-00000313CB14
+X-IBM-SpamModules-Scores: 
+X-IBM-SpamModules-Versions: BY=3.00010009; HX=3.00000242; KW=3.00000007;
+ PH=3.00000004; SC=3.00000269; SDB=6.01114610; UDB=6.00577887; IPR=6.00894709;
+ MB=3.00024077; MTD=3.00000008; XFM=3.00000015; UTC=2018-11-08 21:05:48
+X-IBM-AV-DETECTION: SAVI=unused REMOTE=unused XFE=unused
+x-cbparentid: 18110821-2214-0000-0000-00005C2FEB08
+Message-Id: <1541711129-26631-11-git-send-email-eajames@linux.ibm.com>
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2018-11-08_12:,,
+ signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ malwarescore=0 suspectscore=1 phishscore=0 bulkscore=0 spamscore=0
+ clxscore=1015 lowpriorityscore=0 mlxscore=0 impostorscore=0
+ mlxlogscore=999 adultscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.0.1-1807170000 definitions=main-1811080178
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwA3FEBQpeRbAK4eAA--.1756S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW3tw4fWr4fKFyrAF1xAF1fZwb_yoWktr13pa
+	1kGayrCr4UGa1fXr4fZ3WDu34Y9rn5Ca4UKrZ7Wwn5AF13Wr98ZFyIyay2vrn8KrZxGr4f
+	J3WqgF4UCaykGr7anT9S1TB71UUUUUUqnTZGkaVYY2UrUUUU0bIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUPSb7Iv0xC_Kw4lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Xr0_Ar1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1l84ACjcxK6I8E
+	87Iv67AKxVWxJr0_GcWl84ACjcxK6I8E87Iv6xkF7I0E14v26F4UJVW0owAS0I0E0xvYzx
+	vE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AKxVWU
+	JVWUGwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcxkI7V
+	AKI48JMx02cVCv0xWlc7CjxVAKzI0EY4vE52x082I5MxkFs20EY4vE44CYbxCE4x80FwCY
+	02Avz4vEIxC_CwCY0x0Ix7I2Y4AK64vIr41lcIIF0xvE2Ix0cI8IcVAFwI0_JFI_Gr1lcI
+	IF0xvE2Ix0cI8IcVCY1x0267AKxVWUJVW8JwCYIxAIcVC2z280aVAFwI0_Gr1j6F4UJwCY
+	IxAIcVC2z280aVCY1x0267AKxVW8Jr0_Cr1UMxAIw28IcxkI7VAKI48JMxAIw28IcVAKzI
+	0EY4vE52x082I5MxCjnVCjjxCrMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAF
+	wI0_Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWUtVW8ZwCIc4
+	0Y0x0EwIxGrwCI42IY6xAIw20EY4v20xvaj40_Jr0_JF7vcSsGvfC2KfnxnUUI43ZEXa7I
+	UOCeHPUUUUU==
+
+From: Eddie James <eajames@linux.vnet.ibm.com>
+
+The OCC provides a variety of additional information about the state of
+the host processor, such as throttling, error conditions, and the number
+of OCCs detected in the system. This information is essential to service
+processor applications such as fan control and host management.
+Therefore, export this data in the form of sysfs attributes attached to
+the platform device (to which the hwmon device is also attached).
+
+Signed-off-by: Eddie James <eajames@linux.ibm.com>
+---
+ drivers/hwmon/occ/Makefile |   4 +-
+ drivers/hwmon/occ/common.c |  45 ++++++++++-
+ drivers/hwmon/occ/common.h |  17 ++++
+ drivers/hwmon/occ/p8_i2c.c |  10 +++
+ drivers/hwmon/occ/p9_sbe.c |   1 +
+ drivers/hwmon/occ/sysfs.c  | 188 +++++++++++++++++++++++++++++++++++++++++++++
+ 6 files changed, 260 insertions(+), 5 deletions(-)
+ create mode 100644 drivers/hwmon/occ/sysfs.c
+
+diff --git a/drivers/hwmon/occ/Makefile b/drivers/hwmon/occ/Makefile
+index 57c0e91..3fec12d 100644
+--- a/drivers/hwmon/occ/Makefile
++++ b/drivers/hwmon/occ/Makefile
+@@ -1,5 +1,5 @@
+-occ-p8-hwmon-objs := common.o p8_i2c.o
+-occ-p9-hwmon-objs := common.o p9_sbe.o
++occ-p8-hwmon-objs := common.o sysfs.o p8_i2c.o
++occ-p9-hwmon-objs := common.o sysfs.o p9_sbe.o
+ 
+ obj-$(CONFIG_SENSORS_OCC_P8_I2C) += occ-p8-hwmon.o
+ obj-$(CONFIG_SENSORS_OCC_P9_SBE) += occ-p9-hwmon.o
+diff --git a/drivers/hwmon/occ/common.c b/drivers/hwmon/occ/common.c
+index c6c8161..423903f 100644
+--- a/drivers/hwmon/occ/common.c
++++ b/drivers/hwmon/occ/common.c
+@@ -14,6 +14,11 @@
+ 
+ #define EXTN_FLAG_SENSOR_ID		BIT(7)
+ 
++#define OCC_ERROR_COUNT_THRESHOLD	2	/* required by OCC spec */
++
++#define OCC_STATE_SAFE			4
++#define OCC_SAFE_TIMEOUT		msecs_to_jiffies(60000) /* 1 min */
++
+ #define OCC_UPDATE_FREQUENCY		msecs_to_jiffies(1000)
+ 
+ #define OCC_TEMP_SENSOR_FAULT		0xFF
+@@ -115,8 +120,10 @@ struct extended_sensor {
+ 
+ static int occ_poll(struct occ *occ)
+ {
++	int rc;
+ 	u16 checksum = occ->poll_cmd_data + 1;
+ 	u8 cmd[8];
++	struct occ_poll_response_header *header;
+ 
+ 	/* big endian */
+ 	cmd[0] = 0;			/* sequence number */
+@@ -129,7 +136,35 @@ static int occ_poll(struct occ *occ)
+ 	cmd[7] = 0;
+ 
+ 	/* mutex should already be locked if necessary */
+-	return occ->send_cmd(occ, cmd);
++	rc = occ->send_cmd(occ, cmd);
++	if (rc) {
++		if (occ->error_count++ > OCC_ERROR_COUNT_THRESHOLD)
++			occ->error = rc;
++
++		goto done;
++	}
++
++	/* clear error since communication was successful */
++	occ->error_count = 0;
++	occ->error = 0;
++
++	/* check for safe state */
++	header = (struct occ_poll_response_header *)occ->resp.data;
++	if (header->occ_state == OCC_STATE_SAFE) {
++		if (occ->last_safe) {
++			if (time_after(jiffies,
++				       occ->last_safe + OCC_SAFE_TIMEOUT))
++				occ->error = -EHOSTDOWN;
++		} else {
++			occ->last_safe = jiffies;
++		}
++	} else {
++		occ->last_safe = 0;
++	}
++
++done:
++	occ_sysfs_poll_done(occ);
++	return rc;
+ }
+ 
+ static int occ_set_user_power_cap(struct occ *occ, u16 user_power_cap)
+@@ -161,7 +196,7 @@ static int occ_set_user_power_cap(struct occ *occ, u16 user_power_cap)
+ 	return rc;
+ }
+ 
+-static int occ_update_response(struct occ *occ)
++int occ_update_response(struct occ *occ)
+ {
+ 	int rc = mutex_lock_interruptible(&occ->lock);
+ 
+@@ -1055,5 +1090,9 @@ int occ_setup(struct occ *occ, const char *name)
+ 		return rc;
+ 	}
+ 
+-	return 0;
++	rc = occ_setup_sysfs(occ);
++	if (rc)
++		dev_err(occ->bus_dev, "failed to setup sysfs: %d\n", rc);
++
++	return rc;
+ }
+diff --git a/drivers/hwmon/occ/common.h b/drivers/hwmon/occ/common.h
+index 00ac101..da80e65 100644
+--- a/drivers/hwmon/occ/common.h
++++ b/drivers/hwmon/occ/common.h
+@@ -104,8 +104,25 @@ struct occ {
+ 	struct occ_attribute *attrs;
+ 	struct attribute_group group;
+ 	const struct attribute_group *groups[2];
++
++	int error;                      /* latest transfer error */
++	unsigned int error_count;       /* number of xfr errors observed */
++	unsigned long last_safe;        /* time OCC entered "safe" state */
++
++	/*
++	 * Store the previous state data for comparison in order to notify
++	 * sysfs readers of state changes.
++	 */
++	int prev_error;
++	u8 prev_stat;
++	u8 prev_ext_stat;
++	u8 prev_occs_present;
+ };
+ 
+ int occ_setup(struct occ *occ, const char *name);
++int occ_setup_sysfs(struct occ *occ);
++void occ_shutdown(struct occ *occ);
++void occ_sysfs_poll_done(struct occ *occ);
++int occ_update_response(struct occ *occ);
+ 
+ #endif /* OCC_COMMON_H */
+diff --git a/drivers/hwmon/occ/p8_i2c.c b/drivers/hwmon/occ/p8_i2c.c
+index e4c2c04..b59efc9 100644
+--- a/drivers/hwmon/occ/p8_i2c.c
++++ b/drivers/hwmon/occ/p8_i2c.c
+@@ -223,6 +223,15 @@ static int p8_i2c_occ_probe(struct i2c_client *client,
+ 	return occ_setup(occ, "p8_occ");
+ }
+ 
++static int p8_i2c_occ_remove(struct i2c_client *client)
++{
++	struct occ *occ = dev_get_drvdata(&client->dev);
++
++	occ_shutdown(occ);
++
++	return 0;
++}
++
+ static const struct of_device_id p8_i2c_occ_of_match[] = {
+ 	{ .compatible = "ibm,p8-occ-hwmon" },
+ 	{}
+@@ -236,6 +245,7 @@ static int p8_i2c_occ_probe(struct i2c_client *client,
+ 		.of_match_table = p8_i2c_occ_of_match,
+ 	},
+ 	.probe = p8_i2c_occ_probe,
++	.remove = p8_i2c_occ_remove,
+ };
+ 
+ module_i2c_driver(p8_i2c_occ_driver);
+diff --git a/drivers/hwmon/occ/p9_sbe.c b/drivers/hwmon/occ/p9_sbe.c
+index b33f4fe..b65c1d1 100644
+--- a/drivers/hwmon/occ/p9_sbe.c
++++ b/drivers/hwmon/occ/p9_sbe.c
+@@ -86,6 +86,7 @@ static int p9_sbe_occ_remove(struct platform_device *pdev)
+ 	struct p9_sbe_occ *ctx = to_p9_sbe_occ(occ);
+ 
+ 	ctx->sbe = NULL;
++	occ_shutdown(occ);
+ 
+ 	return 0;
+ }
+diff --git a/drivers/hwmon/occ/sysfs.c b/drivers/hwmon/occ/sysfs.c
+new file mode 100644
+index 0000000..743b26ec
+--- /dev/null
++++ b/drivers/hwmon/occ/sysfs.c
+@@ -0,0 +1,188 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * OCC hwmon driver sysfs interface
++ *
++ * Copyright (C) IBM Corporation 2018
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ */
++
++#include <linux/bitops.h>
++#include <linux/device.h>
++#include <linux/hwmon-sysfs.h>
++#include <linux/kernel.h>
++#include <linux/sysfs.h>
++
++#include "common.h"
++
++/* OCC status register */
++#define OCC_STAT_MASTER			BIT(7)
++#define OCC_STAT_ACTIVE			BIT(0)
++
++/* OCC extended status register */
++#define OCC_EXT_STAT_DVFS_OT		BIT(7)
++#define OCC_EXT_STAT_DVFS_POWER		BIT(6)
++#define OCC_EXT_STAT_MEM_THROTTLE	BIT(5)
++#define OCC_EXT_STAT_QUICK_DROP		BIT(4)
++
++static ssize_t occ_sysfs_show(struct device *dev,
++			      struct device_attribute *attr, char *buf)
++{
++	int rc;
++	int val = 0;
++	struct occ *occ = dev_get_drvdata(dev);
++	struct occ_poll_response_header *header;
++	struct sensor_device_attribute *sattr = to_sensor_dev_attr(attr);
++
++	rc = occ_update_response(occ);
++	if (rc)
++		return rc;
++
++	header = (struct occ_poll_response_header *)occ->resp.data;
++
++	switch (sattr->index) {
++	case 0:
++		val = !!(header->status & OCC_STAT_MASTER);
++		break;
++	case 1:
++		val = !!(header->status & OCC_STAT_ACTIVE);
++		break;
++	case 2:
++		val = !!(header->status & OCC_EXT_STAT_DVFS_OT);
++		break;
++	case 3:
++		val = !!(header->status & OCC_EXT_STAT_DVFS_POWER);
++		break;
++	case 4:
++		val = !!(header->status & OCC_EXT_STAT_MEM_THROTTLE);
++		break;
++	case 5:
++		val = !!(header->status & OCC_EXT_STAT_QUICK_DROP);
++		break;
++	case 6:
++		val = header->occ_state;
++		break;
++	case 7:
++		if (header->status & OCC_STAT_MASTER)
++			val = hweight8(header->occs_present);
++		else
++			val = 1;
++		break;
++	case 8:
++		val = occ->error;
++		break;
++	default:
++		return -EINVAL;
++	}
++
++	return snprintf(buf, PAGE_SIZE - 1, "%d\n", val);
++}
++
++static SENSOR_DEVICE_ATTR(occ_master, 0444, occ_sysfs_show, NULL, 0);
++static SENSOR_DEVICE_ATTR(occ_active, 0444, occ_sysfs_show, NULL, 1);
++static SENSOR_DEVICE_ATTR(occ_dvfs_overtemp, 0444, occ_sysfs_show, NULL, 2);
++static SENSOR_DEVICE_ATTR(occ_dvfs_power, 0444, occ_sysfs_show, NULL, 3);
++static SENSOR_DEVICE_ATTR(occ_mem_throttle, 0444, occ_sysfs_show, NULL, 4);
++static SENSOR_DEVICE_ATTR(occ_quick_pwr_drop, 0444, occ_sysfs_show, NULL, 5);
++static SENSOR_DEVICE_ATTR(occ_state, 0444, occ_sysfs_show, NULL, 6);
++static SENSOR_DEVICE_ATTR(occs_present, 0444, occ_sysfs_show, NULL, 7);
++static SENSOR_DEVICE_ATTR(occ_error, 0444, occ_sysfs_show, NULL, 8);
++
++static struct attribute *occ_attributes[] = {
++	&sensor_dev_attr_occ_master.dev_attr.attr,
++	&sensor_dev_attr_occ_active.dev_attr.attr,
++	&sensor_dev_attr_occ_dvfs_overtemp.dev_attr.attr,
++	&sensor_dev_attr_occ_dvfs_power.dev_attr.attr,
++	&sensor_dev_attr_occ_mem_throttle.dev_attr.attr,
++	&sensor_dev_attr_occ_quick_pwr_drop.dev_attr.attr,
++	&sensor_dev_attr_occ_state.dev_attr.attr,
++	&sensor_dev_attr_occs_present.dev_attr.attr,
++	&sensor_dev_attr_occ_error.dev_attr.attr,
++	NULL
++};
++
++static const struct attribute_group occ_sysfs = {
++	.attrs = occ_attributes,
++};
++
++void occ_sysfs_poll_done(struct occ *occ)
++{
++	const char *name;
++	struct occ_poll_response_header *header =
++		(struct occ_poll_response_header *)occ->resp.data;
++
++	/*
++	 * On the first poll response, we haven't yet created the sysfs
++	 * attributes, so don't make any notify calls.
++	 */
++	if (!occ->hwmon)
++		goto done;
++
++	if ((header->status & OCC_STAT_MASTER) !=
++	    (occ->prev_stat & OCC_STAT_MASTER)) {
++		name = sensor_dev_attr_occ_master.dev_attr.attr.name;
++		sysfs_notify(&occ->bus_dev->kobj, NULL, name);
++	}
++
++	if ((header->status & OCC_STAT_ACTIVE) !=
++	    (occ->prev_stat & OCC_STAT_ACTIVE)) {
++		name = sensor_dev_attr_occ_active.dev_attr.attr.name;
++		sysfs_notify(&occ->bus_dev->kobj, NULL, name);
++	}
++
++	if ((header->ext_status & OCC_EXT_STAT_DVFS_OT) !=
++	    (occ->prev_ext_stat & OCC_EXT_STAT_DVFS_OT)) {
++		name = sensor_dev_attr_occ_dvfs_overtemp.dev_attr.attr.name;
++		sysfs_notify(&occ->bus_dev->kobj, NULL, name);
++	}
++
++	if ((header->ext_status & OCC_EXT_STAT_DVFS_POWER) !=
++	    (occ->prev_ext_stat & OCC_EXT_STAT_DVFS_POWER)) {
++		name = sensor_dev_attr_occ_dvfs_power.dev_attr.attr.name;
++		sysfs_notify(&occ->bus_dev->kobj, NULL, name);
++	}
++
++	if ((header->ext_status & OCC_EXT_STAT_MEM_THROTTLE) !=
++	    (occ->prev_ext_stat & OCC_EXT_STAT_MEM_THROTTLE)) {
++		name = sensor_dev_attr_occ_mem_throttle.dev_attr.attr.name;
++		sysfs_notify(&occ->bus_dev->kobj, NULL, name);
++	}
++
++	if ((header->ext_status & OCC_EXT_STAT_QUICK_DROP) !=
++	    (occ->prev_ext_stat & OCC_EXT_STAT_QUICK_DROP)) {
++		name = sensor_dev_attr_occ_quick_pwr_drop.dev_attr.attr.name;
++		sysfs_notify(&occ->bus_dev->kobj, NULL, name);
++	}
++
++	if ((header->status & OCC_STAT_MASTER) &&
++	    header->occs_present != occ->prev_occs_present) {
++		name = sensor_dev_attr_occs_present.dev_attr.attr.name;
++		sysfs_notify(&occ->bus_dev->kobj, NULL, name);
++	}
++
++	if (occ->error && occ->error != occ->prev_error) {
++		name = sensor_dev_attr_occ_error.dev_attr.attr.name;
++		sysfs_notify(&occ->bus_dev->kobj, NULL, name);
++	}
++
++	/* no notifications for OCC state; doesn't indicate error condition */
++
++done:
++	occ->prev_error = occ->error;
++	occ->prev_stat = header->status;
++	occ->prev_ext_stat = header->ext_status;
++	occ->prev_occs_present = header->occs_present;
++}
++
++int occ_setup_sysfs(struct occ *occ)
++{
++	return sysfs_create_group(&occ->bus_dev->kobj, &occ_sysfs);
++}
++
++void occ_shutdown(struct occ *occ)
++{
++	sysfs_remove_group(&occ->bus_dev->kobj, &occ_sysfs);
++}
+-- 
+1.8.3.1

@@ -1,0 +1,547 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (61.164.42.155:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 18 Nov 2018 06:33:03 -0000
+Received: from icoremail.net (unknown [209.85.214.181])
+	by mail-app2 (Coremail) with SMTP id by_KCgD3_5u22vBbcWSuAQ--.51118S3;
+	Sun, 18 Nov 2018 11:21:28 +0800 (CST)
+Received: from mail-pl1-f181.google.com (unknown [209.85.214.181])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwCXfEi02vBbWstPAA--.11810S3;
+	Sun, 18 Nov 2018 11:21:24 +0800 (CST)
+Received: by mail-pl1-f181.google.com with SMTP id v1-v6so5820863plo.2
+        for <xuliker@zju.edu.cn>; Sat, 17 Nov 2018 19:21:24 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:sender:precedence:list-id;
+        bh=nYJ03Y1q3qeR+wEVMKsmhUk5PiQl3aB7gJEQVoo8dns=;
+        b=CTLFemUj5E/Il4X6T0GvJ+dKLHNFPQJVbNps6DgjL9GmZle9uWTbN6mso2oKP/HYD5
+         kTOpT3OnnrFMKhtykmeH5PKtscuJZz41vshqY6n7fKSXJKnwYlPoKxQk6hYlX2Dw2a9t
+         BLWvSY7jq6AsGL2D2B6AVL5omEPQqgIMx8N7088eba8cLHC4s6umhP4r4d43IYkET9JB
+         6DAYllFLpmz0gDB52KJz2PriqMfMgUmpZ/ubHESqjcmGUbH/yYRrt5Kc1r4qQMvYSyOH
+         BUZpZwXWzya2P4iO8Uvn0hnpYOFQZ7flxedNLOSQoSdi3WjT5W14aRzeKIwf1A3hLO7S
+         KhCg==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org
+X-Gm-Message-State: AGRZ1gL5znVxOoo921pxo9O6AkAFA7pESTHsTWVtWPYUumpMEf29cPhS
+	5ZYva2y5xQJ313PpNvYGLivJzxTV1HclpdgI2aQOMBnTAzsGcuY=
+X-Received: by 2002:a17:902:7e44:: with SMTP id a4mr17212977pln.338.1542511284226;
+        Sat, 17 Nov 2018 19:21:24 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:d106:0:0:0:0 with SMTP id l6-v6csp1135361pju;
+        Sat, 17 Nov 2018 19:21:22 -0800 (PST)
+X-Google-Smtp-Source: AJdET5db/7E0g3cgGD6Yr+btMTFEz1MsSVSoohxhwb8tkd9GyYYcKKbMdQNoQNDdP/nEgfI7o7u3
+X-Received: by 2002:a63:310:: with SMTP id 16mr15119937pgd.79.1542511282687;
+        Sat, 17 Nov 2018 19:21:22 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542511282; cv=none;
+        d=google.com; s=arc-20160816;
+        b=GVD6CZZ8szd7gQV6Ss1//IPUSn671GIaSuR7kOH76PtdutBPweSSpITw4UvdtkDuua
+         BImFtG+viyFhmYCECItmvmK+0Yi+iomoJu2MOZ95ZEi4awx8d8CYcI+7+qOTsdAis6xW
+         /qYV3UalVKETtK/JrUrjOST6xcSaeetz5jJq5WhS7ruBlvsv9dvNL2+DHk1IFtuDwZ7K
+         QVxvJiNkwhK8CaTxNqNjD84YN7+Z04MxrUR7B845vW0K+4X6cbyvCzF+4rwlWlRkoTmK
+         owVRYv0rRhyeXonBliCkesEpK5qjAe33D5VY/Y+/9b2FacSxN7oEySoXwpTWDKi9aiVH
+         ZYwQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from;
+        bh=nYJ03Y1q3qeR+wEVMKsmhUk5PiQl3aB7gJEQVoo8dns=;
+        b=WGJn1TZfM1veyt1e7LCp2C3NZb2y7xUfyuihfI4wjkvDGMVm9TSKladyIUD2DKD63L
+         aPqSP2mBoRgOt+XjWCS6JAzraB1XXfDpf8CEnqxlWllPPxcdI92DzYoeef8c/nfkXVyb
+         u+KI/2AnOZabBZ3Re165opiyU0xKa+/qm8Q8j1eutyDd3fnrn4unsJPR7OSYRZZmFxSz
+         sz5eMVhlRyhUjMCQHXXv+g29HDcZlF+AvjU8azMeajru4xgO3WcgROSHyccG0Ts2tKSi
+         KOU7/ukeRi9TJDr69Rr1wAB7FyRfPxaDR8mO1BiRdhtnLRm0Tps5mkjUI9LMVQKSDIsP
+         RMeg==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id t19-v6si3748437plo.69.2018.11.17.19.21.08;
+        Sat, 17 Nov 2018 19:21:22 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1727033AbeKRNjj (ORCPT <rfc822;javier.barrio.mart@gmail.com>
+        + 99 others); Sun, 18 Nov 2018 08:39:39 -0500
+Received: from szxga04-in.huawei.com ([45.249.212.190]:15112 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1725831AbeKRNji (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+        Sun, 18 Nov 2018 08:39:38 -0500
+Received: from DGGEMS404-HUB.china.huawei.com (unknown [172.30.72.58])
+        by Forcepoint Email with ESMTP id 755C3D5542806;
+        Sun, 18 Nov 2018 11:20:43 +0800 (CST)
+Received: from S00293818-DELL1.china.huawei.com (10.47.88.178) by
+ DGGEMS404-HUB.china.huawei.com (10.3.19.204) with Microsoft SMTP Server id
+ 14.3.408.0; Sun, 18 Nov 2018 11:20:35 +0800
+From: Salil Mehta <salil.mehta@huawei.com>
+To: <davem@davemloft.net>
+CC: <salil.mehta@huawei.com>, <yisen.zhuang@huawei.com>,
+        <lipeng321@huawei.com>, <mehta.salil@opnsrc.net>,
+        <netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <linuxarm@huawei.com>, Yunsheng Lin <linyunsheng@huawei.com>,
+        Jian Shen <shenjian15@huawei.com>
+Subject: [PATCH net-next 3/5] net: hns3: Add vport alive state checking support
+Date: Sun, 18 Nov 2018 03:19:12 +0000
+Message-ID: <20181118031914.23892-4-salil.mehta@huawei.com>
+X-Mailer: git-send-email 2.8.3
+In-Reply-To: <20181118031914.23892-1-salil.mehta@huawei.com>
+References: <20181118031914.23892-1-salil.mehta@huawei.com>
+MIME-Version: 1.0
+Content-Type: text/plain
+X-Originating-IP: [10.47.88.178]
+X-CFilter-Loop: Reflected
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwCXfEi02vBbWstPAA--.11810S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvAXoWfGF4DXw17uFyrKr47Zr43Wrg_yoW8XF43Xo
+	WfXr9akF1Skrn7u3y5JFs7Ca1fZFs5Gwn8tw4fAFs5u3Z2qw1FqFW2yFW5Ja4UXr1rKrWf
+	Z3yxJ3WrGFWkJFnrn29KB7ZKAUJUUUUU529EdanIXcx71UUUUU7v73VFW2AGmfu7jjvjm3
+	AaLaJ3UjIYCTnIWjp_UUUYk7k0a2IF6FyUM7kC6x804xWl14x267AKxVWUJVW8JwAFIxvE
+	14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK021l84ACjcxK6xIIjx
+	v20xvE14v26ryj6F1UM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26r4j6F4UM28EF7xvwVC2
+	z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s0DM2AIxVAIcxkEcV
+	Aq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1j
+	6r18McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IYc2Ij64
+	vIr41l7I0Y6sxI4wCY1x0264kExVAvwVAq07x20xylc2IjII80xcxEwVAKI48JMxvI42IY
+	6xIIjxv20xvE14v26r1j6r1xMxvI42IY6xIIjxv20xvEc7CjxVAFwI0_Jr0_Gr1lcIIF0x
+	vEx4A2jsIE14v26F4j6r4UJwCYIxAIcVC2z280aVCY1x0267AKxVW8JVW8Jr1l42xK82IY
+	c2Ij64vIr41l42xK82IY64kExVAvwVAq07x20xyl4x8a6x804xWl4I8I3I0E4IkC6x0Yz7
+	v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF
+	1VAY17CE14v26r1q6r43MIIYrxkI7VAKI48JMIIF0xvE42xK8VAvwI8IcIk0rVW8JVW3Jb
+	IYCTnIWIevJa73UjIFyTuYvjxUTVbkUUUUU
+
+From: Yunsheng Lin <linyunsheng@huawei.com>
+
+Currently there is no way for pf to know if a vf device is
+alive or not, so PF does not know which vf to notify when
+reset happens, or which vf's mtu is invalid when vf and pf
+share the same hardware mtu setting.
+
+This patch adds vport alive state checking support, in order
+to support the above scenario.
+
+Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
+Signed-off-by: Jian Shen <shenjian15@huawei.com>
+Signed-off-by: Salil Mehta <salil.mehta@huawei.com>
+---
+ .../net/ethernet/hisilicon/hns3/hclge_mbx.h   |  2 +
+ drivers/net/ethernet/hisilicon/hns3/hnae3.h   |  6 ++
+ .../net/ethernet/hisilicon/hns3/hns3_enet.c   | 24 +++++++
+ .../hisilicon/hns3/hns3pf/hclge_main.c        | 55 +++++++++++++++
+ .../hisilicon/hns3/hns3pf/hclge_main.h        | 10 +++
+ .../hisilicon/hns3/hns3pf/hclge_mbx.c         | 31 +++++++++
+ .../hisilicon/hns3/hns3vf/hclgevf_main.c      | 67 ++++++++++++++++++-
+ .../hisilicon/hns3/hns3vf/hclgevf_main.h      |  2 +
+ 8 files changed, 195 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hclge_mbx.h b/drivers/net/ethernet/hisilicon/hns3/hclge_mbx.h
+index 3bb313cdbc9f..fd2338f0c34e 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hclge_mbx.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hclge_mbx.h
+@@ -36,6 +36,8 @@ enum HCLGE_MBX_OPCODE {
+ 	HCLGE_MBX_BIND_FUNC_QUEUE,	/* (VF -> PF) bind function and queue */
+ 	HCLGE_MBX_GET_LINK_STATUS,	/* (VF -> PF) get link status */
+ 	HCLGE_MBX_QUEUE_RESET,		/* (VF -> PF) reset queue */
++	HCLGE_MBX_KEEP_ALIVE,		/* (VF -> PF) send keep alive cmd */
++	HCLGE_MBX_SET_ALIVE,		/* (VF -> PF) set alive state */
+ };
+ 
+ /* below are per-VF mac-vlan subcodes */
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hnae3.h b/drivers/net/ethernet/hisilicon/hns3/hnae3.h
+index 1746172ffbf7..4a39feaba8b2 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hnae3.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hnae3.h
+@@ -210,6 +210,10 @@ struct hnae3_ae_dev {
+  *   Enable the hardware
+  * stop()
+  *   Disable the hardware
++ * start_client()
++ *   Inform the hclge that client has been started
++ * stop_client()
++ *   Inform the hclge that client has been stopped
+  * get_status()
+  *   Get the carrier state of the back channel of the handle, 1 for ok, 0 for
+  *   non-ok
+@@ -319,6 +323,8 @@ struct hnae3_ae_ops {
+ 				       struct hnae3_ae_dev *ae_dev);
+ 	int (*start)(struct hnae3_handle *handle);
+ 	void (*stop)(struct hnae3_handle *handle);
++	int (*client_start)(struct hnae3_handle *handle);
++	void (*client_stop)(struct hnae3_handle *handle);
+ 	int (*get_status)(struct hnae3_handle *handle);
+ 	void (*get_ksettings_an_result)(struct hnae3_handle *handle,
+ 					u8 *auto_neg, u32 *speed, u8 *duplex);
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+index d58d3c193ab7..5cae14c991ee 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+@@ -3540,6 +3540,22 @@ static void hns3_nic_set_priv_ops(struct net_device *netdev)
+ 		priv->ops.maybe_stop_tx = hns3_nic_maybe_stop_tx;
+ }
+ 
++static int hns3_client_start(struct hnae3_handle *handle)
++{
++	if (!handle->ae_algo->ops->client_start)
++		return 0;
++
++	return handle->ae_algo->ops->client_start(handle);
++}
++
++static void hns3_client_stop(struct hnae3_handle *handle)
++{
++	if (!handle->ae_algo->ops->client_stop)
++		return;
++
++	handle->ae_algo->ops->client_stop(handle);
++}
++
+ static int hns3_client_init(struct hnae3_handle *handle)
+ {
+ 	struct pci_dev *pdev = handle->pdev;
+@@ -3607,6 +3623,12 @@ static int hns3_client_init(struct hnae3_handle *handle)
+ 		goto out_reg_netdev_fail;
+ 	}
+ 
++	ret = hns3_client_start(handle);
++	if (ret) {
++		dev_err(priv->dev, "hns3_client_start fail! ret=%d\n", ret);
++			goto out_reg_netdev_fail;
++	}
++
+ 	hns3_dcbnl_setup(handle);
+ 
+ 	/* MTU range: (ETH_MIN_MTU(kernel default) - 9702) */
+@@ -3635,6 +3657,8 @@ static void hns3_client_uninit(struct hnae3_handle *handle, bool reset)
+ 	struct hns3_nic_priv *priv = netdev_priv(netdev);
+ 	int ret;
+ 
++	hns3_client_stop(handle);
++
+ 	hns3_remove_hw_addr(netdev);
+ 
+ 	if (netdev->reg_state != NETREG_UNINITIALIZED)
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+index 0a8297f67b06..9bb7a1c21e00 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+@@ -2911,6 +2911,19 @@ static void hclge_mailbox_service_task(struct work_struct *work)
+ 	clear_bit(HCLGE_STATE_MBX_HANDLING, &hdev->state);
+ }
+ 
++static void hclge_update_vport_alive(struct hclge_dev *hdev)
++{
++	int i;
++
++	/* start from vport 1 for PF is always alive */
++	for (i = 1; i < hdev->num_alloc_vport; i++) {
++		struct hclge_vport *vport = &hdev->vport[i];
++
++		if (time_after(jiffies, vport->last_active_jiffies + 8 * HZ))
++			clear_bit(HCLGE_VPORT_STATE_ALIVE, &vport->state);
++	}
++}
++
+ static void hclge_service_task(struct work_struct *work)
+ {
+ 	struct hclge_dev *hdev =
+@@ -2923,6 +2936,7 @@ static void hclge_service_task(struct work_struct *work)
+ 
+ 	hclge_update_speed_duplex(hdev);
+ 	hclge_update_link_status(hdev);
++	hclge_update_vport_alive(hdev);
+ 	hclge_service_complete(hdev);
+ }
+ 
+@@ -5208,6 +5222,32 @@ static void hclge_ae_stop(struct hnae3_handle *handle)
+ 	hclge_update_link_status(hdev);
+ }
+ 
++int hclge_vport_start(struct hclge_vport *vport)
++{
++	set_bit(HCLGE_VPORT_STATE_ALIVE, &vport->state);
++	vport->last_active_jiffies = jiffies;
++	return 0;
++}
++
++void hclge_vport_stop(struct hclge_vport *vport)
++{
++	clear_bit(HCLGE_VPORT_STATE_ALIVE, &vport->state);
++}
++
++static int hclge_client_start(struct hnae3_handle *handle)
++{
++	struct hclge_vport *vport = hclge_get_vport(handle);
++
++	return hclge_vport_start(vport);
++}
++
++static void hclge_client_stop(struct hnae3_handle *handle)
++{
++	struct hclge_vport *vport = hclge_get_vport(handle);
++
++	hclge_vport_stop(vport);
++}
++
+ static int hclge_get_mac_vlan_cmd_status(struct hclge_vport *vport,
+ 					 u16 cmdq_resp, u8  resp_code,
+ 					 enum hclge_mac_vlan_tbl_opcode op)
+@@ -7189,6 +7229,17 @@ static void hclge_stats_clear(struct hclge_dev *hdev)
+ 	memset(&hdev->hw_stats, 0, sizeof(hdev->hw_stats));
+ }
+ 
++static void hclge_reset_vport_state(struct hclge_dev *hdev)
++{
++	struct hclge_vport *vport = hdev->vport;
++	int i;
++
++	for (i = 0; i < hdev->num_alloc_vport; i++) {
++		hclge_vport_start(vport);
++		vport++;
++	}
++}
++
+ static int hclge_reset_ae_dev(struct hnae3_ae_dev *ae_dev)
+ {
+ 	struct hclge_dev *hdev = ae_dev->priv;
+@@ -7274,6 +7325,8 @@ static int hclge_reset_ae_dev(struct hnae3_ae_dev *ae_dev)
+ 	if (hclge_enable_tm_hw_error(hdev, true))
+ 		dev_err(&pdev->dev, "failed to enable TM hw error interrupts\n");
+ 
++	hclge_reset_vport_state(hdev);
++
+ 	dev_info(&pdev->dev, "Reset done, %s driver initialization finished.\n",
+ 		 HCLGE_DRIVER_NAME);
+ 
+@@ -7682,6 +7735,8 @@ static const struct hnae3_ae_ops hclge_ops = {
+ 	.set_loopback = hclge_set_loopback,
+ 	.start = hclge_ae_start,
+ 	.stop = hclge_ae_stop,
++	.client_start = hclge_client_start,
++	.client_stop = hclge_client_stop,
+ 	.get_status = hclge_get_status,
+ 	.get_ksettings_an_result = hclge_get_ksettings_an_result,
+ 	.update_speed_duplex_h = hclge_update_speed_duplex_h,
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h
+index 279661764910..5617770c9eb8 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h
+@@ -728,6 +728,11 @@ struct hclge_rss_tuple_cfg {
+ 	u8 ipv6_fragment_en;
+ };
+ 
++enum HCLGE_VPORT_STATE {
++	HCLGE_VPORT_STATE_ALIVE,
++	HCLGE_VPORT_STATE_MAX
++};
++
+ struct hclge_vport {
+ 	u16 alloc_tqps;	/* Allocated Tx/Rx queues */
+ 
+@@ -753,6 +758,9 @@ struct hclge_vport {
+ 	struct hclge_dev *back;  /* Back reference to associated dev */
+ 	struct hnae3_handle nic;
+ 	struct hnae3_handle roce;
++
++	unsigned long state;
++	unsigned long last_active_jiffies;
+ };
+ 
+ void hclge_promisc_param_init(struct hclge_promisc_param *param, bool en_uc,
+@@ -800,4 +808,6 @@ int hclge_reset_tqp(struct hnae3_handle *handle, u16 queue_id);
+ void hclge_reset_vf_queue(struct hclge_vport *vport, u16 queue_id);
+ int hclge_cfg_flowctrl(struct hclge_dev *hdev);
+ int hclge_func_reset_cmd(struct hclge_dev *hdev, int func_id);
++int hclge_vport_start(struct hclge_vport *vport);
++void hclge_vport_stop(struct hclge_vport *vport);
+ #endif
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c
+index 4c7e7bd3c847..b64f4424837d 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c
+@@ -301,6 +301,21 @@ static int hclge_set_vf_vlan_cfg(struct hclge_vport *vport,
+ 	return status;
+ }
+ 
++static int hclge_set_vf_alive(struct hclge_vport *vport,
++			      struct hclge_mbx_vf_to_pf_cmd *mbx_req,
++			      bool gen_resp)
++{
++	bool alive = !!mbx_req->msg[2];
++	int ret = 0;
++
++	if (alive)
++		ret = hclge_vport_start(vport);
++	else
++		hclge_vport_stop(vport);
++
++	return ret;
++}
++
+ static int hclge_get_vf_tcinfo(struct hclge_vport *vport,
+ 			       struct hclge_mbx_vf_to_pf_cmd *mbx_req,
+ 			       bool gen_resp)
+@@ -380,6 +395,12 @@ static void hclge_reset_vf(struct hclge_vport *vport,
+ 	hclge_gen_resp_to_vf(vport, mbx_req, ret, NULL, 0);
+ }
+ 
++static void hclge_vf_keep_alive(struct hclge_vport *vport,
++				struct hclge_mbx_vf_to_pf_cmd *mbx_req)
++{
++	vport->last_active_jiffies = jiffies;
++}
++
+ static bool hclge_cmd_crq_empty(struct hclge_hw *hw)
+ {
+ 	u32 tail = hclge_read_dev(hw, HCLGE_NIC_CRQ_TAIL_REG);
+@@ -457,6 +478,13 @@ void hclge_mbx_handler(struct hclge_dev *hdev)
+ 					"PF failed(%d) to config VF's VLAN\n",
+ 					ret);
+ 			break;
++		case HCLGE_MBX_SET_ALIVE:
++			ret = hclge_set_vf_alive(vport, req, false);
++			if (ret)
++				dev_err(&hdev->pdev->dev,
++					"PF failed(%d) to set VF's ALIVE\n",
++					ret);
++			break;
+ 		case HCLGE_MBX_GET_QINFO:
+ 			ret = hclge_get_vf_queue_info(vport, req, true);
+ 			if (ret)
+@@ -484,6 +512,9 @@ void hclge_mbx_handler(struct hclge_dev *hdev)
+ 		case HCLGE_MBX_RESET:
+ 			hclge_reset_vf(vport, req);
+ 			break;
++		case HCLGE_MBX_KEEP_ALIVE:
++			hclge_vf_keep_alive(vport, req);
++			break;
+ 		default:
+ 			dev_err(&hdev->pdev->dev,
+ 				"un-supported mailbox message, code = %d\n",
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
+index e27d6fa85a74..cdaa7e4207ea 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
+@@ -1515,6 +1515,28 @@ static void hclgevf_mailbox_service_task(struct work_struct *work)
+ 	clear_bit(HCLGEVF_STATE_MBX_HANDLING, &hdev->state);
+ }
+ 
++static void hclgevf_keep_alive_timer(struct timer_list *t)
++{
++	struct hclgevf_dev *hdev = from_timer(hdev, t, keep_alive_timer);
++
++	schedule_work(&hdev->keep_alive_task);
++	mod_timer(&hdev->keep_alive_timer, jiffies + 2 * HZ);
++}
++
++static void hclgevf_keep_alive_task(struct work_struct *work)
++{
++	struct hclgevf_dev *hdev;
++	u8 respmsg;
++	int ret;
++
++	hdev = container_of(work, struct hclgevf_dev, keep_alive_task);
++	ret = hclgevf_send_mbx_msg(hdev, HCLGE_MBX_KEEP_ALIVE, 0, NULL,
++				   0, false, &respmsg, sizeof(u8));
++	if (ret)
++		dev_err(&hdev->pdev->dev,
++			"VF sends keep alive cmd failed(=%d)\n", ret);
++}
++
+ static void hclgevf_service_task(struct work_struct *work)
+ {
+ 	struct hclgevf_dev *hdev;
+@@ -1767,6 +1789,38 @@ static void hclgevf_ae_stop(struct hnae3_handle *handle)
+ 	hclgevf_update_link_status(hdev, 0);
+ }
+ 
++static int hclgevf_set_alive(struct hnae3_handle *handle, bool alive)
++{
++	struct hclgevf_dev *hdev = hclgevf_ae_get_hdev(handle);
++	u8 msg_data;
++
++	msg_data = alive ? 1 : 0;
++	return hclgevf_send_mbx_msg(hdev, HCLGE_MBX_SET_ALIVE,
++				    0, &msg_data, 1, false, NULL, 0);
++}
++
++static int hclgevf_client_start(struct hnae3_handle *handle)
++{
++	struct hclgevf_dev *hdev = hclgevf_ae_get_hdev(handle);
++
++	mod_timer(&hdev->keep_alive_timer, jiffies + 2 * HZ);
++	return hclgevf_set_alive(handle, true);
++}
++
++static void hclgevf_client_stop(struct hnae3_handle *handle)
++{
++	struct hclgevf_dev *hdev = hclgevf_ae_get_hdev(handle);
++	int ret;
++
++	ret = hclgevf_set_alive(handle, false);
++	if (ret)
++		dev_warn(&hdev->pdev->dev,
++			 "%s failed %d\n", __func__, ret);
++
++	del_timer_sync(&hdev->keep_alive_timer);
++	cancel_work_sync(&hdev->keep_alive_task);
++}
++
+ static void hclgevf_state_init(struct hclgevf_dev *hdev)
+ {
+ 	/* setup tasks for the MBX */
+@@ -2279,6 +2333,7 @@ static void hclgevf_uninit_hdev(struct hclgevf_dev *hdev)
+ static int hclgevf_init_ae_dev(struct hnae3_ae_dev *ae_dev)
+ {
+ 	struct pci_dev *pdev = ae_dev->pdev;
++	struct hclgevf_dev *hdev;
+ 	int ret;
+ 
+ 	ret = hclgevf_alloc_hdev(ae_dev);
+@@ -2288,10 +2343,16 @@ static int hclgevf_init_ae_dev(struct hnae3_ae_dev *ae_dev)
+ 	}
+ 
+ 	ret = hclgevf_init_hdev(ae_dev->priv);
+-	if (ret)
++	if (ret) {
+ 		dev_err(&pdev->dev, "hclge device initialization failed\n");
++		return ret;
++	}
+ 
+-	return ret;
++	hdev = ae_dev->priv;
++	timer_setup(&hdev->keep_alive_timer, hclgevf_keep_alive_timer, 0);
++	INIT_WORK(&hdev->keep_alive_task, hclgevf_keep_alive_task);
++
++	return 0;
+ }
+ 
+ static void hclgevf_uninit_ae_dev(struct hnae3_ae_dev *ae_dev)
+@@ -2413,6 +2474,8 @@ static const struct hnae3_ae_ops hclgevf_ops = {
+ 	.uninit_client_instance = hclgevf_uninit_client_instance,
+ 	.start = hclgevf_ae_start,
+ 	.stop = hclgevf_ae_stop,
++	.client_start = hclgevf_client_start,
++	.client_stop = hclgevf_client_stop,
+ 	.map_ring_to_vector = hclgevf_map_ring_to_vector,
+ 	.unmap_ring_from_vector = hclgevf_unmap_ring_from_vector,
+ 	.get_vector = hclgevf_get_vector,
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.h b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.h
+index 4c5ea7edcbb1..4517b7ea5817 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.h
+@@ -201,7 +201,9 @@ struct hclgevf_dev {
+ 	struct hclgevf_mbx_arq_ring arq; /* mailbox async rx queue */
+ 
+ 	struct timer_list service_timer;
++	struct timer_list keep_alive_timer;
+ 	struct work_struct service_task;
++	struct work_struct keep_alive_task;
+ 	struct work_struct rst_service_task;
+ 	struct work_struct mbx_service_task;
+ 
+-- 
+2.17.1
+

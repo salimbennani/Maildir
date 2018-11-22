@@ -1,0 +1,138 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 13 Nov 2018 00:33:36 -0000
+Received: from icoremail.net (unknown [209.85.215.171])
+	by mail-app2 (Coremail) with SMTP id by_KCgDHHyYPt+lbPBp_AQ--.38778S3;
+	Tue, 13 Nov 2018 01:23:27 +0800 (CST)
+Received: from mail-pg1-f171.google.com (unknown [209.85.215.171])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwAX+UQJt+lb9hwzAA--.3929S3;
+	Tue, 13 Nov 2018 01:23:21 +0800 (CST)
+Received: by mail-pg1-f171.google.com with SMTP id w7so4343687pgp.13
+        for <xuliker@zju.edu.cn>; Mon, 12 Nov 2018 09:23:21 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:delivered-to:dkim-signature:mime-version
+         :in-reply-to:references:from:date:message-id:subject:to:cc:sender
+         :precedence:list-id;
+        bh=3RWqyjCB+jhY3Tu+GA6Yq4gUJgKHqYma7S1NNd+5NJM=;
+        b=SvoKJL/0SmsMsl2ANAnvFuwmYDaC4Jn2wR925/swu1tdzdM9knFcnqVAHqJU3RIzTK
+         EkTHPceDULurvPoK+oKYRl8USE2do3KNxYtQ5wfpXL+axAOAPcj7RmdQ+DxHfkrXkR+u
+         LkyxRAI1BgrFsI1zuDVTnJFoklSFyoEjFrerOehU1Dm7/KoM0BBdK9y7Dfu8Wdd4R/Z6
+         WyvHhl/HAH/g0Ehczi+iQsfaFOj/K8ICrN5dd8BYeTHZOOlEQfD/egfUOmj9ki7kaCcc
+         pKIu8VPRXJ4A5bFbJEUFTxw1vOu35DRmDHHPaYv5HQX63gRL+S415EzOnUJQg6/NvOoM
+         rUcg==
+X-Gm-Message-State: AGRZ1gL1aqRBOp704sJGsPrj7guhqOhdeMn70Ud0PfYibbu8LdXT+kyL
+	VQFxtjS0I0exTfSFeJPgTHnWZapq3M8/gvIUTAR96diS/yyoly33pA==
+X-Received: by 2002:a63:fd53:: with SMTP id m19mr1583502pgj.340.1542043401239;
+        Mon, 12 Nov 2018 09:23:21 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp3457600pjt;
+        Mon, 12 Nov 2018 09:23:20 -0800 (PST)
+X-Google-Smtp-Source: AJdET5fhR9tt81JPsXU96Ps9/hw2owt7sTwm/+//qGMQwM28ZxH7WDwww607ktAnyZQWJO+rirSo
+X-Received: by 2002:a62:8e0a:: with SMTP id k10-v6mr1768014pfe.182.1542043400500;
+        Mon, 12 Nov 2018 09:23:20 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542043400; cv=none;
+        d=google.com; s=arc-20160816;
+        b=rf5h9uRcmrmxsXV6pXit6hbb7aCSYTQ5d5i8Uur303MldfoeKd4xEYxAFLaNvCm/2f
+         en0xkXQwT4ExM6IrGPEOTjZYgAbrq62b7IpC5iXL07Tjk0xedB1iojd8VWMOsitn8cTV
+         VYcn3iX0se4p2U4Id7rAh2v7qOe6gffeA9BO8ohV+NDe2NhMPVrEHx7dU+ifrhQ2358R
+         R6RREDSR2OsNYArdGayghlsucCtMUcEQPONAIMEhINrRs4U8ivYZDTWuj3cpAgipzJ1B
+         2LN/ls37YKTm5CjN8VbVm9DcgN2OzSNLQgHhDzxPqVvFih99mCnTiU/yi8UHu0dr+GwE
+         Q7Xg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:cc:to:subject:message-id:date:from
+         :references:in-reply-to:mime-version:dkim-signature;
+        bh=3RWqyjCB+jhY3Tu+GA6Yq4gUJgKHqYma7S1NNd+5NJM=;
+        b=XVkmtQ/tqOBRV/CWH1wv7YqNV7Qvm8mACukxZOyJYPr2l2NkJmhPhxYN038XLP+FMl
+         3bobS1RbEEJEdf3+XuJKY6NCfsvbrLBS96ZFjfyQBh02O1tAw+0TNCa+aK3qx5qkRWP2
+         wG007kK7AUv415HqiTe6lnbXLfKbaxRQ4YOu1iKpSAJGFpCzRMeo2UgVa4yIeDi4PiGV
+         FqdyEnHVJFCGFtPkWfs4nsWq+RgO88p1rgglhreaEpq7YyQRqFzcaMaACENu6Yez5Kbl
+         bzovQbFOA5dY3o0XqheCzCc/U4426uPw+qKMbpAMqjjYHYu+YhEYrU82vec+iZV0lexO
+         MbwA==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@google.com header.s=20161025 header.b=Xq0TK1xL;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;
+       dmarc=pass (p=REJECT sp=REJECT dis=NONE) header.from=google.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id p6-v6si16888789plk.429.2018.11.12.09.22.59;
+        Mon, 12 Nov 2018 09:23:20 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1729709AbeKMDQb (ORCPT <rfc822;fanshuming2011@gmail.com>
+        + 99 others); Mon, 12 Nov 2018 22:16:31 -0500
+Received: from mail-ot1-f68.google.com ([209.85.210.68]:34312 "EHLO
+        mail-ot1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727530AbeKMDQb (ORCPT <rfc822;kvm@vger.kernel.org>);
+        Mon, 12 Nov 2018 22:16:31 -0500
+Received: by mail-ot1-f68.google.com with SMTP id t5so8707821otk.1
+        for <kvm@vger.kernel.org>; Mon, 12 Nov 2018 09:22:20 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=mime-version:in-reply-to:references:from:date:message-id:subject:to
+         :cc;
+        bh=3RWqyjCB+jhY3Tu+GA6Yq4gUJgKHqYma7S1NNd+5NJM=;
+        b=Xq0TK1xLNJ/VhqwnwfWZqzSeXABgWSwuA19Uq3+FPcsG8F3G+KNl/DAo7Q9CCaUndr
+         ZwD+uknBkJ2X1toPN5QZUHDGEyshVfBhvlhCRIK2e9XCs/tBL40E6ag3Nq/30HfViPR6
+         E/0UxzbG0iKd1ZHfWzYx8YJ2e4e/x6vU7RuMATxSkruEjBAEVHL5mCYdODeyQuYLylZh
+         /ZDIkNzqWDIeCx8+lE0uxpgoe1iFHJb/WOcoVKU6azcS+lKxhSFUwYP2ocu8M+uRP3jq
+         JkAxmKlCbIBzkg5sw6uYkExY3TYSRkYnvQIK+c5s/PPsGL+d/COvb19xOmwTwbPnyqyo
+         Xmig==
+X-Received: by 2002:a9d:51c2:: with SMTP id d2mr1153465oth.0.1542043339892;
+ Mon, 12 Nov 2018 09:22:19 -0800 (PST)
+MIME-Version: 1.0
+Received: by 2002:ac9:31a7:0:0:0:0:0 with HTTP; Mon, 12 Nov 2018 09:22:19
+ -0800 (PST)
+In-Reply-To: <20181109222131.60885-1-jmattson@google.com>
+References: <20181109222131.60885-1-jmattson@google.com>
+From: Jim Mattson <jmattson@google.com>
+Date: Mon, 12 Nov 2018 09:22:19 -0800
+Message-ID: <CALMp9eTLGYmfPXadBbWLPkjcA5XBQzr=iR1k3LvY3u0zgOFKEg@mail.gmail.com>
+Subject: Re: [PATCH v2 2/4] kvm: vmx: Omit MSR_STAR from vmx_msr_index[] for
+ i386 builds
+To: kvm list <kvm@vger.kernel.org>
+Cc: Marc Orr <marcorr@google.com>, Peter Shier <pshier@google.com>,
+        Liran Alon <liran.alon@oracle.com>,
+        Jim Mattson <jmattson@google.com>
+Content-Type: text/plain; charset="UTF-8"
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwAX+UQJt+lb9hwzAA--.3929S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvdXoW7Gw1kCFWUCFyDCF18Kw4UArb_yoW3WrgEk3
+	98W3s5AwnYvrW2v3W8tF15urykJ3WvgFy7ta4rKFZ3ZFs0v39rAr4vkF9Fva1UKaySqrn8
+	Gr1kJ3Wvy3y2yjkaLaAFLSUrUUUUUb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAU7a7-sFnT
+	9fnUUIcSsGvfJTRUUUbhAYjsxI4VW3JwAYFVCjjxCrM7AC8VAFwI0_Jr0_Gr1l1IIY67AE
+	w4v_Jr0_Jr4l8cAvFVAK0II2c7xJM28CjxkF64kEwVA0rcxSw2x7M28EF7xvwVC0I7IYx2
+	IY67AKxVW7JVWDJwA2z4x0Y4vE2Ix0cI8IcVCY1x0267AKxVWxJVW8Jr1l84ACjcxK6I8E
+	87Iv67AKxVW8Jr0_Cr1UM28EF7xvwVC2z280aVCY1x0267AKxVW8Jr0_Cr1UM2AIxVAIcx
+	kEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v2
+	6r1j6r18McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x0Yz7v_Jr0_Gr1l7I0Y6sxI4w
+	CY1x0264kExVAvwVAq07x20xylc7Ca8VAvwVCFzxkY4VCF77xAMxkIecxEwVCI4VW8MxkI
+	7II2jI8vz4vEwIxGrwCYIxAIcVC0I7IYx2IY67AKxVWUCVW8JwCYIxAIcVC0I7IYx2IY6x
+	kF7I0E14v26r1j6r4UMxvI42IY6I8E87Iv67AKxVW8Jr0_Cr1UMxvI42IY6I8E87Iv6xkF
+	7I0E14v26r4UJVWxJr1l42xK82IYc2Ij64vIr41l42xK82IY64kExVAvwVAq07x20xyl4x
+	8a6x804xWl4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s02
+	6x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r126r1DMIIYrxkI7VAKI48JMIIF0x
+	vE42xK8VAvwI8IcIk0rVW8JVW3JbIYCTnIWIevJa73UjIFyTuYvjxUqwiSDUUUU
+
+On Fri, Nov 9, 2018 at 2:21 PM, Jim Mattson <jmattson@google.com> wrote:
+> The SYSCALL instruction is only supported in 64-bit mode on Intel
+> CPUs. With VT-x, A legacy-mode hypervisor can't launch a long-mode
+> guest. Therefore, we can omit MSR_STAR support for i386 builds.
+>
+> Note that the elided comment has not been relevant since move_msr_up()
+> was introduced in commit a75beee6e4f5d ("KVM: VMX: Avoid saving and
+> restoring msrs on lightweight vmexit").
+
+I realize now that eliminating the storage for MSR_STAR from i386
+builds breaks syscall emulation on Intel hardware when the guest CPUID
+claims "AuthenticAMD" or "AMDisbetter!" (?)
+
+I'll send out a v3 that leaves the storage for MSR_STAR in i386 builds
+and clearly documents the reason for it.

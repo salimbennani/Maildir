@@ -1,0 +1,489 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 13 Nov 2018 00:33:29 -0000
+Received: from icoremail.net (unknown [209.85.215.178])
+	by mail-app2 (Coremail) with SMTP id by_KCgCn31z7selbov9+AQ--.38544S3;
+	Tue, 13 Nov 2018 01:01:49 +0800 (CST)
+Received: from mail-pg1-f178.google.com (unknown [209.85.215.178])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwCXEE34selb7_YyAA--.4160S3;
+	Tue, 13 Nov 2018 01:01:44 +0800 (CST)
+Received: by mail-pg1-f178.google.com with SMTP id z11so1698516pgu.0
+        for <xuliker@zju.edu.cn>; Mon, 12 Nov 2018 09:01:44 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-transfer-encoding:content-language
+         :sender:precedence:list-id;
+        bh=W/pgsBdsrUAweUXFDJn+cq1bEhO+d2KDDn1lz5BNIKY=;
+        b=UYrvXYvRIyXBksGOSUjeSiHvmrJIM8pdv1qLXYoAl+LFkgwuikggB2CDaVlVfQxFGY
+         w+n9RAkNWGY68T2AHSmpOXCnOItUshr+oQBGptiXIUF9LcJIOUkpc/KHzhYEkxKRDafw
+         i+YvY1/X+VlTc2o8JHc8nmf2M26seEiR93gkN1ieS/txdHm05t+GxS2hUx74DFyH/MCI
+         AsNup9S5kZOUTMX2laJL7uR/GpzecnFq6tG3SbJWTYDrFdBWNUF15E3kPlK9H0mvnxQ7
+         YcNJhvnW/LSc0UVHKImlBPCEcsvZCkwmSDYgq7Lk6aeJLAiEYOjCSLL4WIdZu0Ml+3b6
+         UhXw==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org
+X-Gm-Message-State: AGRZ1gLB14xo6xmGQEdDrKs/TpXlP7QMNtuZU4s3z8TilV1HLfwixOit
+	az1rfgZYi99zXK+S+kOMgn1JEpFDUzDeL0lkndQnFlCNpJ7rMGrTTQ==
+X-Received: by 2002:a62:1c53:: with SMTP id c80-v6mr1657469pfc.14.1542042104193;
+        Mon, 12 Nov 2018 09:01:44 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp3432240pjt;
+        Mon, 12 Nov 2018 09:01:41 -0800 (PST)
+X-Google-Smtp-Source: AJdET5dPL3GOGFiGssDSk5eFX0BU2JrZrTSA2jqdz68Lwsu7Ef8xUOzyTDdWhxKsnFOZhwI4y8ll
+X-Received: by 2002:a63:9041:: with SMTP id a62mr1446815pge.163.1542042101774;
+        Mon, 12 Nov 2018 09:01:41 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542042101; cv=none;
+        d=google.com; s=arc-20160816;
+        b=j3+D8TxIBo90TcvFr9y69QL3WYYogsOsl3ChTB/90/EANdJfOWxYWGtFSkVLaHb7OJ
+         mr9mDMGduAjAnI9Nw1Iyed3A2kNTUTKXqtKJqu5Os4fRVgo5udlXJHKIdZnWj9oVP1hn
+         oZcG8mIYDQ2PJQ69INuHw1jIx4dnvb6cwPwlgASgHVJf1WveWZkcvSXqt5Phx+hrGl9/
+         27SyyQeiiV8t9e/tdbRueuLTO8vKckJ+EMfSMG4M1/MS1VO2WgRSGe0kFSVRN0S28h/t
+         5i8b3hv/jnOpf/pGpEWDSa1VvwNtX7+lu2pAGeRs2xvBcg96CL4qJNM2RdG5q42SEjWl
+         KkKQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:content-language
+         :content-transfer-encoding:in-reply-to:mime-version:user-agent:date
+         :message-id:from:references:cc:to:subject;
+        bh=W/pgsBdsrUAweUXFDJn+cq1bEhO+d2KDDn1lz5BNIKY=;
+        b=g0FRKAS/l2TN4J7Ro28GKMMy+/D48Osy13B/ZzmPM74bJyRg0tXHGJ+fK55H+wzBWC
+         1PPCpE9TGoz4ZEMim7o7l89yz/0qdDOFSeAQs/6y9LQ/wB2/Q1wgg31i4ZbYdDbiXfFj
+         T0O7QCjNDYLZBTTheNwPkxdGOn8EFAhkaZNTPuBxlmJ2HwQcoFjrUc2DRsulgaMZvJaE
+         +xsZCNJuvBOT4cJyU0+mgcFC3YELu1LFTQBEjZGzR9SK7AyRR1OpgZQZP+B6ThzPn9H5
+         AqxKU6Q6+AqgRGT/kDVOW+KsnxtaZ+NigVtn6Tw4fgyTcL4YquxFni9cA7CrFc3EWddi
+         vohw==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id q21-v6si18151274plr.359.2018.11.12.09.01.22;
+        Mon, 12 Nov 2018 09:01:41 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1730089AbeKMCzQ (ORCPT <rfc822;tu.k.phung@gmail.com>
+        + 99 others); Mon, 12 Nov 2018 21:55:16 -0500
+Received: from smtp7.iq.pl ([86.111.240.244]:41147 "EHLO smtp7.iq.pl"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727130AbeKMCzQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+        Mon, 12 Nov 2018 21:55:16 -0500
+Received: from [192.168.2.200] (unknown [185.78.72.18])
+        (Authenticated sender: pstaszewski@itcare.pl)
+        by smtp.iq.pl (Postfix) with ESMTPSA id 42txq46x8Xz3wrY;
+        Mon, 12 Nov 2018 18:01:04 +0100 (CET)
+Subject: Re: [PATCH 1/2] mm/page_alloc: free order-0 pages through PCP in
+ page_frag_free()
+To: Alexander Duyck <alexander.duyck@gmail.com>
+Cc: aaron.lu@intel.com, linux-mm <linux-mm@kvack.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Netdev <netdev@vger.kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Jesper Dangaard Brouer <brouer@redhat.com>,
+        Eric Dumazet <eric.dumazet@gmail.com>,
+        Tariq Toukan <tariqt@mellanox.com>,
+        ilias.apalodimas@linaro.org, yoel@kviknet.dk,
+        Mel Gorman <mgorman@techsingularity.net>,
+        Saeed Mahameed <saeedm@mellanox.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Vlastimil Babka <vbabka@suse.cz>, dave.hansen@linux.intel.com
+References: <20181105085820.6341-1-aaron.lu@intel.com>
+ <CAKgT0UdvYVTA8OjgLhXo9tRUOGikrCi3zJXSrqM0ZmeHb5P2mA@mail.gmail.com>
+ <b8b1fbb7-9139-9455-69b8-8c1bed4f7c74@itcare.pl>
+ <CAKgT0UdhcXF-ohPHPbg8onRjFabEMnbpXGmLm-27skCNzGKOgw@mail.gmail.com>
+ <bd33633b-2f6c-0034-a130-38a8468531db@itcare.pl>
+ <CAKgT0UeOBF0yPJLOTBBb3m7nTkmSDxzkCur+iGzJ++Y-jWaw9g@mail.gmail.com>
+From: =?UTF-8?Q?Pawe=c5=82_Staszewski?= <pstaszewski@itcare.pl>
+Message-ID: <b8cb68d5-06c0-5e85-ec44-270ec92d1b8b@itcare.pl>
+Date: Mon, 12 Nov 2018 18:01:09 +0100
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
+ Thunderbird/60.3.0
+MIME-Version: 1.0
+In-Reply-To: <CAKgT0UeOBF0yPJLOTBBb3m7nTkmSDxzkCur+iGzJ++Y-jWaw9g@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+Content-Language: pl
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwCXEE34selb7_YyAA--.4160S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvAXoW3ZryDGF1xJryfuFyxAr1kXwb_yoW8WF13Co
+	Wfur42yF1rtr1UGr1UAwnrtr15Xw18Xr1kJrW5Jr17GF1qq3WUJ34UA345Gay3tr4rCr4D
+	J348Jw15AFyUJFn5n29KB7ZKAUJUUUUU529EdanIXcx71UUUUj7v73VFW2AGmfu7jjvjm3
+	AaLaJ3UjIYCTnIWjp_UUUYM7k0a2IF6w4kM7kC6x804xWl14x267AKxVWUJVW8JwAFIxvE
+	14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK021l84ACjcxK6xIIjx
+	v20xvE14v26w1j6s0DM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26r4UJVWxJr1l84ACjcxK
+	6I8E87Iv67AKxVW8Jr0_Cr1UM28EF7xvwVC2z280aVCY1x0267AKxVW8Jr0_Cr1UM2AIxV
+	AIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE
+	14v26r1j6r18McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2
+	IY64vIr41l7I0Y6sxI4wCYjI0SjxkI62AI1cAE67vIY487MxkF7I0Ew4C26cxK6c8Ij28I
+	cwCY0x0Ix7I2Y4AK64vIr41lcIIF0xvE2Ix0cI8IcVAFwI0_Xr0_Ar1lcIIF0xvE2Ix0cI
+	8IcVCY1x0267AKxVW8JVWxJwCYIxAIcVC2z280aVAFwI0_Cr0_Gr1UMxvI42IY6I8E87Iv
+	6xkF7I0E14v26r4j6r4UJwCF04k20xvY0x0EwIxGrwCF04k20xvEw4C26cxK6c8Ij28Icw
+	CF72vE77IF4wCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v26r1j6r18MI8I
+	3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_GFv_WrylIxkGc2Ij64vIr41lIx
+	AIcVCF04k26cxKx2IYs7xG6r4j6FyUYxBIdaVFxhVjvjDU0xZFpf9x07bTjjgUUUUU=
+
+
+W dniu 12.11.2018 o 16:30, Alexander Duyck pisze:
+> On Sun, Nov 11, 2018 at 4:39 PM Paweł Staszewski <pstaszewski@itcare.pl> wrote:
+>>
+>> W dniu 12.11.2018 o 00:05, Alexander Duyck pisze:
+>>> On Sat, Nov 10, 2018 at 3:54 PM Paweł Staszewski <pstaszewski@itcare.pl> wrote:
+>>>>
+>>>> W dniu 05.11.2018 o 16:44, Alexander Duyck pisze:
+>>>>> On Mon, Nov 5, 2018 at 12:58 AM Aaron Lu <aaron.lu@intel.com> wrote:
+>>>>>> page_frag_free() calls __free_pages_ok() to free the page back to
+>>>>>> Buddy. This is OK for high order page, but for order-0 pages, it
+>>>>>> misses the optimization opportunity of using Per-Cpu-Pages and can
+>>>>>> cause zone lock contention when called frequently.
+>>>>>>
+>>>>>> Paweł Staszewski recently shared his result of 'how Linux kernel
+>>>>>> handles normal traffic'[1] and from perf data, Jesper Dangaard Brouer
+>>>>>> found the lock contention comes from page allocator:
+>>>>>>
+>>>>>>      mlx5e_poll_tx_cq
+>>>>>>      |
+>>>>>>       --16.34%--napi_consume_skb
+>>>>>>                 |
+>>>>>>                 |--12.65%--__free_pages_ok
+>>>>>>                 |          |
+>>>>>>                 |           --11.86%--free_one_page
+>>>>>>                 |                     |
+>>>>>>                 |                     |--10.10%--queued_spin_lock_slowpath
+>>>>>>                 |                     |
+>>>>>>                 |                      --0.65%--_raw_spin_lock
+>>>>>>                 |
+>>>>>>                 |--1.55%--page_frag_free
+>>>>>>                 |
+>>>>>>                  --1.44%--skb_release_data
+>>>>>>
+>>>>>> Jesper explained how it happened: mlx5 driver RX-page recycle
+>>>>>> mechanism is not effective in this workload and pages have to go
+>>>>>> through the page allocator. The lock contention happens during
+>>>>>> mlx5 DMA TX completion cycle. And the page allocator cannot keep
+>>>>>> up at these speeds.[2]
+>>>>>>
+>>>>>> I thought that __free_pages_ok() are mostly freeing high order
+>>>>>> pages and thought this is an lock contention for high order pages
+>>>>>> but Jesper explained in detail that __free_pages_ok() here are
+>>>>>> actually freeing order-0 pages because mlx5 is using order-0 pages
+>>>>>> to satisfy its page pool allocation request.[3]
+>>>>>>
+>>>>>> The free path as pointed out by Jesper is:
+>>>>>> skb_free_head()
+>>>>>>      -> skb_free_frag()
+>>>>>>        -> skb_free_frag()
+>>>>>>          -> page_frag_free()
+>>>>>> And the pages being freed on this path are order-0 pages.
+>>>>>>
+>>>>>> Fix this by doing similar things as in __page_frag_cache_drain() -
+>>>>>> send the being freed page to PCP if it's an order-0 page, or
+>>>>>> directly to Buddy if it is a high order page.
+>>>>>>
+>>>>>> With this change, Paweł hasn't noticed lock contention yet in
+>>>>>> his workload and Jesper has noticed a 7% performance improvement
+>>>>>> using a micro benchmark and lock contention is gone.
+>>>>>>
+>>>>>> [1]: https://www.spinics.net/lists/netdev/msg531362.html
+>>>>>> [2]: https://www.spinics.net/lists/netdev/msg531421.html
+>>>>>> [3]: https://www.spinics.net/lists/netdev/msg531556.html
+>>>>>> Reported-by: Paweł Staszewski <pstaszewski@itcare.pl>
+>>>>>> Analysed-by: Jesper Dangaard Brouer <brouer@redhat.com>
+>>>>>> Signed-off-by: Aaron Lu <aaron.lu@intel.com>
+>>>>>> ---
+>>>>>>     mm/page_alloc.c | 10 ++++++++--
+>>>>>>     1 file changed, 8 insertions(+), 2 deletions(-)
+>>>>>>
+>>>>>> diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+>>>>>> index ae31839874b8..91a9a6af41a2 100644
+>>>>>> --- a/mm/page_alloc.c
+>>>>>> +++ b/mm/page_alloc.c
+>>>>>> @@ -4555,8 +4555,14 @@ void page_frag_free(void *addr)
+>>>>>>     {
+>>>>>>            struct page *page = virt_to_head_page(addr);
+>>>>>>
+>>>>>> -       if (unlikely(put_page_testzero(page)))
+>>>>>> -               __free_pages_ok(page, compound_order(page));
+>>>>>> +       if (unlikely(put_page_testzero(page))) {
+>>>>>> +               unsigned int order = compound_order(page);
+>>>>>> +
+>>>>>> +               if (order == 0)
+>>>>>> +                       free_unref_page(page);
+>>>>>> +               else
+>>>>>> +                       __free_pages_ok(page, order);
+>>>>>> +       }
+>>>>>>     }
+>>>>>>     EXPORT_SYMBOL(page_frag_free);
+>>>>>>
+>>>>> One thing I would suggest for Pawel to try would be to reduce the Tx
+>>>>> qdisc size on his transmitting interfaces, Reduce the Tx ring size,
+>>>>> and possibly increase the Tx interrupt rate. Ideally we shouldn't have
+>>>>> too many packets in-flight and I suspect that is the issue that Pawel
+>>>>> is seeing that is leading to the page pool allocator freeing up the
+>>>>> memory. I know we like to try to batch things but the issue is
+>>>>> processing too many Tx buffers in one batch leads to us eating up too
+>>>>> much memory and causing evictions from the cache. Ideally the Rx and
+>>>>> Tx rings and queues should be sized as small as possible while still
+>>>>> allowing us to process up to our NAPI budget. Usually I run things
+>>>>> with a 128 Rx / 128 Tx setup and then reduce the Tx queue length so we
+>>>>> don't have more buffers stored there than we can place in the Tx ring.
+>>>>> Then we can avoid the extra thrash of having to pull/push memory into
+>>>>> and out of the freelists. Essentially the issue here ends up being
+>>>>> another form of buffer bloat.
+>>>> Thanks Aleksandar - yes it can be - but in my scenario setting RX buffer
+>>>> <4096 producing more interface rx drops - and no_rx_buffer on network
+>>>> controller that is receiving more packets
+>>>> So i need to stick with 3000-4000 on RX - and yes i was trying to lower
+>>>> the TX buff on connectx4 - but that changed nothing before Aaron patch
+>>>>
+>>>> After Aaron patch - decreasing TX buffer influencing total bandwidth
+>>>> that can be handled by the router/server
+>>>> Dono why before this patch there was no difference there no matter what
+>>>> i set there there was always page_alloc/slowpath on top in perf
+>>>>
+>>>>
+>>>> Currently testing RX4096/TX256 - this helps with bandwidth like +10%
+>>>> more bandwidth with less interrupts...
+>>> The problem is if you are going for less interrupts you are setting
+>>> yourself up for buffer bloat. Basically you are going to use much more
+>>> cache and much more memory then you actually need and if things are
+>>> properly configured NAPI should take care of the interrupts anyway
+>>> since under maximum load you shouldn't stop polling normally.
+>> Im trying to balance here - there is problem cause server is forwarding
+>> all kingd of protocols packets/different size etc
+>>
+>> The problem is im trying to go in high interrupt rate - but
+>>
+>> Setting coalescence to adaptative for rx killing cpu's at 22Gbit/s RX
+>> and 22Gbit with rly high interrupt rate
+> I wouldn't recommend adaptive just because the behavior would be hard
+> to predict.
+>
+>> So adding a little more latency i can turn off adaptative rx and setup
+>> rx-usecs from range 16-64 - and this gives me more or less interrupts -
+>> but the problem is - always same bandwidth as maximum
+> What about the tx-usecs, is that a functional thing for the adapter
+> you are using?
+
+Yes tx-usecs is not used now cause of adaptative mode on tx side:
+
+ethtool -c enp175s0
+Coalesce parameters for enp175s0:
+Adaptive RX: off  TX: on
+stats-block-usecs: 0
+sample-interval: 0
+pkt-rate-low: 0
+pkt-rate-high: 0
+dmac: 32551
+
+rx-usecs: 64
+rx-frames: 128
+rx-usecs-irq: 0
+rx-frames-irq: 0
+
+tx-usecs: 8
+tx-frames: 64
+tx-usecs-irq: 0
+tx-frames-irq: 0
+
+rx-usecs-low: 0
+rx-frame-low: 0
+tx-usecs-low: 0
+tx-frame-low: 0
+
+rx-usecs-high: 0
+rx-frame-high: 0
+tx-usecs-high: 0
+tx-frame-high: 0
+
+>
+> The Rx side logic should be pretty easy to figure out. Essentially you
+> want to keep the Rx ring size as small as possible while at the same
+> time avoiding storming the system with interrupts. I know for 10Gb/s I
+> have used a value of 25us in the past. What you want to watch for is
+> if you are dropping packets on the Rx side or not. Ideally you want
+> enough buffers that you can capture any burst while you wait for the
+> interrupt routine to catch up.
+>
+>>> One issue I have seen is people delay interrupts for as long as
+>>> possible which isn't really a good thing since most network
+>>> controllers will use NAPI which will disable the interrupts and leave
+>>> them disabled whenever the system is under heavy stress so you should
+>>> be able to get the maximum performance by configuring an adapter with
+>>> small ring sizes and for high interrupt rates.
+>> Sure this is bad to setup rx-usec for high values - cause at some point
+>> this will add high latency for packet traversing both sides - and start
+>> to hurt buffers
+>>
+>> But my problem is a little different now i have no problems with RX side
+>> - cause i can setup anything like:
+>>
+>> coalescence from 16 to 64
+>>
+>> rx ring from 3000 to max 8192
+>>
+>> And it does not change my max bw - only produces less or more interrupts.
+> Right so the issue itself isn't Rx, you aren't throttled there. We are
+> probably looking at an issue of PCIe bandwidth or Tx slowing things
+> down. The fact that you are still filing interrupts is a bit
+> surprising though. Are the Tx and Rx interrupts linked for the device
+> you are using or are they firing them seperately? Normally Rx traffic
+> won't generate many interrupts under a stress test as NAPI will leave
+> the interrupts disabled unless it can keep up. Anyway, my suggestion
+> would be to look at tuning things for as small a ring size as
+> possible.
+
+PCIe bw was eliminated - previously there was one 2 port 100G card 
+installed in one pciex16 (max bw for pcie x16 gen3 is 32GB/s 16/16GB 
+bidirectional)
+
+Currently there are two separate nic's installed in two separate x16 
+slots - so can't be problem with pcie bandwidth
+
+But i think I reach memory bandwidth limit now for 70Gbit/70Gbit :)
+
+But wondering if there is any counter that can help me to diagnose 
+problems with memory bandwidth ?
+
+stream app tests gives me results like:
+
+./stream_c.exe
+-------------------------------------------------------------
+STREAM version $Revision: 5.10 $
+-------------------------------------------------------------
+This system uses 8 bytes per array element.
+-------------------------------------------------------------
+Array size = 10000000 (elements), Offset = 0 (elements)
+Memory per array = 76.3 MiB (= 0.1 GiB).
+Total memory required = 228.9 MiB (= 0.2 GiB).
+Each kernel will be executed 10 times.
+  The *best* time for each kernel (excluding the first iteration)
+  will be used to compute the reported bandwidth.
+-------------------------------------------------------------
+Number of Threads requested = 56
+Number of Threads counted = 56
+-------------------------------------------------------------
+Your clock granularity/precision appears to be 1 microseconds.
+Each test below will take on the order of 4081 microseconds.
+    (= 4081 clock ticks)
+Increase the size of the arrays if this shows that
+you are not getting at least 20 clock ticks per test.
+-------------------------------------------------------------
+WARNING -- The above is only a rough guideline.
+For best results, please be sure you know the
+precision of your system timer.
+-------------------------------------------------------------
+Function    Best Rate MB/s  Avg time     Min time     Max time
+Copy:           29907.2     0.005382     0.005350     0.005405
+Scale:          28787.3     0.005611     0.005558     0.005650
+Add:            34153.3     0.007037     0.007027     0.007055
+Triad:          34944.0     0.006880     0.006868     0.006887
+-------------------------------------------------------------
+Solution Validates: avg error less than 1.000000e-13 on all three arrays
+
+But this is for node 0+1
+
+When limiting test to one node and cores used by network controllers:
+
+-------------------------------------------------------------
+STREAM version $Revision: 5.10 $
+-------------------------------------------------------------
+This system uses 8 bytes per array element.
+-------------------------------------------------------------
+Array size = 10000000 (elements), Offset = 0 (elements)
+Memory per array = 76.3 MiB (= 0.1 GiB).
+Total memory required = 228.9 MiB (= 0.2 GiB).
+Each kernel will be executed 10 times.
+  The *best* time for each kernel (excluding the first iteration)
+  will be used to compute the reported bandwidth.
+-------------------------------------------------------------
+Number of Threads requested = 28
+Number of Threads counted = 28
+-------------------------------------------------------------
+Your clock granularity/precision appears to be 1 microseconds.
+Each test below will take on the order of 6107 microseconds.
+    (= 6107 clock ticks)
+Increase the size of the arrays if this shows that
+you are not getting at least 20 clock ticks per test.
+-------------------------------------------------------------
+WARNING -- The above is only a rough guideline.
+For best results, please be sure you know the
+precision of your system timer.
+-------------------------------------------------------------
+Function    Best Rate MB/s  Avg time     Min time     Max time
+Copy:           20156.4     0.007946     0.007938     0.007958
+Scale:          19436.1     0.008237     0.008232     0.008243
+Add:            20184.7     0.011896     0.011890     0.011904
+Triad:          20687.9     0.011607     0.011601     0.011613
+-------------------------------------------------------------
+Solution Validates: avg error less than 1.000000e-13 on all three arrays
+-------------------------------------------------------------
+
+Close to the limit but still some place - there can be some doubled 
+operations like for RX/TX side and network controllers can use more 
+bandwidth or just can't do this more optimally - cause of 
+bulking/buffers etc.
+
+
+So currently there are only four from six channels used - i will upgrade 
+also memory and populate all six channels left/right side for two memory 
+controllers that cpu have.
+
+
+>> So I start to change params for TX side - and for now i know that the
+>> best for me is
+>>
+>> coalescence adaptative on
+>>
+>> TX buffer 128
+>>
+>> This helps with max BW that for now is close to 70Gbit/s RX and 70Gbit
+>> TX but after this change i have increasing DROPS on TX side for vlan
+>> interfaces.
+> So this sounds like you are likely bottlenecked due to either PCIe
+> bandwidth or latency. When you start putting back-pressure on the Tx
+> like you have described it starts pushing packets onto the Qdisc
+> layer. One thing that happens when packets are on the qdisc layer is
+> that they can start to perform a bulk dequeue. The side effect of this
+> is that you write multiple packets to the descriptor ring and then
+> update the hardware doorbell only once for the entire group of packets
+> instead of once per packet.
+
+yes the problem is i just can't find any place where counters will shows 
+me why nic's start to drop packets
+
+it does not reflect in cpu load or any other counter besides rx_phy 
+drops and tx_vlan drop packets
+
+
+>> And only 50% cpu (max was 50% for 70Gbit/s)
+>>
+>>
+>>> It is easiest to think of it this way. Your total packet rate is equal
+>>> to your interrupt rate times the number of buffers you will store in
+>>> the ring. So if you have some fixed rate "X" for packets and an
+>>> interrupt rate of "i" then your optimal ring size should be "X/i". So
+>>> if you lower the interrupt rate you end up hurting the throughput
+>>> unless you increase the buffer size. However at a certain point the
+>>> buffer size starts becoming an issue. For example with UDP flows I
+>>> often see massive packet drops if you tune the interrupt rate too low
+>>> and then put the system under heavy stress.
+>> Yes - in normal life traffic - most of ddos'es are like this many pps
+>> with small frames.
+> It sounds to me like XDP would probably be your best bet. With that
+> you could probably get away with smaller ring sizes, higher interrupt
+> rates, and get the advantage of it batching the Tx without having to
+> drop packets.
+
+Yes im testing in lab xdp_fwd currently - but have some problems with 
+random drops that occuring randomly where server forwards only 1/10  
+packet and after some time it starts to work normally.
+
+Currently trying to eliminate nic's offloading that can cause this - so 
+turning off one by one and running tests.
+
+

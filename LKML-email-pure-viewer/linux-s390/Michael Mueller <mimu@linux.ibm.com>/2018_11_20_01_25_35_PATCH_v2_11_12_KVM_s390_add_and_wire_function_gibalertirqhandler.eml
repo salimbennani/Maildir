@@ -1,0 +1,385 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 20 Nov 2018 00:33:55 -0000
+Received: from icoremail.net (unknown [209.85.210.172])
+	by mail-app2 (Coremail) with SMTP id by_KCgDXv95+8vJbw7C6AQ--.55548S3;
+	Tue, 20 Nov 2018 01:27:30 +0800 (CST)
+Received: from mail-pf1-f172.google.com (unknown [209.85.210.172])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwDnzEh58vJbFINZAA--.1712S3;
+	Tue, 20 Nov 2018 01:27:21 +0800 (CST)
+Received: by mail-pf1-f172.google.com with SMTP id g62so11909508pfd.12
+        for <xuliker@zju.edu.cn>; Mon, 19 Nov 2018 09:27:21 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :from:to:cc:subject:date:in-reply-to:references:message-id:sender
+         :precedence:list-id;
+        bh=l7uOIE9xiGPpAVFwV4sx9+JeQVgWEn5HScQGVWMBqUI=;
+        b=Zz2/fnNUGaRMRB8C7l6hIjTk2j0zaOxL8k/XJ6Dpc1xSx0rk3vMbGydvGip2yYDLSe
+         HtGv/PVVRUMStnewRi+2eX1Yov5bNHr1Xeu5Uvl+8bPIWAVeoZ5IILnixOOcFdGp3xrT
+         bXDHye8KxtcnFW3bNc5KESFp2zV3Y6sQa67f2iUkg27/fzYldkDU1C9HI+3Hiri26MI9
+         JW5fwNsZ2skC8+Nt3+OiOloEqPLvyCA479fv2X14pJajzFn+ekZG29zvocIGYhEo6pSJ
+         jiLVYIy2eWLF6IsdhJf+Z7XPWHi+1WA1hE97ho+/daD4qhgW88VIQYsdm2HbpVu79XGq
+         8Psg==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=ibm.com
+X-Gm-Message-State: AGRZ1gJSeT9bI8zY/RuD1EKouH3cNqKad1lvSuS31rtbWEL61IVombvD
+	+CWGO2fRt9Cz8KhyNOv8Np511x2qII9uwPQSv2aJV9m4nMqOX7g=
+X-Received: by 2002:a65:66ce:: with SMTP id c14mr20695976pgw.450.1542648441486;
+        Mon, 19 Nov 2018 09:27:21 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:d106:0:0:0:0 with SMTP id l6-v6csp2947299pju;
+        Mon, 19 Nov 2018 09:27:20 -0800 (PST)
+X-Google-Smtp-Source: AJdET5fZ6qSbH3N2btwafzzySqbopLtsghCp9fmtiedcLWgClywmGdrD3MjEtQWZCZjj8fr+E0ZJ
+X-Received: by 2002:a17:902:f20b:: with SMTP id gn11mr22177543plb.93.1542648440519;
+        Mon, 19 Nov 2018 09:27:20 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542648440; cv=none;
+        d=google.com; s=arc-20160816;
+        b=VaIbq9sLnLzWbQK64QwZgkFE78LRc33MbSyicIdrBsxBsBEUhZt/k6CO7sNWV05oh9
+         XWXLH1J8HdroZ0KzUznpP+5n9Eg+UYHHyb91xGP/ms4Y/ixq8QBDBv79NN/dvp+tpIgk
+         tSTyx/KHhHXOjCWVWzMHJHkUOaiM38n0024sslfr1WQ3r5qMHpRd/oe98vGIPFedlJQf
+         pWREEmoP8UiKcxOgIsvQG+igpj76kdVb/TRUw3exdNgtkxn9+kprIdopyYlb9GRp/lv4
+         zBTW0WKoRQij5cgiv+FOnxwps80aEIMf2AuT4vGNECRDeknYBbord48TW0bQqhQYEm2k
+         xEoQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:message-id:references:in-reply-to:date
+         :subject:cc:to:from;
+        bh=l7uOIE9xiGPpAVFwV4sx9+JeQVgWEn5HScQGVWMBqUI=;
+        b=VOmN2ZyWLbODinn4s5jwOxp5kON62UuGnszL6TFnrTt4J0RveF0LF1qwdeMZxjFBKj
+         0tmdPzjyG/sBR7lt2HZOIDcJS+gOqFs6gKtu3YUIDUUi6CFKNmw1z4Bq+gJctZEFwWhn
+         MEBeOcW7hqGxksXgFshyHaGtxxpoQXl5t53W+n4F0Bwep6oFH+NkIGv4Xn3TaElFIQSS
+         2v5Ko+CA59JLMRXQnlfnpjDQGW24sePt5D5Dm55h2Y7JVP9Du7uUKW3op5QUGslz3Xjd
+         vfCSPyLUW5sa2/LGXydWFjh2iakN0d3CoQErxaZMF0C4u1dvOjT3EVyLRGnmym53nokm
+         7Fjg==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=ibm.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id e6si36277935pgl.471.2018.11.19.09.26.52;
+        Mon, 19 Nov 2018 09:27:20 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S2404581AbeKTDue (ORCPT <rfc822;ww9210@gmail.com> + 99 others);
+        Mon, 19 Nov 2018 22:50:34 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:46364 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S2404559AbeKTDud (ORCPT
+        <rfc822;kvm@vger.kernel.org>); Mon, 19 Nov 2018 22:50:33 -0500
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.22/8.16.0.22) with SMTP id wAJHPGN3142674
+        for <kvm@vger.kernel.org>; Mon, 19 Nov 2018 12:26:09 -0500
+Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2nv0qbjmbj-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <kvm@vger.kernel.org>; Mon, 19 Nov 2018 12:26:09 -0500
+Received: from localhost
+        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <kvm@vger.kernel.org> from <mimu@linux.ibm.com>;
+        Mon, 19 Nov 2018 17:26:07 -0000
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (9.149.109.196)
+        by e06smtp05.uk.ibm.com (192.168.101.135) with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted;
+        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256/256)
+        Mon, 19 Nov 2018 17:26:05 -0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id wAJHQ4M92883850
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
+        Mon, 19 Nov 2018 17:26:04 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 163924C04A;
+        Mon, 19 Nov 2018 17:26:04 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 8B9204C04E;
+        Mon, 19 Nov 2018 17:26:03 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Mon, 19 Nov 2018 17:26:03 +0000 (GMT)
+From: Michael Mueller <mimu@linux.ibm.com>
+To: kvm@vger.kernel.org, linux-s390@vger.kernel.org
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>,
+        Heiko Carstens <heiko.carstens@de.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Michael Mueller <mimu@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Pierre Morel <pmorel@linux.ibm.com>
+Subject: [PATCH v2 11/12] KVM: s390: add and wire function gib_alert_irq_handler()
+Date: Mon, 19 Nov 2018 18:25:35 +0100
+X-Mailer: git-send-email 2.16.4
+In-Reply-To: <20181119172536.52649-1-mimu@linux.ibm.com>
+References: <20181119172536.52649-1-mimu@linux.ibm.com>
+X-TM-AS-GCONF: 00
+x-cbid: 18111917-0020-0000-0000-000002EA60F6
+X-IBM-AV-DETECTION: SAVI=unused REMOTE=unused XFE=unused
+x-cbparentid: 18111917-0021-0000-0000-000021398ED1
+Message-Id: <20181119172536.52649-12-mimu@linux.ibm.com>
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2018-11-19_06:,,
+ signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ malwarescore=0 suspectscore=2 phishscore=0 bulkscore=0 spamscore=0
+ clxscore=1015 lowpriorityscore=0 mlxscore=0 impostorscore=0
+ mlxlogscore=976 adultscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.0.1-1810050000 definitions=main-1811190159
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwDnzEh58vJbFINZAA--.1712S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoWxuFyDAr43Gr48Cw15uF4xtFb_yoW3Gr43pF
+	s8A3Z8Ww4fKr18Z3y3ta1Dur1Ska1kGr47KFy5W3y3Ar17tr1YyFs5KF1qyFy5Kry8ua1I
+	gFyrta1Dua1vyaUanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUU0bIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUPab7Iv0xC_Kw4lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_tr0E3s1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr1j6F4UJwA2z4x0Y4vE
+	x4A2jsIE14v26rxl6s0DM28EF7xvwVC2z280aVCY1x0267AKxVW0oVCq3wAS0I0E0xvYzx
+	vE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AKxVWU
+	XVWUAwAv7VC2z280aVAFwI0_Gr0_Cr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcxkI7V
+	AKI48JMx02cVCv0xWlc7CjxVAKzI0EY4vE52x082I5MxkFs20EY4vE44CYbxCE4x80FwCY
+	02Avz4vEIxC_GwCY0x0Ix7I2Y4AK64vIr41lcIIF0xvE2Ix0cI8IcVAFwI0_Ar0_tr1lcI
+	IF0xvE2Ix0cI8IcVCY1x0267AKxVWxJVW8Jr1lcIIF0xvEx4A2jsIE14v26F4UJVW0owCY
+	IxAIcVC2z280aVCY1x0267AKxVWxJr0_GcWl42xK82IYc2Ij64vIr41l42xK82IY64kExV
+	AvwVAq07x20xyl4x8a6x804xWl4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AK
+	xVWUJVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r1q6r43MIIYrx
+	kI7VAKI48JMIIF0xvE42xK8VAvwI8IcIk0rVWUJVWUCbIYCTnIWIevJa73UjIFyTuYvjxU
+	QCPfDUUUU
+
+The patch implements a handler for GIB alert interruptions
+on the host. Its task is to alert storage backed guests that
+interrupts are pending for them.
+
+A GIB alert interrupt statistic counter is added as well:
+
+$ cat /proc/interrupts
+          CPU0       CPU1
+  ...
+  GAL:       0          0   [I/O] GIB Alert
+  ...
+
+Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
+---
+ arch/s390/include/asm/irq.h |  1 +
+ arch/s390/include/asm/isc.h |  1 +
+ arch/s390/kernel/irq.c      |  1 +
+ arch/s390/kvm/interrupt.c   | 57 +++++++++++++++++++++++++++++++++++++--------
+ arch/s390/kvm/kvm-s390.c    |  6 +++++
+ arch/s390/kvm/kvm-s390.h    |  5 ++++
+ 6 files changed, 61 insertions(+), 10 deletions(-)
+
+diff --git a/arch/s390/include/asm/irq.h b/arch/s390/include/asm/irq.h
+index 2f7f27e5493f..afaf5e3c57fd 100644
+--- a/arch/s390/include/asm/irq.h
++++ b/arch/s390/include/asm/irq.h
+@@ -62,6 +62,7 @@ enum interruption_class {
+ 	IRQIO_MSI,
+ 	IRQIO_VIR,
+ 	IRQIO_VAI,
++	IRQIO_GAL,
+ 	NMI_NMI,
+ 	CPU_RST,
+ 	NR_ARCH_IRQS
+diff --git a/arch/s390/include/asm/isc.h b/arch/s390/include/asm/isc.h
+index 6cb9e2ed05b6..b2cc1ec78d06 100644
+--- a/arch/s390/include/asm/isc.h
++++ b/arch/s390/include/asm/isc.h
+@@ -21,6 +21,7 @@
+ /* Adapter interrupts. */
+ #define QDIO_AIRQ_ISC IO_SCH_ISC	/* I/O subchannel in qdio mode */
+ #define PCI_ISC 2			/* PCI I/O subchannels */
++#define GAL_ISC 5			/* GIB alert */
+ #define AP_ISC 6			/* adjunct processor (crypto) devices */
+ 
+ /* Functions for registration of I/O interruption subclasses */
+diff --git a/arch/s390/kernel/irq.c b/arch/s390/kernel/irq.c
+index 0e8d68bac82c..0cd5a5f96729 100644
+--- a/arch/s390/kernel/irq.c
++++ b/arch/s390/kernel/irq.c
+@@ -88,6 +88,7 @@ static const struct irq_class irqclass_sub_desc[] = {
+ 	{.irq = IRQIO_MSI,  .name = "MSI", .desc = "[I/O] MSI Interrupt" },
+ 	{.irq = IRQIO_VIR,  .name = "VIR", .desc = "[I/O] Virtual I/O Devices"},
+ 	{.irq = IRQIO_VAI,  .name = "VAI", .desc = "[I/O] Virtual I/O Devices AI"},
++	{.irq = IRQIO_GAL,  .name = "GAL", .desc = "[I/O] GIB Alert"},
+ 	{.irq = NMI_NMI,    .name = "NMI", .desc = "[NMI] Machine Check"},
+ 	{.irq = CPU_RST,    .name = "RST", .desc = "[CPU] CPU Restart"},
+ };
+diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+index 40878efbd5cd..240b58b67f18 100644
+--- a/arch/s390/kvm/interrupt.c
++++ b/arch/s390/kvm/interrupt.c
+@@ -23,6 +23,7 @@
+ #include <asm/gmap.h>
+ #include <asm/switch_to.h>
+ #include <asm/nmi.h>
++#include <asm/airq.h>
+ #include "kvm-s390.h"
+ #include "gaccess.h"
+ #include "trace-s390.h"
+@@ -2890,7 +2891,7 @@ int kvm_s390_get_irq_state(struct kvm_vcpu *vcpu, __u8 __user *buf, int len)
+ 	return n;
+ }
+ 
+-static struct kvm_s390_gisa __maybe_unused *unlink_gib_alert_list(void)
++static struct kvm_s390_gisa *unlink_gib_alert_list(void)
+ {
+ 	u32 gisa;
+ 
+@@ -2919,7 +2920,7 @@ static void nullify_gisa(struct kvm_s390_gisa *gisa)
+  * belongs to. Thus, the pending guest interruption will be processed
+  * in SIE context.
+  */
+-static void __maybe_unused process_gib_alert_list(void)
++static void process_gib_alert_list(void)
+ {
+ 	struct kvm_s390_gisa *gisa = unlink_gib_alert_list();
+ 	struct kvm_s390_gisa *next_alert;
+@@ -2941,6 +2942,9 @@ static void __maybe_unused process_gib_alert_list(void)
+ void kvm_s390_gisa_clear(struct kvm *kvm)
+ {
+ 	if (kvm->arch.gisa) {
++		kvm->arch.gisa->iam = 0;
++		while (in_alert_list(kvm->arch.gisa))
++			process_gib_alert_list();
+ 		nullify_gisa(kvm->arch.gisa);
+ 		VM_EVENT(kvm, 3, "gisa 0x%pK cleared", kvm->arch.gisa);
+ 	}
+@@ -2952,9 +2956,9 @@ void kvm_s390_gisa_init(struct kvm *kvm)
+ 		kvm->arch.gisa = &kvm->arch.sie_page2->gisa;
+ 		kvm->arch.iam = 0;
+ 		spin_lock_init(&kvm->arch.iam_ref_lock);
+-		VM_EVENT(kvm, 3, "gisa 0x%pK initialized", kvm->arch.gisa);
+-		kvm_s390_gisa_clear(kvm);
++		nullify_gisa(kvm->arch.gisa);
+ 		kvm->arch.gib_in_use = !!gib;
++		VM_EVENT(kvm, 3, "gisa 0x%pK initialized", kvm->arch.gisa);
+ 	}
+ }
+ 
+@@ -2962,6 +2966,10 @@ void kvm_s390_gisa_destroy(struct kvm *kvm)
+ {
+ 	if (!kvm->arch.gisa)
+ 		return;
++
++	kvm->arch.gisa->iam = 0;
++	while (in_alert_list(kvm->arch.gisa))
++		process_gib_alert_list();
+ 	kvm->arch.gisa = NULL;
+ 	kvm->arch.iam = 0;
+ }
+@@ -3007,36 +3015,65 @@ int kvm_s390_gisc_unregister(struct kvm *kvm, u32 gisc)
+ }
+ EXPORT_SYMBOL_GPL(kvm_s390_gisc_unregister);
+ 
++static void gib_alert_irq_handler(struct airq_struct *airq)
++{
++	inc_irq_stat(IRQIO_GAL);
++	process_gib_alert_list();
++}
++
++static struct airq_struct gib_alert_irq = {
++	.handler = gib_alert_irq_handler,
++	.lsi_ptr = &gib_alert_irq.lsi_mask,
++};
++
+ void kvm_s390_gib_destroy(void)
+ {
+ 	if (!gib)
+ 		return;
+ 	chsc_sgib(0);
++	unregister_adapter_interrupt(&gib_alert_irq);
+ 	free_page((unsigned long)gib);
+ 	gib = NULL;
+ }
+ 
+ int kvm_s390_gib_init(u8 nisc)
+ {
++	int rc = 0;
++
+ 	if (!css_general_characteristics.aiv) {
+ 		KVM_EVENT(3, "%s", "gib not initialized, no AIV facility");
+-		return 0;
++		goto out;
+ 	}
+ 
+ 	gib = (struct kvm_s390_gib *)get_zeroed_page(GFP_KERNEL | GFP_DMA);
+ 	if (!gib) {
+ 		KVM_EVENT(3, "gib 0x%pK memory allocation failed", gib);
+-		return -ENOMEM;
++		rc = -ENOMEM;
++		goto out;
++	}
++
++	gib_alert_irq.isc = nisc;
++	if (register_adapter_interrupt(&gib_alert_irq)) {
++		KVM_EVENT(3, "gib 0x%pK GAI registration failed", gib);
++		rc = -EIO;
++		goto out_free;
+ 	}
+ 
+ 	gib->nisc = nisc;
+ 	if (chsc_sgib((u32)(u64)gib)) {
+ 		KVM_EVENT(3, "gib 0x%pK AIV association failed", gib);
+-		free_page((unsigned long)gib);
+-		gib = NULL;
+-		return -EIO;
++		rc = -EIO;
++		goto out_unreg;
+ 	}
+ 
+ 	KVM_EVENT(3, "gib 0x%pK (nisc=%d) initialized", gib, gib->nisc);
+-	return 0;
++	return rc;
++
++out_unreg:
++	unregister_adapter_interrupt(&gib_alert_irq);
++out_free:
++	free_page((unsigned long)gib);
++	gib = NULL;
++out:
++	return rc;
+ }
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index d55de44df135..386f98029a3f 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -3460,6 +3460,8 @@ static int vcpu_pre_run(struct kvm_vcpu *vcpu)
+ 	}
+ 
+ 	atomic_inc(&vcpu->kvm->arch.vcpus_in_sie);
++	if (vcpu->kvm->arch.gib_in_use)
++		vcpu->kvm->arch.gisa->iam = 0;
+ 
+ 	vcpu->arch.sie_block->icptcode = 0;
+ 	cpuflags = atomic_read(&vcpu->arch.sie_block->cpuflags);
+@@ -3521,6 +3523,10 @@ static int vcpu_post_run(struct kvm_vcpu *vcpu, int exit_reason)
+ 	vcpu->run->s.regs.gprs[15] = vcpu->arch.sie_block->gg15;
+ 
+ 	atomic_dec(&vcpu->kvm->arch.vcpus_in_sie);
++	if (vcpu->kvm->arch.gib_in_use &&
++	    !in_alert_list(vcpu->kvm->arch.gisa) &&
++	    !atomic_fetch_andnot(0, &vcpu->kvm->arch.vcpus_in_sie))
++		vcpu->kvm->arch.gisa->iam = vcpu->kvm->arch.iam;
+ 
+ 	if (exit_reason == -EINTR) {
+ 		VCPU_EVENT(vcpu, 3, "%s", "machine check");
+diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
+index 1a79105b0e9f..1c93ceaeb9e4 100644
+--- a/arch/s390/kvm/kvm-s390.h
++++ b/arch/s390/kvm/kvm-s390.h
+@@ -196,6 +196,11 @@ static inline int kvm_s390_user_cpu_state_ctrl(struct kvm *kvm)
+ 	return kvm->arch.user_cpu_state_ctrl != 0;
+ }
+ 
++static inline bool in_alert_list(struct kvm_s390_gisa *gisa)
++{
++	return (u32)(u64)gisa != gisa->next_alert;
++}
++
+ /* implemented in interrupt.c */
+ int kvm_s390_handle_wait(struct kvm_vcpu *vcpu);
+ void kvm_s390_vcpu_wakeup(struct kvm_vcpu *vcpu);
+-- 
+2.13.4

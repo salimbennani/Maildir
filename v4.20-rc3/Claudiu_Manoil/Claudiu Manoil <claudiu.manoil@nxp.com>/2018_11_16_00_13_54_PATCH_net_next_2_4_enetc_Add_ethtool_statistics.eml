@@ -1,0 +1,452 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 16 Nov 2018 00:29:05 -0000
+Received: from icoremail.net (unknown [209.85.215.178])
+	by mail-app2 (Coremail) with SMTP id by_KCgDHH+Zxm+1b7EObAQ--.45847S3;
+	Fri, 16 Nov 2018 00:14:43 +0800 (CST)
+Received: from mail-pg1-f178.google.com (unknown [209.85.215.178])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwCXfUlwm+1bWblEAA--.17871S3;
+	Fri, 16 Nov 2018 00:14:40 +0800 (CST)
+Received: by mail-pg1-f178.google.com with SMTP id t13so561672pgr.11
+        for <xuliker@zju.edu.cn>; Thu, 15 Nov 2018 08:14:40 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :from:to:cc:subject:date:message-id:in-reply-to:references:sender
+         :precedence:list-id;
+        bh=ZHQUz84V95rbWYCZmD7k0Kzo4OC9gzoKvRuKfTj6SD8=;
+        b=shCLJebwEqfknGkOrXMNsJXT5J97jvZN6vHReb8EjD+myJeU1/anZvJZQf/lnWquTB
+         v6Dal0/4KUrmvE7mg9Cz6SOETzW9bGyrUUh2COlAnwBXxzA9zhu4vvLCh5bPgTdARnqg
+         Bc+YTxjW22xaIH/PE0WTZ2zGi/bmb9KlZY7kwoYQdwpT59kmFxCs3WMv1gcIpjpE8ThC
+         WN+5kbHN+f1ugGbXykPS7pTO5UJpivuiMXnJ4vbT/MmM8Fq87Q/ZfTAJ67aPrnv7aNUx
+         +H6xPZXK5hH1Ot6gS9xujrOvhZAuiQJ1Utd8BrhrV+DBFS/kw3IMWv5Vd3ld59RN9+vw
+         Duuw==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=nxp.com
+X-Gm-Message-State: AGRZ1gKnCbttFk0miO5tfR9Z+n4YDJ6NSlLjgwnEZ5b7sg/EEXWB2dCU
+	kW9V4dpe6Y3Z0IlBsGqBfqjylNx68pl/lG/ryr/U5NHiLvAzKPG8Tw==
+X-Received: by 2002:a62:3687:: with SMTP id d129-v6mr7139697pfa.56.1542298479722;
+        Thu, 15 Nov 2018 08:14:39 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:d106:0:0:0:0 with SMTP id l6-v6csp752621pju;
+        Thu, 15 Nov 2018 08:14:38 -0800 (PST)
+X-Google-Smtp-Source: AJdET5cW6b54ycCzONsI/rdzWhFH5+KTWsi7jFl7CL9zXkWFUXhUxrX6twNTIjLxG5yCmeOclYj8
+X-Received: by 2002:a17:902:824:: with SMTP id 33-v6mr7029342plk.107.1542298478075;
+        Thu, 15 Nov 2018 08:14:38 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542298478; cv=none;
+        d=google.com; s=arc-20160816;
+        b=OErNObC54Pg1w2bq1zE6GlKD+0CZinYJGSlZhc+rdjSdV/rHmyOyo4q3eRygwuyYE5
+         hd+iWwL0yplZpHv6CCmE9f3dWm69j4sLXdLX72eTSajL3hJpMjsOQCgzm3TBTSNl9evr
+         OmqYafVQvYR83CA1F73moaEOCEoTmTu/VVrWYQCaWRfvCeEeKa8EUGYLaVIpq3z6Jvm/
+         GHgOiGN0UHncYs7RdWgeKgQIm4BJeDqElUQR9cUbsEpqpTqcth83zZxM+rt0p+1Cf5mP
+         PgYq8fOJXHzSorfPHj1696T4WtPNvAnC5pRIfQ38gjFzfUTNcQIfLt4cG0snIqKhXL4z
+         D+qQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:references:in-reply-to:message-id:date
+         :subject:cc:to:from;
+        bh=ZHQUz84V95rbWYCZmD7k0Kzo4OC9gzoKvRuKfTj6SD8=;
+        b=mS3mmzqqMXaW4/SMkJEKLnzhE8WFzO320o09KWKRodHhWOcmXCFik3afYD1GR1DF77
+         ekVFMhTTa7iNOVQ05Ocs/P3uBt3Ua70j783I1gK+2wetH+iNQmwaiSNDOdZ7tmxDpgk+
+         OZVNBcV21q/inYbj83Hj+t0cExT1b/Am+zdg2A0RfoN84F+Xcb42jlvSTgcHVfsqpI8W
+         y4fmIRTQhJI2NXdjEPJL7qqYtJQCyPU6ib9hmHzrtVw8EUEwn4lew1r9fhmJImu6qLil
+         GZYR/lBHS4siGmbdUq2MRIVvM0v1DzBDdH5sMywucQ6MA4SRphrjWd2bqImfyVxGYFts
+         SZYw==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=nxp.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id s11si27053560pgi.324.2018.11.15.08.14.15;
+        Thu, 15 Nov 2018 08:14:38 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S2388587AbeKPCW2 (ORCPT <rfc822;jroi.martin@gmail.com>
+        + 99 others); Thu, 15 Nov 2018 21:22:28 -0500
+Received: from inva020.nxp.com ([92.121.34.13]:56066 "EHLO inva020.nxp.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2388088AbeKPCW2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+        Thu, 15 Nov 2018 21:22:28 -0500
+Received: from inva020.nxp.com (localhost [127.0.0.1])
+        by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id 63D8B1A0288;
+        Thu, 15 Nov 2018 17:13:58 +0100 (CET)
+Received: from inva024.eu-rdc02.nxp.com (inva024.eu-rdc02.nxp.com [134.27.226.22])
+        by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id 56F9F1A027E;
+        Thu, 15 Nov 2018 17:13:58 +0100 (CET)
+Received: from fsr-ub1664-016.ea.freescale.net (fsr-ub1664-016.ea.freescale.net [10.171.71.216])
+        by inva024.eu-rdc02.nxp.com (Postfix) with ESMTP id 16EB9205D6;
+        Thu, 15 Nov 2018 17:13:58 +0100 (CET)
+From: Claudiu Manoil <claudiu.manoil@nxp.com>
+To: "David S . Miller" <davem@davemloft.net>, netdev@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, alexandru.marginean@nxp.com,
+        catalin.horghidan@nxp.com
+Subject: [PATCH net-next 2/4] enetc: Add ethtool statistics
+Date: Thu, 15 Nov 2018 18:13:54 +0200
+Message-Id: <1542298436-23422-3-git-send-email-claudiu.manoil@nxp.com>
+X-Mailer: git-send-email 2.7.4
+In-Reply-To: <1542298436-23422-1-git-send-email-claudiu.manoil@nxp.com>
+References: <1542298436-23422-1-git-send-email-claudiu.manoil@nxp.com>
+X-Virus-Scanned: ClamAV using ClamSMTP
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwCXfUlwm+1bWblEAA--.17871S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvAXoW3Kw47JrykCFyxur1UGry7GFg_yoW8Jry5uo
+	WkGan8try8JFyayFWktw4xWr47XF4UAw15trWfA3ykJFZIyry2v345C3y5uF13G34qgrW8
+	Aay7Xw4v9rWS9rWkn29KB7ZKAUJUUUUU529EdanIXcx71UUUUj7v73VFW2AGmfu7jjvjm3
+	AaLaJ3UjIYCTnIWjp_UUUYG7k0a2IF6w4kM7kC6x804xWl14x267AKxVWUJVW8JwAFIxvE
+	14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK021l84ACjcxK6xIIjx
+	v20xvE14v26F1j6w1UM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26F4j6r4UJwA2z4x0Y4vE
+	x4A2jsIE14v26F4j6r4UJwA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_Gr0_Gr1UM2AIxVAIcx
+	kEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v2
+	6r106r15McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IYc2
+	Ij64vIr41l7I0Y6sxI4wCY1x0264kExVAvwVAq07x20xylc2xSY4AK6IIF6r1lc2IjII80
+	xcxEwVAKI48JMxvI42IY6xIIjxv20xvE14v26r1I6r4UMxvI42IY6xIIjxv20xvEc7CjxV
+	AFwI0_Jr0_Gr1lcIIF0xvEx4A2jsIE14v26r1j6r4UMxvI42IY6I8E87Iv6xkF7I0E14v2
+	6r1j6r4UMxAIw28IcxkI7VAKI48JMxAIw28IcVAKzI0EY4vE52x082I5MxCjnVCjjxCrMx
+	C20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxVCjr7xvwVAF
+	wI0_JrI_JrWlx4CE17CEb7AF67AKxVWUAVWUtwCIc40Y0x0EwIxGrwCI42IY6xAIw20EY4
+	v20xvaj40_Jr0_JF7vcSsGvfC2KfnxnUUI43ZEXa7IUOsTmPUUUUU==
+
+This adds most h/w statistics counters: non-privileged SI conters, as
+well as privileged Port and MAC counters available only to the PF.
+Per ring software stats are also included.
+
+Signed-off-by: Alex Marginean <alexandru.marginean@nxp.com>
+Signed-off-by: Claudiu Manoil <claudiu.manoil@nxp.com>
+---
+ .../net/ethernet/freescale/enetc/enetc_ethtool.c   | 185 +++++++++++++++++++++
+ drivers/net/ethernet/freescale/enetc/enetc_hw.h    |  88 ++++++++++
+ 2 files changed, 273 insertions(+)
+
+diff --git a/drivers/net/ethernet/freescale/enetc/enetc_ethtool.c b/drivers/net/ethernet/freescale/enetc/enetc_ethtool.c
+index 222183f..f6f63dd 100644
+--- a/drivers/net/ethernet/freescale/enetc/enetc_ethtool.c
++++ b/drivers/net/ethernet/freescale/enetc/enetc_ethtool.c
+@@ -89,6 +89,185 @@ static void enetc_get_regs(struct net_device *ndev, struct ethtool_regs *regs,
+ 	}
+ }
+ 
++static const struct {
++	int reg;
++	char name[ETH_GSTRING_LEN];
++} enetc_si_counters[] =  {
++	{ ENETC_SIROCT, "SI rx octets" },
++	{ ENETC_SIRFRM, "SI rx frames" },
++	{ ENETC_SIRUCA, "SI rx u-cast frames" },
++	{ ENETC_SIRMCA, "SI rx m-cast frames" },
++	{ ENETC_SITOCT, "SI tx octets" },
++	{ ENETC_SITFRM, "SI tx frames" },
++	{ ENETC_SITUCA, "SI tx u-cast frames" },
++	{ ENETC_SITMCA, "SI tx m-cast frames" },
++	{ ENETC_RBDCR(0), "Rx ring  0 discarded frames" },
++	{ ENETC_RBDCR(1), "Rx ring  1 discarded frames" },
++	{ ENETC_RBDCR(2), "Rx ring  2 discarded frames" },
++	{ ENETC_RBDCR(3), "Rx ring  3 discarded frames" },
++	{ ENETC_RBDCR(4), "Rx ring  4 discarded frames" },
++	{ ENETC_RBDCR(5), "Rx ring  5 discarded frames" },
++	{ ENETC_RBDCR(6), "Rx ring  6 discarded frames" },
++	{ ENETC_RBDCR(7), "Rx ring  7 discarded frames" },
++	{ ENETC_RBDCR(8), "Rx ring  8 discarded frames" },
++	{ ENETC_RBDCR(9), "Rx ring  9 discarded frames" },
++	{ ENETC_RBDCR(10), "Rx ring 10 discarded frames" },
++	{ ENETC_RBDCR(11), "Rx ring 11 discarded frames" },
++	{ ENETC_RBDCR(12), "Rx ring 12 discarded frames" },
++	{ ENETC_RBDCR(13), "Rx ring 13 discarded frames" },
++	{ ENETC_RBDCR(14), "Rx ring 14 discarded frames" },
++	{ ENETC_RBDCR(15), "Rx ring 15 discarded frames" },
++};
++
++static const struct {
++	int reg;
++	char name[ETH_GSTRING_LEN];
++} enetc_port_counters[] = {
++	{ ENETC_PM0_REOCT,  "MAC rx ethernet octets" },
++	{ ENETC_PM0_RALN,   "MAC rx alignment errors" },
++	{ ENETC_PM0_RXPF,   "MAC rx valid pause frames" },
++	{ ENETC_PM0_RFRM,   "MAC rx valid frames" },
++	{ ENETC_PM0_RFCS,   "MAC rx fcs errors" },
++	{ ENETC_PM0_RVLAN,  "MAC rx VLAN frames" },
++	{ ENETC_PM0_RERR,   "MAC rx frame errors" },
++	{ ENETC_PM0_RUCA,   "MAC rx unicast frames" },
++	{ ENETC_PM0_RMCA,   "MAC rx multicast frames" },
++	{ ENETC_PM0_RBCA,   "MAC rx broadcast frames" },
++	{ ENETC_PM0_RDRP,   "MAC rx dropped packets" },
++	{ ENETC_PM0_RPKT,   "MAC rx packets" },
++	{ ENETC_PM0_RUND,   "MAC rx undersized packets" },
++	{ ENETC_PM0_R64,    "MAC rx 64 byte packets" },
++	{ ENETC_PM0_R127,   "MAC rx 65-127 byte packets" },
++	{ ENETC_PM0_R255,   "MAC rx 128-255 byte packets" },
++	{ ENETC_PM0_R511,   "MAC rx 256-511 byte packets" },
++	{ ENETC_PM0_R1023,  "MAC rx 512-1023 byte packets" },
++	{ ENETC_PM0_R1518,  "MAC rx 1024-1518 byte packets" },
++	{ ENETC_PM0_R1519X, "MAC rx 1519 to max-octet packets" },
++	{ ENETC_PM0_ROVR,   "MAC rx oversized packets" },
++	{ ENETC_PM0_RJBR,   "MAC rx jabber packets" },
++	{ ENETC_PM0_RFRG,   "MAC rx fragment packets" },
++	{ ENETC_PM0_RCNP,   "MAC rx control packets" },
++	{ ENETC_PM0_RDRNTP, "MAC rx fifo drop" },
++	{ ENETC_PM0_TEOCT,  "MAC tx ethernet octets" },
++	{ ENETC_PM0_TOCT,   "MAC tx octets" },
++	{ ENETC_PM0_TCRSE,  "MAC tx carrier sense errors" },
++	{ ENETC_PM0_TXPF,   "MAC tx valid pause frames" },
++	{ ENETC_PM0_TFRM,   "MAC tx frames" },
++	{ ENETC_PM0_TFCS,   "MAC tx fcs errors" },
++	{ ENETC_PM0_TVLAN,  "MAC tx VLAN frames" },
++	{ ENETC_PM0_TERR,   "MAC tx frames" },
++	{ ENETC_PM0_TUCA,   "MAC tx unicast frames" },
++	{ ENETC_PM0_TMCA,   "MAC tx multicast frames" },
++	{ ENETC_PM0_TBCA,   "MAC tx broadcast frames" },
++	{ ENETC_PM0_TPKT,   "MAC tx packets" },
++	{ ENETC_PM0_TUND,   "MAC tx undersized packets" },
++	{ ENETC_PM0_T127,   "MAC tx 65-127 byte packets" },
++	{ ENETC_PM0_T1023,  "MAC tx 512-1023 byte packets" },
++	{ ENETC_PM0_T1518,  "MAC tx 1024-1518 byte packets" },
++	{ ENETC_PM0_TCNP,   "MAC tx control packets" },
++	{ ENETC_PM0_TDFR,   "MAC tx deferred packets" },
++	{ ENETC_PM0_TMCOL,  "MAC tx multiple collisions" },
++	{ ENETC_PM0_TSCOL,  "MAC tx single collisions" },
++	{ ENETC_PM0_TLCOL,  "MAC tx late collisions" },
++	{ ENETC_PM0_TECOL,  "MAC tx excessive collisions" },
++	{ ENETC_UFDMF,      "SI MAC nomatch u-cast discards" },
++	{ ENETC_MFDMF,      "SI MAC nomatch m-cast discards" },
++	{ ENETC_PBFDSIR,    "SI MAC nomatch b-cast discards" },
++	{ ENETC_PUFDVFR,    "SI VLAN nomatch u-cast discards" },
++	{ ENETC_PMFDVFR,    "SI VLAN nomatch m-cast discards" },
++	{ ENETC_PBFDVFR,    "SI VLAN nomatch b-cast discards" },
++	{ ENETC_PFDMSAPR,   "SI pruning discarded frames" },
++	{ ENETC_PICDR(0),   "ICM DR0 discarded frames" },
++	{ ENETC_PICDR(1),   "ICM DR1 discarded frames" },
++	{ ENETC_PICDR(2),   "ICM DR2 discarded frames" },
++	{ ENETC_PICDR(3),   "ICM DR3 discarded frames" },
++};
++
++static const char rx_ring_stats[][ETH_GSTRING_LEN] = {
++	"Rx ring %2d frames",
++	"Rx ring %2d alloc errors",
++};
++
++static const char tx_ring_stats[][ETH_GSTRING_LEN] = {
++	"Tx ring %2d frames",
++};
++
++static int enetc_get_sset_count(struct net_device *ndev, int sset)
++{
++	struct enetc_ndev_priv *priv = netdev_priv(ndev);
++
++	if (sset == ETH_SS_STATS)
++		return ARRAY_SIZE(enetc_si_counters) +
++			ARRAY_SIZE(tx_ring_stats) * priv->num_tx_rings +
++			ARRAY_SIZE(rx_ring_stats) * priv->num_rx_rings +
++			(enetc_si_is_pf(priv->si) ?
++			ARRAY_SIZE(enetc_port_counters) : 0);
++
++	return -EOPNOTSUPP;
++}
++
++static void enetc_get_strings(struct net_device *ndev, u32 stringset, u8 *data)
++{
++	struct enetc_ndev_priv *priv = netdev_priv(ndev);
++	u8 *p = data;
++	int i, j;
++
++	switch (stringset) {
++	case ETH_SS_STATS:
++		for (i = 0; i < ARRAY_SIZE(enetc_si_counters); i++) {
++			strlcpy(p, enetc_si_counters[i].name, ETH_GSTRING_LEN);
++			p += ETH_GSTRING_LEN;
++		}
++		for (i = 0; i < priv->num_tx_rings; i++) {
++			for (j = 0; j < ARRAY_SIZE(tx_ring_stats); j++) {
++				sprintf(p, tx_ring_stats[j], i);
++				p += ETH_GSTRING_LEN;
++			}
++		}
++		for (i = 0; i < priv->num_rx_rings; i++) {
++			for (j = 0; j < ARRAY_SIZE(rx_ring_stats); j++) {
++				sprintf(p, rx_ring_stats[j], i);
++				p += ETH_GSTRING_LEN;
++			}
++		}
++
++		if (!enetc_si_is_pf(priv->si))
++			break;
++
++		for (i = 0; i < ARRAY_SIZE(enetc_port_counters); i++) {
++			strlcpy(p, enetc_port_counters[i].name,
++				ETH_GSTRING_LEN);
++			p += ETH_GSTRING_LEN;
++		}
++		break;
++	}
++}
++
++static void enetc_get_ethtool_stats(struct net_device *ndev,
++				    struct ethtool_stats *stats, u64 *data)
++{
++	struct enetc_ndev_priv *priv = netdev_priv(ndev);
++	struct enetc_hw *hw = &priv->si->hw;
++	int i, o = 0;
++
++	for (i = 0; i < ARRAY_SIZE(enetc_si_counters); i++)
++		data[o++] = enetc_rd64(hw, enetc_si_counters[i].reg);
++
++	for (i = 0; i < priv->num_tx_rings; i++)
++		data[o++] = priv->tx_ring[i]->stats.packets;
++
++	for (i = 0; i < priv->num_rx_rings; i++) {
++		data[o++] = priv->rx_ring[i]->stats.packets;
++		data[o++] = priv->rx_ring[i]->stats.rx_alloc_errs;
++	}
++
++	if (!enetc_si_is_pf(priv->si))
++		return;
++
++	for (i = 0; i < ARRAY_SIZE(enetc_port_counters); i++)
++		data[o++] = enetc_port_rd(hw, enetc_port_counters[i].reg);
++}
++
+ static void enetc_get_ringparam(struct net_device *ndev,
+ 				struct ethtool_ringparam *ring)
+ {
+@@ -115,6 +294,9 @@ static void enetc_get_ringparam(struct net_device *ndev,
+ static const struct ethtool_ops enetc_pf_ethtool_ops = {
+ 	.get_regs_len = enetc_get_reglen,
+ 	.get_regs = enetc_get_regs,
++	.get_sset_count = enetc_get_sset_count,
++	.get_strings = enetc_get_strings,
++	.get_ethtool_stats = enetc_get_ethtool_stats,
+ 	.get_ringparam = enetc_get_ringparam,
+ 	.get_link_ksettings = phy_ethtool_get_link_ksettings,
+ 	.set_link_ksettings = phy_ethtool_set_link_ksettings,
+@@ -123,6 +305,9 @@ static const struct ethtool_ops enetc_pf_ethtool_ops = {
+ static const struct ethtool_ops enetc_vf_ethtool_ops = {
+ 	.get_regs_len = enetc_get_reglen,
+ 	.get_regs = enetc_get_regs,
++	.get_sset_count = enetc_get_sset_count,
++	.get_strings = enetc_get_strings,
++	.get_ethtool_stats = enetc_get_ethtool_stats,
+ 	.get_ringparam = enetc_get_ringparam,
+ };
+ 
+diff --git a/drivers/net/ethernet/freescale/enetc/enetc_hw.h b/drivers/net/ethernet/freescale/enetc/enetc_hw.h
+index 0a64b55..6aa06140 100644
+--- a/drivers/net/ethernet/freescale/enetc/enetc_hw.h
++++ b/drivers/net/ethernet/freescale/enetc/enetc_hw.h
+@@ -34,6 +34,17 @@
+ #define ENETC_SIPMAR0	0x80
+ #define ENETC_SIPMAR1	0x84
+ 
++/* SI statistics */
++#define ENETC_SIROCT	0x300
++#define ENETC_SIRFRM	0x308
++#define ENETC_SIRUCA	0x310
++#define ENETC_SIRMCA	0x318
++#define ENETC_SITOCT	0x320
++#define ENETC_SITFRM	0x328
++#define ENETC_SITUCA	0x330
++#define ENETC_SITMCA	0x338
++#define ENETC_RBDCR(n)	(0x8180 + (n) * 0x200)
++
+ /* Control BDR regs */
+ #define ENETC_SICBDRMR		0x800
+ #define ENETC_SICBDRSR		0x804	/* RO */
+@@ -168,6 +179,65 @@ enum enetc_bdr_type {TX, RX};
+ #define ENETC_PMO_IFM_RG	BIT(2)
+ #define ENETC_PM0_IFM_RLP	(BIT(5) | BIT(11))
+ 
++/* MAC counters */
++#define ENETC_PM0_REOCT		0x8100
++#define ENETC_PM0_RALN		0x8110
++#define ENETC_PM0_RXPF		0x8118
++#define ENETC_PM0_RFRM		0x8120
++#define ENETC_PM0_RFCS		0x8128
++#define ENETC_PM0_RVLAN		0x8130
++#define ENETC_PM0_RERR		0x8138
++#define ENETC_PM0_RUCA		0x8140
++#define ENETC_PM0_RMCA		0x8148
++#define ENETC_PM0_RBCA		0x8150
++#define ENETC_PM0_RDRP		0x8158
++#define ENETC_PM0_RPKT		0x8160
++#define ENETC_PM0_RUND		0x8168
++#define ENETC_PM0_R64		0x8170
++#define ENETC_PM0_R127		0x8178
++#define ENETC_PM0_R255		0x8180
++#define ENETC_PM0_R511		0x8188
++#define ENETC_PM0_R1023		0x8190
++#define ENETC_PM0_R1518		0x8198
++#define ENETC_PM0_R1519X	0x81A0
++#define ENETC_PM0_ROVR		0x81A8
++#define ENETC_PM0_RJBR		0x81B0
++#define ENETC_PM0_RFRG		0x81B8
++#define ENETC_PM0_RCNP		0x81C0
++#define ENETC_PM0_RDRNTP	0x81C8
++#define ENETC_PM0_TEOCT		0x8200
++#define ENETC_PM0_TOCT		0x8208
++#define ENETC_PM0_TCRSE		0x8210
++#define ENETC_PM0_TXPF		0x8218
++#define ENETC_PM0_TFRM		0x8220
++#define ENETC_PM0_TFCS		0x8228
++#define ENETC_PM0_TVLAN		0x8230
++#define ENETC_PM0_TERR		0x8238
++#define ENETC_PM0_TUCA		0x8240
++#define ENETC_PM0_TMCA		0x8248
++#define ENETC_PM0_TBCA		0x8250
++#define ENETC_PM0_TPKT		0x8260
++#define ENETC_PM0_TUND		0x8268
++#define ENETC_PM0_T127		0x8278
++#define ENETC_PM0_T1023		0x8290
++#define ENETC_PM0_T1518		0x8298
++#define ENETC_PM0_TCNP		0x82C0
++#define ENETC_PM0_TDFR		0x82D0
++#define ENETC_PM0_TMCOL		0x82D8
++#define ENETC_PM0_TSCOL		0x82E0
++#define ENETC_PM0_TLCOL		0x82E8
++#define ENETC_PM0_TECOL		0x82F0
++
++/* Port counters */
++#define ENETC_PICDR(n)		(0x0700 + (n) * 8) /* n = [0..3] */
++#define ENETC_PBFDSIR		0x0810
++#define ENETC_PFDMSAPR		0x0814
++#define ENETC_UFDMF		0x1680
++#define ENETC_MFDMF		0x1684
++#define ENETC_PUFDVFR		0x1780
++#define ENETC_PMFDVFR		0x1784
++#define ENETC_PBFDVFR		0x1788
++
+ /** Global regs, offset: 2_0000h */
+ #define ENETC_GLOBAL_BASE	0x20000
+ #define ENETC_G_EIPBRR0		0x0bf8
+@@ -186,9 +256,27 @@ struct enetc_hw {
+ /* general register accessors */
+ #define enetc_rd_reg(reg)	ioread32((reg))
+ #define enetc_wr_reg(reg, val)	iowrite32((val), (reg))
++#ifdef ioread64
++#define enetc_rd_reg64(reg)	ioread64((reg))
++#else
++/* using this to read out stats on 32b systems */
++static inline u64 enetc_rd_reg64(void __iomem *reg)
++{
++	u32 low, high, tmp;
++
++	do {
++		high = ioread32(reg + 4);
++		low = ioread32(reg);
++		tmp = ioread32(reg + 4);
++	} while (high != tmp);
++
++	return le64_to_cpu((u64)high << 32 | low);
++}
++#endif
+ 
+ #define enetc_rd(hw, off)		enetc_rd_reg((hw)->reg + (off))
+ #define enetc_wr(hw, off, val)		enetc_wr_reg((hw)->reg + (off), val)
++#define enetc_rd64(hw, off)		enetc_rd_reg64((hw)->reg + (off))
+ /* port register accessors - PF only */
+ #define enetc_port_rd(hw, off)		enetc_rd_reg((hw)->port + (off))
+ #define enetc_port_wr(hw, off, val)	enetc_wr_reg((hw)->port + (off), val)
+-- 
+2.7.4

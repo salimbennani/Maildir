@@ -1,0 +1,214 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (61.164.42.155:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 08 Nov 2018 11:14:30 -0000
+Received: from icoremail.net (unknown [209.85.215.172])
+	by mail-app2 (Coremail) with SMTP id by_KCgDXv97fEORb8E9fAQ--.28942S3;
+	Thu, 08 Nov 2018 18:33:04 +0800 (CST)
+Received: from mail-pg1-f172.google.com (unknown [209.85.215.172])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwAH6EPeEORb5UYcAA--.5723S3;
+	Thu, 08 Nov 2018 18:33:02 +0800 (CST)
+Received: by mail-pg1-f172.google.com with SMTP id 70so3112233pgh.8
+        for <xuliker@zju.edu.cn>; Thu, 08 Nov 2018 02:33:02 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :from:to:subject:date:message-id:in-reply-to:references:mime-version
+         :sender:precedence:list-id;
+        bh=+W8KZCABEScPZt7qL/6qGOicSs3dVFygt1gXRSPRKQs=;
+        b=PGLiIBwePx+lsHn7kbGwf9pADqT80GJmW52xHzcS5Na5jGP4vxopC5yZ6rvDg8NEJh
+         NYsZ4Qg00jGvrTs3hmkurRX7R897iz4VgpTjZHBn9Vy2E4cGupHSOVBkmjvelg+NZl6w
+         NE6Uo9uQfnZ9QMeraQnezxYXFDNJSndibAL5laSD9r8ZtK8TFZWpJSP55xGJP2s9MXAo
+         RtRkQ9OSF3IWfAdeo/nwIz0KZ63H6LPtSl9Ze86dNBvcOfBbbzdOI90H0ZWqCs0pXCYJ
+         mCbEOkmUinoALOGmx57waJwGDcG2r0SFdP1v0myrxfg+o+xN1r5wGPhGS2C4QiInijKp
+         4r+g==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org
+X-Gm-Message-State: AGRZ1gIxEVQIMb8SNBw02kyBjhJinK1OndBXpkQFujXl6GewIWP5OTeL
+	NSE3Dvy++N8/aDnfCWIMGziKdFt168HyVEhvhm9TUWKVhs/bixJ2eg==
+X-Received: by 2002:a63:4044:: with SMTP id n65mr3268539pga.90.1541673182052;
+        Thu, 08 Nov 2018 02:33:02 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp18808pjt;
+        Thu, 8 Nov 2018 02:33:01 -0800 (PST)
+X-Google-Smtp-Source: AJdET5cFq50HMmfP4w/Xr59PGO6uaSb4BggHjSug5S3RK39Cp3kWoooZdy1f0ImCUfRAtmRxAiqw
+X-Received: by 2002:a63:82c6:: with SMTP id w189mr3387062pgd.344.1541673181165;
+        Thu, 08 Nov 2018 02:33:01 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1541673181; cv=none;
+        d=google.com; s=arc-20160816;
+        b=i1y/1wmaoucogHdsINfDL8MXGVLEZTd3uvTctX7YlQRgX+LYCdLrCMTvVmbTddIzYV
+         fZ86PPY+1ubZK4s5S0/YyEs/szEaH4iUW8qjzZJC3/gKEljtah+xLzrCZYus7klFS9S4
+         eyQpHq+LmtHYtl43PbRKVQdDPKQxL10ehCoK2ztv0XYq2f3ceYHOtYUo9UYashfRvsn4
+         d4rmaD85IOB0TD+yWe7OxYMgkOcbHvUGdWEMFZaeu7v6Mgj+0w4tR/LFkUAjiZpVW/oP
+         c/Zf4Wo13ongoMu1Ko/mJPReBlyMo/IEJnTIFzvEKvODigfduMiu/v0WMD17p77V7RE1
+         9RCA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:mime-version:references:in-reply-to
+         :message-id:date:subject:to:from;
+        bh=+W8KZCABEScPZt7qL/6qGOicSs3dVFygt1gXRSPRKQs=;
+        b=bIvSDucCe1zP5FobWYU4h+6zFfmJRId3sClbc19vLQs9fHnxD7Az/dHvGq8J5PMNmx
+         fOqfXzV4MyK+AyhW2qQ8PhQpzqnIyyyAF7U72pOLXHsu3RQCvY5MeTa+ks6lsKvtfa6j
+         BrdLYEaEau3xx9Gaf04XRgjTE7/adK8qU5Uww04pWQh6vuGIz9cn1LcWjT5CeaLUtPoC
+         Xak2sE+Xv0XxHkdv/OT6bjLLWBhUvfMjRX+UJO3tnqWlHtgpQuLWDoKutn57EcpNy0rm
+         HOVpCtjPSwV0Fw5rMxbvlxnVj5lXVporcRo+CcRo+DCsvOKGD8NoH8FVZLZpvIxzFJi/
+         9pLA==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id w5-v6si3154019pgj.506.2018.11.08.02.32.44;
+        Thu, 08 Nov 2018 02:33:01 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1727003AbeKHUH1 (ORCPT <rfc822;fanshuming2011@gmail.com>
+        + 99 others); Thu, 8 Nov 2018 15:07:27 -0500
+Received: from szxga06-in.huawei.com ([45.249.212.32]:38270 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726252AbeKHUH1 (ORCPT <rfc822;kvm@vger.kernel.org>);
+        Thu, 8 Nov 2018 15:07:27 -0500
+Received: from DGGEMS403-HUB.china.huawei.com (unknown [172.30.72.60])
+        by Forcepoint Email with ESMTP id 22BA2913DE1EA;
+        Thu,  8 Nov 2018 18:32:36 +0800 (CST)
+Received: from ros.huawei.com (10.143.28.118) by
+ DGGEMS403-HUB.china.huawei.com (10.3.19.203) with Microsoft SMTP Server id
+ 14.3.408.0; Thu, 8 Nov 2018 18:32:28 +0800
+From: Dongjiu Geng <gengdongjiu@huawei.com>
+To: <imammedo@redhat.com>, <mst@redhat.com>,
+        <peter.maydell@linaro.org>, <lersek@redhat.com>,
+        <marc.zyngier@arm.com>, <james.morse@arm.com>,
+        <pbonzini@redhat.com>, <mtosatti@redhat.com>, <rth@twiddle.net>,
+        <zhengxiang9@huawei.com>, <ehabkost@redhat.com>,
+        <kvm@vger.kernel.org>, <shannon.zhaosl@gmail.com>,
+        <qemu-devel@nongnu.org>, <qemu-arm@nongnu.org>,
+        <gengdongjiu@huawei.com>
+Subject: [PATCH RESEND v15 01/10] ACPI: add some GHES structures and macros definition
+Date: Thu, 8 Nov 2018 02:29:40 -0800
+Message-ID: <1541672989-15967-2-git-send-email-gengdongjiu@huawei.com>
+X-Mailer: git-send-email 2.7.4
+In-Reply-To: <1541672989-15967-1-git-send-email-gengdongjiu@huawei.com>
+References: <1541672989-15967-1-git-send-email-gengdongjiu@huawei.com>
+MIME-Version: 1.0
+Content-Type: text/plain
+X-Originating-IP: [10.143.28.118]
+X-CFilter-Loop: Reflected
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwAH6EPeEORb5UYcAA--.5723S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoWxCw48Gw4xWrW7Gr1DtFW8Zwb_yoW5Zr1UpF
+	yjv3ZxCrs8WF17JFyS9r4xZryft3y0kF48Jr4xZ34Yva10qa47ZF1qqw4qgFy5J3sa9anI
+	9F4Utr1UK3ykZwUanT9S1TB71UUUUUDqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUPIb7Iv0xC_Cr1lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2
+	z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s0DM2AIxVAIcxkEcV
+	Aq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r10
+	6r15McIj6I8E87Iv67AKxVW8JVWxJwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IYc2Ij64
+	vIr41l7I0Y6sxI4wCY1x0264kExVAvwVAq07x20xylc7Ca8VAvwVCFzxkY4VCF77xAMxkI
+	ecxEwVCI4VW8twCY0x0Ix7I2Y4AK64vIr41lcIIF0xvE2Ix0cI8IcVAFwI0_Xr0_Ar1lcI
+	IF0xvE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwCYIxAIcVC2z280aVAFwI0_Cr1j6rxdMxvI
+	42IY6I8E87Iv6xkF7I0E14v26F4UJVW0owCF04k20xvY0x0EwIxGrwCF04k20xvEw4C26c
+	xK6c8Ij28IcwCF72vE77IF4wCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v2
+	6r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_GFv_WrylIxkGc2
+	Ij64vIr41lIxAIcVCF04k26cxKx2IYs7xG6r4j6FyUYxBIdaVFxhVjvjDU0xZFpf9x07b1
+	5l8UUUUU=
+
+Add Generic Error Status Block structures and some macros
+definitions, which is referred to the ACPI 4.0 or ACPI 6.2. The
+HEST table generation and CPER record will use them.
+
+Signed-off-by: Dongjiu Geng <gengdongjiu@huawei.com>
+---
+Change since v14:
+Thanks Igor's review and comments
+1. Update spec comment for AcpiHestNotifyType
+2. drop () for the macro definition
+
+Change since v13:
+1. Clean the new added structures and macros definition
+
+Change since v12:
+1. Address Igor's comments to to get rid of most structures and use
+build_append_int_noprefix() API to compose whole error status block
+and APEI table in [1]
+
+[1]: https://lkml.org/lkml/2017/8/29/187
+---
+ include/hw/acpi/acpi-defs.h | 52 +++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 52 insertions(+)
+
+diff --git a/include/hw/acpi/acpi-defs.h b/include/hw/acpi/acpi-defs.h
+index af8e023..f85cf98 100644
+--- a/include/hw/acpi/acpi-defs.h
++++ b/include/hw/acpi/acpi-defs.h
+@@ -226,6 +226,25 @@ typedef struct AcpiMultipleApicTable AcpiMultipleApicTable;
+ #define ACPI_APIC_RESERVED              16   /* 16 and greater are reserved */
+ 
+ /*
++ * Values for Hardware Error Notification Type field
++ */
++enum AcpiHestNotifyType {
++    ACPI_HEST_NOTIFY_POLLED = 0,
++    ACPI_HEST_NOTIFY_EXTERNAL = 1,
++    ACPI_HEST_NOTIFY_LOCAL = 2,
++    ACPI_HEST_NOTIFY_SCI = 3,
++    ACPI_HEST_NOTIFY_NMI = 4,
++    ACPI_HEST_NOTIFY_CMCI = 5,  /* ACPI 5.0: 18.3.2.7, Table 18-290 */
++    ACPI_HEST_NOTIFY_MCE = 6,   /* ACPI 5.0: 18.3.2.7, Table 18-290 */
++    ACPI_HEST_NOTIFY_GPIO = 7,  /* ACPI 6.0: 18.3.2.7, Table 18-332 */
++    ACPI_HEST_NOTIFY_SEA = 8,   /* ACPI 6.1: 18.3.2.9, Table 18-345 */
++    ACPI_HEST_NOTIFY_SEI = 9,   /* ACPI 6.1: 18.3.2.9, Table 18-345 */
++    ACPI_HEST_NOTIFY_GSIV = 10, /* ACPI 6.1: 18.3.2.9, Table 18-345 */
++    ACPI_HEST_NOTIFY_SDEI = 11, /* ACPI 6.2: 18.3.2.9, Table 18-383 */
++    ACPI_HEST_NOTIFY_RESERVED = 12 /* 12 and greater are reserved */
++};
++
++/*
+  * MADT sub-structures (Follow MULTIPLE_APIC_DESCRIPTION_TABLE)
+  */
+ #define ACPI_SUB_HEADER_DEF   /* Common ACPI sub-structure header */\
+@@ -402,6 +421,39 @@ struct AcpiSystemResourceAffinityTable {
+ } QEMU_PACKED;
+ typedef struct AcpiSystemResourceAffinityTable AcpiSystemResourceAffinityTable;
+ 
++/*
++ * Generic Error Status Block
++ */
++struct AcpiGenericErrorStatus {
++    /* It is a bitmask composed of ACPI_GEBS_xxx macros */
++    uint32_t block_status;
++    uint32_t raw_data_offset;
++    uint32_t raw_data_length;
++    uint32_t data_length;
++    uint32_t error_severity;
++} QEMU_PACKED;
++typedef struct AcpiGenericErrorStatus AcpiGenericErrorStatus;
++
++/*
++ * Masks for block_status flags above
++ */
++#define ACPI_GEBS_UNCORRECTABLE         1
++
++/*
++ * Values for error_severity field above
++ */
++enum AcpiGenericErrorSeverity {
++    ACPI_CPER_SEV_RECOVERABLE,
++    ACPI_CPER_SEV_FATAL,
++    ACPI_CPER_SEV_CORRECTED,
++    ACPI_CPER_SEV_NONE,
++};
++
++/*
++ * Generic Hardware Error Source version 2
++ */
++#define ACPI_HEST_SOURCE_GENERIC_ERROR_V2    10
++
+ #define ACPI_SRAT_PROCESSOR_APIC     0
+ #define ACPI_SRAT_MEMORY             1
+ #define ACPI_SRAT_PROCESSOR_x2APIC   2
+-- 
+1.8.3.1

@@ -1,0 +1,145 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (61.164.42.155:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 17 Nov 2018 03:12:13 -0000
+Received: from icoremail.net (unknown [209.85.210.177])
+	by mail-app2 (Coremail) with SMTP id by_KCgCn33xp1e5bVl+jAQ--.49200S3;
+	Fri, 16 Nov 2018 22:34:18 +0800 (CST)
+Received: from mail-pf1-f177.google.com (unknown [209.85.210.177])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwCHbkpn1e5b5NpJAA--.58S3;
+	Fri, 16 Nov 2018 22:34:15 +0800 (CST)
+Received: by mail-pf1-f177.google.com with SMTP id 64so7028299pfr.9
+        for <xuliker@zju.edu.cn>; Fri, 16 Nov 2018 06:34:15 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :mime-version:content-transfer-encoding:to:from:organization
+         :in-reply-to:cc:references:message-id:user-agent:subject:date:sender
+         :precedence:list-id;
+        bh=i5tW2uMGDsh+4lcs9xfZkyXJrcw4mkvZGQnrF3mYV70=;
+        b=GfuwR+8yIaq6EdO709KuRrvHOYqCW12s1fx3xB2IRxfv+DtH4hDM1Znu+LfKD/4pKI
+         /ypnaNNOIbN5gfrQpLNoiBIX7QCw+xC2kqEKq17JCLK0TM0pxKaF9Vo5UUSvwkn9FcQw
+         Ux7g4rwNPEFWW0FvpvQlSo1Cf20lFcDV8kE7ALyxcvEeSgmDcz+xXAzhqTa+5Vo6sx3U
+         4NQel9wt/0G6dZm8WaGQN7fH2wZHrEophPZnOWTkux5kxeobm+zu1SNsJMDijb3G2jJ/
+         dEu7r3r1CdNM/kbSRvk/aOxFZ64bCnp/GFlw1D0MJt0CbiuytlYLWUUwYUJ8Zb14sfXl
+         UosQ==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=intel.com
+X-Gm-Message-State: AGRZ1gJSViNSGYkS9UgFrG6iEBRSK6Tr8E8snL3ZkCYxn7xwFWdGFJsV
+	yoek7X1nmir9riJpXlibLynkP7n8JlQijHBsr4BUb2nGJq1vL0s=
+X-Received: by 2002:a63:bc02:: with SMTP id q2mr10311605pge.116.1542378854968;
+        Fri, 16 Nov 2018 06:34:14 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:d106:0:0:0:0 with SMTP id l6-v6csp493806pju;
+        Fri, 16 Nov 2018 06:34:14 -0800 (PST)
+X-Google-Smtp-Source: AJdET5dI4+rGAdc0TMOlD32BvAvHc42S54SGGGMTD4kmxZVHiUnJoc4qrEdSor2dQojVmDn7aW66
+X-Received: by 2002:a17:902:7d98:: with SMTP id a24-v6mr11106225plm.271.1542378854267;
+        Fri, 16 Nov 2018 06:34:14 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542378854; cv=none;
+        d=google.com; s=arc-20160816;
+        b=TcohiekMrKtzhN7S9tmRaUu81tuDMKELMlRERjj/YQRJjImiEWiSfzGz18T9ocYbHM
+         s49WQ+YUTib0+2ofnRkT3crT21sSXmQTEtg13hGC8LtQRIfUePVFXzPekdFQrzet+82R
+         ANmZBX9wlKbQ6g4EC3hkrpU4gZJxs2XzcmKi9q1FqVF0QNTC6LCnJP3U1f6Hz+zP9eqz
+         yM+Mj9ADC7FYOImpKk4c35CcJo+1cuWokUCw1igCbGTv4dohRW7FFvostazrkjGv3wSw
+         Zd6x0a43vgEgaJvdmQ2SakkcC3pdV0a1zPPwFO2bckV+NKGviEbHXQzcGhR4+9FM0KkH
+         CsxQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:date:subject:user-agent:message-id
+         :references:cc:in-reply-to:organization:from:to
+         :content-transfer-encoding:mime-version;
+        bh=i5tW2uMGDsh+4lcs9xfZkyXJrcw4mkvZGQnrF3mYV70=;
+        b=cem0LTt8V6K3KJCO2Qxlb98v4MEr5Uwlfnnw4hy+zWgbgFkTmelpTDqeyDcSZ7dG5k
+         fgvqtZbFgU9NDnHdpJRER3LgG07dqrRqiHUxIWgoJPmWqJ3AFgBO4lRgsqo1UncJNQaL
+         E72nlE3RO+1SoKlur3j67s1N8WvEFd32uHSGxFqzAgCLPTxaG16VTP4piI8hRfeRHdjZ
+         9E/WCLupI1cnWrdmbrEkmJg+JQyUMBy3fh3FbIBx+V5yupN/YYZLK8aQlaDfdC7XxJcO
+         MAAxd4HzcMrcAgCiDWP5xvnSBzbJ91RqCqpGF9XRyCFyTIrHAvXaifEQDx6svLj/aoPv
+         1bLw==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=intel.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id w75si2947866pfd.55.2018.11.16.06.33.52;
+        Fri, 16 Nov 2018 06:34:14 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1728360AbeKQAqY convert rfc822-to-8bit (ORCPT
+        <rfc822;nodee764@gmail.com> + 99 others);
+        Fri, 16 Nov 2018 19:46:24 -0500
+Received: from mga18.intel.com ([134.134.136.126]:50190 "EHLO mga18.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728079AbeKQAqY (ORCPT <rfc822;kvm@vger.kernel.org>);
+        Fri, 16 Nov 2018 19:46:24 -0500
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga005.jf.intel.com ([10.7.209.41])
+  by orsmga106.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 16 Nov 2018 06:33:46 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.56,240,1539673200"; 
+   d="scan'208";a="274550652"
+Received: from jlahtine-desk.ger.corp.intel.com (HELO localhost) ([10.252.4.118])
+  by orsmga005.jf.intel.com with ESMTP; 16 Nov 2018 06:33:41 -0800
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8BIT
+To: "'igvt-g@lists.01.org'" <igvt-g@lists.01.org>,
+        "'intel-gfx@lists.freedesktop.org'" <intel-gfx@lists.freedesktop.org>,
+        "'kvm@vger.kernel.org'" <kvm@vger.kernel.org>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+        "Xu, Terrence" <terrence.xu@intel.com>
+From: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+In-Reply-To: <EE92950F97EE42469CA4F508D4691F5E3CD21CFA@SHSMSX104.ccr.corp.intel.com>
+Cc: "Li, Susie" <susie.li@intel.com>,
+        "Wang, Zhenyu Z" <zhenyu.z.wang@intel.com>,
+        "Cowperthwaite, David J" <david.j.cowperthwaite@intel.com>,
+        "Reddy, Raghuveer" <raghuveer.reddy@intel.com>,
+        "Dong, Eddie" <eddie.dong@intel.com>,
+        "Yuan, Hang" <hang.yuan@intel.com>,
+        "Lv, Zhiyuan" <zhiyuan.lv@intel.com>,
+        "Jin, Gordon" <gordon.jin@intel.com>,
+        "Downs, Mike" <mike.downs@intel.com>,
+        "Wang, Hongbo" <hongbo.wang@intel.com>
+References: <EE92950F97EE42469CA4F508D4691F5E3CD21CFA@SHSMSX104.ccr.corp.intel.com>
+Message-ID: <154237881992.14497.12677363726001385709@jlahtine-desk.ger.corp.intel.com>
+User-Agent: alot/0.6
+Subject: Re: [Intel-gfx] [GVT-g] [ANNOUNCE] 2018-Q3 release of KVMGT (Intel GVT-g for
+ KVM)
+Date: Fri, 16 Nov 2018 16:33:40 +0200
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwCHbkpn1e5b5NpJAA--.58S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjDUn29KB7ZKAUJUUUUU529EdanIXcx71UUUUU7v73
+	VFW2AGmfu7jjvjm3AaLaJ3UjIYCTnIWjp_UUUOj7k0a2IF6F4UM7kC6x804xWl14x267AK
+	xVWUJVW8JwAFIxvE14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK02
+	1l84ACjcxK6xIIjxv20xvE14v26F1j6w1UM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26r4j
+	6F4UM28EF7xvwVC2z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s
+	0DM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xII
+	jxv20xvE14v26r1j6r18McIj6I8E87Iv67AKxVW8JVWxJwAm72CE4IkC6x0Yz7v_Jr0_Gr
+	1lF7xvr2IY64vIr41l7I0Y6sxI4wCY1x0264kExVAvwVAq07x20xylc7Ca8VAvwVCFzxkY
+	4VCF77xAMxkIecxEwVCI4VW5XwCY0x0Ix7I2Y4AK64vIr41lcIIF0xvE2Ix0cI8IcVAFwI
+	0_JFI_Gr1lcIIF0xvE2Ix0cI8IcVCY1x0267AKxVWUJVW8JwCYIxAIcVC2z280aVAFwI0_
+	Cr1j6rxdMxvI42IY6I8E87Iv6xkF7I0E14v26F4UJVW0owCF04k20xvY0x0EwIxGrwCF04
+	k20xvEw4C26cxK6c8Ij28IcwCF72vE77IF4wCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s02
+	6c02F40E14v26r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_GF
+	v_WrylIxkGc2Ij64vIr41lIxAIcVCF04k26cxKx2IYs7xG6r4j6FyUYxBIdaVFxhVjvjDU
+	0xZFpf9x07b8MKZUUUUU=
+
+Quoting Xu, Terrence (2018-10-19 10:04:47)
+> Platform Support:
+> 
+> -    Server platforms: Intel(r) Xeon(r) E3_v4, E3_v5 and E3_v6 with Intel
+> Graphics processor
+> 
+> -    Client platforms: Intel(r) Core(tm) 5th generation (code name: Broadwell),
+> 6th generation (code name: Skylake), 7th generation (code name: Kabylake) and
+> 7th SoC generation (code name: Broxton), the Broxton is new supported platform
+
+Does this mean that all SKUs from those platforms are supported so that when
+users report bugs, they will be worked on?
+
+Regards, Joonas

@@ -1,0 +1,550 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (61.164.42.155:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 12 Nov 2018 15:14:40 -0000
+Received: from icoremail.net (unknown [209.85.215.171])
+	by mail-app2 (Coremail) with SMTP id by_KCgDXv35bVulbmb58AQ--.38458S3;
+	Mon, 12 Nov 2018 18:30:52 +0800 (CST)
+Received: from mail-pg1-f171.google.com (unknown [209.85.215.171])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwAnBEBUVulbWz8xAA--.827S3;
+	Mon, 12 Nov 2018 18:30:45 +0800 (CST)
+Received: by mail-pg1-f171.google.com with SMTP id w7so3872860pgp.13
+        for <xuliker@zju.edu.cn>; Mon, 12 Nov 2018 02:30:45 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:sender:precedence:list-id;
+        bh=hDdN8GjiWAkrhCfge8fkUvs0az1n80YRP2VpGRoNAMY=;
+        b=PTkRXvTEF7qs8cDJ4/fN+ESF4whrT7de1SzfkowJK9gu+NoMNektQjRkFuDXanVoKQ
+         bVuTyJlj0ZdscSQ5usrk8SIcrSyNL+OsBV3oGEFnII6ue5nM3tw1TEXxxcy27y0bT6SL
+         +vMWIMmTv3sQ5b/82P0SBNpDq0PuNE7RhdJ8+KnbjbH3tDPfU3aKws6R3LFROyiT6bqU
+         F89HrrRQ8BfLWWmLDwAX4Pbsmm+nyR85ABaRUxKqwuTNVjqPOyQcOvunhSdcqlcmw0mz
+         lgUZrDb4XUGqRX2yD02AKV49ORhXCMmlUeU49EuHUgBX5wNEHHy3n63978hCUgRdHMXa
+         bukA==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org
+X-Gm-Message-State: AGRZ1gKrFMfxZDwbnszb6GhEL4kJSmtSHwvP+7MfMxD0Rp741q7E54k7
+	6o10JmXuppspCtmjPJwryvWzUYYgw03CLDO21lMX8Gf8k0HfLSyCKg==
+X-Received: by 2002:a63:9402:: with SMTP id m2mr319894pge.93.1542018644607;
+        Mon, 12 Nov 2018 02:30:44 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp3019183pjt;
+        Mon, 12 Nov 2018 02:30:43 -0800 (PST)
+X-Google-Smtp-Source: AJdET5fdgHa743gjGZxbAZeE3tcfjKwnW9E9Mo9+TZKcmIx/81SWTa3T4o4hYVvTyDzn7VZzlO0A
+X-Received: by 2002:a62:5615:: with SMTP id k21-v6mr364453pfb.190.1542018643481;
+        Mon, 12 Nov 2018 02:30:43 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542018643; cv=none;
+        d=google.com; s=arc-20160816;
+        b=OFYZIHDNVLAHz5+W1JsZ04Pv2rLUIc2XIy3bcFHiBBuFE7gwT1Ti0lXY5up8qFguVe
+         8MXktTsKDRNOIUsG8fP9WP5KzgqFhbc4YM7lS8y14+XMVqe9pfigv5vyIZMIqWcCn+0A
+         /QWVYBUG8/9d5m4VjYnROul/PDS3OX1hLzbpGVOcMD4nC5yJBmaiNHSYDfR3mlIriMve
+         De/5T6VRWHveh/3P4UIORSZVnJm40ApwIiAnFN4C1/RZaEtO5CVTv7NJnOghl33MJr0F
+         /ZZqmaNNWQrqyITLibhQxxS/5qHJq6E1HG2fYkgFHBIgujW04oMAqzrlfOUX8G76rxqt
+         2AUA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from;
+        bh=hDdN8GjiWAkrhCfge8fkUvs0az1n80YRP2VpGRoNAMY=;
+        b=ePFHVuwPv7zW4aUUi7PKtNFjd4F3WHnEG3hqfiKjp5ENGmGZz5Kkb4mvJLXeyh2M8R
+         3BUrTccxoJM9Uu7vOlXS/EeJp/L1KlheUzyr/fNb55zOLgi3sWxQZDpewiiYRunJ16PP
+         G7RMnGdkdh3pLEDGrg7qpn8nUdBe3oiubhU8Q5/CUXnWTAvrWH3ieIHn+9HeyfSzCBJA
+         aQCf6HzFrjIfFkGC4c7YkLRhGjrWySQQeuemJKzsALhyUs3bIpkXIDF2M6ZADv8tO8+U
+         avXJv73LL0PlK85yPJxdxhRdoKsPC4oycMzpdGezU0buWWC4zSkQ8uNCk5RTFlnkG62G
+         3A6g==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id f126-v6si14250517pfa.1.2018.11.12.02.30.29;
+        Mon, 12 Nov 2018 02:30:43 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1729244AbeKLUWc (ORCPT <rfc822;tomnomnom1@gmail.com>
+        + 99 others); Mon, 12 Nov 2018 15:22:32 -0500
+Received: from lhrrgout.huawei.com ([185.176.76.210]:32738 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1725873AbeKLUWb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+        Mon, 12 Nov 2018 15:22:31 -0500
+Received: from lhreml701-cah.china.huawei.com (unknown [172.18.7.108])
+        by Forcepoint Email with ESMTP id 5D9FF58E0ACE7;
+        Mon, 12 Nov 2018 10:29:52 +0000 (GMT)
+Received: from roberto-HP-EliteDesk-800-G2-DM-65W.huawei.com (10.204.65.153)
+ by smtpsuk.huawei.com (10.201.108.42) with Microsoft SMTP Server (TLS) id
+ 14.3.408.0; Mon, 12 Nov 2018 10:29:44 +0000
+From: Roberto Sassu <roberto.sassu@huawei.com>
+To: <dhowells@redhat.com>, <dwmw2@infradead.org>,
+        <herbert@gondor.apana.org.au>, <davem@davemloft.net>
+CC: <keyrings@vger.kernel.org>, <linux-crypto@vger.kernel.org>,
+        <linux-integrity@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <silviu.vlasceanu@huawei.com>
+Subject: [RFC][PATCH 04/12] PGPLIB: Basic packet parser
+Date: Mon, 12 Nov 2018 11:24:15 +0100
+Message-ID: <20181112102423.30415-5-roberto.sassu@huawei.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20181112102423.30415-1-roberto.sassu@huawei.com>
+References: <20181112102423.30415-1-roberto.sassu@huawei.com>
+MIME-Version: 1.0
+Content-Type: text/plain
+X-Originating-IP: [10.204.65.153]
+X-CFilter-Loop: Reflected
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwAnBEBUVulbWz8xAA--.827S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW3tw1UGFW8Aw1DKFWUZr1DZFb_yoWkAF4Dpa
+	y8Cry8Ka1UGwnFkrW8Ar17Xw47Ar48AFy3Wa4Fvw1jk39FqwnYg39FkFyfKas3Ka1kJ3ya
+	9rs0gFyY93WkX3DanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUPFb7Iv0xC_KF4lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2
+	z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s0DM2AIxVAIcxkEcV
+	Aq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1j
+	6r18McIj6I8E87Iv67AKxVW8JVWxJwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IYc2Ij64
+	vIr41l7I0Y6sxI4wCY1x0264kExVAvwVAq07x20xylc7Ca8VAvwVCFzxkY4VCF77xAMxkI
+	ecxEwVCI4VW8twCY0x0Ix7I2Y4AK64vIr41lcIIF0xvE2Ix0cI8IcVAFwI0_Gr0_Xr1lcI
+	IF0xvE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwCYIxAIcVC2z280aVAFwI0_GcCE3s1lcIIF
+	0xvEx4A2jsIEc7CjxVAFwI0_GcCE3s1l42xK82IYc2Ij64vIr41l42xK82IY64kExVAvwV
+	Aq07x20xyl4x8a6x804xWl4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWU
+	JVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r1q6r43MIIYrxkI7V
+	AKI48JMIIF0xvE42xK8VAvwI8IcIk0rVW8JVW3JbIYCTnIWIevJa73UjIFyTuYvjxUqHUD
+	DUUUU
+
+From: David Howells <dhowells@redhat.com>
+
+Provide a simple parser that extracts the packets from a PGP packet blob
+and passes the desirous ones to the given processor function:
+
+	struct pgp_parse_context {
+		u64 types_of_interest;
+		int (*process_packet)(struct pgp_parse_context *context,
+				      enum pgp_packet_tag type,
+				      u8 headerlen,
+				      const u8 *data,
+				      size_t datalen);
+	};
+
+	int pgp_parse_packets(const u8 *data, size_t datalen,
+			      struct pgp_parse_context *ctx);
+
+This is configured on with CONFIG_PGP_LIBRARY.
+
+Changelog
+
+v0:
+- fix style issues (Roberto Sassu)
+- declare pgp_to_public_key_algo (Roberto Sassu)
+
+Signed-off-by: David Howells <dhowells@redhat.com>
+Co-developed-by: Roberto Sassu <roberto.sassu@huawei.com>
+---
+ crypto/asymmetric_keys/Kconfig       |   6 +
+ crypto/asymmetric_keys/Makefile      |   5 +
+ crypto/asymmetric_keys/pgp_library.c | 280 +++++++++++++++++++++++++++
+ crypto/asymmetric_keys/pgp_parser.h  |  22 +++
+ include/linux/pgplib.h               |  47 +++++
+ 5 files changed, 360 insertions(+)
+ create mode 100644 crypto/asymmetric_keys/pgp_library.c
+ create mode 100644 crypto/asymmetric_keys/pgp_parser.h
+ create mode 100644 include/linux/pgplib.h
+
+diff --git a/crypto/asymmetric_keys/Kconfig b/crypto/asymmetric_keys/Kconfig
+index be70ca6c85d3..38c36c14d712 100644
+--- a/crypto/asymmetric_keys/Kconfig
++++ b/crypto/asymmetric_keys/Kconfig
+@@ -93,4 +93,10 @@ config SIGNED_PE_FILE_VERIFICATION
+ 	  This option provides support for verifying the signature(s) on a
+ 	  signed PE binary.
+ 
++config PGP_LIBRARY
++	tristate "PGP parsing library"
++	help
++	  This option enables a library that provides a number of simple
++	  utility functions for parsing PGP (RFC 4880) packet-based messages.
++
+ endif # ASYMMETRIC_KEY_TYPE
+diff --git a/crypto/asymmetric_keys/Makefile b/crypto/asymmetric_keys/Makefile
+index 28b91adba2ae..55a67ebfe8e1 100644
+--- a/crypto/asymmetric_keys/Makefile
++++ b/crypto/asymmetric_keys/Makefile
+@@ -86,3 +86,8 @@ tpm_key_parser-y := \
+ 
+ $(obj)/tpm_parser.o: $(obj)/tpm.asn1.h
+ $(obj)/tpm.asn1.o: $(obj)/tpm.asn1.c $(obj)/tpm.asn1.h
++
++#
++# PGP handling
++#
++obj-$(CONFIG_PGP_LIBRARY) += pgp_library.o
+diff --git a/crypto/asymmetric_keys/pgp_library.c b/crypto/asymmetric_keys/pgp_library.c
+new file mode 100644
+index 000000000000..0ab702ffe173
+--- /dev/null
++++ b/crypto/asymmetric_keys/pgp_library.c
+@@ -0,0 +1,280 @@
++/* PGP packet parser (RFC 4880)
++ *
++ * Copyright (C) 2011 Red Hat, Inc. All Rights Reserved.
++ * Written by David Howells (dhowells@redhat.com)
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public Licence
++ * as published by the Free Software Foundation; either version
++ * 2 of the Licence, or (at your option) any later version.
++ */
++
++#define pr_fmt(fmt) "PGPL: "fmt
++#include <linux/pgplib.h>
++#include <linux/errno.h>
++#include <linux/kernel.h>
++#include <linux/module.h>
++
++MODULE_LICENSE("GPL");
++
++const char *const pgp_hash_algorithms[PGP_HASH__LAST] = {
++	[PGP_HASH_MD5]			= "md5",
++	[PGP_HASH_SHA1]			= "sha1",
++	[PGP_HASH_RIPE_MD_160]		= "rmd160",
++	[PGP_HASH_SHA256]		= "sha256",
++	[PGP_HASH_SHA384]		= "sha384",
++	[PGP_HASH_SHA512]		= "sha512",
++	[PGP_HASH_SHA224]		= "sha224",
++};
++EXPORT_SYMBOL_GPL(pgp_hash_algorithms);
++
++const char *pgp_to_public_key_algo[PGP_PUBKEY__LAST] = {
++	[PGP_PUBKEY_RSA_ENC_OR_SIG]	= "rsa",
++	[PGP_PUBKEY_RSA_ENC_ONLY]	= "rsa",
++	[PGP_PUBKEY_RSA_SIG_ONLY]	= "rsa",
++	[PGP_PUBKEY_ELGAMAL]		= NULL,
++	[PGP_PUBKEY_DSA]		= NULL,
++};
++EXPORT_SYMBOL_GPL(pgp_to_public_key_algo);
++
++/**
++ * pgp_parse_packet_header - Parse a PGP packet header
++ * @_data: Start of the PGP packet (updated to PGP packet data)
++ * @_datalen: Amount of data remaining in buffer (decreased)
++ * @_type: Where the packet type will be returned
++ * @_headerlen: Where the header length will be returned
++ *
++ * Parse a set of PGP packet header [RFC 4880: 4.2].
++ *
++ * Returns packet data size on success; non-zero on error.  If successful,
++ * *_data and *_datalen will have been updated and *_headerlen will be set to
++ * hold the length of the packet header.
++ */
++static ssize_t pgp_parse_packet_header(const u8 **_data, size_t *_datalen,
++				       enum pgp_packet_tag *_type,
++				       u8 *_headerlen)
++{
++	enum pgp_packet_tag type;
++	const u8 *data = *_data;
++	size_t size, datalen = *_datalen;
++
++	pr_devel("-->%s(,%zu,,)\n", __func__, datalen);
++
++	if (datalen < 2)
++		goto short_packet;
++
++	pr_devel("pkthdr %02x, %02x\n", data[0], data[1]);
++
++	type = *data++;
++	datalen--;
++	if (!(type & 0x80)) {
++		pr_debug("Packet type does not have MSB set\n");
++		return -EBADMSG;
++	}
++	type &= ~0x80;
++
++	if (type & 0x40) {
++		/* New packet length format */
++		type &= ~0x40;
++		pr_devel("new format: t=%u\n", type);
++		switch (data[0]) {
++		case 0x00 ... 0xbf:
++			/* One-byte length */
++			size = data[0];
++			data++;
++			datalen--;
++			*_headerlen = 2;
++			break;
++		case 0xc0 ... 0xdf:
++			/* Two-byte length */
++			if (datalen < 2)
++				goto short_packet;
++			size = (data[0] - 192) * 256;
++			size += data[1] + 192;
++			data += 2;
++			datalen -= 2;
++			*_headerlen = 3;
++			break;
++		case 0xff:
++			/* Five-byte length */
++			if (datalen < 5)
++				goto short_packet;
++			size =  data[1] << 24;
++			size |= data[2] << 16;
++			size |= data[3] << 8;
++			size |= data[4];
++			data += 5;
++			datalen -= 5;
++			*_headerlen = 6;
++			break;
++		default:
++			pr_debug("Partial body length packet not supported\n");
++			return -EBADMSG;
++		}
++	} else {
++		/* Old packet length format */
++		u8 length_type = type & 0x03;
++
++		type >>= 2;
++		pr_devel("old format: t=%u lt=%u\n", type, length_type);
++
++		switch (length_type) {
++		case 0:
++			/* One-byte length */
++			size = data[0];
++			data++;
++			datalen--;
++			*_headerlen = 2;
++			break;
++		case 1:
++			/* Two-byte length */
++			if (datalen < 2)
++				goto short_packet;
++			size  = data[0] << 8;
++			size |= data[1];
++			data += 2;
++			datalen -= 2;
++			*_headerlen = 3;
++			break;
++		case 2:
++			/* Four-byte length */
++			if (datalen < 4)
++				goto short_packet;
++			size  = data[0] << 24;
++			size |= data[1] << 16;
++			size |= data[2] << 8;
++			size |= data[3];
++			data += 4;
++			datalen -= 4;
++			*_headerlen = 5;
++			break;
++		default:
++			pr_debug("Indefinite length packet not supported\n");
++			return -EBADMSG;
++		}
++	}
++
++	pr_devel("datalen=%zu size=%zu", datalen, size);
++	if (datalen < size)
++		goto short_packet;
++	if ((int)size < 0)
++		goto too_big;
++
++	*_data = data;
++	*_datalen = datalen;
++	*_type = type;
++	pr_devel("Found packet type=%u size=%zd\n", type, size);
++	return size;
++
++short_packet:
++	pr_debug("Attempt to parse short packet\n");
++	return -EBADMSG;
++too_big:
++	pr_debug("Signature subpacket size >2G\n");
++	return -EMSGSIZE;
++}
++
++/**
++ * pgp_parse_packets - Parse a set of PGP packets
++ * @_data: Data to be parsed (updated)
++ * @_datalen: Amount of data (updated)
++ * @ctx: Parsing context
++ *
++ * Parse a set of PGP packets [RFC 4880: 4].
++ */
++int pgp_parse_packets(const u8 *data, size_t datalen,
++		      struct pgp_parse_context *ctx)
++{
++	enum pgp_packet_tag type;
++	ssize_t pktlen;
++	u8 headerlen;
++	int ret;
++
++	while (datalen > 2) {
++		pktlen = pgp_parse_packet_header(&data, &datalen, &type,
++						 &headerlen);
++		if (pktlen < 0)
++			return pktlen;
++
++		if ((ctx->types_of_interest >> type) & 1) {
++			ret = ctx->process_packet(ctx, type, headerlen,
++						  data, pktlen);
++			if (ret < 0)
++				return ret;
++		}
++		data += pktlen;
++		datalen -= pktlen;
++	}
++
++	if (datalen != 0) {
++		pr_debug("Excess octets in packet stream\n");
++		return -EBADMSG;
++	}
++
++	return 0;
++}
++EXPORT_SYMBOL_GPL(pgp_parse_packets);
++
++/**
++ * pgp_parse_public_key - Parse the common part of a PGP pubkey packet
++ * @_data: Content of packet (updated)
++ * @_datalen: Length of packet remaining (updated)
++ * @pk: Public key data
++ *
++ * Parse the common data struct for a PGP pubkey packet [RFC 4880: 5.5.2].
++ */
++int pgp_parse_public_key(const u8 **_data, size_t *_datalen,
++			 struct pgp_parse_pubkey *pk)
++{
++	const u8 *data = *_data;
++	size_t datalen = *_datalen;
++	unsigned int tmp;
++
++	if (datalen < 12) {
++		pr_debug("Public key packet too short\n");
++		return -EBADMSG;
++	}
++
++	pk->version = *data++;
++	switch (pk->version) {
++	case PGP_KEY_VERSION_2:
++	case PGP_KEY_VERSION_3:
++	case PGP_KEY_VERSION_4:
++		break;
++	default:
++		pr_debug("Public key packet with unhandled version %d\n",
++			   pk->version);
++		return -EBADMSG;
++	}
++
++	tmp  = *data++ << 24;
++	tmp |= *data++ << 16;
++	tmp |= *data++ << 8;
++	tmp |= *data++;
++	pk->creation_time = tmp;
++	if (pk->version == PGP_KEY_VERSION_4) {
++		pk->expires_at = 0; /* Have to get it from the selfsignature */
++	} else {
++		unsigned short ndays;
++
++		ndays  = *data++ << 8;
++		ndays |= *data++;
++		if (ndays)
++			pk->expires_at = pk->creation_time + ndays * 86400UL;
++		else
++			pk->expires_at = 0;
++		datalen -= 2;
++	}
++
++	pk->pubkey_algo = *data++;
++	datalen -= 6;
++
++	pr_devel("%x,%x,%lx,%lx\n",
++		 pk->version, pk->pubkey_algo, pk->creation_time,
++		 pk->expires_at);
++
++	*_data = data;
++	*_datalen = datalen;
++	return 0;
++}
++EXPORT_SYMBOL_GPL(pgp_parse_public_key);
+diff --git a/crypto/asymmetric_keys/pgp_parser.h b/crypto/asymmetric_keys/pgp_parser.h
+new file mode 100644
+index 000000000000..5dfd68a88229
+--- /dev/null
++++ b/crypto/asymmetric_keys/pgp_parser.h
+@@ -0,0 +1,22 @@
++/* PGP crypto data parser internal definitions
++ *
++ * Copyright (C) 2011 Red Hat, Inc. All Rights Reserved.
++ * Written by David Howells (dhowells@redhat.com)
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public Licence
++ * as published by the Free Software Foundation; either version
++ * 2 of the Licence, or (at your option) any later version.
++ */
++
++#include <linux/pgp.h>
++
++#define kenter(FMT, ...) \
++	pr_devel("==> %s("FMT")\n", __func__, ##__VA_ARGS__)
++#define kleave(FMT, ...) \
++	pr_devel("<== %s()"FMT"\n", __func__, ##__VA_ARGS__)
++
++/*
++ * pgp_library.c
++ */
++extern const char *pgp_to_public_key_algo[PGP_PUBKEY__LAST];
+diff --git a/include/linux/pgplib.h b/include/linux/pgplib.h
+new file mode 100644
+index 000000000000..7db21b69a6fe
+--- /dev/null
++++ b/include/linux/pgplib.h
+@@ -0,0 +1,47 @@
++/* PGP library definitions (RFC 4880)
++ *
++ * Copyright (C) 2012 Red Hat, Inc. All Rights Reserved.
++ * Written by David Howells (dhowells@redhat.com)
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public Licence
++ * as published by the Free Software Foundation; either version
++ * 2 of the Licence, or (at your option) any later version.
++ */
++
++#ifndef _LINUX_PGPLIB_H
++#define _LINUX_PGPLIB_H
++
++#if IS_ENABLED(CONFIG_PGP_LIBRARY) || IS_ENABLED(CONFIG_PGP_LIBRARY_MODULE)
++
++#include <linux/pgp.h>
++
++/*
++ * PGP library packet parser
++ */
++struct pgp_parse_context {
++	u64 types_of_interest;
++	int (*process_packet)(struct pgp_parse_context *context,
++			      enum pgp_packet_tag type,
++			      u8 headerlen,
++			      const u8 *data,
++			      size_t datalen);
++};
++
++extern int pgp_parse_packets(const u8 *data, size_t datalen,
++			     struct pgp_parse_context *ctx);
++
++struct pgp_parse_pubkey {
++	enum pgp_key_version version : 8;
++	enum pgp_pubkey_algo pubkey_algo : 8;
++	time_t		creation_time;
++	time_t		expires_at;
++};
++
++extern int pgp_parse_public_key(const u8 **_data, size_t *_datalen,
++				struct pgp_parse_pubkey *pk);
++
++
++#endif /* CONFIG_PGP_LIBRARY */
++
++#endif /* _LINUX_PGPLIB_H */
+-- 
+2.17.1

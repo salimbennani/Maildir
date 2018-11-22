@@ -1,0 +1,131 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (61.164.42.155:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 12 Nov 2018 15:14:10 -0000
+Received: from icoremail.net (unknown [209.85.210.169])
+	by mail-app2 (Coremail) with SMTP id by_KCgD3__vzRulbdV98AQ--.37628S3;
+	Mon, 12 Nov 2018 17:25:08 +0800 (CST)
+Received: from mail-pf1-f169.google.com (unknown [209.85.210.169])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwC3nUnvRulbZvIwAA--.1845S3;
+	Mon, 12 Nov 2018 17:25:03 +0800 (CST)
+Received: by mail-pf1-f169.google.com with SMTP id e22-v6so4033208pfn.8
+        for <xuliker@zju.edu.cn>; Mon, 12 Nov 2018 01:25:03 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent:sender:precedence
+         :list-id;
+        bh=Ouy1xMdM3bLx/2ilVJRR2CI+K9T5k5A8EFWijA2uCNU=;
+        b=sckGyNgCTFTvAA3s/AsrZpbrxdQes3Kila7QTRIngLJYWMbOFk2JtKYK8I8QBd76/o
+         Y1sIlFxtlL3ddrCsefttAue8+53XrL+vxMQeFnIILB9F5Mza+hj3wzDsE1N8pF4R4rbF
+         rQ/Q7PQWz7Ku11T45V3UsIwm95mKLigMjGTEZoQDaxWwb/mcTThaYLB4TGwW+udsokES
+         L10mtrj/ia3heerspZsllwQ+yl6b/BFOTabWVkBVWvT072PsdBAav9nWB9P9I4f+sX2J
+         i7R8DeviArdxlnF/SmKFhkysbvHOvsLBnnXiPZtfhU5VeaHo+ubJ9MfKPTY4YOxU5RKg
+         7OHA==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=redhat.com
+X-Gm-Message-State: AGRZ1gJgnIOYcpSnnkMaQhBKOxt/whIq95Ml0lNHoV8v/WUfPFAEUob9
+	2+YeH5b8Ut+/z1jmlTMsUw5y3CrkfYXeu9hBVQlMaIilmQ+pbVKkkw==
+X-Received: by 2002:a62:ce8e:: with SMTP id y136-v6mr166369pfg.201.1542014702877;
+        Mon, 12 Nov 2018 01:25:02 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp2967019pjt;
+        Mon, 12 Nov 2018 01:25:02 -0800 (PST)
+X-Google-Smtp-Source: AJdET5f+VeRehkkYYgIWn7gLcGVf1MYHlfAGsje4YBd9kBiSJKxEq36m7TEI6u0h3K7G11ILWThE
+X-Received: by 2002:a17:902:8210:: with SMTP id x16-v6mr185691pln.129.1542014702210;
+        Mon, 12 Nov 2018 01:25:02 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542014702; cv=none;
+        d=google.com; s=arc-20160816;
+        b=Iukz8Ztj+owojmptHogs/HnLjXvgxUpTg5xT6M1BRgXK8VLsJk1CnPHbETch8jmeeQ
+         ZZcVRAKc/eAZh97M0OICaqlpawF/f7CuHSwjZjyrOPPhDl+pnEFhSXoR3itQ+dT0KWog
+         baAd2DhZe8vmTBXVb304OKDgNF2MOV0GwOB40vYduE3NZFYZbrmEgeUb4Hw2DJbWGGn4
+         JwpqRbGQZlr/TOZXUqiej65BQrtp2dP567iff52DLYRy1N4nLBvTRcIgwvgEnY3SfHEb
+         YHdSO0MolkWDqa81ppfEyXLHx+b+FBbXKJ/zjCv/ZP2OjV1vSnZKfoRQIbQoDuYN+DZu
+         iVgw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:user-agent:in-reply-to
+         :content-disposition:mime-version:references:message-id:subject:cc
+         :to:from:date;
+        bh=Ouy1xMdM3bLx/2ilVJRR2CI+K9T5k5A8EFWijA2uCNU=;
+        b=by6dqo77TENRtKfEhdcjjTWQWBZa4Twqi5MeJxmeVm/Tjf7UY4VgguXKFYgQydZKz/
+         LIiNfG9DqT07IS/Z7Q5rj86h7RcirGIaaAvF4p1KzaQBHZpF9XJH28cpeINtONfeBk2c
+         5GCxGEH99fpYiaFT1liyig1PlLYnpXM1nhQ5D+h559RHOB2fn7IjofJcUiO9YFWluJDW
+         5WkS6R0V/DcK81muvyCbfJIgQATDmMjjp672xAblV6oZawagPyjE5Z/RYpyeANnNc3Bg
+         ynJ5IjAjJBmDe08jNQmKi5WZEdObVLHhw18A53ltPgoc3Vd+fUtJi7lLSJWVJX+2oRgw
+         cEpQ==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=redhat.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id g12-v6si16743543plt.215.2018.11.12.01.24.44;
+        Mon, 12 Nov 2018 01:25:02 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1729288AbeKLTQz (ORCPT <rfc822;fanshuming2011@gmail.com>
+        + 99 others); Mon, 12 Nov 2018 14:16:55 -0500
+Received: from mx1.redhat.com ([209.132.183.28]:60546 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728396AbeKLTQy (ORCPT <rfc822;kvm@vger.kernel.org>);
+        Mon, 12 Nov 2018 14:16:54 -0500
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id B53173084031;
+        Mon, 12 Nov 2018 09:24:34 +0000 (UTC)
+Received: from xz-x1 (dhcp-14-128.nay.redhat.com [10.66.14.128])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id A576560BEF;
+        Mon, 12 Nov 2018 09:24:28 +0000 (UTC)
+Date: Mon, 12 Nov 2018 17:24:26 +0800
+From: Peter Xu <peterx@redhat.com>
+To: Yu Zhang <yu.c.zhang@linux.intel.com>
+Cc: kvm@vger.kernel.org, pbonzini@redhat.com, ehabkost@redhat.com,
+        mst@redhat.com
+Subject: Re: [kvm-unit-tests PATCH] x86/intel-iommu: add test for address
+ width 48 and 57.
+Message-ID: <20181112092426.GF20675@xz-x1>
+References: <1541764960-11322-1-git-send-email-yu.c.zhang@linux.intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <1541764960-11322-1-git-send-email-yu.c.zhang@linux.intel.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.40]); Mon, 12 Nov 2018 09:24:34 +0000 (UTC)
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwC3nUnvRulbZvIwAA--.1845S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjDUn29KB7ZKAUJUUUUU529EdanIXcx71UUUUU7v73
+	VFW2AGmfu7jjvjm3AaLaJ3UjIYCTnIWjp_UUUOj7k0a2IF6F4UM7kC6x804xWl14x267AK
+	xVWUJVW8JwAFIxvE14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK02
+	1l84ACjcxK6xIIjxv20xvE14v26F1j6w1UM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26F4j
+	6r4UJwA2z4x0Y4vEx4A2jsIE14v26rxl6s0DM28EF7xvwVC2z280aVCY1x0267AKxVW0oV
+	Cq3wAS0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0
+	I7IYx2IY67AKxVWUJVWUGwAv7VC2z280aVAFwI0_Cr0_Gr1UMcvjeVCFs4IE7xkEbVWUJV
+	W8JwACjcxG0xvEwIxGrwCjxxvEa2IrMxkF7I0Ew4C26cxK6c8Ij28IcwCY1Ik26cxK6xAE
+	c7vF6xCjj44lc2xSY4AK6IIF6r4fMxkI7II2jI8vz4vEwIxGrwCYIxAIcVC0I7IYx2IY67
+	AKxVW8JVW5JwCYIxAIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMxvI42IY6I8E87Iv67AK
+	xVW0oVCq3wCYIxAIcVC2z280aVCY1x0267AKxVW0oVCq3wCF04k20xvY0x0EwIxGrwCF04
+	k20xvEw4C26cxK6c8Ij28IcwCF72vE77IF4wCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s02
+	6c02F40E14v26r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_JF
+	0_Jw1lIxkGc2Ij64vIr41lIxAIcVCF04k26cxKx2IYs7xG6r1I6r4UYxBIdaVFxhVjvjDU
+	0xZFpf9x07jRPfPUUUUU=
+
+On Fri, Nov 09, 2018 at 08:02:40PM +0800, Yu Zhang wrote:
+> Current iommu test only covers 39-bit address width. This patch
+> extends the test case to based on the supported maximum guest
+> address width.
+> 
+> Signed-off-by: Yu Zhang <yu.c.zhang@linux.intel.com>
+
+Reviewed-by: Peter Xu <peterx@redhat.com>
+
+Thanks,
+
+-- 
+Peter Xu

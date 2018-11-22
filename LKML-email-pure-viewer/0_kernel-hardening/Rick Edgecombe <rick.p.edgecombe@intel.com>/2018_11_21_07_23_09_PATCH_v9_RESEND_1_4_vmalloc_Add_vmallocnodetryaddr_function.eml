@@ -1,0 +1,398 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 21 Nov 2018 00:42:28 -0000
+Received: from icoremail.net (unknown [209.85.214.173])
+	by mail-app2 (Coremail) with SMTP id by_KCgCn3_hDl_RbB+PCAQ--.56896S3;
+	Wed, 21 Nov 2018 07:22:44 +0800 (CST)
+Received: from mail-pl1-f173.google.com (unknown [209.85.214.173])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwCHbEg_l_Rbkk1gAA--.4282S3;
+	Wed, 21 Nov 2018 07:22:39 +0800 (CST)
+Received: by mail-pl1-f173.google.com with SMTP id y6-v6so2539121plt.3
+        for <xuliker@zju.edu.cn>; Tue, 20 Nov 2018 15:22:39 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :from:to:cc:subject:date:message-id:in-reply-to:references:sender
+         :precedence:list-id;
+        bh=uJR4wvSxvJF21bAWNoROmkCnuY/uMr51cezzkx7SWfA=;
+        b=j7kGZDgZ3iz6GFoYrwlcTTI3j4bI+6Iq4Q7u/d/PW+3wVUqtJnGCjY+llhqVE4XHgE
+         fvP23CzQfo985U28jYrxjWJEyG/S/TdsA+INJWXIkjquAqEH+4SWIX5ZbNwloG1nOI/6
+         Ectaa8rJs86FdmTQUFltdVm/sMDv5OaHwkx/V2kJe19hWqRxwZt9L0QN/2DvQ8EwuZhW
+         /SKXWfZ2IPdbWxyH6efFiwyUtrCRnbi3wqrM8Emqx/hqOYCFGo4GIbENBkdZAM4BWcsa
+         1dQWiaBzhEs+BYsbeBgVbFV6ieupMw8o8F6+kdyXAIPWgZWM81A5wtskaYzqiJNzFyUb
+         HCew==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=intel.com
+X-Gm-Message-State: AGRZ1gJRIS3OaaHH534fw6YJbEN0rMu22H2h5ceIg5vD38WDJ7l2NFGR
+	sdLPXSdyr4Y7QpXa8BsKbLeETKcSedGoHdc45rJpJht8lts0P+E=
+X-Received: by 2002:a62:ab0d:: with SMTP id p13mr4246859pff.211.1542756159369;
+        Tue, 20 Nov 2018 15:22:39 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:d106:0:0:0:0 with SMTP id l6-v6csp1242224pju;
+        Tue, 20 Nov 2018 15:22:37 -0800 (PST)
+X-Google-Smtp-Source: AFSGD/X8pu0fw6pDxGZNyCS5T793uI68B65dhi4N+vIfFeIyqSNXRumue7oiI1HZwEFyPDLtMQjW
+X-Received: by 2002:a17:902:b584:: with SMTP id a4mr4304245pls.246.1542756157903;
+        Tue, 20 Nov 2018 15:22:37 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542756157; cv=none;
+        d=google.com; s=arc-20160816;
+        b=PWkDCjy3mw9ZD55K9pF3mNexHpk4mrGiu1M8eLmXIO5TlT8tE2it0JGmgQ5ueY35/L
+         rWZcUmjLDd9s1vvHeIwDfj1NCxXsZoGM1LJpPViPls9+7HznEN5mu1Wys4qnVawdbMM7
+         1N4eb8MeOzmmOExxVHeIElV/DitjDQ9Sdki1bw1txheBH2695qmtMgMQUg3pdpF5FVQc
+         C+MWR2mqPWgmw8kx7FLzs0G4/gCZGYcHFc7b0IfXEWiwXmx1Yx52UJc3Yp5VlOKEQm2b
+         HpWShdaStCNLSapTWMImzBHpITjn5U1o2h3G7ttKc5ktKN6LNRVUh/N3fESusBtZEhUG
+         PZpQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:references:in-reply-to:message-id:date
+         :subject:cc:to:from;
+        bh=uJR4wvSxvJF21bAWNoROmkCnuY/uMr51cezzkx7SWfA=;
+        b=OmhmWz5ioThrCP0WXCZOwYdFt57wLSCCNIXPI3APPWsC1tj3X5MvVf612k+F+5T8GH
+         2TmQpF3qldkd4YqOm4qKRgydvX/9guFTGXopeSDrw9W3jV3dKCqCu4Bx1t5GZFzuTOBR
+         tW765u8y5SHMjxzVDk3DIml2cKB3V8NS/UKpy5Lkec8UxIqWGYQlcIHRGIFGfF2ZfpS5
+         VkqTLAtDejvxCAkGzPFUH0deCjsNfBVN2XcyzRBda2GXR/p9ItleZIxD2+NmtfXqa2XP
+         P66FdPec4KK9cJyr1GBhXJE5O48VYTxzX4aU/GEKG0RP0UKFUuinEZnq2TcTxfpT9pmR
+         9ysA==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=intel.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id u11si10892483plq.287.2018.11.20.15.22.23;
+        Tue, 20 Nov 2018 15:22:37 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1726296AbeKUJxt (ORCPT <rfc822;yv9200@gmail.com> + 99 others);
+        Wed, 21 Nov 2018 04:53:49 -0500
+Received: from mga11.intel.com ([192.55.52.93]:6936 "EHLO mga11.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725913AbeKUJxs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+        Wed, 21 Nov 2018 04:53:48 -0500
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga004.jf.intel.com ([10.7.209.38])
+  by fmsmga102.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 20 Nov 2018 15:22:05 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.56,258,1539673200"; 
+   d="scan'208";a="251330790"
+Received: from rpedgeco-desk5.jf.intel.com ([10.54.75.128])
+  by orsmga004.jf.intel.com with ESMTP; 20 Nov 2018 15:22:04 -0800
+From: Rick Edgecombe <rick.p.edgecombe@intel.com>
+To: jeyu@kernel.org, akpm@linux-foundation.org, willy@infradead.org,
+        tglx@linutronix.de, mingo@redhat.com, hpa@zytor.com,
+        x86@kernel.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        kernel-hardening@lists.openwall.com, daniel@iogearbox.net,
+        jannh@google.com, keescook@chromium.org
+Cc: kristen@linux.intel.com, dave.hansen@intel.com,
+        arjan@linux.intel.com, Rick Edgecombe <rick.p.edgecombe@intel.com>
+Subject: [PATCH v9 RESEND 1/4] vmalloc: Add __vmalloc_node_try_addr function
+Date: Tue, 20 Nov 2018 15:23:09 -0800
+Message-Id: <20181120232312.30037-2-rick.p.edgecombe@intel.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20181120232312.30037-1-rick.p.edgecombe@intel.com>
+References: <20181120232312.30037-1-rick.p.edgecombe@intel.com>
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwCHbEg_l_Rbkk1gAA--.4282S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW3Ar4xJFWktr4fXF43JFW8Zwb_yoWDGFy8pF
+	WxGr9xtFWSqa4jgry0v3y5ZryFq3ZrGay7t3y2qwnYvwnxtF13ZFn29wn8Zr15AFy8ZFW7
+	AFZ7tr45Cw45AaDanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUU0bIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUPab7Iv0xC_Kw4lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_tr0E3s1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2
+	z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s0DM2AIxVAIcxkEcV
+	Aq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1j
+	6r18McIj6I8E87Iv67AKxVW8JVWxJwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IYc2Ij64
+	vIr41l7I0Y6sxI4wCY1x0264kExVAvwVAq07x20xylc7Ca8VAvwVCFzxkY4VCF77xAMxkI
+	ecxEwVCI4VWfMxkI7II2jI8vz4vEwIxGrwCYIxAIcVC0I7IYx2IY67AKxVW8JVW5JwCYIx
+	AIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMxvI42IY6I8E87Iv67AKxVW8Jr0_Cr1UMxvI
+	42IY6I8E87Iv6xkF7I0E14v26r4UJVWxJr1l42xK82IYc2Ij64vIr41l42xK82IY64kExV
+	AvwVAq07x20xyl4x8a6x804xWl4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AK
+	xVWUJVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r4a6rW5MIIYrx
+	kI7VAKI48JMIIF0xvE42xK8VAvwI8IcIk0rVWUCVW8JbIYCTnIWIevJa73UjIFyTuYvjxU
+	HHKuDUUUU
+
+Create __vmalloc_node_try_addr function that tries to allocate at a specific
+address without triggering any lazy purging and retry. For the randomized
+allocator that uses this function, failing to allocate at a specific address is
+a lot more common. This function will not try to do any lazy purge and retry,
+to try to fail faster when an allocation won't fit at a specific address. This
+function is used for a case where lazy free areas are unlikely and so the purge
+and retry is just extra work done every time. For the randomized module
+loader, the performance for an average allocation in ns for different numbers
+of modules was:
+
+Modules Vmalloc optimization    No Vmalloc Optimization
+1000    1433                    1993
+2000    2295                    3681
+3000    4424                    7450
+4000    7746                    13824
+5000    12721                   21852
+6000    19724                   33926
+7000    27638                   47427
+8000    37745                   64443
+
+In order to support this behavior a try_addr argument was plugged into several
+of the static helpers.
+
+This also changes logic in __get_vm_area_node to be faster in cases where
+allocations fail due to no space, which is a lot more common when trying
+specific addresses.
+
+Signed-off-by: Rick Edgecombe <rick.p.edgecombe@intel.com>
+---
+ include/linux/vmalloc.h |   3 +
+ mm/vmalloc.c            | 128 +++++++++++++++++++++++++++++-----------
+ 2 files changed, 95 insertions(+), 36 deletions(-)
+
+diff --git a/include/linux/vmalloc.h b/include/linux/vmalloc.h
+index 398e9c95cd61..6eaa89612372 100644
+--- a/include/linux/vmalloc.h
++++ b/include/linux/vmalloc.h
+@@ -82,6 +82,9 @@ extern void *__vmalloc_node_range(unsigned long size, unsigned long align,
+ 			unsigned long start, unsigned long end, gfp_t gfp_mask,
+ 			pgprot_t prot, unsigned long vm_flags, int node,
+ 			const void *caller);
++extern void *__vmalloc_node_try_addr(unsigned long addr, unsigned long size,
++			gfp_t gfp_mask,	pgprot_t prot, unsigned long vm_flags,
++			int node, const void *caller);
+ #ifndef CONFIG_MMU
+ extern void *__vmalloc_node_flags(unsigned long size, int node, gfp_t flags);
+ static inline void *__vmalloc_node_flags_caller(unsigned long size, int node,
+diff --git a/mm/vmalloc.c b/mm/vmalloc.c
+index 97d4b25d0373..b8b34d319c85 100644
+--- a/mm/vmalloc.c
++++ b/mm/vmalloc.c
+@@ -326,6 +326,9 @@ EXPORT_SYMBOL(vmalloc_to_pfn);
+ #define VM_LAZY_FREE	0x02
+ #define VM_VM_AREA	0x04
+ 
++#define VMAP_MAY_PURGE	0x2
++#define VMAP_NO_PURGE	0x1
++
+ static DEFINE_SPINLOCK(vmap_area_lock);
+ /* Export for kexec only */
+ LIST_HEAD(vmap_area_list);
+@@ -402,12 +405,12 @@ static BLOCKING_NOTIFIER_HEAD(vmap_notify_list);
+ static struct vmap_area *alloc_vmap_area(unsigned long size,
+ 				unsigned long align,
+ 				unsigned long vstart, unsigned long vend,
+-				int node, gfp_t gfp_mask)
++				int node, gfp_t gfp_mask, int try_purge)
+ {
+ 	struct vmap_area *va;
+ 	struct rb_node *n;
+ 	unsigned long addr;
+-	int purged = 0;
++	int purged = try_purge & VMAP_NO_PURGE;
+ 	struct vmap_area *first;
+ 
+ 	BUG_ON(!size);
+@@ -860,7 +863,7 @@ static void *new_vmap_block(unsigned int order, gfp_t gfp_mask)
+ 
+ 	va = alloc_vmap_area(VMAP_BLOCK_SIZE, VMAP_BLOCK_SIZE,
+ 					VMALLOC_START, VMALLOC_END,
+-					node, gfp_mask);
++					node, gfp_mask, VMAP_MAY_PURGE);
+ 	if (IS_ERR(va)) {
+ 		kfree(vb);
+ 		return ERR_CAST(va);
+@@ -1170,8 +1173,9 @@ void *vm_map_ram(struct page **pages, unsigned int count, int node, pgprot_t pro
+ 		addr = (unsigned long)mem;
+ 	} else {
+ 		struct vmap_area *va;
+-		va = alloc_vmap_area(size, PAGE_SIZE,
+-				VMALLOC_START, VMALLOC_END, node, GFP_KERNEL);
++		va = alloc_vmap_area(size, PAGE_SIZE, VMALLOC_START,
++					VMALLOC_END, node, GFP_KERNEL,
++					VMAP_MAY_PURGE);
+ 		if (IS_ERR(va))
+ 			return NULL;
+ 
+@@ -1372,7 +1376,8 @@ static void clear_vm_uninitialized_flag(struct vm_struct *vm)
+ 
+ static struct vm_struct *__get_vm_area_node(unsigned long size,
+ 		unsigned long align, unsigned long flags, unsigned long start,
+-		unsigned long end, int node, gfp_t gfp_mask, const void *caller)
++		unsigned long end, int node, gfp_t gfp_mask, int try_purge,
++		const void *caller)
+ {
+ 	struct vmap_area *va;
+ 	struct vm_struct *area;
+@@ -1386,16 +1391,17 @@ static struct vm_struct *__get_vm_area_node(unsigned long size,
+ 		align = 1ul << clamp_t(int, get_count_order_long(size),
+ 				       PAGE_SHIFT, IOREMAP_MAX_ORDER);
+ 
+-	area = kzalloc_node(sizeof(*area), gfp_mask & GFP_RECLAIM_MASK, node);
+-	if (unlikely(!area))
+-		return NULL;
+-
+ 	if (!(flags & VM_NO_GUARD))
+ 		size += PAGE_SIZE;
+ 
+-	va = alloc_vmap_area(size, align, start, end, node, gfp_mask);
+-	if (IS_ERR(va)) {
+-		kfree(area);
++	va = alloc_vmap_area(size, align, start, end, node, gfp_mask,
++				try_purge);
++	if (IS_ERR(va))
++		return NULL;
++
++	area = kzalloc_node(sizeof(*area), gfp_mask & GFP_RECLAIM_MASK, node);
++	if (unlikely(!area)) {
++		free_vmap_area(va);
+ 		return NULL;
+ 	}
+ 
+@@ -1408,7 +1414,8 @@ struct vm_struct *__get_vm_area(unsigned long size, unsigned long flags,
+ 				unsigned long start, unsigned long end)
+ {
+ 	return __get_vm_area_node(size, 1, flags, start, end, NUMA_NO_NODE,
+-				  GFP_KERNEL, __builtin_return_address(0));
++				  GFP_KERNEL, VMAP_MAY_PURGE,
++				  __builtin_return_address(0));
+ }
+ EXPORT_SYMBOL_GPL(__get_vm_area);
+ 
+@@ -1417,7 +1424,7 @@ struct vm_struct *__get_vm_area_caller(unsigned long size, unsigned long flags,
+ 				       const void *caller)
+ {
+ 	return __get_vm_area_node(size, 1, flags, start, end, NUMA_NO_NODE,
+-				  GFP_KERNEL, caller);
++				  GFP_KERNEL, VMAP_MAY_PURGE, caller);
+ }
+ 
+ /**
+@@ -1432,7 +1439,7 @@ struct vm_struct *__get_vm_area_caller(unsigned long size, unsigned long flags,
+ struct vm_struct *get_vm_area(unsigned long size, unsigned long flags)
+ {
+ 	return __get_vm_area_node(size, 1, flags, VMALLOC_START, VMALLOC_END,
+-				  NUMA_NO_NODE, GFP_KERNEL,
++				  NUMA_NO_NODE, GFP_KERNEL, VMAP_MAY_PURGE,
+ 				  __builtin_return_address(0));
+ }
+ 
+@@ -1440,7 +1447,8 @@ struct vm_struct *get_vm_area_caller(unsigned long size, unsigned long flags,
+ 				const void *caller)
+ {
+ 	return __get_vm_area_node(size, 1, flags, VMALLOC_START, VMALLOC_END,
+-				  NUMA_NO_NODE, GFP_KERNEL, caller);
++				  NUMA_NO_NODE, GFP_KERNEL, VMAP_MAY_PURGE,
++				  caller);
+ }
+ 
+ /**
+@@ -1713,26 +1721,10 @@ static void *__vmalloc_area_node(struct vm_struct *area, gfp_t gfp_mask,
+ 	return NULL;
+ }
+ 
+-/**
+- *	__vmalloc_node_range  -  allocate virtually contiguous memory
+- *	@size:		allocation size
+- *	@align:		desired alignment
+- *	@start:		vm area range start
+- *	@end:		vm area range end
+- *	@gfp_mask:	flags for the page level allocator
+- *	@prot:		protection mask for the allocated pages
+- *	@vm_flags:	additional vm area flags (e.g. %VM_NO_GUARD)
+- *	@node:		node to use for allocation or NUMA_NO_NODE
+- *	@caller:	caller's return address
+- *
+- *	Allocate enough pages to cover @size from the page level
+- *	allocator with @gfp_mask flags.  Map them into contiguous
+- *	kernel virtual space, using a pagetable protection of @prot.
+- */
+-void *__vmalloc_node_range(unsigned long size, unsigned long align,
++static void *__vmalloc_node_range_opts(unsigned long size, unsigned long align,
+ 			unsigned long start, unsigned long end, gfp_t gfp_mask,
+ 			pgprot_t prot, unsigned long vm_flags, int node,
+-			const void *caller)
++			int try_purge, const void *caller)
+ {
+ 	struct vm_struct *area;
+ 	void *addr;
+@@ -1743,7 +1735,8 @@ void *__vmalloc_node_range(unsigned long size, unsigned long align,
+ 		goto fail;
+ 
+ 	area = __get_vm_area_node(size, align, VM_ALLOC | VM_UNINITIALIZED |
+-				vm_flags, start, end, node, gfp_mask, caller);
++				vm_flags, start, end, node, gfp_mask,
++				try_purge, caller);
+ 	if (!area)
+ 		goto fail;
+ 
+@@ -1768,6 +1761,69 @@ void *__vmalloc_node_range(unsigned long size, unsigned long align,
+ 	return NULL;
+ }
+ 
++/**
++ *	__vmalloc_node_range  -  allocate virtually contiguous memory
++ *	@size:		allocation size
++ *	@align:		desired alignment
++ *	@start:		vm area range start
++ *	@end:		vm area range end
++ *	@gfp_mask:	flags for the page level allocator
++ *	@prot:		protection mask for the allocated pages
++ *	@vm_flags:	additional vm area flags (e.g. %VM_NO_GUARD)
++ *	@node:		node to use for allocation or NUMA_NO_NODE
++ *	@caller:	caller's return address
++ *
++ *	Allocate enough pages to cover @size from the page level
++ *	allocator with @gfp_mask flags.  Map them into contiguous
++ *	kernel virtual space, using a pagetable protection of @prot.
++ */
++void *__vmalloc_node_range(unsigned long size, unsigned long align,
++			unsigned long start, unsigned long end, gfp_t gfp_mask,
++			pgprot_t prot, unsigned long vm_flags, int node,
++			const void *caller)
++{
++	return __vmalloc_node_range_opts(size, align, start, end, gfp_mask,
++					prot, vm_flags, node, VMAP_MAY_PURGE,
++					caller);
++}
++
++/**
++ *	__vmalloc_try_addr  -  try to alloc at a specific address
++ *	@addr:		address to try
++ *	@size:		size to try
++ *	@gfp_mask:	flags for the page level allocator
++ *	@prot:		protection mask for the allocated pages
++ *	@vm_flags:	additional vm area flags (e.g. %VM_NO_GUARD)
++ *	@node:		node to use for allocation or NUMA_NO_NODE
++ *	@caller:	caller's return address
++ *
++ *	Try to allocate at the specific address. If it succeeds the address is
++ *	returned. If it fails NULL is returned.  It will not try to purge lazy
++ *	free vmap areas in order to fit.
++ */
++void *__vmalloc_node_try_addr(unsigned long addr, unsigned long size,
++			gfp_t gfp_mask,	pgprot_t prot, unsigned long vm_flags,
++			int node, const void *caller)
++{
++	unsigned long addr_end;
++	unsigned long vsize = PAGE_ALIGN(size);
++
++	if (!vsize || (vsize >> PAGE_SHIFT) > totalram_pages)
++		return NULL;
++
++	if (!(vm_flags & VM_NO_GUARD))
++		vsize += PAGE_SIZE;
++
++	addr_end = addr + vsize;
++
++	if (addr > addr_end)
++		return NULL;
++
++	return __vmalloc_node_range_opts(size, 1, addr, addr_end,
++				gfp_mask | __GFP_NOWARN, prot, vm_flags, node,
++				VMAP_NO_PURGE, caller);
++}
++
+ /**
+  *	__vmalloc_node  -  allocate virtually contiguous memory
+  *	@size:		allocation size
+-- 
+2.17.1

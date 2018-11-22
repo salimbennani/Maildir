@@ -1,0 +1,203 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 20 Nov 2018 00:33:52 -0000
+Received: from icoremail.net (unknown [209.85.215.181])
+	by mail-app2 (Coremail) with SMTP id by_KCgCn36Rt8vJbZbC6AQ--.54950S3;
+	Tue, 20 Nov 2018 01:27:10 +0800 (CST)
+Received: from mail-pg1-f181.google.com (unknown [209.85.215.181])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwB38Exo8vJb3IJZAA--.2754S3;
+	Tue, 20 Nov 2018 01:27:05 +0800 (CST)
+Received: by mail-pg1-f181.google.com with SMTP id w7so14107477pgp.13
+        for <xuliker@zju.edu.cn>; Mon, 19 Nov 2018 09:27:05 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :from:to:cc:subject:date:in-reply-to:references:message-id:sender
+         :precedence:list-id;
+        bh=d74e/+PG+a9GLkv0cOQrliRUKSAhH1PpI0lFk/a7ykI=;
+        b=gt+qb5aiuZQK8Bki0m0nQM1w84T4kCR3Ut4l+0XmtgVJSVqQysRMSOcMxYwWkVBCSz
+         OYmPAyQCRVrjqW2QY8iPdtl4sUFbSXnRet9xAD9VdCtcgRj3O1Z9BLmJ0xyab+J/b/uu
+         yfID0HmjLqo35jVOS1onV8EYeJeTTT0h9+EcoWBT4of85aEOZpkLXa3txBH22G8D8/mB
+         URwWHae8ogNBl1btrVyZzwaLn3LUZRMPXMAMiTimuzHlcwlbufVvoo1AlosOPZqKJTjg
+         LsRO2Zq2/J0G59qecWOGNu8LILzPVkXOT6Z6B9cD00II1i9X61FnNou/0ykJWLvAYjTI
+         YPJg==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=ibm.com
+X-Gm-Message-State: AGRZ1gLA/7/MpINrKBnwnJV8/0X/cXfbxYkkawQac4sbhfkDTzB66tfO
+	58YVkrADd83rqHhG76KYPK/RS998PpIlEPhyjYBJjorFABv4o20=
+X-Received: by 2002:a63:9402:: with SMTP id m2mr20197598pge.93.1542648424666;
+        Mon, 19 Nov 2018 09:27:04 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:d106:0:0:0:0 with SMTP id l6-v6csp2946929pju;
+        Mon, 19 Nov 2018 09:27:03 -0800 (PST)
+X-Google-Smtp-Source: AFSGD/Ur2AfaI7J/uzqpAvoclomNuvvlzwmT+X5vUq0FCSa5JCzB7LmfUhSWWFj/EE2AiSFFSos8
+X-Received: by 2002:a17:902:d905:: with SMTP id c5mr7664037plz.43.1542648423340;
+        Mon, 19 Nov 2018 09:27:03 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542648423; cv=none;
+        d=google.com; s=arc-20160816;
+        b=uZcdHlL32TciAew37mPuA+ILMCrA+NTRQ/ObEesXreGT+IGCme8XfQJsuHDUqCELxo
+         cl8LmsLUeTwxBzdxiQ7z8XS4aKxda23Duv2PNPkOuKLU1aBXwyho2knP8+hFob59Gkud
+         tzGDfSl4PZf5I3mlp8gp5O+6oqnFX+Hw9Q7faf+UELR1Rul2uB/u58wc15rYECvTO2ZL
+         TkjjlU13neUPURi0bYU3inVcmOFlchfExKibI6hsl2105NRFWekLnnojY57UFQxsI493
+         5zHrVc8J6E106kInojacD2wTQzhdX+W+kgumfI7reQfqxHHvO1pVw6GFRohGSCRf3RuJ
+         PMSQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:message-id:references:in-reply-to:date
+         :subject:cc:to:from;
+        bh=d74e/+PG+a9GLkv0cOQrliRUKSAhH1PpI0lFk/a7ykI=;
+        b=wEQIBI1yrtbAxKBKDi9KT9F/791L5UP7MF4b89zDE/9Ul6uL6ZuuPmH8zm0nke6w8A
+         dCMBm0LVmjj4aQiKs6AQwx9LoOzEK/W1mPZ3JL9+dg17y3n4B8kE16TvPuJPtbs3jbXg
+         HI3hiFVcPXi85968JH7+GSh1CrTmjScfWs73PfwoMxUwZqny9f4pL23UUqpHmtvbph+8
+         pFAdDyQqh/QRRNLDQhRSnnSQg4sSgHcshSf4/6EA3kJ68PnsG3p/Wwa9dWki4NM33oru
+         7Ec/mLGLYcOsvz62uXAPTP+r0FE57gzd3v9C+WyHMYtEZeH7G/kFFESya1WYlNtcQd/Q
+         9h2w==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=ibm.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id e7si24286092pfh.147.2018.11.19.09.26.44;
+        Mon, 19 Nov 2018 09:27:03 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S2404521AbeKTDu0 (ORCPT <rfc822;ww9210@gmail.com> + 99 others);
+        Mon, 19 Nov 2018 22:50:26 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:13667 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S2404448AbeKTDuZ (ORCPT
+        <rfc822;kvm@vger.kernel.org>); Mon, 19 Nov 2018 22:50:25 -0500
+Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.22/8.16.0.22) with SMTP id wAJHPHqH055709
+        for <kvm@vger.kernel.org>; Mon, 19 Nov 2018 12:26:01 -0500
+Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2nv0bkbpyc-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <kvm@vger.kernel.org>; Mon, 19 Nov 2018 12:26:00 -0500
+Received: from localhost
+        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <kvm@vger.kernel.org> from <mimu@linux.ibm.com>;
+        Mon, 19 Nov 2018 17:25:59 -0000
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (9.149.109.198)
+        by e06smtp01.uk.ibm.com (192.168.101.131) with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted;
+        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256/256)
+        Mon, 19 Nov 2018 17:25:56 -0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id wAJHPsif3080462
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
+        Mon, 19 Nov 2018 17:25:55 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id DB7B14C040;
+        Mon, 19 Nov 2018 17:25:54 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6BFD34C052;
+        Mon, 19 Nov 2018 17:25:54 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Mon, 19 Nov 2018 17:25:54 +0000 (GMT)
+From: Michael Mueller <mimu@linux.ibm.com>
+To: kvm@vger.kernel.org, linux-s390@vger.kernel.org
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>,
+        Heiko Carstens <heiko.carstens@de.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Michael Mueller <mimu@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Pierre Morel <pmorel@linux.ibm.com>
+Subject: [PATCH v2 05/12] KVM: s390: add metric vcpus_in_sie to struct kvm_arch
+Date: Mon, 19 Nov 2018 18:25:29 +0100
+X-Mailer: git-send-email 2.16.4
+In-Reply-To: <20181119172536.52649-1-mimu@linux.ibm.com>
+References: <20181119172536.52649-1-mimu@linux.ibm.com>
+X-TM-AS-GCONF: 00
+x-cbid: 18111917-4275-0000-0000-000002E35A45
+X-IBM-AV-DETECTION: SAVI=unused REMOTE=unused XFE=unused
+x-cbparentid: 18111917-4276-0000-0000-000037F07E47
+Message-Id: <20181119172536.52649-6-mimu@linux.ibm.com>
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2018-11-19_06:,,
+ signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ malwarescore=0 suspectscore=0 phishscore=0 bulkscore=0 spamscore=0
+ clxscore=1015 lowpriorityscore=0 mlxscore=0 impostorscore=0
+ mlxlogscore=881 adultscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.0.1-1810050000 definitions=main-1811190159
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwB38Exo8vJb3IJZAA--.2754S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW7KF43XFyDGr1rAw1rXFy8AFb_yoW8uryUpa
+	1DA3Z5Ww4rGryYv34UKw4q9rW2q3yDKr42gFyUGr43Gry7tr1YyFZYkFy5AFZ8CrWkZan2
+	gFy5Krn8C3WDXFJanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUPIb7Iv0xC_tr1lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_tr0E3s1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2
+	z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s0DM2AIxVAIcxkEcV
+	Aq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r10
+	6r15McIj6I8E87Iv67AKxVW8JVWxJwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IYc2Ij64
+	vIr41l7I0Y6sxI4wCY1x0264kExVAvwVAq07x20xylc7Ca8VAvwVCFzxkY4VCF77xAMxkI
+	ecxEwVCI4VW8MxkI7II2jI8vz4vEwIxGrwCYIxAIcVC0I7IYx2IY67AKxVW7JVWDJwCYIx
+	AIcVC0I7IYx2IY6xkF7I0E14v26F4j6r4UJwCYIxAIcVC2z280aVAFwI0_Cr1j6rxdMxvI
+	42IY6I8E87Iv6xkF7I0E14v26F4UJVW0owCF04k20xvY0x0EwIxGrwCF04k20xvEw4C26c
+	xK6c8Ij28IcwCF72vE77IF4wCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v2
+	6r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_Jw0_GFylIxkGc2
+	Ij64vIr41lIxAIcVCF04k26cxKx2IYs7xG6r1j6r1xYxBIdaVFxhVjvjDU0xZFpf9x07b8
+	oGQUUUUU=
+
+This metric will allow to identify how many vcpus are currently
+running for a given kvm in SIE context. Its value is between 0 and
+the number of vcpus defined for the kvm guest, but never lager than
+the number of cpus available to the KVM host in total.
+
+This metric is required to decide if the GISA IAM has to be restored
+from the kvm arch field of the guest. That will be the case when no
+vcpu is in SIE context. (vcpus_in_sie == 0)
+
+Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
+Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+---
+ arch/s390/include/asm/kvm_host.h | 1 +
+ arch/s390/kvm/kvm-s390.c         | 4 ++++
+ 2 files changed, 5 insertions(+)
+
+diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+index 537e5e59f27e..02227457945e 100644
+--- a/arch/s390/include/asm/kvm_host.h
++++ b/arch/s390/include/asm/kvm_host.h
+@@ -848,6 +848,7 @@ struct kvm_arch{
+ 	DECLARE_BITMAP(cpu_feat, KVM_S390_VM_CPU_FEAT_NR_BITS);
+ 	struct kvm_s390_gisa *gisa;
+ 	int gib_in_use;
++	atomic_t vcpus_in_sie;
+ };
+ 
+ #define KVM_HVA_ERR_BAD		(-1UL)
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index a4ba9fa582fe..3adffce27550 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -3458,6 +3458,8 @@ static int vcpu_pre_run(struct kvm_vcpu *vcpu)
+ 		kvm_s390_patch_guest_per_regs(vcpu);
+ 	}
+ 
++	atomic_inc(&vcpu->kvm->arch.vcpus_in_sie);
++
+ 	vcpu->arch.sie_block->icptcode = 0;
+ 	cpuflags = atomic_read(&vcpu->arch.sie_block->cpuflags);
+ 	VCPU_EVENT(vcpu, 6, "entering sie flags %x", cpuflags);
+@@ -3517,6 +3519,8 @@ static int vcpu_post_run(struct kvm_vcpu *vcpu, int exit_reason)
+ 	vcpu->run->s.regs.gprs[14] = vcpu->arch.sie_block->gg14;
+ 	vcpu->run->s.regs.gprs[15] = vcpu->arch.sie_block->gg15;
+ 
++	atomic_dec(&vcpu->kvm->arch.vcpus_in_sie);
++
+ 	if (exit_reason == -EINTR) {
+ 		VCPU_EVENT(vcpu, 3, "%s", "machine check");
+ 		sie_page = container_of(vcpu->arch.sie_block,
+-- 
+2.13.4

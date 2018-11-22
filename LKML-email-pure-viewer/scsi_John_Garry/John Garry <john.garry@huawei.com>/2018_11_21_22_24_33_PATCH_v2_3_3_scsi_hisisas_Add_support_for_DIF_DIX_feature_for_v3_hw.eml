@@ -1,0 +1,645 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 22 Nov 2018 00:33:45 -0000
+Received: from icoremail.net (unknown [209.85.214.179])
+	by mail-app2 (Coremail) with SMTP id by_KCgDXv_ppbvVbf7nIAQ--.58911S3;
+	Wed, 21 Nov 2018 22:40:43 +0800 (CST)
+Received: from mail-pl1-f179.google.com (unknown [209.85.214.179])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwAnCERkbvVbu+1jAA--.1891S3;
+	Wed, 21 Nov 2018 22:40:36 +0800 (CST)
+Received: by mail-pl1-f179.google.com with SMTP id u6so5822818plm.8
+        for <xuliker@zju.edu.cn>; Wed, 21 Nov 2018 06:40:36 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:sender:precedence:list-id;
+        bh=yv7ip4OYNjqp5JSfbuoMgr+LiQn9cWZCqwsGnsWLX30=;
+        b=E0dVBybBSfEnmeQWC7njWNhzaX9jQsE3lBZs2eyE0atJ+yJb3mtckuhGi3IefkMl7l
+         QqeqdRjw+ZIqhmrkrpHjSGGCfr1iDZstERCSJ3H/0XtDOERjtS75pPglub+7SxOkndgK
+         LMi5AIO8xib8GITtjPjv/SQLQ7CQBG6XBEx8v5RbAbT/AcogEi5T5338qCwv0VKsuQX4
+         EbavqxiWyclrIx3tO3SaCGc+5k/iuJl2KNgcQd6jH00SU8gtCpBDesGoN8X08Jr2CLLC
+         YwYF09zJPU9jhqjHh+zYsLSFd+HFKBKeT2OGLUB1n3oWYC49oDKh2tfw5NeCiu6kJwn1
+         h0PA==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org
+X-Gm-Message-State: AGRZ1gIxu0IEGHNKNNPhhDzKwtYNHszeVB280Ma69c2ic6AThT4Vwuap
+	gfUP3tReqsSr/6mk3dSZYzvVyJvqfcXiTrFtZZ5xRUoBpvZjFmo=
+X-Received: by 2002:a62:da5a:: with SMTP id w26mr7099990pfl.106.1542811236288;
+        Wed, 21 Nov 2018 06:40:36 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:d106:0:0:0:0 with SMTP id l6-v6csp2037319pju;
+        Wed, 21 Nov 2018 06:40:34 -0800 (PST)
+X-Google-Smtp-Source: AFSGD/VfuFB9yT2ZGj7sQtMv5R0mzNTG8/fd3K6Ewdm7GqGDIaWcA0iMWdb9GcHh+aQqnEts/PIG
+X-Received: by 2002:a63:6984:: with SMTP id e126mr6313342pgc.143.1542811234508;
+        Wed, 21 Nov 2018 06:40:34 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542811234; cv=none;
+        d=google.com; s=arc-20160816;
+        b=hvEW3q9mBUqB54s1W9GX7NW0pzfHrAo11jXAaui+g8Knm14YBmsFQMBbragxASfqhw
+         KQngxOoqqH9LBLdjCOR2ax9voP5kqzNsi+C5lac1iqbuM1bb3ADswAkHsrPOP8Odciu/
+         pa2GNxLjxmPKwtMlHjN69R4fC67AZC++wucvBg0iDPifmapLB+qz8Bg03XCLRouhck23
+         aJDtMcl8PkU/S06Oq1pmlCbpXsjO8CTkn9LZxrL43SreVdkF4LqaqfHavO8z0wMZlfI7
+         vg6S1w5uNSycHE7QC6qDvQxJBTUp+/KWktYasSggIpsUBgBIqQxJ4jZkS458RQYQzLrX
+         Lw/g==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from;
+        bh=yv7ip4OYNjqp5JSfbuoMgr+LiQn9cWZCqwsGnsWLX30=;
+        b=CnExM0DP4KWJkZZXDCkfrXgd1gxdzLl1UMqGPAsaeDeimkc/yjS76IhHeFaapQFc73
+         F1SOymdXmQwatSI6VkRKs/ePk81C+Vy87RTaDlDLw1R3dGFkuI/heMiufDCwoK3q95VF
+         DzfE278Jemlt7AaOLDnvY8SG7hepFqlQOUz+p/VPI7r8LuczIKi5siUxRZbcRz6CEiwo
+         /FICznzJG6fMjKoXfDtgXKAPSG6DvpziXYvuBceue1kPQTKIzhpeI1F+f7MqhLEe8mgC
+         uxR6SSVYgpI4M8SSuFKPq1pG1+56sLYxvjkjcgmR2pmHeaV4tjO2WEbd467vdosrSCn3
+         FFiQ==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id w5si23659456pfl.279.2018.11.21.06.40.06;
+        Wed, 21 Nov 2018 06:40:34 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1730773AbeKVA6J (ORCPT <rfc822;nullbytes00@gmail.com>
+        + 99 others); Wed, 21 Nov 2018 19:58:09 -0500
+Received: from szxga06-in.huawei.com ([45.249.212.32]:41718 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1728526AbeKVA6J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+        Wed, 21 Nov 2018 19:58:09 -0500
+Received: from DGGEMS414-HUB.china.huawei.com (unknown [172.30.72.60])
+        by Forcepoint Email with ESMTP id 6FFAFEB34D8D;
+        Wed, 21 Nov 2018 22:23:18 +0800 (CST)
+Received: from localhost.localdomain (10.67.212.75) by
+ DGGEMS414-HUB.china.huawei.com (10.3.19.214) with Microsoft SMTP Server id
+ 14.3.408.0; Wed, 21 Nov 2018 22:23:12 +0800
+From: John Garry <john.garry@huawei.com>
+To: <jejb@linux.vnet.ibm.com>, <martin.petersen@oracle.com>
+CC: <linuxarm@huawei.com>, <linux-kernel@vger.kernel.org>,
+        <linux-scsi@vger.kernel.org>, <hch@infradead.org>,
+        <maier@linux.ibm.com>, Xiang Chen <chenxiang66@hisilicon.com>,
+        John Garry <john.garry@huawei.com>
+Subject: [PATCH v2 3/3] scsi: hisi_sas: Add support for DIF/DIX feature for v3 hw
+Date: Wed, 21 Nov 2018 22:24:33 +0800
+Message-ID: <1542810273-134731-4-git-send-email-john.garry@huawei.com>
+X-Mailer: git-send-email 2.8.1
+In-Reply-To: <1542810273-134731-1-git-send-email-john.garry@huawei.com>
+References: <1542810273-134731-1-git-send-email-john.garry@huawei.com>
+MIME-Version: 1.0
+Content-Type: text/plain
+X-Originating-IP: [10.67.212.75]
+X-CFilter-Loop: Reflected
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwAnCERkbvVbu+1jAA--.1891S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvAXoW3ZrWkJw1DJrykXF1UJF1DZFb_yoW8Ww47Ko
+	WfAr95A34rWr1xA3yDAFWxZFyDZwn8Kas8Jws5Zws8Way2vwn8Gry7Kr4fZ3WfWFW5CFW7
+	Ary8t3s7XrsxWF15n29KB7ZKAUJUUUUU529EdanIXcx71UUUUU7v73VFW2AGmfu7jjvjm3
+	AaLaJ3UjIYCTnIWjp_UUUO87k0a2IF6F4UM7kC6x804xWl14x267AKxVWUJVW8JwAFIxvE
+	14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK021l84ACjcxK6xIIjx
+	v20xvE14v26w1j6s0DM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26F4j6r4UJwA2z4x0Y4vE
+	x4A2jsIE14v26rxl6s0DM28EF7xvwVC2z280aVCY1x0267AKxVW0oVCq3wAS0I0E0xvYzx
+	vE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AKxVWU
+	XVWUAwAv7VC2z280aVAFwI0_Cr0_Gr1UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvY0x
+	0EwIxGrwCjxxvEa2IrMxkF7I0Ew4C26cxK6c8Ij28IcwCY1Ik26cxK6xAEc7vF6xCjj44l
+	c2xSY4AK6IIF6ry5MxkI7II2jI8vz4vEwIxGrwCYIxAIcVC0I7IYx2IY67AKxVW7JVWDJw
+	CYIxAIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMxvI42IY6I8E87Iv67AKxVW0oVCq3wCY
+	IxAIcVC2z280aVCY1x0267AKxVW0oVCq3wCF04k20xvY0x0EwIxGrwCF04k20xvEw4C26c
+	xK6c8Ij28IcwCF72vE77IF4wCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v2
+	6r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_Jw0_GFylIxkGc2
+	Ij64vIr41lIxAIcVCF04k26cxKx2IYs7xG6r1j6r1xYxBIdaVFxhVjvjDU0xZFpf9x07jE
+	v38UUUUU=
+
+From: Xiang Chen <chenxiang66@hisilicon.com>
+
+For v3 hw, we support DIF/DIX operation for SAS, but not SATA.
+
+In addition, DIF CRC16 is supported.
+
+This patchset adds the SW support for the described features. The main
+components are as follows:
+- Allocate memory for PI
+- Fill PI fields
+- Fill related to DIF/DIX in DQ and protection iu memories
+
+Signed-off-by: Xiang Chen <chenxiang66@hisilicon.com>
+Signed-off-by: John Garry <john.garry@huawei.com>
+---
+ drivers/scsi/hisi_sas/hisi_sas.h       |  18 ++++
+ drivers/scsi/hisi_sas/hisi_sas_main.c  |  99 ++++++++++++++---
+ drivers/scsi/hisi_sas/hisi_sas_v3_hw.c | 189 ++++++++++++++++++++++++++++++++-
+ 3 files changed, 289 insertions(+), 17 deletions(-)
+
+diff --git a/drivers/scsi/hisi_sas/hisi_sas.h b/drivers/scsi/hisi_sas/hisi_sas.h
+index 535c613..a73aad6 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas.h
++++ b/drivers/scsi/hisi_sas/hisi_sas.h
+@@ -55,6 +55,11 @@
+ #define hisi_sas_sge_addr_mem(slot) hisi_sas_sge_addr(slot->buf)
+ #define hisi_sas_sge_addr_dma(slot) hisi_sas_sge_addr(slot->buf_dma)
+ 
++#define hisi_sas_sge_dif_addr(buf) \
++	(buf + offsetof(struct hisi_sas_slot_dif_buf_table, sge_dif_page))
++#define hisi_sas_sge_dif_addr_mem(slot) hisi_sas_sge_dif_addr(slot->buf)
++#define hisi_sas_sge_dif_addr_dma(slot) hisi_sas_sge_dif_addr(slot->buf_dma)
++
+ #define HISI_SAS_MAX_SSP_RESP_SZ (sizeof(struct ssp_frame_hdr) + 1024)
+ #define HISI_SAS_MAX_SMP_RESP_SZ 1028
+ #define HISI_SAS_MAX_STP_RESP_SZ 28
+@@ -197,6 +202,7 @@ struct hisi_sas_slot {
+ 	struct sas_task *task;
+ 	struct hisi_sas_port	*port;
+ 	u64	n_elem;
++	u64	n_elem_dif;
+ 	int	dlvry_queue;
+ 	int	dlvry_queue_slot;
+ 	int	cmplt_queue;
+@@ -268,6 +274,8 @@ struct hisi_hba {
+ 	struct pci_dev *pci_dev;
+ 	struct device *dev;
+ 
++	bool enable_dif_dix;
++
+ 	void __iomem *regs;
+ 	void __iomem *sgpio_regs;
+ 	struct regmap *ctrl;
+@@ -422,6 +430,11 @@ struct hisi_sas_sge_page {
+ 	struct hisi_sas_sge sge[HISI_SAS_SGE_PAGE_CNT];
+ }  __aligned(16);
+ 
++#define HISI_SAS_SGE_DIF_PAGE_CNT   SG_CHUNK_SIZE
++struct hisi_sas_sge_dif_page {
++	struct hisi_sas_sge sge[HISI_SAS_SGE_DIF_PAGE_CNT];
++}  __aligned(16);
++
+ struct hisi_sas_command_table_ssp {
+ 	struct ssp_frame_hdr hdr;
+ 	union {
+@@ -452,6 +465,11 @@ struct hisi_sas_slot_buf_table {
+ 	struct hisi_sas_sge_page sge_page;
+ };
+ 
++struct hisi_sas_slot_dif_buf_table {
++	struct hisi_sas_slot_buf_table slot_buf;
++	struct hisi_sas_sge_dif_page sge_dif_page;
++};
++
+ extern struct scsi_transport_template *hisi_sas_stt;
+ extern void hisi_sas_stop_phys(struct hisi_hba *hisi_hba);
+ extern int hisi_sas_alloc(struct hisi_hba *hisi_hba, struct Scsi_Host *shost);
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_main.c b/drivers/scsi/hisi_sas/hisi_sas_main.c
+index cbda48e..d0b693b 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_main.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_main.c
+@@ -252,14 +252,21 @@ void hisi_sas_slot_task_free(struct hisi_hba *hisi_hba, struct sas_task *task,
+ 
+ 		task->lldd_task = NULL;
+ 
+-		if (!sas_protocol_ata(task->task_proto))
++		if (!sas_protocol_ata(task->task_proto)) {
++			struct sas_ssp_task *ssp_task = &task->ssp_task;
++			struct scsi_cmnd *scsi_cmnd = ssp_task->cmd;
++
+ 			if (slot->n_elem)
+ 				dma_unmap_sg(dev, task->scatter,
+ 					     task->num_scatter,
+ 					     task->data_dir);
++			if (slot->n_elem_dif)
++				dma_unmap_sg(dev, scsi_prot_sglist(scsi_cmnd),
++					     scsi_prot_sg_count(scsi_cmnd),
++					     task->data_dir);
++		}
+ 	}
+ 
+-
+ 	spin_lock_irqsave(&dq->lock, flags);
+ 	list_del_init(&slot->entry);
+ 	spin_unlock_irqrestore(&dq->lock, flags);
+@@ -380,6 +387,59 @@ static int hisi_sas_dma_map(struct hisi_hba *hisi_hba,
+ 	return rc;
+ }
+ 
++static void hisi_sas_dif_dma_unmap(struct hisi_hba *hisi_hba,
++				   struct sas_task *task, int n_elem_dif)
++{
++	struct device *dev = hisi_hba->dev;
++
++	if (n_elem_dif) {
++		struct sas_ssp_task *ssp_task = &task->ssp_task;
++		struct scsi_cmnd *scsi_cmnd = ssp_task->cmd;
++
++		dma_unmap_sg(dev, scsi_prot_sglist(scsi_cmnd),
++			     scsi_prot_sg_count(scsi_cmnd),
++			     task->data_dir);
++	}
++}
++
++static int hisi_sas_dif_dma_map(struct hisi_hba *hisi_hba,
++				int *n_elem_dif, struct sas_task *task)
++{
++	struct device *dev = hisi_hba->dev;
++	struct sas_ssp_task *ssp_task;
++	struct scsi_cmnd *scsi_cmnd;
++	int rc;
++
++	if (task->num_scatter) {
++		ssp_task = &task->ssp_task;
++		scsi_cmnd = ssp_task->cmd;
++
++		if (scsi_prot_sg_count(scsi_cmnd)) {
++			*n_elem_dif = dma_map_sg(dev,
++						 scsi_prot_sglist(scsi_cmnd),
++						 scsi_prot_sg_count(scsi_cmnd),
++						 task->data_dir);
++
++			if (!*n_elem_dif)
++				return -ENOMEM;
++
++			if (*n_elem_dif > HISI_SAS_SGE_DIF_PAGE_CNT) {
++				dev_err(dev, "task prep: n_elem_dif(%d) too large\n",
++					*n_elem_dif);
++				rc = -EINVAL;
++				goto err_out_dif_dma_unmap;
++			}
++		}
++	}
++
++	return 0;
++
++err_out_dif_dma_unmap:
++	dma_unmap_sg(dev, scsi_prot_sglist(scsi_cmnd),
++		     scsi_prot_sg_count(scsi_cmnd), task->data_dir);
++	return rc;
++}
++
+ static int hisi_sas_task_prep(struct sas_task *task,
+ 			      struct hisi_sas_dq **dq_pointer,
+ 			      bool is_tmf, struct hisi_sas_tmf_task *tmf,
+@@ -394,7 +454,7 @@ static int hisi_sas_task_prep(struct sas_task *task,
+ 	struct asd_sas_port *sas_port = device->port;
+ 	struct device *dev = hisi_hba->dev;
+ 	int dlvry_queue_slot, dlvry_queue, rc, slot_idx;
+-	int n_elem = 0, n_elem_req = 0, n_elem_resp = 0;
++	int n_elem = 0, n_elem_dif = 0, n_elem_req = 0, n_elem_resp = 0;
+ 	struct hisi_sas_dq *dq;
+ 	unsigned long flags;
+ 	int wr_q_index;
+@@ -427,6 +487,12 @@ static int hisi_sas_task_prep(struct sas_task *task,
+ 	if (rc < 0)
+ 		goto prep_out;
+ 
++	if (!sas_protocol_ata(task->task_proto)) {
++		rc = hisi_sas_dif_dma_map(hisi_hba, &n_elem_dif, task);
++		if (rc < 0)
++			goto err_out_dma_unmap;
++	}
++
+ 	if (hisi_hba->hw->slot_index_alloc)
+ 		rc = hisi_hba->hw->slot_index_alloc(hisi_hba, device);
+ 	else {
+@@ -445,7 +511,7 @@ static int hisi_sas_task_prep(struct sas_task *task,
+ 		rc  = hisi_sas_slot_index_alloc(hisi_hba, scsi_cmnd);
+ 	}
+ 	if (rc < 0)
+-		goto err_out_dma_unmap;
++		goto err_out_dif_dma_unmap;
+ 
+ 	slot_idx = rc;
+ 	slot = &hisi_hba->slot_info[slot_idx];
+@@ -466,6 +532,7 @@ static int hisi_sas_task_prep(struct sas_task *task,
+ 	dlvry_queue_slot = wr_q_index;
+ 
+ 	slot->n_elem = n_elem;
++	slot->n_elem_dif = n_elem_dif;
+ 	slot->dlvry_queue = dlvry_queue;
+ 	slot->dlvry_queue_slot = dlvry_queue_slot;
+ 	cmd_hdr_base = hisi_hba->cmd_hdr[dlvry_queue];
+@@ -509,6 +576,9 @@ static int hisi_sas_task_prep(struct sas_task *task,
+ 
+ err_out_tag:
+ 	hisi_sas_slot_index_free(hisi_hba, slot_idx);
++err_out_dif_dma_unmap:
++	if (!sas_protocol_ata(task->task_proto))
++		hisi_sas_dif_dma_unmap(hisi_hba, task, n_elem_dif);
+ err_out_dma_unmap:
+ 	hisi_sas_dma_unmap(hisi_hba, task, n_elem,
+ 			   n_elem_req, n_elem_resp);
+@@ -2142,21 +2212,26 @@ int hisi_sas_alloc(struct hisi_hba *hisi_hba, struct Scsi_Host *shost)
+ 	if (!hisi_hba->slot_info)
+ 		goto err_out;
+ 
+-	/* roundup to avoid overly large block size */
++	/* roundup to avoid an overly large block size */
+ 	max_command_entries_ru = roundup(max_command_entries, 64);
+-	sz_slot_buf_ru = roundup(sizeof(struct hisi_sas_slot_buf_table), 64);
++	if (hisi_hba->enable_dif_dix)
++		sz_slot_buf_ru = sizeof(struct hisi_sas_slot_dif_buf_table);
++	else
++		sz_slot_buf_ru = sizeof(struct hisi_sas_slot_buf_table);
++	sz_slot_buf_ru = roundup(sz_slot_buf_ru, 64);
+ 	s = lcm(max_command_entries_ru, sz_slot_buf_ru);
+ 	blk_cnt = (max_command_entries_ru * sz_slot_buf_ru) / s;
+ 	slots_per_blk = s / sz_slot_buf_ru;
++
+ 	for (i = 0; i < blk_cnt; i++) {
+-		struct hisi_sas_slot_buf_table *buf;
+-		dma_addr_t buf_dma;
+ 		int slot_index = i * slots_per_blk;
++		dma_addr_t buf_dma;
++		void *buf;
+ 
+-		buf = dmam_alloc_coherent(dev, s, &buf_dma, GFP_KERNEL);
++		buf = dmam_alloc_coherent(dev, s, &buf_dma,
++					  GFP_KERNEL | __GFP_ZERO);
+ 		if (!buf)
+ 			goto err_out;
+-		memset(buf, 0, s);
+ 
+ 		for (j = 0; j < slots_per_blk; j++, slot_index++) {
+ 			struct hisi_sas_slot *slot;
+@@ -2166,8 +2241,8 @@ int hisi_sas_alloc(struct hisi_hba *hisi_hba, struct Scsi_Host *shost)
+ 			slot->buf_dma = buf_dma;
+ 			slot->idx = slot_index;
+ 
+-			buf++;
+-			buf_dma += sizeof(*buf);
++			buf += sz_slot_buf_ru;
++			buf_dma += sz_slot_buf_ru;
+ 		}
+ 	}
+ 
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+index 8a08078..c03562b 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+@@ -127,6 +127,8 @@
+ #define PHY_CTRL			(PORT_BASE + 0x14)
+ #define PHY_CTRL_RESET_OFF		0
+ #define PHY_CTRL_RESET_MSK		(0x1 << PHY_CTRL_RESET_OFF)
++#define CMD_HDR_PIR_OFF			8
++#define CMD_HDR_PIR_MSK			(0x1 << CMD_HDR_PIR_OFF)
+ #define SL_CFG				(PORT_BASE + 0x84)
+ #define AIP_LIMIT			(PORT_BASE + 0x90)
+ #define SL_CONTROL			(PORT_BASE + 0x94)
+@@ -333,6 +335,16 @@
+ #define ITCT_HDR_RTOLT_OFF		48
+ #define ITCT_HDR_RTOLT_MSK		(0xffffULL << ITCT_HDR_RTOLT_OFF)
+ 
++struct hisi_sas_protect_iu_v3_hw {
++	u32 dw0;
++	u32 lbrtcv;
++	u32 lbrtgv;
++	u32 dw3;
++	u32 dw4;
++	u32 dw5;
++	u32 rsv;
++};
++
+ struct hisi_sas_complete_v3_hdr {
+ 	__le32 dw0;
+ 	__le32 dw1;
+@@ -372,9 +384,27 @@ struct hisi_sas_err_record_v3 {
+ 	((fis.command == ATA_CMD_DEV_RESET) && \
+ 	((fis.control & ATA_SRST) != 0)))
+ 
++#define T10_INSRT_EN_OFF    0
++#define T10_INSRT_EN_MSK    (1 << T10_INSRT_EN_OFF)
++#define T10_RMV_EN_OFF	    1
++#define T10_RMV_EN_MSK	    (1 << T10_RMV_EN_OFF)
++#define T10_RPLC_EN_OFF	    2
++#define T10_RPLC_EN_MSK	    (1 << T10_RPLC_EN_OFF)
++#define T10_CHK_EN_OFF	    3
++#define T10_CHK_EN_MSK	    (1 << T10_CHK_EN_OFF)
++#define INCR_LBRT_OFF	    5
++#define INCR_LBRT_MSK	    (1 << INCR_LBRT_OFF)
++#define USR_DATA_BLOCK_SZ_OFF	20
++#define USR_DATA_BLOCK_SZ_MSK	(0x3 << USR_DATA_BLOCK_SZ_OFF)
++#define T10_CHK_MSK_OFF	    16
++
+ static bool hisi_sas_intr_conv;
+ MODULE_PARM_DESC(intr_conv, "interrupt converge enable (0-1)");
+ 
++static bool enable_dif_dix;
++module_param(enable_dif_dix, bool, 0444);
++MODULE_PARM_DESC(enable_dif_dix, "DIF/DIX enable (0-1)");
++
+ static u32 hisi_sas_read32(struct hisi_hba *hisi_hba, u32 off)
+ {
+ 	void __iomem *regs = hisi_hba->regs + off;
+@@ -937,7 +967,107 @@ static void prep_prd_sge_v3_hw(struct hisi_hba *hisi_hba,
+ 
+ 	hdr->prd_table_addr = cpu_to_le64(hisi_sas_sge_addr_dma(slot));
+ 
+-	hdr->sg_len = cpu_to_le32(n_elem << CMD_HDR_DATA_SGL_LEN_OFF);
++	hdr->sg_len |= cpu_to_le32(n_elem << CMD_HDR_DATA_SGL_LEN_OFF);
++}
++
++static void prep_prd_sge_dif_v3_hw(struct hisi_hba *hisi_hba,
++				  struct hisi_sas_slot *slot,
++				  struct hisi_sas_cmd_hdr *hdr,
++				  struct scatterlist *scatter,
++				  int n_elem)
++{
++	struct hisi_sas_sge_dif_page *sge_dif_page;
++	struct scatterlist *sg;
++	int i;
++
++	sge_dif_page = hisi_sas_sge_dif_addr_mem(slot);
++
++	for_each_sg(scatter, sg, n_elem, i) {
++		struct hisi_sas_sge *entry = &sge_dif_page->sge[i];
++
++		entry->addr = cpu_to_le64(sg_dma_address(sg));
++		entry->page_ctrl_0 = entry->page_ctrl_1 = 0;
++		entry->data_len = cpu_to_le32(sg_dma_len(sg));
++		entry->data_off = 0;
++	}
++
++	hdr->dif_prd_table_addr = cpu_to_le64(
++			hisi_sas_sge_dif_addr_dma(slot));
++
++	hdr->sg_len |= cpu_to_le32(n_elem << CMD_HDR_DIF_SGL_LEN_OFF);
++}
++
++static void fill_prot_v3_hw(struct scsi_cmnd *scsi_cmnd,
++			    struct hisi_sas_protect_iu_v3_hw *prot)
++{
++	u8 prot_type = scsi_get_prot_type(scsi_cmnd);
++	u8 prot_op = scsi_get_prot_op(scsi_cmnd);
++	unsigned int interval = scsi_prot_interval(scsi_cmnd);
++	u32 lbrt_chk_val;
++
++	if (interval == 4096)
++		lbrt_chk_val = (u32)(scsi_get_lba(scsi_cmnd) >> 3);
++	else
++		lbrt_chk_val = (u32)scsi_get_lba(scsi_cmnd);
++
++	switch (prot_op) {
++	case SCSI_PROT_READ_INSERT:
++		prot->dw0 |= T10_INSRT_EN_MSK;
++		prot->lbrtgv = lbrt_chk_val;
++		break;
++	case SCSI_PROT_READ_STRIP:
++		prot->dw0 |= (T10_RMV_EN_MSK | T10_CHK_EN_MSK);
++		prot->lbrtcv = lbrt_chk_val;
++		if (prot_type == SCSI_PROT_DIF_TYPE1)
++			prot->dw4 |= (0xc << 16);
++		else if (prot_type == SCSI_PROT_DIF_TYPE3)
++			prot->dw4 |= (0xfc << 16);
++		break;
++	case SCSI_PROT_READ_PASS:
++		prot->dw0 |= T10_CHK_EN_MSK;
++		prot->lbrtcv = lbrt_chk_val;
++		if (prot_type == SCSI_PROT_DIF_TYPE1)
++			prot->dw4 |= (0xc << 16);
++		else if (prot_type == SCSI_PROT_DIF_TYPE3)
++			prot->dw4 |= (0xfc << 16);
++		break;
++	case SCSI_PROT_WRITE_INSERT:
++		prot->dw0 |= T10_INSRT_EN_MSK;
++		prot->lbrtgv = lbrt_chk_val;
++		break;
++	case SCSI_PROT_WRITE_STRIP:
++		prot->dw0 |= (T10_RMV_EN_MSK | T10_CHK_EN_MSK);
++		prot->lbrtcv = lbrt_chk_val;
++		break;
++	case SCSI_PROT_WRITE_PASS:
++		prot->dw0 |= T10_CHK_EN_MSK;
++		prot->lbrtcv = lbrt_chk_val;
++		if (prot_type == SCSI_PROT_DIF_TYPE1)
++			prot->dw4 |= (0xc << 16);
++		else if (prot_type == SCSI_PROT_DIF_TYPE3)
++			prot->dw4 |= (0xfc << 16);
++		break;
++	default:
++		WARN(1, "prot_op(0x%x) is not valid\n", prot_op);
++		break;
++	}
++
++	switch (interval) {
++	case 512:
++		break;
++	case 4096:
++		prot->dw0 |= (0x1 << USR_DATA_BLOCK_SZ_OFF);
++		break;
++	case 520:
++		prot->dw0 |= (0x2 << USR_DATA_BLOCK_SZ_OFF);
++		break;
++	default:
++		WARN(1, "protection interval (0x%x) invalid\n",
++		     interval);
++		break;
++	}
++
++	prot->dw0 |= INCR_LBRT_MSK;
+ }
+ 
+ static void prep_ssp_v3_hw(struct hisi_hba *hisi_hba,
+@@ -951,9 +1081,10 @@ static void prep_ssp_v3_hw(struct hisi_hba *hisi_hba,
+ 	struct sas_ssp_task *ssp_task = &task->ssp_task;
+ 	struct scsi_cmnd *scsi_cmnd = ssp_task->cmd;
+ 	struct hisi_sas_tmf_task *tmf = slot->tmf;
++	unsigned char prot_op = scsi_get_prot_op(scsi_cmnd);
+ 	int has_data = 0, priority = !!tmf;
+ 	u8 *buf_cmd;
+-	u32 dw1 = 0, dw2 = 0;
++	u32 dw1 = 0, dw2 = 0, len = 0;
+ 
+ 	hdr->dw0 = cpu_to_le32((1 << CMD_HDR_RESP_REPORT_OFF) |
+ 			       (2 << CMD_HDR_TLR_CTRL_OFF) |
+@@ -992,11 +1123,16 @@ static void prep_ssp_v3_hw(struct hisi_hba *hisi_hba,
+ 	hdr->dw2 = cpu_to_le32(dw2);
+ 	hdr->transfer_tags = cpu_to_le32(slot->idx);
+ 
+-	if (has_data)
++	if (has_data) {
+ 		prep_prd_sge_v3_hw(hisi_hba, slot, hdr, task->scatter,
+-					slot->n_elem);
++				   slot->n_elem);
++
++		if (scsi_prot_sg_count(scsi_cmnd))
++			prep_prd_sge_dif_v3_hw(hisi_hba, slot, hdr,
++					       scsi_prot_sglist(scsi_cmnd),
++					       slot->n_elem_dif);
++	}
+ 
+-	hdr->data_transfer_len = cpu_to_le32(task->total_xfer_len);
+ 	hdr->cmd_table_addr = cpu_to_le64(hisi_sas_cmd_hdr_addr_dma(slot));
+ 	hdr->sts_buffer_addr = cpu_to_le64(hisi_sas_status_buf_addr_dma(slot));
+ 
+@@ -1021,6 +1157,34 @@ static void prep_ssp_v3_hw(struct hisi_hba *hisi_hba,
+ 			break;
+ 		}
+ 	}
++
++	if (has_data && (prot_op != SCSI_PROT_NORMAL)) {
++		struct hisi_sas_protect_iu_v3_hw prot;
++		u8 *buf_cmd_prot;
++
++		hdr->dw7 |= 1 << CMD_HDR_ADDR_MODE_SEL_OFF;
++		hdr->dw1 |= CMD_HDR_PIR_MSK;
++		buf_cmd_prot = hisi_sas_cmd_hdr_addr_mem(slot) +
++			       sizeof(struct ssp_frame_hdr) +
++			       sizeof(struct ssp_command_iu);
++
++		memset(&prot, 0, sizeof(struct hisi_sas_protect_iu_v3_hw));
++		fill_prot_v3_hw(scsi_cmnd, &prot);
++		memcpy(buf_cmd_prot, &prot,
++		       sizeof(struct hisi_sas_protect_iu_v3_hw));
++
++		if ((prot_op == SCSI_PROT_READ_INSERT) ||
++		    (prot_op == SCSI_PROT_WRITE_INSERT) ||
++		    (prot_op == SCSI_PROT_WRITE_PASS) ||
++		    (prot_op == SCSI_PROT_READ_PASS)) {
++			unsigned int interval = scsi_prot_interval(scsi_cmnd);
++			unsigned int ilog2_interval = ilog2(interval);
++
++			len = (task->total_xfer_len >> ilog2_interval) * 8;
++		}
++	}
++
++	hdr->data_transfer_len = cpu_to_le32(task->total_xfer_len + len);
+ }
+ 
+ static void prep_smp_v3_hw(struct hisi_hba *hisi_hba,
+@@ -2225,6 +2389,7 @@ struct device_attribute *host_attrs_v3_hw[] = {
+ 	.bios_param		= sas_bios_param,
+ 	.this_id		= -1,
+ 	.sg_tablesize		= HISI_SAS_SGE_PAGE_CNT,
++	.sg_prot_tablesize	= HISI_SAS_SGE_PAGE_CNT,
+ 	.max_sectors		= SCSI_DEFAULT_MAX_SECTORS,
+ 	.use_clustering		= ENABLE_CLUSTERING,
+ 	.eh_device_reset_handler = sas_eh_device_reset_handler,
+@@ -2284,6 +2449,7 @@ struct device_attribute *host_attrs_v3_hw[] = {
+ 	hisi_hba->dev = dev;
+ 	hisi_hba->shost = shost;
+ 	SHOST_TO_SAS_HA(shost) = &hisi_hba->sha;
++	hisi_hba->enable_dif_dix = enable_dif_dix;
+ 
+ 	timer_setup(&hisi_hba->timer, NULL, 0);
+ 
+@@ -2395,6 +2561,19 @@ struct device_attribute *host_attrs_v3_hw[] = {
+ 	if (rc)
+ 		goto err_out_register_ha;
+ 
++	if (hisi_hba->enable_dif_dix) {
++		dev_info(dev, "Registering for DIF/DIX type 1/2/3 protection.\n");
++		scsi_host_set_prot(hisi_hba->shost,
++				   SHOST_DIF_TYPE1_PROTECTION |
++				   SHOST_DIF_TYPE2_PROTECTION |
++				   SHOST_DIF_TYPE3_PROTECTION |
++				   SHOST_DIX_TYPE1_PROTECTION |
++				   SHOST_DIX_TYPE2_PROTECTION |
++				   SHOST_DIX_TYPE3_PROTECTION);
++		scsi_host_set_guard(hisi_hba->shost,
++				    SHOST_DIX_GUARD_CRC);
++	}
++
+ 	scsi_scan_host(shost);
+ 
+ 	return 0;
+-- 
+1.9.1

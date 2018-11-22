@@ -1,0 +1,384 @@
+Return-Path: <xen-devel-bounces@lists.xenproject.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 20 Nov 2018 07:59:16 -0000
+Received: from icoremail.net (unknown [209.85.214.174])
+	by mail-app4 (Coremail) with SMTP id cS_KCgCn3_AXrvNb7qndAQ--.37855S3;
+	Tue, 20 Nov 2018 14:47:52 +0800 (CST)
+Received: from mail-pl1-f174.google.com (unknown [209.85.214.174])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwC3mEQRrvNb8IpcAA--.1788S3;
+	Tue, 20 Nov 2018 14:47:45 +0800 (CST)
+Received: by mail-pl1-f174.google.com with SMTP id gn14so503744plb.10
+        for <xuliker@zju.edu.cn>; Mon, 19 Nov 2018 22:47:45 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :from:to:thread-topic:thread-index:date:message-id:accept-language
+         :content-language:dlp-product:dlp-version:dlp-reaction:mime-version
+         :subject:precedence:list-id:list-unsubscribe:list-post:list-help
+         :list-subscribe:cc:errors-to:sender;
+        bh=e7PFT3leh5RG2U9ONTssFQurYY9gy2cc0V6zCao2xFg=;
+        b=GyP6/q3uHlNq5+7FiWaq+OoVvAgvk6uDGhqkUmoF8Vlec5rVZ0ukAQ5b1bMFvjl/tn
+         S3P31oduMiF8vIqjPYJEoxCH6vIWmeJwrmfkltzVC172zTLqXWmE8XDggddcvc0OSpp/
+         jFtk03+ySt9i0PJlcikb21nM/hOgZMwapBUhOzXPTcng4wKvJfT6dJE7tkaFIns2iLqZ
+         ZuG3jO0aYGxHvYlyvjWw2XEW11UD/6/Zf66i/XZp0JdsTeya0tO8QnN5FAFGk421NsGL
+         mXJ5d25um0op/MG4WrrpjfsDmN5xGMvZ65BhJUX2eGJGIKydAhNGQxJ5TPfzs2DxtCiE
+         +mlg==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of xen-devel-bounces@lists.xenproject.org designates 192.237.175.120 as permitted sender) smtp.mailfrom=xen-devel-bounces@lists.xenproject.org;       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=intel.com
+X-Gm-Message-State: AA+aEWb1XiNHiL5WNfgcgvDqO+AWqHTQZppRaus5gZLixYOmMaw0383W
+	3y9GJ8LrzgU7AM8b902n/JGv74HYGdhLN3uYnp3ZKWSlreMg16s=
+X-Received: by 2002:a17:902:6686:: with SMTP id e6-v6mr947058plk.173.1542696464753;
+        Mon, 19 Nov 2018 22:47:44 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:d106:0:0:0:0 with SMTP id l6-v6csp237709pju;
+        Mon, 19 Nov 2018 22:47:43 -0800 (PST)
+X-Google-Smtp-Source: AJdET5ci98z35KpbS0ATwrgP+nsar0+Ut3fL7wa20aaWXRHRBwqk3MThTIUqFHxGU6eqaGXY3fs/
+X-Received: by 2002:a81:5583:: with SMTP id j125mr690439ywb.105.1542696463645;
+        Mon, 19 Nov 2018 22:47:43 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542696463; cv=none;
+        d=google.com; s=arc-20160816;
+        b=u3OFkssR6Fe2EQHcxbadB2K+IJObz0ZQaLPdmBofDVULFZ+gHzPnNgUKCNVAx+8/vm
+         mP3SGzB4idCrCE4EMQBIY5EOflzJXb9LgJHZ/ggycZq3oIB8NN7jMjJ1EBie/f26d59S
+         5Sg645a7VHEaskU4Z2jg2xGqAqlqHpIctcmuYiUPnxwZMh7hf3tcD6M3ZEn8DahgRfKT
+         vuB8HBbjC5lLxLY6bbKFKqFDvBbrjUYp4P2p0uNv7yv+780Ylwz6DoQCHmGeUW7ztlnv
+         mQj1kLfbZz4j3QZb9mmnwB0PtcE3//YEa38GxVkh7CS85LnTD9B0of7csJoVuat+vHMA
+         RmPw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=sender:errors-to:cc:list-subscribe:list-help:list-post
+         :list-unsubscribe:list-id:precedence:subject:mime-version
+         :dlp-reaction:dlp-version:dlp-product:content-language
+         :accept-language:message-id:date:thread-index:thread-topic:to:from;
+        bh=e7PFT3leh5RG2U9ONTssFQurYY9gy2cc0V6zCao2xFg=;
+        b=pwNdRKgiQtVEA6SklnsGiJCqxBwzmV4K1ONPLPYfjT4P0wn92nawTpwrfIr0Fnzuzh
+         Nqd916fESVAKhQ6H70uhRhYQLNgn+4XjiOJLp7IBMXggvAPmSAI6amevl0XnIL/4d6s3
+         vKVXix4PpQQ+9SmStXvSnMSsTKBKirAjxiKWZODRvsEo70YlOYvI5BgF9fFKjyGILG4f
+         fN80JXTvK3zQ64csfntySmDYemkfLQJ1pIpLWGnTxvWhTV0OfsF0H0ofcDEZ7l+uv66O
+         Dma6C/SHhiSEXO4FKwp7iM4DCZ06zCBQpJvD7nss1KUgjqOdi3MH1EOEn2Mj1jExBXdl
+         PROQ==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of xen-devel-bounces@lists.xenproject.org designates 192.237.175.120 as permitted sender) smtp.mailfrom=xen-devel-bounces@lists.xenproject.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=intel.com
+Received: from lists.xenproject.org (lists.xenproject.org. [192.237.175.120])
+        by mx.google.com with ESMTPS id s2-v6si25109376ywc.265.2018.11.19.22.47.41
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Mon, 19 Nov 2018 22:47:43 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of xen-devel-bounces@lists.xenproject.org designates 192.237.175.120 as permitted sender) client-ip=192.237.175.120;
+Received: from localhost ([127.0.0.1] helo=lists.xenproject.org)
+	by lists.xenproject.org with esmtp (Exim 4.89)
+	(envelope-from <xen-devel-bounces@lists.xenproject.org>)
+	id 1gOzmq-0004T2-9n; Tue, 20 Nov 2018 06:45:28 +0000
+Received: from us1-rack-dfw2.inumbo.com ([104.130.134.6])
+ by lists.xenproject.org with esmtp (Exim 4.89) (envelope-from
+ <srs0=kvi+=n7=intel.com=farrah.chen@srs-us1.protection.inumbo.net>)
+ id 1gOzmo-0004Sx-Ol
+ for xen-devel@lists.xenproject.org; Tue, 20 Nov 2018 06:45:26 +0000
+X-Inumbo-ID: db0cb74a-ec8f-11e8-9a16-bc764e045a96
+Received: from mga03.intel.com (unknown [134.134.136.65])
+ by us1-rack-dfw2.inumbo.com (Halon) with ESMTPS
+ id db0cb74a-ec8f-11e8-9a16-bc764e045a96;
+ Tue, 20 Nov 2018 06:45:24 +0000 (UTC)
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga003.fm.intel.com ([10.253.24.29])
+ by orsmga103.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384;
+ 19 Nov 2018 22:45:23 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.56,255,1539673200"; d="scan'208,217";a="97633708"
+Received: from fmsmsx107.amr.corp.intel.com ([10.18.124.205])
+ by FMSMGA003.fm.intel.com with ESMTP; 19 Nov 2018 22:45:22 -0800
+Received: from fmsmsx156.amr.corp.intel.com (10.18.116.74) by
+ fmsmsx107.amr.corp.intel.com (10.18.124.205) with Microsoft SMTP Server (TLS)
+ id 14.3.408.0; Mon, 19 Nov 2018 22:45:22 -0800
+Received: from shsmsx152.ccr.corp.intel.com (10.239.6.52) by
+ fmsmsx156.amr.corp.intel.com (10.18.116.74) with Microsoft SMTP Server (TLS)
+ id 14.3.408.0; Mon, 19 Nov 2018 22:45:22 -0800
+Received: from shsmsx102.ccr.corp.intel.com ([169.254.2.84]) by
+ SHSMSX152.ccr.corp.intel.com ([169.254.6.214]) with mapi id 14.03.0415.000;
+ Tue, 20 Nov 2018 14:45:20 +0800
+From: "Chen, Farrah" <farrah.chen@intel.com>
+To: "xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>
+Thread-Topic: Xen make grub error
+Thread-Index: AdSAnJXxyRno4spuTZOmJlwEFpPzAQ==
+Date: Tue, 20 Nov 2018 06:45:19 +0000
+Message-ID: <1B925CC0CD9F3341B32D442251E7E1DC3D86D718@shsmsx102.ccr.corp.intel.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+dlp-product: dlpe-windows
+dlp-version: 11.0.400.15
+dlp-reaction: no-action
+x-titus-metadata-40: eyJDYXRlZ29yeUxhYmVscyI6IiIsIk1ldGFkYXRhIjp7Im5zIjoiaHR0cDpcL1wvd3d3LnRpdHVzLmNvbVwvbnNcL0ludGVsMyIsImlkIjoiNjZlODFmMzgtYTJiYi00MTNiLTk3ZGMtMjAzNTNjOTRiYjZmIiwicHJvcHMiOlt7Im4iOiJDVFBDbGFzc2lmaWNhdGlvbiIsInZhbHMiOlt7InZhbHVlIjoiQ1RQX05UIn1dfV19LCJTdWJqZWN0TGFiZWxzIjpbXSwiVE1DVmVyc2lvbiI6IjE3LjEwLjE4MDQuNDkiLCJUcnVzdGVkTGFiZWxIYXNoIjoibDd5ajZjN3VjcTBpbFN2QWdCQ3llMlJlbWo2bkpSQjlzUnNleGswcEdvb0ZWNHREeUtTZVVjdmJYTUYzVjFaUiJ9
+x-ctpclassification: CTP_NT
+x-originating-ip: [10.239.127.40]
+MIME-Version: 1.0
+Subject: [Xen-devel] Xen make grub error
+X-BeenThere: xen-devel@lists.xenproject.org
+X-Mailman-Version: 2.1.23
+Precedence: list
+List-Id: Xen developer discussion <xen-devel.lists.xenproject.org>
+List-Unsubscribe: <https://lists.xenproject.org/mailman/options/xen-devel>,
+ <mailto:xen-devel-request@lists.xenproject.org?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xenproject.org>
+List-Help: <mailto:xen-devel-request@lists.xenproject.org?subject=help>
+List-Subscribe: <https://lists.xenproject.org/mailman/listinfo/xen-devel>,
+ <mailto:xen-devel-request@lists.xenproject.org?subject=subscribe>
+Cc: "bug-grub@gnu.org" <bug-grub@gnu.org>, "Hao, Xudong" <xudong.hao@intel.com>
+Content-Type: multipart/mixed; boundary="===============4209648467042661586=="
+Errors-To: xen-devel-bounces@lists.xenproject.org
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+X-CM-TRANSID: AQAAfwC3mEQRrvNb8IpcAA--.1788S3
+Authentication-Results: mail-app4; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW7CF4kXryDAFyftryUAryDtrb_yoW8uFWkpa
+	yj9rnakF4rJry5Jr93XFyYg3y5Wa1DX345Aa9rXw18XF1Fgr1FyF43CF1FgF18urWkZr45
+	ury29rW8Za95ZF7anT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUGGb7Iv0xC_tr1lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2
+	z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s0DM2vj6VCEFcxC0V
+	AYjxAxZF0EFcxC0VAYjxAxZF0Ew4CEw7xC0VCjxxvEa2IrM2AIxVAIcxkEcVAq07x20xvE
+	ncxIr21l5I8CrVAYj202j2C_Ar0_Cr1l5I8CrVAqjxCE14ACF2xKxwAqx4xG64kEw2xG04
+	xIwI0_Gr0_Xr1l5I8CrVCF0I0E4I0vr24lYx0E2Ix0cI8IcVAFwI0_Jr0_Jr4lYx0Ex4A2
+	jsIE14v26r4j6F4UMcvjeVCFs4IE7xkEbVWUJVW8JwACY4xI67k04243AVAKzVAKj4xxMx
+	8GjcxK6IxK0xIIj40E5I8CrwCjxxvEa2IrMxkF7I0Ew4C26cxK6c8Ij28IcwCY1Ik26cxK
+	6xAEc7vF6xCjj44lc2xSY4AK6IIF6r47MxkI7II2jI8vz4vEwIxGrwCYIxAIcVC0I7IYx2
+	IY67AKxVWUCVW8JwCYIxAIcVC0I7IYx2IY6xkF7I0E14v26r1j6r4UMxvI42IY6I8E87Iv
+	67AKxVW0oVCq3wCYIxAIcVC2z280aVCY1x0267AKxVW0oVCq3wCF04k20xvY0x0EwIxGrw
+	CF04k20xvEw4C26cxK6c8Ij28IcwCF72vE77IF4wCFx2IqxVCFs4IE7xkEbVWUJVW8JwC2
+	0s026c02F40E14v26r106r1rMI8I3I0E7480Y4vE14v26r106r1rMI8E67x28xkI4xCE0x
+	IEc2x0rwC2zVAF1VAY17CE14v26r126r1DMIIYrxkI7VAKI48JMIIF0xvE42xK8VAvwI8I
+	cIk0rVW3JVWrJr1l6VACY4xI67k04243AbIYCTnIWIevJa73UjIFyTuYvjxUqKhFDUUUU
+
+--===============4209648467042661586==
+Content-Language: en-US
+Content-Type: multipart/alternative;
+	boundary="_000_1B925CC0CD9F3341B32D442251E7E1DC3D86D718shsmsx102ccrcor_"
+
+--_000_1B925CC0CD9F3341B32D442251E7E1DC3D86D718shsmsx102ccrcor_
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+
+Hi,
+
+When we make grub with xen, we met below error, do you have any advice?
+
+cd grub
+./autogen.sh
+./configure --target=3Damd64 --with-platform=3Dxen --prefix=3D${PWD}/../pvg=
+rub2
+make
+
+.........
+loader/i386/xen.c: In function 'grub_cmd_xen':
+loader/i386/xen.c:650:10: error: too few arguments to function 'grub_create=
+_loader_cmdline'
+          sizeof (xen_state.next_start.cmd_line) - 1);
+          ^
+In file included from loader/i386/xen.c:38:0:
+../include/grub/lib/cmdline.h:29:12: note: declared here
+grub_err_t grub_create_loader_cmdline (int argc, char *argv[], char *buf,
+            ^
+loader/i386/xen.c:651:3: error: pointer targets in passing argument 1 of 'g=
+rub_verify_string' differ in signedness [-Werror=3Dpointer-sign]
+   err =3D grub_verify_string (xen_state.next_start.cmd_line, GRUB_VERIFY_M=
+ODULE_CMDLINE);
+   ^
+In file included from ../include/grub/lib/cmdline.h:24:0,
+                 from loader/i386/xen.c:38:
+../include/grub/verify.h:81:1: note: expected 'char *' but argument is of t=
+ype 'int8_t *'
+grub_verify_string (char *str, enum grub_verify_string_type type);
+^
+loader/i386/xen.c: In function 'grub_cmd_module':
+loader/i386/xen.c:914:10: error: too few arguments to function 'grub_create=
+_loader_cmdline'
+          get_virtual_current_address (ch), cmdline_len);
+          ^
+In file included from loader/i386/xen.c:38:0:
+../include/grub/lib/cmdline.h:29:12: note: declared here
+grub_err_t grub_create_loader_cmdline (int argc, char *argv[], char *buf,
+            ^
+cc1: all warnings being treated as errors
+make[3]: *** [loader/i386/linux_module-xen.o] Error 1
+make[3]: Leaving directory `/home/build/xen_build/nightly/xen_dom0/xen-mast=
+er-20181120091929-6d8ffac1/grub/grub-core'
+make[2]: *** [all] Error 2
+make[2]: Leaving directory `/home/build/xen_build/nightly/xen_dom0/xen-mast=
+er-20181120091929-6d8ffac1/grub/grub-core'
+make[1]: *** [all-recursive] Error 1
+make[1]: Leaving directory `/home/build/xen_build/nightly/xen_dom0/xen-mast=
+er-20181120091929-6d8ffac1/grub'
+make: *** [all] Error 2
+
+
+Thanks,
+Fan
+
+
+--_000_1B925CC0CD9F3341B32D442251E7E1DC3D86D718shsmsx102ccrcor_
+Content-Type: text/html; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+
+<html xmlns:v=3D"urn:schemas-microsoft-com:vml" xmlns:o=3D"urn:schemas-micr=
+osoft-com:office:office" xmlns:w=3D"urn:schemas-microsoft-com:office:word" =
+xmlns:m=3D"http://schemas.microsoft.com/office/2004/12/omml" xmlns=3D"http:=
+//www.w3.org/TR/REC-html40">
+<head>
+<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Dus-ascii"=
+>
+<meta name=3D"Generator" content=3D"Microsoft Word 15 (filtered medium)">
+<style><!--
+/* Font Definitions */
+@font-face
+	{font-family:SimSun;
+	panose-1:2 1 6 0 3 1 1 1 1 1;}
+@font-face
+	{font-family:"Cambria Math";
+	panose-1:2 4 5 3 5 4 6 3 2 4;}
+@font-face
+	{font-family:Calibri;
+	panose-1:2 15 5 2 2 2 4 3 2 4;}
+@font-face
+	{font-family:"\@SimSun";
+	panose-1:2 1 6 0 3 1 1 1 1 1;}
+@font-face
+	{font-family:"Intel Clear";
+	panose-1:2 11 6 4 2 2 3 2 2 4;}
+/* Style Definitions */
+p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin:0in;
+	margin-bottom:.0001pt;
+	font-size:11.0pt;
+	font-family:"Calibri",sans-serif;}
+a:link, span.MsoHyperlink
+	{mso-style-priority:99;
+	color:#0563C1;
+	text-decoration:underline;}
+a:visited, span.MsoHyperlinkFollowed
+	{mso-style-priority:99;
+	color:#954F72;
+	text-decoration:underline;}
+span.EmailStyle17
+	{mso-style-type:personal-compose;
+	font-family:"Calibri",sans-serif;
+	color:windowtext;}
+.MsoChpDefault
+	{mso-style-type:export-only;
+	font-family:"Calibri",sans-serif;}
+@page WordSection1
+	{size:8.5in 11.0in;
+	margin:1.0in 1.0in 1.0in 1.0in;}
+div.WordSection1
+	{page:WordSection1;}
+--></style><!--[if gte mso 9]><xml>
+<o:shapedefaults v:ext=3D"edit" spidmax=3D"1026" />
+</xml><![endif]--><!--[if gte mso 9]><xml>
+<o:shapelayout v:ext=3D"edit">
+<o:idmap v:ext=3D"edit" data=3D"1" />
+</o:shapelayout></xml><![endif]-->
+</head>
+<body lang=3D"EN-US" link=3D"#0563C1" vlink=3D"#954F72">
+<div class=3D"WordSection1">
+<p class=3D"MsoNormal">Hi,<o:p></o:p></p>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+<p class=3D"MsoNormal">When we make grub with xen, we met below error, do y=
+ou have any advice?<o:p></o:p></p>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+<p class=3D"MsoNormal">cd grub<o:p></o:p></p>
+<p class=3D"MsoNormal">./autogen.sh<o:p></o:p></p>
+<p class=3D"MsoNormal">./configure --target=3Damd64 --with-platform=3Dxen -=
+-prefix=3D${PWD}/../pvgrub2<o:p></o:p></p>
+<p class=3D"MsoNormal">make<o:p></o:p></p>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+<p class=3D"MsoNormal">&#8230;&#8230;&#8230;<o:p></o:p></p>
+<p class=3D"MsoNormal">loader/i386/xen.c: In function &#8216;grub_cmd_xen&#=
+8217;:<o:p></o:p></p>
+<p class=3D"MsoNormal">loader/i386/xen.c:650:10: error: too few arguments t=
+o function &#8216;grub_create_loader_cmdline&#8217;<o:p></o:p></p>
+<p class=3D"MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbs=
+p; sizeof (xen_state.next_start.cmd_line) - 1);<o:p></o:p></p>
+<p class=3D"MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbs=
+p; ^<o:p></o:p></p>
+<p class=3D"MsoNormal">In file included from loader/i386/xen.c:38:0:<o:p></=
+o:p></p>
+<p class=3D"MsoNormal">../include/grub/lib/cmdline.h:29:12: note: declared =
+here<o:p></o:p></p>
+<p class=3D"MsoNormal">grub_err_t grub_create_loader_cmdline (int argc, cha=
+r *argv[], char *buf,<o:p></o:p></p>
+<p class=3D"MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbs=
+p;&nbsp;&nbsp; ^<o:p></o:p></p>
+<p class=3D"MsoNormal">loader/i386/xen.c:651:3: error: pointer targets in p=
+assing argument 1 of &#8216;grub_verify_string&#8217; differ in signedness =
+[-Werror=3Dpointer-sign]<o:p></o:p></p>
+<p class=3D"MsoNormal">&nbsp;&nbsp; err =3D grub_verify_string (xen_state.n=
+ext_start.cmd_line, GRUB_VERIFY_MODULE_CMDLINE);<o:p></o:p></p>
+<p class=3D"MsoNormal">&nbsp;&nbsp; ^<o:p></o:p></p>
+<p class=3D"MsoNormal">In file included from ../include/grub/lib/cmdline.h:=
+24:0,<o:p></o:p></p>
+<p class=3D"MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbs=
+p;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; from loader/i386/xen.c:38:<o:p=
+></o:p></p>
+<p class=3D"MsoNormal">../include/grub/verify.h:81:1: note: expected &#8216=
+;char *&#8217; but argument is of type &#8216;int8_t *&#8217;<o:p></o:p></p=
+>
+<p class=3D"MsoNormal">grub_verify_string (char *str, enum grub_verify_stri=
+ng_type type);<o:p></o:p></p>
+<p class=3D"MsoNormal">^<o:p></o:p></p>
+<p class=3D"MsoNormal">loader/i386/xen.c: In function &#8216;grub_cmd_modul=
+e&#8217;:<o:p></o:p></p>
+<p class=3D"MsoNormal">loader/i386/xen.c:914:10: error: too few arguments t=
+o function &#8216;grub_create_loader_cmdline&#8217;<o:p></o:p></p>
+<p class=3D"MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbs=
+p; get_virtual_current_address (ch), cmdline_len);<o:p></o:p></p>
+<p class=3D"MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbs=
+p; ^<o:p></o:p></p>
+<p class=3D"MsoNormal">In file included from loader/i386/xen.c:38:0:<o:p></=
+o:p></p>
+<p class=3D"MsoNormal">../include/grub/lib/cmdline.h:29:12: note: declared =
+here<o:p></o:p></p>
+<p class=3D"MsoNormal">grub_err_t grub_create_loader_cmdline (int argc, cha=
+r *argv[], char *buf,<o:p></o:p></p>
+<p class=3D"MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbs=
+p;&nbsp;&nbsp; ^<o:p></o:p></p>
+<p class=3D"MsoNormal">cc1: all warnings being treated as errors<o:p></o:p>=
+</p>
+<p class=3D"MsoNormal">make[3]: *** [loader/i386/linux_module-xen.o] Error =
+1<o:p></o:p></p>
+<p class=3D"MsoNormal">make[3]: Leaving directory `/home/build/xen_build/ni=
+ghtly/xen_dom0/xen-master-20181120091929-6d8ffac1/grub/grub-core'<o:p></o:p=
+></p>
+<p class=3D"MsoNormal">make[2]: *** [all] Error 2<o:p></o:p></p>
+<p class=3D"MsoNormal">make[2]: Leaving directory `/home/build/xen_build/ni=
+ghtly/xen_dom0/xen-master-20181120091929-6d8ffac1/grub/grub-core'<o:p></o:p=
+></p>
+<p class=3D"MsoNormal">make[1]: *** [all-recursive] Error 1<o:p></o:p></p>
+<p class=3D"MsoNormal">make[1]: Leaving directory `/home/build/xen_build/ni=
+ghtly/xen_dom0/xen-master-20181120091929-6d8ffac1/grub'<o:p></o:p></p>
+<p class=3D"MsoNormal">make: *** [all] Error 2<o:p></o:p></p>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+<p class=3D"MsoNormal">Thanks,<o:p></o:p></p>
+<p class=3D"MsoNormal">Fan<span style=3D"font-family:&quot;Intel Clear&quot=
+;,sans-serif"><o:p></o:p></span></p>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+</div>
+</body>
+</html>
+
+--_000_1B925CC0CD9F3341B32D442251E7E1DC3D86D718shsmsx102ccrcor_--
+
+
+--===============4209648467042661586==
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: base64
+Content-Disposition: inline
+
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KWGVuLWRldmVs
+IG1haWxpbmcgbGlzdApYZW4tZGV2ZWxAbGlzdHMueGVucHJvamVjdC5vcmcKaHR0cHM6Ly9saXN0
+cy54ZW5wcm9qZWN0Lm9yZy9tYWlsbWFuL2xpc3RpbmZvL3hlbi1kZXZlbA==
+
+--===============4209648467042661586==--

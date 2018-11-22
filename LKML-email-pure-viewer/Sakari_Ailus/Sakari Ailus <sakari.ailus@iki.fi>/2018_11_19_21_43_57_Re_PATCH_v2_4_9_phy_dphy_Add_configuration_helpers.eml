@@ -1,0 +1,414 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 20 Nov 2018 00:30:33 -0000
+Received: from icoremail.net (unknown [209.85.215.175])
+	by mail-app2 (Coremail) with SMTP id by_KCgCn3whTvvJbemm5AQ--.55624S3;
+	Mon, 19 Nov 2018 21:44:52 +0800 (CST)
+Received: from mail-pg1-f175.google.com (unknown [209.85.215.175])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwAXkExSvvJbmL5YAA--.1168S3;
+	Mon, 19 Nov 2018 21:44:50 +0800 (CST)
+Received: by mail-pg1-f175.google.com with SMTP id n2so6696933pgm.3
+        for <xuliker@zju.edu.cn>; Mon, 19 Nov 2018 05:44:50 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent:sender:precedence
+         :list-id;
+        bh=TFbc1G7GaSu6xGJaw3vOjLqTYPzUa3nVH3Ur7ax6Euo=;
+        b=c+6SC2+WYEgTDYT0/WiHi9gL2oAR9itWvXbpdeSttJKZIk17foZ6BxWNeUa0U1LCAH
+         Gan0q5CzBkZjWS2ZaY41XXV07qcN0V7UL21VF7YMHFI/HTTRJHuu1WOtQr1+9sGtNyqT
+         PXcsQtOlo0Yi2wLA6QFf/ZKOTHt+Gcy74rH8sch4isDNelgg+qw+05TOHmX4wjoqhtAp
+         ibO6oUu4NpeOmkMRSuxwdBW3iKVvkeaPjB0IaBjWIKvwQaDDjo5+tYnjwSwzI8JSBsMy
+         Mqn6BS/2P/XUd/xH/mO7IXwt7NIwFePG9LTp4F7uMsLHEN3qCgQkod7MWAeHjDlamBxl
+         1m3g==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=iki.fi
+X-Gm-Message-State: AGRZ1gJmAnxNUKLMu6Bq496m+LUzQJRbt3jdmUyoxUkc/P9JGBW3dQdv
+	K+/5UnJFnHCud/PjEZAKgHYB/X3IFH8ArRtLGWKLUxQEuLxE3hE=
+X-Received: by 2002:a62:4105:: with SMTP id o5-v6mr22541973pfa.85.1542635090155;
+        Mon, 19 Nov 2018 05:44:50 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:d106:0:0:0:0 with SMTP id l6-v6csp2678633pju;
+        Mon, 19 Nov 2018 05:44:48 -0800 (PST)
+X-Google-Smtp-Source: AFSGD/W1htLKmiwtkhXkj7TfIzKxR1kFdNZWk5xuc/d73NkwXx93EmNWoUlw216GscNMYfDWYvlW
+X-Received: by 2002:a63:2507:: with SMTP id l7mr338707pgl.22.1542635088678;
+        Mon, 19 Nov 2018 05:44:48 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542635088; cv=none;
+        d=google.com; s=arc-20160816;
+        b=DRa6NGO5LNwMb/Lq6XBCQb23mr/ldBlDUUhXX6QZkJFPQ8uERYlOS2R1jAHe7HCMHF
+         xBLsR0E5R4rUR8P8ZNBT73ioqYyX26vPCigO5XRnEb7eumRNBWOj0H6DAbi7Vmp1/m/l
+         tbYAanOtK36M0vQYQNMD4W/ur3ULqUsF5ntEXuYdrY4FrmPvzoWYyYcbsw9vPsjCXuss
+         AIE0ca3kAmyW/D+Qjbvf1NJ9d7Fi9Q0G/sVThca53Kw6ZNgymvJmjsfMpzmKKnLC9yJ0
+         l7WrR1bNAWQMAcv5MBKodK84aG+PVZbKrHhIezfTI//ZW+Hnd5gNzWPPuXjgFr74TKAX
+         KjKQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:user-agent:in-reply-to
+         :content-disposition:mime-version:references:message-id:subject:cc
+         :to:from:date;
+        bh=TFbc1G7GaSu6xGJaw3vOjLqTYPzUa3nVH3Ur7ax6Euo=;
+        b=iU7kvhq3D2xLmU8SSIzXyQctVGvq5xLD1ipKx91IPBA6KWVfG+wY/oUEvgfS7IXsfe
+         dQJbN0M0RpazS13by52O1ktDhn1dHe7B7IjiHjOqRNg5AXFnp/FUNKioHMRof7Pk//P9
+         i6spTP0T/92N79x6L148OBtLa/3Dr9uiYhiiTcLjrkF6SAnkhzH4OItlnJZhWG9AUYz1
+         YX4VNZ1Azz0QKsBsckHNAWraPCBocrUbJrawuaPpJ97WU7saNEGUjZxUSryJLGLME7hW
+         AG2Mph6MPCo4kxIM+CvmiEt+b8D2OTimyzY2N0dXMkA+0yYAWMGvH9mPcXWirVsmaYid
+         H4nw==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=iki.fi
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id w63-v6si43499314pfb.191.2018.11.19.05.44.33;
+        Mon, 19 Nov 2018 05:44:48 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1729323AbeKTAHk (ORCPT <rfc822;nullbytes00@gmail.com>
+        + 99 others); Mon, 19 Nov 2018 19:07:40 -0500
+Received: from nblzone-211-213.nblnetworks.fi ([83.145.211.213]:51362 "EHLO
+        hillosipuli.retiisi.org.uk" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727059AbeKTAHj (ORCPT
+        <rfc822;linux-kernel@vger.kernel.org>);
+        Mon, 19 Nov 2018 19:07:39 -0500
+Received: from valkosipuli.localdomain (valkosipuli.retiisi.org.uk [IPv6:2001:1bc8:1a6:d3d5::80:2])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by hillosipuli.retiisi.org.uk (Postfix) with ESMTPS id 9FABF634C83;
+        Mon, 19 Nov 2018 15:43:57 +0200 (EET)
+Received: from sakke by valkosipuli.localdomain with local (Exim 4.89)
+        (envelope-from <sakari.ailus@retiisi.org.uk>)
+        id 1gOjqH-0000nX-EA; Mon, 19 Nov 2018 15:43:57 +0200
+Date: Mon, 19 Nov 2018 15:43:57 +0200
+From: Sakari Ailus <sakari.ailus@iki.fi>
+To: Maxime Ripard <maxime.ripard@bootlin.com>
+Cc: Kishon Vijay Abraham I <kishon@ti.com>,
+        Boris Brezillon <boris.brezillon@bootlin.com>,
+        Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        linux-media@vger.kernel.org,
+        Archit Taneja <architt@codeaurora.org>,
+        Andrzej Hajda <a.hajda@samsung.com>,
+        Chen-Yu Tsai <wens@csie.org>, linux-kernel@vger.kernel.org,
+        dri-devel@lists.freedesktop.org,
+        linux-arm-kernel@lists.infradead.org,
+        Krzysztof Witos <kwitos@cadence.com>,
+        Rafal Ciepiela <rafalc@cadence.com>
+Subject: Re: [PATCH v2 4/9] phy: dphy: Add configuration helpers
+Message-ID: <20181119134357.743nskpkqqfkrjux@valkosipuli.retiisi.org.uk>
+References: <cover.c2c2ae47383b9dbbdee6b69cafdd7391c06dde4f.1541516029.git-series.maxime.ripard@bootlin.com>
+ <4d44460c4ecbd47f4cbd9141c6bf2632b6c21e1e.1541516029.git-series.maxime.ripard@bootlin.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4d44460c4ecbd47f4cbd9141c6bf2632b6c21e1e.1541516029.git-series.maxime.ripard@bootlin.com>
+User-Agent: NeoMutt/20170113 (1.7.2)
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwAXkExSvvJbmL5YAA--.1168S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW3Xr15AFykKr1fCFyUKry7GFg_yoWfGFyrpF
+	WrJry7CrWDGFy7Aw4kAw10gFy5Zw4fWa9Iq3y3G345XF4Yyas29a1akryqva93tr4kur4x
+	XFWfXF4qkFyqy37anT9S1TB71UUUUUUqnTZGkaVYY2UrUUUU0bIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUBab7Iv0xC_Kw4lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2
+	z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s0DM2AIxVAIcxkEcV
+	Aq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r10
+	6r15McIj6I8E87Iv67AKxVW8JVWxJwAm72CE4IkC6x0Yz7v_Jr0_Gr1l7I0Y6sxI4wCY1x
+	0264kExVAvwVAq07x20xylc7Ca8VAvwVCFzxkY4VCF77xAMxkIecxEwVCI4VW5GwCY0x0I
+	x7I2Y4AK64vIr41lcIIF0xvE2Ix0cI8IcVAFwI0_Gr0_Xr1lcIIF0xvE2Ix0cI8IcVCY1x
+	0267AKxVW8JVWxJwCYIxAIcVC2z280aVAFwI0_Cr1j6rxdMxvI42IY6I8E87Iv6xkF7I0E
+	14v26F4UJVW0owCF04k20xvY0x0EwIxGrwCF04k20xvEw4C26cxK6c8Ij28IcwCF72vE77
+	IF4wCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v26r1j6r18MI8I3I0E7480
+	Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_Jw0_GFylIxkGc2Ij64vIr41lIxAIcVCF04
+	k26cxKx2IYs7xG6r4j6FyUYxBIdaVFxhVjvjDU0xZFpf9x07bQv38UUUUU=
+
+Hi Maxime,
+
+Apologies for the delayed review. Please see my comments below.
+
+On Tue, Nov 06, 2018 at 03:54:16PM +0100, Maxime Ripard wrote:
+> The MIPI D-PHY spec defines default values and boundaries for most of the
+> parameters it defines. Introduce helpers to help drivers get meaningful
+> values based on their current parameters, and validate the boundaries of
+> these parameters if needed.
+> 
+> Signed-off-by: Maxime Ripard <maxime.ripard@bootlin.com>
+> ---
+>  drivers/phy/Kconfig               |   8 ++-
+>  drivers/phy/Makefile              |   1 +-
+>  drivers/phy/phy-core-mipi-dphy.c  | 160 +++++++++++++++++++++++++++++++-
+>  include/linux/phy/phy-mipi-dphy.h |   6 +-
+>  4 files changed, 175 insertions(+)
+>  create mode 100644 drivers/phy/phy-core-mipi-dphy.c
+> 
+> diff --git a/drivers/phy/Kconfig b/drivers/phy/Kconfig
+> index 60f949e2a684..c87a7d49eaab 100644
+> --- a/drivers/phy/Kconfig
+> +++ b/drivers/phy/Kconfig
+> @@ -15,6 +15,14 @@ config GENERIC_PHY
+>  	  phy users can obtain reference to the PHY. All the users of this
+>  	  framework should select this config.
+>  
+> +config GENERIC_PHY_MIPI_DPHY
+> +	bool
+> +	help
+> +	  Generic MIPI D-PHY support.
+> +
+> +	  Provides a number of helpers a core functions for MIPI D-PHY
+> +	  drivers to us.
+> +
+>  config PHY_LPC18XX_USB_OTG
+>  	tristate "NXP LPC18xx/43xx SoC USB OTG PHY driver"
+>  	depends on OF && (ARCH_LPC18XX || COMPILE_TEST)
+> diff --git a/drivers/phy/Makefile b/drivers/phy/Makefile
+> index 0301e25d07c1..baec59cebbab 100644
+> --- a/drivers/phy/Makefile
+> +++ b/drivers/phy/Makefile
+> @@ -4,6 +4,7 @@
+>  #
+>  
+>  obj-$(CONFIG_GENERIC_PHY)		+= phy-core.o
+> +obj-$(CONFIG_GENERIC_PHY_MIPI_DPHY)	+= phy-core-mipi-dphy.o
+>  obj-$(CONFIG_PHY_LPC18XX_USB_OTG)	+= phy-lpc18xx-usb-otg.o
+>  obj-$(CONFIG_PHY_XGENE)			+= phy-xgene.o
+>  obj-$(CONFIG_PHY_PISTACHIO_USB)		+= phy-pistachio-usb.o
+> diff --git a/drivers/phy/phy-core-mipi-dphy.c b/drivers/phy/phy-core-mipi-dphy.c
+> new file mode 100644
+> index 000000000000..127ca6960084
+> --- /dev/null
+> +++ b/drivers/phy/phy-core-mipi-dphy.c
+> @@ -0,0 +1,160 @@
+> +/* SPDX-License-Identifier: GPL-2.0 */
+> +/*
+> + * Copyright (C) 2013 NVIDIA Corporation
+> + * Copyright (C) 2018 Cadence Design Systems Inc.
+> + */
+> +
+> +#include <linux/errno.h>
+> +#include <linux/export.h>
+> +#include <linux/kernel.h>
+> +#include <linux/time64.h>
+> +
+> +#include <linux/phy/phy.h>
+> +#include <linux/phy/phy-mipi-dphy.h>
+> +
+> +/*
+> + * Minimum D-PHY timings based on MIPI D-PHY specification. Derived
+> + * from the valid ranges specified in Section 6.9, Table 14, Page 41
+> + * of the D-PHY specification (v2.1).
+
+I assume these values are compliant with the earlier spec releases.
+
+> + */
+> +int phy_mipi_dphy_get_default_config(unsigned long pixel_clock,
+
+How about using the bus frequency instead of the pixel clock? Chances are
+that the caller already has that information, instead of calculating it
+here?
+
+> +				     unsigned int bpp,
+> +				     unsigned int lanes,
+> +				     struct phy_configure_opts_mipi_dphy *cfg)
+> +{
+> +	unsigned long hs_clk_rate;
+> +	unsigned long ui;
+> +
+> +	if (!cfg)
+> +		return -EINVAL;
+> +
+> +	hs_clk_rate = pixel_clock * bpp / lanes;
+> +	ui = DIV_ROUND_UP(NSEC_PER_SEC, hs_clk_rate);
+
+Nanoseconds may not be precise enough for practical computations on these
+values. At 1 GHz, this ends up being precisely 1. At least Intel hardware
+has some more precision, I presume others do, too. How about using
+picoseconds instead?
+
+> +
+> +	cfg->clk_miss = 0;
+> +	cfg->clk_post = 60 + 52 * ui;
+> +	cfg->clk_pre = 8;
+> +	cfg->clk_prepare = 38;
+> +	cfg->clk_settle = 95;
+> +	cfg->clk_term_en = 0;
+> +	cfg->clk_trail = 60;
+> +	cfg->clk_zero = 262;
+> +	cfg->d_term_en = 0;
+> +	cfg->eot = 0;
+> +	cfg->hs_exit = 100;
+> +	cfg->hs_prepare = 40 + 4 * ui;
+> +	cfg->hs_zero = 105 + 6 * ui;
+> +	cfg->hs_settle = 85 + 6 * ui;
+> +	cfg->hs_skip = 40;
+> +
+> +	/*
+> +	 * The MIPI D-PHY specification (Section 6.9, v1.2, Table 14, Page 40)
+> +	 * contains this formula as:
+> +	 *
+> +	 *     T_HS-TRAIL = max(n * 8 * ui, 60 + n * 4 * ui)
+> +	 *
+> +	 * where n = 1 for forward-direction HS mode and n = 4 for reverse-
+> +	 * direction HS mode. There's only one setting and this function does
+> +	 * not parameterize on anything other that ui, so this code will
+> +	 * assumes that reverse-direction HS mode is supported and uses n = 4.
+> +	 */
+> +	cfg->hs_trail = max(4 * 8 * ui, 60 + 4 * 4 * ui);
+> +
+> +	cfg->init = 100000;
+> +	cfg->lpx = 60;
+> +	cfg->ta_get = 5 * cfg->lpx;
+> +	cfg->ta_go = 4 * cfg->lpx;
+> +	cfg->ta_sure = 2 * cfg->lpx;
+> +	cfg->wakeup = 1000000;
+> +
+> +	cfg->hs_clk_rate = hs_clk_rate;
+
+How about the LP clock?
+
+Frankly, I have worked with MIPI CSI-2 hardware soon a decade, and the very
+few cases where software has needed to deal with these values has been in
+form of defaults for a receiver, mostly limiting to clk_settle,
+clk_term_en, d_term_en as well as hs_settle. On some hardware, the data
+lane specific values can be at least in theory configured separately on
+different lanes (but perhaps we could ignore that now).
+
+That doesn't say that it'd be useless to convey these values to the PHY
+though. What I'm a little worried about though is what could be the effect
+of adding support for this for existing drivers? If you have a new driver,
+then there is no chance of regressions.
+
+I can't help noticing that many of the above values end up being unused in
+the rest of the patches in the set. I guess that's ok, they come from the
+standard anyway and some hardware may need them to be configured.
+
+Then there's the question of where should these values originate from.
+Some drivers appear to have a need to obtain one of these values via
+firmware, see Documentation/devicetree/bindings/media/samsung-mipi-csis.txt
+. I presume the defaults should be applicable to most cases, and specific
+values would need to be defined in the firmware. That means that the
+defaults have effectively the property of firmware API, meaning that they
+effectively can never be changed. That suggests we should be pretty sure
+the defaults are something that should work for the widest possible set of
+the hardware.
+
+> +	cfg->lanes = lanes;
+> +
+> +	return 0;
+> +}
+> +EXPORT_SYMBOL(phy_mipi_dphy_get_default_config);
+> +
+> +/*
+> + * Validate D-PHY configuration according to MIPI D-PHY specification
+> + * (v1.2, Section Section 6.9 "Global Operation Timing Parameters").
+> + */
+> +int phy_mipi_dphy_config_validate(struct phy_configure_opts_mipi_dphy *cfg)
+> +{
+> +	unsigned long ui;
+> +
+> +	if (!cfg)
+> +		return -EINVAL;
+> +
+> +	ui = DIV_ROUND_UP(NSEC_PER_SEC, cfg->hs_clk_rate);
+> +
+> +	if (cfg->clk_miss > 60)
+> +		return -EINVAL;
+> +
+> +	if (cfg->clk_post < (60 + 52 * ui))
+
+Extra parentheses.
+
+> +		return -EINVAL;
+> +
+> +	if (cfg->clk_pre < 8)
+> +		return -EINVAL;
+> +
+> +	if (cfg->clk_prepare < 38 || cfg->clk_prepare > 95)
+> +		return -EINVAL;
+> +
+> +	if (cfg->clk_settle < 95 || cfg->clk_settle > 300)
+> +		return -EINVAL;
+> +
+> +	if (cfg->clk_term_en > 38)
+> +		return -EINVAL;
+> +
+> +	if (cfg->clk_trail < 60)
+> +		return -EINVAL;
+> +
+> +	if (cfg->clk_prepare + cfg->clk_zero < 300)
+> +		return -EINVAL;
+> +
+> +	if (cfg->d_term_en > 35 + 4 * ui)
+> +		return -EINVAL;
+> +
+> +	if (cfg->eot > 105 + 12 * ui)
+> +		return -EINVAL;
+> +
+> +	if (cfg->hs_exit < 100)
+> +		return -EINVAL;
+> +
+> +	if (cfg->hs_prepare < 40 + 4 * ui ||
+> +	    cfg->hs_prepare > 85 + 6 * ui)
+> +		return -EINVAL;
+> +
+> +	if (cfg->hs_prepare + cfg->hs_zero < 145 + 10 * ui)
+> +		return -EINVAL;
+> +
+> +	if ((cfg->hs_settle < 85 + 6 * ui) ||
+> +	    (cfg->hs_settle > 145 + 10 * ui))
+
+Ditto.
+
+> +		return -EINVAL;
+> +
+> +	if (cfg->hs_skip < 40 || cfg->hs_skip > 55 + 4 * ui)
+> +		return -EINVAL;
+> +
+> +	if (cfg->hs_trail < max(8 * ui, 60 + 4 * ui))
+> +		return -EINVAL;
+> +
+> +	if (cfg->init < 100000)
+> +		return -EINVAL;
+> +
+> +	if (cfg->lpx < 50)
+> +		return -EINVAL;
+> +
+> +	if (cfg->ta_get != 5 * cfg->lpx)
+> +		return -EINVAL;
+> +
+> +	if (cfg->ta_go != 4 * cfg->lpx)
+> +		return -EINVAL;
+> +
+> +	if (cfg->ta_sure < cfg->lpx || cfg->ta_sure > 2 * cfg->lpx)
+> +		return -EINVAL;
+> +
+> +	if (cfg->wakeup < 1000000)
+> +		return -EINVAL;
+> +
+> +	return 0;
+> +}
+> +EXPORT_SYMBOL(phy_mipi_dphy_config_validate);
+> diff --git a/include/linux/phy/phy-mipi-dphy.h b/include/linux/phy/phy-mipi-dphy.h
+> index 0b05932916af..5e3673778afa 100644
+> --- a/include/linux/phy/phy-mipi-dphy.h
+> +++ b/include/linux/phy/phy-mipi-dphy.h
+> @@ -229,4 +229,10 @@ struct phy_configure_opts_mipi_dphy {
+>  	unsigned char		lanes;
+>  };
+>  
+> +int phy_mipi_dphy_get_default_config(unsigned long pixel_clock,
+> +				     unsigned int bpp,
+> +				     unsigned int lanes,
+> +				     struct phy_configure_opts_mipi_dphy *cfg);
+> +int phy_mipi_dphy_config_validate(struct phy_configure_opts_mipi_dphy *cfg);
+> +
+>  #endif /* __PHY_MIPI_DPHY_H_ */
+
+-- 
+Regards,
+
+Sakari Ailus
+e-mail: sakari.ailus@iki.fi

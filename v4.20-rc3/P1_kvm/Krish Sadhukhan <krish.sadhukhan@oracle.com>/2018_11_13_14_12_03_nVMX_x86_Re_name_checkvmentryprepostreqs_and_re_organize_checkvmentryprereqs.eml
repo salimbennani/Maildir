@@ -1,0 +1,155 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (61.164.42.155:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 13 Nov 2018 15:21:41 -0000
+Received: from icoremail.net (unknown [209.85.214.179])
+	by mail-app2 (Coremail) with SMTP id by_KCgDXv9IGcepb_8SDAQ--.39776S3;
+	Tue, 13 Nov 2018 14:36:55 +0800 (CST)
+Received: from mail-pl1-f179.google.com (unknown [209.85.214.179])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwBnTkoEcepb2Gs2AA--.11102S3;
+	Tue, 13 Nov 2018 14:36:52 +0800 (CST)
+Received: by mail-pl1-f179.google.com with SMTP id w22-v6so5522295plk.0
+        for <xuliker@zju.edu.cn>; Mon, 12 Nov 2018 22:36:52 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:delivered-to:dkim-signature:from:to:cc:subject
+         :date:message-id:sender:precedence:list-id;
+        bh=xnqs8moPOw3pHqHhUIfC+9FmW9spGiMN/ZTr5NnuY6c=;
+        b=j/tMJnItlhuvOEtg4fhDuMfSd+/XvCGIXD8UQCQLCMRFWw5wFHG2XohZ0uk9/oKKjV
+         Uf7bFlkeGDalY51jWZdqeygFWmaDsHQHvSpW2pCUG2fYrbdjU2KUqXj3ZLTWJZclqXQN
+         LLFiA3ZSRNyKc5Jfvr4EBlGdJHQho6jY8YTrRz6MpGxNWV6taagRkwI1p0N1cib6D8I5
+         2PEyT2Pnvv71zOICeusE5GTUygX5qK1tLziejrP1Vfl6hBKKCfFr8tBcOg+u5Bh/rshu
+         KGzv5YC6meNBGDcfvYVeQvfKDKD2uIuM7+v9P3ZfEgBO9KN+HKUoBMvcTpKFEXtKQvb7
+         EBag==
+X-Gm-Message-State: AGRZ1gLrduRdsKhbMEleKeVL/Y6bd5Fg9yqhCbg8OFLsffnC9JECKUd6
+	2GL9W3m5lp8kzJKcLh2Dk6H4rvtwclCrM/iN6yViu6xZ5SaNl+t5Ug==
+X-Received: by 2002:a17:902:b789:: with SMTP id e9-v6mr3844504pls.338.1542091012130;
+        Mon, 12 Nov 2018 22:36:52 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp4102306pjt;
+        Mon, 12 Nov 2018 22:36:51 -0800 (PST)
+X-Google-Smtp-Source: AJdET5fGcczunlJx1zT5HcOo36uEP4psoWT6/HXadg2c2Di+xeyBGy1dFDjzX2uHxCBqnvRSkvq+
+X-Received: by 2002:a17:902:7587:: with SMTP id j7mr2299258pll.191.1542091011452;
+        Mon, 12 Nov 2018 22:36:51 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542091011; cv=none;
+        d=google.com; s=arc-20160816;
+        b=xdXEczB1850qpzoelLbB2pdAEqezkCIoz4FJbitu5XQwc1V4O4CA9TdSGEsEKs9zaq
+         HSqNpYGfqtaxhSt1x8zkQZdMCg4UBRXJ1z1n7kurIJ226OkQynZudQzCA6UMEzxm0sWN
+         dCJpyBna9ZXOgCyxU2I6UmQviiourslo/Hz6ysuzvXHDE26+N4brS4awKUgfDuMaqSP7
+         L+QdvliwsSewZII51T+ui+0fxpoE7uQuar9c4FJl7shWgLu4k7g1D5iTsziFlsF0ICOe
+         cfKqkfDWrsB+tySJo2mB1Z9YuTMKV9p2s/81eeQsUs/05ex6XwtfXaoDqBPlLSXPbe0D
+         yFGg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:message-id:date:subject:cc:to:from
+         :dkim-signature;
+        bh=xnqs8moPOw3pHqHhUIfC+9FmW9spGiMN/ZTr5NnuY6c=;
+        b=BvrI04QYKf4AotxsioDEYPvsIA16O4+lVjysR4WSBDXl3VBXizawRRRfWOf30zmPeF
+         C0VIavNEKmjFH4bNfvQcOUGHDvLoU/W8whjzXLoLfdFEoAa+wgGCVY52KomR7IS3lNdK
+         1e1fY5rOSt693VWpktS05RZtaiz3YhDb9xzri+LhZSUYCcezQ+/OcN6p5nb+6NDIGNSk
+         puq9wTA5DtqkzNdKHiUYs/+hDsHlgG5X25fO9E9nYa8PbU5dTRL5XoVdi12pD7j9Hl9y
+         wSnZnbYQcA9drX95J+J9Gw7rB+SVCZOZkRX55mufuAfrpqCBD8rBusvRJyZkoN0mKS+Q
+         CU6w==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@oracle.com header.s=corp-2018-07-02 header.b=zG7XaLQs;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;
+       dmarc=pass (p=NONE sp=NONE dis=NONE) header.from=oracle.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id z6si18489953pgl.109.2018.11.12.22.36.29;
+        Mon, 12 Nov 2018 22:36:51 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1731004AbeKMQdB (ORCPT <rfc822;fanshuming2011@gmail.com>
+        + 99 others); Tue, 13 Nov 2018 11:33:01 -0500
+Received: from aserp2120.oracle.com ([141.146.126.78]:60784 "EHLO
+        aserp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730911AbeKMQdB (ORCPT <rfc822;kvm@vger.kernel.org>);
+        Tue, 13 Nov 2018 11:33:01 -0500
+Received: from pps.filterd (aserp2120.oracle.com [127.0.0.1])
+        by aserp2120.oracle.com (8.16.0.22/8.16.0.22) with SMTP id wAD6Ydgq017815;
+        Tue, 13 Nov 2018 06:36:16 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
+ subject : date : message-id; s=corp-2018-07-02;
+ bh=xnqs8moPOw3pHqHhUIfC+9FmW9spGiMN/ZTr5NnuY6c=;
+ b=zG7XaLQsl6F99ZkVJTXlv5esMQb/amc4oCFIQdRLvS3s24jy/UzMdxWMSrw4RkyT8xDB
+ 0COkVCns1GC4eihdfHOE0RUnhlhVT/8od1I9apbKfIGJWMVa7O6XyCPqsoSpUTRpx6ZC
+ 3OnxKmV1BJYM8pogoY+2CTxtpx44V8LpwNKCb6KJZJ9Kx0+5xFILdTvM/Y6zYcFyusgG
+ GVkvvblK1Tz5DsugzNwMwYAKTncwOVZZmqjCX29S+nw/cMDdlYxan2JlqUW9fOaMvYAH
+ dq1Xi6H99AN9oEjRauLOb5wzyeUWvzr0YIiUb/ycwshJABh61Ga2/aUzrCUm8bGa0GOk Cw== 
+Received: from userv0022.oracle.com (userv0022.oracle.com [156.151.31.74])
+        by aserp2120.oracle.com with ESMTP id 2nnw6egjd3-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 13 Nov 2018 06:36:16 +0000
+Received: from aserv0122.oracle.com (aserv0122.oracle.com [141.146.126.236])
+        by userv0022.oracle.com (8.14.4/8.14.4) with ESMTP id wAD6aFts032270
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 13 Nov 2018 06:36:15 GMT
+Received: from abhmp0005.oracle.com (abhmp0005.oracle.com [141.146.116.11])
+        by aserv0122.oracle.com (8.14.4/8.14.4) with ESMTP id wAD6aF2K004923;
+        Tue, 13 Nov 2018 06:36:15 GMT
+Received: from ban25x6uut29.us.oracle.com (/10.153.73.29)
+        by default (Oracle Beehive Gateway v4.0)
+        with ESMTP ; Mon, 12 Nov 2018 22:36:15 -0800
+From: Krish Sadhukhan <krish.sadhukhan@oracle.com>
+To: kvm@vger.kernel.org
+Cc: pbonzini@redhat.com, jmattson@google.com, rkrcmar@redhat.com
+Subject: nVMX x86: Re-name check_vmentry_pre[post]reqs and re-organize check_vmentry_prereqs
+Date: Tue, 13 Nov 2018 01:12:03 -0500
+Message-Id: <20181113061209.6843-1-krish.sadhukhan@oracle.com>
+X-Mailer: git-send-email 2.9.5
+X-Proofpoint-Virus-Version: vendor=nai engine=5900 definitions=9075 signatures=668683
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=1 malwarescore=0
+ phishscore=0 bulkscore=0 spamscore=0 mlxscore=0 mlxlogscore=588
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.0.1-1807170000 definitions=main-1811130062
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwBnTkoEcepb2Gs2AA--.11102S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW7tr45tFy7Ww1ruw1kJF1DWrg_yoW8XF1kpF
+	43Zr4agFWvgF4ak34Sgws8tryfZw4kXrW7Ja1aqws7K34I93y8KrW3tr4rWFy8GrWSka4U
+	Z3W8trySg345JFJanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUU0bIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUP2b7Iv0xC_Kw4lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1l84ACjcxK6I8E
+	87Iv67AKxVW0oVCq3wA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_GcCE3s1le2I262IYc4CY6c
+	8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_Jr0_
+	Jr4lYx0Ex4A2jsIE14v26r4j6F4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvY0x0EwI
+	xGrwCjxxvEa2IrMxkF7I0Ew4C26cxK6c8Ij28IcwCY1Ik26cxK6xAEc7vF6xCjj44lc2xS
+	Y4AK6IIF6r47MxkI7II2jI8vz4vEwIxGrwCYIxAIcVC0I7IYx2IY67AKxVWUCVW8JwCYIx
+	AIcVC0I7IYx2IY6xkF7I0E14v26r1j6r4UMxvI42IY6I8E87Iv67AKxVWxJr0_GcWlcIIF
+	0xvEx4A2jsIEc7CjxVAFwI0_Cr1j6rxdMxAIw28IcxkI7VAKI48JMxAIw28IcVAKzI0EY4
+	vE52x082I5MxCjnVCjjxCrMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_
+	Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWUAVWUtwCIc40Y0x
+	0EwIxGrwCI42IY6xAIw20EY4v20xvaj40_Gr0_ZrUvcSsGvfC2KfnxnUUI43ZEXa7IUOL1
+	8JUUUUU==
+
+According to Intel SDM vol 3C, VMCS data is of six different types. But the
+single function check_vmentry_prereqs currently holds all the different types
+of checks related to those six types of VMCS data. This patch series
+re-organizes the checks in that function into six different sub-functions
+based on the VMCS data organization. The re-organized code is easier for
+readability, enhancement and maintenance.
+
+
+[PATCH 1/6] nVMX x86: Re-name check_vmentry_pre[post]reqs to
+[PATCH 2/6] nVMX x86: Re-organize the code in
+[PATCH 3/6] nVMX x86: Re-organize the code in
+[PATCH 4/6] nVMX x86: Re-organize the code in
+[PATCH 5/6] nVMX x86: Re-organize the code in
+[PATCH 6/6] nVMX x86: Re-organize the code in
+
+ arch/x86/kvm/vmx.c | 133 +++++++++++++++++++++++++++++++++--------------------
+ 1 file changed, 82 insertions(+), 51 deletions(-)
+
+Krish Sadhukhan (6):
+      nVMX x86: Re-name check_vmentry_pre[post]reqs to nested_check_vmentry_pre[post]
+      nVMX x86: Re-organize the code in nested_check_vmentry_prereqs(), related to Guest State Area
+      nVMX x86: Re-organize the code in nested_check_vmentry_prereqs(), that are related to Host State Area
+      nVMX x86: Re-organize the code in nested_check_vmentry_prereqs(), that is related to VM-Execution Control Fields
+      nVMX x86: Re-organize the code in check_vmentry_prereqs(), that are related to VM-Exit Control Fields
+      nVMX x86: Re-organize the code in check_vmentry_prereqs(), that are related to VM-Entry Control Fields

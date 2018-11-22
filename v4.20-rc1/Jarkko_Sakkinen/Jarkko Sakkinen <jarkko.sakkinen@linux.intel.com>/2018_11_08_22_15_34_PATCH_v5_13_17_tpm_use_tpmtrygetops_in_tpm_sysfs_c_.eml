@@ -1,0 +1,388 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 09 Nov 2018 00:34:54 -0000
+Received: from icoremail.net (unknown [209.85.214.170])
+	by mail-app2 (Coremail) with SMTP id by_KCgD3_4_TReRbTJtgAQ--.61041S3;
+	Thu, 08 Nov 2018 22:19:04 +0800 (CST)
+Received: from mail-pl1-f170.google.com (unknown [209.85.214.170])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwA3FEDRReRbTxUdAA--.2828S3;
+	Thu, 08 Nov 2018 22:18:58 +0800 (CST)
+Received: by mail-pl1-f170.google.com with SMTP id g59-v6so9602151plb.10
+        for <xuliker@zju.edu.cn>; Thu, 08 Nov 2018 06:18:58 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding:sender:precedence:list-id;
+        bh=4KB63Wo5VAQWKFYQTSy/St+J4YttFuWiWd263Ifdl1w=;
+        b=MBmSCD7+qhiekteXqaQEg/zMURpCaETnLR1GkLKbcDX4xyMxBN1Vpx78OmdBMUpn3a
+         a+yjyKkk8Hkj04668tDuVsobLRmfY5foGSka+7Pv/cickzKEEq6WPE0yo8wfcMo54Jdr
+         4tXAQ94by98L5G/NnhiGHce1UiOJzc7y8OUIh01w2vnWElTMLkqCt+mBU3h3yEAl090+
+         Rk3G4JxBuJ/mxlgzrD8Lh7i+rdiWL06aL0IUd2HxPVum3D4nMvLViyfvzLZbMpFV1Vsj
+         J5YztCUs6Rq8he63YswCIRb1V7AbfNYnmT6hrTwgtCxGfzIW6obXvDg82kUsSeJXk58k
+         spyQ==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=intel.com
+X-Gm-Message-State: AGRZ1gIanv0RvqjOT4IfhyAdPHajkNNvB9ulLp02cLHEOOoRphDfOvvd
+	IZ0p5wTfekZXofbe+ly1I6GRLnZbsxG4pLPw8oHH+SJ1fGZap4ERvA==
+X-Received: by 2002:a17:902:7082:: with SMTP id z2-v6mr4766350plk.78.1541686737760;
+        Thu, 08 Nov 2018 06:18:57 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp244099pjt;
+        Thu, 8 Nov 2018 06:18:57 -0800 (PST)
+X-Google-Smtp-Source: AJdET5dPZnkgr9RrE86tJoCP28VF58wbL0TO4aKu+xBt7M79rt6AWrzFfHtWCBwg8SvGIHhgGg9m
+X-Received: by 2002:a62:13d6:: with SMTP id 83-v6mr4643894pft.34.1541686736998;
+        Thu, 08 Nov 2018 06:18:56 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1541686736; cv=none;
+        d=google.com; s=arc-20160816;
+        b=T9SQCDe5oL2gaaC7tsFLv37NM/oxZspOlCLCicqA4oWPhMui/zNebG+jCtetr9qx4X
+         4zMy19SIEoBPUfyrdi1MM1JrnSKdTj9sSbEGGZu/+SAAGHdGGo+zKRKIENPrxV4QH093
+         N3jEdTGm1rhxTH6ovJWkZKKlzRNaq5t4HB6bDuArAlYrbq2QZ2gJf3MdKycSB0jcEXc6
+         oJldH6TTDCXbJDpoBheuvONhY7/i2IT1uGCrpSS5YJfzYYeyIPMSPu993Kth2KuMJX5J
+         8R/cXTGQpa2QFDj46/G6FYesdPsrFzE0oy2LDKyjVgP9sLS57bold2P9AcrNT9w5sO8Y
+         GEWA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:content-transfer-encoding:mime-version
+         :references:in-reply-to:message-id:date:subject:cc:to:from;
+        bh=4KB63Wo5VAQWKFYQTSy/St+J4YttFuWiWd263Ifdl1w=;
+        b=FizWCoDLDZQLacVgt6EXNgZjMtzCn8vedLm4j1qIHq3nOS6k+fsSR+jbITrFcvVMwX
+         YoG4+thTEW50+YJ/NOCMnqWMPAFZrNw/u+RzWMrSWjSbsJo+ZUakN99mb/2Uu/kLe/kr
+         vXAo4t4lWPaJfTFwA2A7nxtk2C8OUdj1C5sVkNn5mZzltKVEVWl+bjP/frW3eA8Jy5Ci
+         ZCTajLvS77eN/m51IaFpPaR+gcrblHbI5222w7gq91MHWwomCD+NlqBqKb+G6gXTxYsv
+         NiSFqIzGLrR9eHFsteeQCMZdYq1kZqY/Hb51RyG9kwZ1Qbwn0spuA+rlcPpIaO+e1TGQ
+         2Ujw==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=intel.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id k2-v6si4305253plt.254.2018.11.08.06.18.41;
+        Thu, 08 Nov 2018 06:18:56 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1727382AbeKHXxY (ORCPT <rfc822;ankurbansal210989@gmail.com>
+        + 99 others); Thu, 8 Nov 2018 18:53:24 -0500
+Received: from mga03.intel.com ([134.134.136.65]:6266 "EHLO mga03.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726417AbeKHXxY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+        Thu, 8 Nov 2018 18:53:24 -0500
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga001.jf.intel.com ([10.7.209.18])
+  by orsmga103.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 08 Nov 2018 06:17:42 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.54,478,1534834800"; 
+   d="scan'208";a="106534416"
+Received: from ibanaga-mobl1.ger.corp.intel.com (HELO localhost) ([10.249.254.75])
+  by orsmga001.jf.intel.com with ESMTP; 08 Nov 2018 06:17:36 -0800
+From: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+To: linux-integrity@vger.kernel.org
+Cc: linux-security-module@vger.kernel.org,
+        James Bottomley <James.Bottomley@HansenPartnership.com>,
+        Tomas Winkler <tomas.winkler@intel.com>,
+        Tadeusz Struk <tadeusz.struk@intel.com>,
+        Stefan Berger <stefanb@linux.vnet.ibm.com>,
+        Nayna Jain <nayna@linux.ibm.com>,
+        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+        Peter Huewe <peterhuewe@gmx.de>,
+        Jason Gunthorpe <jgg@ziepe.ca>, Arnd Bergmann <arnd@arndb.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org (open list)
+Subject: [PATCH v5 13/17] tpm: use tpm_try_get_ops() in tpm-sysfs.c.
+Date: Thu,  8 Nov 2018 16:15:34 +0200
+Message-Id: <20181108141541.12832-14-jarkko.sakkinen@linux.intel.com>
+X-Mailer: git-send-email 2.19.1
+In-Reply-To: <20181108141541.12832-1-jarkko.sakkinen@linux.intel.com>
+References: <20181108141541.12832-1-jarkko.sakkinen@linux.intel.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwA3FEDRReRbTxUdAA--.2828S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW3XF1rXFy7ur1UXr1kZr4fKrg_yoW3Wr1fpF
+	Z8GaySqFWkJr4DGFs2yrsrZFya9r1xK3y7J3yrKwn3CF17JwsxKFy3Ca4FvryrCryrCryf
+	ArWqyr95ZFWqvaUanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUPFb7Iv0xC_tr1lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2
+	z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s0DM2AIxVAIcxkEcV
+	Aq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1j
+	6r18McIj6I8E87Iv67AKxVW8JVWxJwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IYc2Ij64
+	vIr41l7I0Y6sxI4wCY1x0264kExVAvwVAq07x20xylc7Ca8VAvwVCFzxkY4VCF77xAMxkI
+	ecxEwVCI4VW5XwCY0x0Ix7I2Y4AK64vIr41lcIIF0xvE2Ix0cI8IcVAFwI0_Xr0_Ar1lcI
+	IF0xvE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwCYIxAIcVC2z280aVAFwI0_GcCE3s1lcIIF
+	0xvEx4A2jsIEc7CjxVAFwI0_GcCE3s1l42xK82IYc2Ij64vIr41l42xK82IY64kExVAvwV
+	Aq07x20xyl4x8a6x804xWl4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWU
+	JVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r1q6r43MIIYrxkI7V
+	AKI48JMIIF0xvE42xK8VAvwI8IcIk0rVW8JVW3JbIYCTnIWIevJa73UjIFyTuYvjxUqfgA
+	UUUUU
+
+Use tpm_try_get_ops() in tpm-sysfs.c so that we can consider moving
+other decorations (locking, localities, power management for example)
+inside it. This direction can be of course taken only after other call
+sites for tpm_transmit() have been treated in the same way.
+
+Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+---
+ drivers/char/tpm/tpm-sysfs.c | 123 ++++++++++++++++++++++-------------
+ 1 file changed, 78 insertions(+), 45 deletions(-)
+
+diff --git a/drivers/char/tpm/tpm-sysfs.c b/drivers/char/tpm/tpm-sysfs.c
+index 03e704f99ed6..3733491671ca 100644
+--- a/drivers/char/tpm/tpm-sysfs.c
++++ b/drivers/char/tpm/tpm-sysfs.c
+@@ -39,7 +39,6 @@ static ssize_t pubek_show(struct device *dev, struct device_attribute *attr,
+ {
+ 	struct tpm_buf tpm_buf;
+ 	struct tpm_readpubek_out *out;
+-	ssize_t rc;
+ 	int i;
+ 	char *str = buf;
+ 	struct tpm_chip *chip = to_tpm_chip(dev);
+@@ -47,17 +46,17 @@ static ssize_t pubek_show(struct device *dev, struct device_attribute *attr,
+ 
+ 	memset(&anti_replay, 0, sizeof(anti_replay));
+ 
+-	if (tpm_buf_init(&tpm_buf, TPM_TAG_RQU_COMMAND, TPM_ORD_READPUBEK))
++	if (tpm_try_get_ops(chip))
+ 		return 0;
+ 
++	if (tpm_buf_init(&tpm_buf, TPM_TAG_RQU_COMMAND, TPM_ORD_READPUBEK))
++		goto out_ops;
++
+ 	tpm_buf_append(&tpm_buf, anti_replay, sizeof(anti_replay));
+ 
+-	rc = tpm_transmit_cmd(chip, &tpm_buf, READ_PUBEK_RESULT_MIN_BODY_SIZE,
+-			      0, "attempting to read the PUBEK");
+-	if (rc) {
+-		tpm_buf_destroy(&tpm_buf);
+-		return 0;
+-	}
++	if (tpm_transmit_cmd(chip, &tpm_buf, READ_PUBEK_RESULT_MIN_BODY_SIZE,
++			      0, "attempting to read the PUBEK"))
++		goto out_buf;
+ 
+ 	out = (struct tpm_readpubek_out *)&tpm_buf.data[10];
+ 	str +=
+@@ -88,9 +87,11 @@ static ssize_t pubek_show(struct device *dev, struct device_attribute *attr,
+ 			str += sprintf(str, "\n");
+ 	}
+ 
+-	rc = str - buf;
++out_buf:
+ 	tpm_buf_destroy(&tpm_buf);
+-	return rc;
++out_ops:
++	tpm_put_ops(chip);
++	return str - buf;
+ }
+ static DEVICE_ATTR_RO(pubek);
+ 
+@@ -103,10 +104,15 @@ static ssize_t pcrs_show(struct device *dev, struct device_attribute *attr,
+ 	char *str = buf;
+ 	struct tpm_chip *chip = to_tpm_chip(dev);
+ 
++	if (tpm_try_get_ops(chip))
++		return 0;
++
+ 	if (tpm1_getcap(chip, TPM_CAP_PROP_PCR, &cap,
+ 			"attempting to determine the number of PCRS",
+-			sizeof(cap.num_pcrs)))
++			sizeof(cap.num_pcrs))) {
++		tpm_put_ops(chip);
+ 		return 0;
++	}
+ 
+ 	num_pcrs = be32_to_cpu(cap.num_pcrs);
+ 	for (i = 0; i < num_pcrs; i++) {
+@@ -119,6 +125,7 @@ static ssize_t pcrs_show(struct device *dev, struct device_attribute *attr,
+ 			str += sprintf(str, "%02X ", digest[j]);
+ 		str += sprintf(str, "\n");
+ 	}
++	tpm_put_ops(chip);
+ 	return str - buf;
+ }
+ static DEVICE_ATTR_RO(pcrs);
+@@ -126,16 +133,21 @@ static DEVICE_ATTR_RO(pcrs);
+ static ssize_t enabled_show(struct device *dev, struct device_attribute *attr,
+ 		     char *buf)
+ {
++	struct tpm_chip *chip = to_tpm_chip(dev);
++	ssize_t rc = 0;
+ 	cap_t cap;
+-	ssize_t rc;
+ 
+-	rc = tpm1_getcap(to_tpm_chip(dev), TPM_CAP_FLAG_PERM, &cap,
+-			 "attempting to determine the permanent enabled state",
+-			 sizeof(cap.perm_flags));
+-	if (rc)
++	if (tpm_try_get_ops(chip))
+ 		return 0;
+ 
++	if (tpm1_getcap(chip, TPM_CAP_FLAG_PERM, &cap,
++			"attempting to determine the permanent enabled state",
++			sizeof(cap.perm_flags)))
++		goto out_ops;
++
+ 	rc = sprintf(buf, "%d\n", !cap.perm_flags.disable);
++out_ops:
++	tpm_put_ops(chip);
+ 	return rc;
+ }
+ static DEVICE_ATTR_RO(enabled);
+@@ -143,16 +155,21 @@ static DEVICE_ATTR_RO(enabled);
+ static ssize_t active_show(struct device *dev, struct device_attribute *attr,
+ 		    char *buf)
+ {
++	struct tpm_chip *chip = to_tpm_chip(dev);
++	ssize_t rc = 0;
+ 	cap_t cap;
+-	ssize_t rc;
+ 
+-	rc = tpm1_getcap(to_tpm_chip(dev), TPM_CAP_FLAG_PERM, &cap,
+-			 "attempting to determine the permanent active state",
+-			 sizeof(cap.perm_flags));
+-	if (rc)
++	if (tpm_try_get_ops(chip))
+ 		return 0;
+ 
++	if (tpm1_getcap(chip, TPM_CAP_FLAG_PERM, &cap,
++			"attempting to determine the permanent active state",
++			sizeof(cap.perm_flags)))
++		goto out_ops;
++
+ 	rc = sprintf(buf, "%d\n", !cap.perm_flags.deactivated);
++out_ops:
++	tpm_put_ops(chip);
+ 	return rc;
+ }
+ static DEVICE_ATTR_RO(active);
+@@ -160,16 +177,21 @@ static DEVICE_ATTR_RO(active);
+ static ssize_t owned_show(struct device *dev, struct device_attribute *attr,
+ 			  char *buf)
+ {
++	struct tpm_chip *chip = to_tpm_chip(dev);
++	ssize_t rc = 0;
+ 	cap_t cap;
+-	ssize_t rc;
+ 
+-	rc = tpm1_getcap(to_tpm_chip(dev), TPM_CAP_PROP_OWNER, &cap,
+-			 "attempting to determine the owner state",
+-			 sizeof(cap.owned));
+-	if (rc)
++	if (tpm_try_get_ops(chip))
+ 		return 0;
+ 
++	if (tpm1_getcap(to_tpm_chip(dev), TPM_CAP_PROP_OWNER, &cap,
++			"attempting to determine the owner state",
++			sizeof(cap.owned)))
++		goto out_ops;
++
+ 	rc = sprintf(buf, "%d\n", cap.owned);
++out_ops:
++	tpm_put_ops(chip);
+ 	return rc;
+ }
+ static DEVICE_ATTR_RO(owned);
+@@ -177,16 +199,21 @@ static DEVICE_ATTR_RO(owned);
+ static ssize_t temp_deactivated_show(struct device *dev,
+ 				     struct device_attribute *attr, char *buf)
+ {
++	struct tpm_chip *chip = to_tpm_chip(dev);
++	ssize_t rc = 0;
+ 	cap_t cap;
+-	ssize_t rc;
+ 
+-	rc = tpm1_getcap(to_tpm_chip(dev), TPM_CAP_FLAG_VOL, &cap,
+-			 "attempting to determine the temporary state",
+-			 sizeof(cap.stclear_flags));
+-	if (rc)
++	if (tpm_try_get_ops(chip))
+ 		return 0;
+ 
++	if (tpm1_getcap(to_tpm_chip(dev), TPM_CAP_FLAG_VOL, &cap,
++			"attempting to determine the temporary state",
++			sizeof(cap.stclear_flags)))
++		goto out_ops;
++
+ 	rc = sprintf(buf, "%d\n", cap.stclear_flags.deactivated);
++out_ops:
++	tpm_put_ops(chip);
+ 	return rc;
+ }
+ static DEVICE_ATTR_RO(temp_deactivated);
+@@ -195,15 +222,18 @@ static ssize_t caps_show(struct device *dev, struct device_attribute *attr,
+ 			 char *buf)
+ {
+ 	struct tpm_chip *chip = to_tpm_chip(dev);
+-	cap_t cap;
+-	ssize_t rc;
++	ssize_t rc = 0;
+ 	char *str = buf;
++	cap_t cap;
+ 
+-	rc = tpm1_getcap(chip, TPM_CAP_PROP_MANUFACTURER, &cap,
+-			 "attempting to determine the manufacturer",
+-			 sizeof(cap.manufacturer_id));
+-	if (rc)
++	if (tpm_try_get_ops(chip))
+ 		return 0;
++
++	if (tpm1_getcap(chip, TPM_CAP_PROP_MANUFACTURER, &cap,
++			"attempting to determine the manufacturer",
++			sizeof(cap.manufacturer_id)))
++		goto out_ops;
++
+ 	str += sprintf(str, "Manufacturer: 0x%x\n",
+ 		       be32_to_cpu(cap.manufacturer_id));
+ 
+@@ -220,11 +250,10 @@ static ssize_t caps_show(struct device *dev, struct device_attribute *attr,
+ 			       cap.tpm_version_1_2.revMinor);
+ 	} else {
+ 		/* Otherwise just use TPM_STRUCT_VER */
+-		rc = tpm1_getcap(chip, TPM_CAP_VERSION_1_1, &cap,
+-				 "attempting to determine the 1.1 version",
+-				 sizeof(cap.tpm_version));
+-		if (rc)
+-			return 0;
++		if (tpm1_getcap(chip, TPM_CAP_VERSION_1_1, &cap,
++				"attempting to determine the 1.1 version",
++				sizeof(cap.tpm_version)))
++			goto out_ops;
+ 		str += sprintf(str,
+ 			       "TCG version: %d.%d\nFirmware version: %d.%d\n",
+ 			       cap.tpm_version.Major,
+@@ -232,8 +261,10 @@ static ssize_t caps_show(struct device *dev, struct device_attribute *attr,
+ 			       cap.tpm_version.revMajor,
+ 			       cap.tpm_version.revMinor);
+ 	}
+-
+-	return str - buf;
++	rc = str - buf;
++out_ops:
++	tpm_put_ops(chip);
++	return rc;
+ }
+ static DEVICE_ATTR_RO(caps);
+ 
+@@ -241,10 +272,12 @@ static ssize_t cancel_store(struct device *dev, struct device_attribute *attr,
+ 			    const char *buf, size_t count)
+ {
+ 	struct tpm_chip *chip = to_tpm_chip(dev);
+-	if (chip == NULL)
++
++	if (tpm_try_get_ops(chip))
+ 		return 0;
+ 
+ 	chip->ops->cancel(chip);
++	tpm_put_ops(chip);
+ 	return count;
+ }
+ static DEVICE_ATTR_WO(cancel);
+-- 
+2.19.1

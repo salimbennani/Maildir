@@ -1,0 +1,350 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (61.164.42.155:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 12 Nov 2018 15:14:24 -0000
+Received: from icoremail.net (unknown [209.85.215.171])
+	by mail-app2 (Coremail) with SMTP id by_KCgDnX9PATulbxY98AQ--.37428S3;
+	Mon, 12 Nov 2018 17:58:25 +0800 (CST)
+Received: from mail-pg1-f171.google.com (unknown [209.85.215.171])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwCXEE29TulbaBYxAA--.493S3;
+	Mon, 12 Nov 2018 17:58:21 +0800 (CST)
+Received: by mail-pg1-f171.google.com with SMTP id w3-v6so3830785pgs.11
+        for <xuliker@zju.edu.cn>; Mon, 12 Nov 2018 01:58:21 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:delivered-to:dkim-signature:from:to:cc:subject
+         :date:message-id:in-reply-to:references:sender:precedence:list-id;
+        bh=0oaKQg1Db4rRhO3WCbNaQdRbhtsjokz1BpBDDqQDnH0=;
+        b=ihUkEpx6cSMewl0wyyktg9tdmQYU6/Pdaubgmw7kz8Qc2jhhYxiXsZgIBT8hIbn8dR
+         oHfBi1FWr2LRiBhGPatO9aSkJ4QFceFJx+j5rh0GEo9RncJ0e7FF4L/zXChblUY/j0Ab
+         uaxk1EwULg+LekprD4tX5jTGYE9iVoxCskS7OLRsm097mK3nDaH64WspYtMIh3b7g3Z/
+         ndNC1S+vL75zrJ2iZztYdofghoz2P9QwmC5TxqoAcuxL4prEC2bL0i+Y3ufp+/3u3MqC
+         EfB/gwt9a87xH/yfJiLTy1o7AdW0CoMOS/5NEgxbmgND3jiBrOvmS47HVpLu9Dy3Qf+o
+         vPdQ==
+X-Gm-Message-State: AGRZ1gKtRd86+ESkc7Z4y0YWjvfg96of9CVKIPalRas80FSQXJjDKAl3
+	Zj+32V7UEIrQp+6lRnI5ghXbrzS1qJXi4UyI6NuKRG6CaoAKIo2hZw==
+X-Received: by 2002:a63:bc02:: with SMTP id q2mr266912pge.116.1542016701386;
+        Mon, 12 Nov 2018 01:58:21 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp2992693pjt;
+        Mon, 12 Nov 2018 01:58:20 -0800 (PST)
+X-Google-Smtp-Source: AJdET5dKPWM3FmNhbpsxQ5gFhkxJt3urxl2U4pTSH9TfGwp8wqiy3CLq8nUszpZYHdkwz++XghVo
+X-Received: by 2002:a63:da14:: with SMTP id c20mr228792pgh.233.1542016700539;
+        Mon, 12 Nov 2018 01:58:20 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542016700; cv=none;
+        d=google.com; s=arc-20160816;
+        b=0t7osz88wFz2DNoqW1BzeoVzXysju5j2z6vqiT6r0wf3kaPwZ7HjCkfqveZiKolPzj
+         PrEEJmme1dztMQVLJeK01WYfeQ24Ilp0AUNJkBKTsIKr6pHkv39H2w2dwSNU2TDXY4jt
+         oZNCnJ8OzSnEULcyyTQ9h2/okAR/7oIN0IAQMHYYo3GBFk9C49sx/YeDRSXRY2MU8mLf
+         NkPS+0F23M+T5kUI179sCkCCdvVfRGBPaDwaM3NGIXJE7YtCBMUiBwPWOOwuWDEyK0j7
+         29i8dR68Yja2AKQ131aHZ0hRiguPSvJIndRHI6UyWIxLOBHYo8FZuDP+3xiA+M+BxVsT
+         zwNQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:references:in-reply-to:message-id:date
+         :subject:cc:to:from:dkim-signature;
+        bh=0oaKQg1Db4rRhO3WCbNaQdRbhtsjokz1BpBDDqQDnH0=;
+        b=phLFIjG9EhruzJc5uMg0TsAFCgvh7AlnuQzntuDPOZAf9EpASW+GuatA07AOobqyuy
+         zTohIZFJxTbfspZf204bG8BVVNTDNpNTAoD9HWwiT09VsrAg7MgHSBxRWRAe1bXU6qj9
+         if+0+Wh/lJbUe0gGwenRzeCts/O8+XO+tcsQ2U+d3a+oMI9+yZMO66l4UY9wSBIAHQIz
+         lVEliL60P/R+VZZc1cgXKWdSJuCwNET/ZR6IZAd7gevQnHTufqfDtMGCmwqk2H+hXdl4
+         N0CP57kfuFosPh2dTckCLSS8frplRvp104IniVhlEXentVi5DpHg6/zK2LxQyO6DGzJB
+         iiFA==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@linaro.org header.s=google header.b=Rg5OfuRn;
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;
+       dmarc=pass (p=NONE sp=NONE dis=NONE) header.from=linaro.org
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id h3-v6si17045711pld.424.2018.11.12.01.58.05;
+        Mon, 12 Nov 2018 01:58:20 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1729363AbeKLTt6 (ORCPT <rfc822;tomnomnom1@gmail.com>
+        + 99 others); Mon, 12 Nov 2018 14:49:58 -0500
+Received: from mail-wm1-f68.google.com ([209.85.128.68]:54615 "EHLO
+        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729341AbeKLTt4 (ORCPT
+        <rfc822;linux-kernel@vger.kernel.org>);
+        Mon, 12 Nov 2018 14:49:56 -0500
+Received: by mail-wm1-f68.google.com with SMTP id r63-v6so7829068wma.4
+        for <linux-kernel@vger.kernel.org>; Mon, 12 Nov 2018 01:57:26 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references;
+        bh=0oaKQg1Db4rRhO3WCbNaQdRbhtsjokz1BpBDDqQDnH0=;
+        b=Rg5OfuRnIxfiEqH0WAirw+p5zFFM2A3eP+/qNVgYtz/p1XWMtJQwYM05UW/C4+j5gX
+         IaZnE3XI6wvJCXcd4FQ1Hx5aghznqX87ea65MY8LBS1tfU6fXt06wlGlTPcLKrs9JP1t
+         5iM+S+o9ye6yz2LV6kWJfSIofPFST2APQ3GVM=
+X-Received: by 2002:a7b:c84f:: with SMTP id c15-v6mr6284511wml.79.1542016645423;
+        Mon, 12 Nov 2018 01:57:25 -0800 (PST)
+Received: from localhost.localdomain ([93.68.220.21])
+        by smtp.gmail.com with ESMTPSA id r14-v6sm21273089wro.8.2018.11.12.01.57.22
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 12 Nov 2018 01:57:24 -0800 (PST)
+From: Paolo Valente <paolo.valente@linaro.org>
+To: Jens Axboe <axboe@kernel.dk>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Tejun Heo <tj@kernel.org>, Li Zefan <lizefan@huawei.com>,
+        Angelo Ruocco <angeloruocco90@gmail.com>,
+        Dennis Zhou <dennis@kernel.org>,
+        Josef Bacik <josef@toxicpanda.com>,
+        Liu Bo <bo.liu@linux.alibaba.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        Johannes Weiner <hannes@cmpxchg.org>
+Cc: linux-block@vger.kernel.org, linux-kernel@vger.kernel.org,
+        ulf.hansson@linaro.org, linus.walleij@linaro.org,
+        broonie@kernel.org, bfq-iosched@googlegroups.com,
+        oleksandr@natalenko.name, cgroups@vger.kernel.org,
+        linux-doc@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>,
+        Paolo Valente <paolo.valente@linaro.org>
+Subject: [PATCH 09/12] block, bfq: use standard file names for the proportional-share policy
+Date: Mon, 12 Nov 2018 10:56:29 +0100
+Message-Id: <20181112095632.69114-10-paolo.valente@linaro.org>
+X-Mailer: git-send-email 2.16.1
+In-Reply-To: <20181112095632.69114-1-paolo.valente@linaro.org>
+References: <20181112095632.69114-1-paolo.valente@linaro.org>
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwCXEE29TulbaBYxAA--.493S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW3Ary7WrykWFyxZF1xtFWfuFg_yoWxWr1rpF
+	Z3urnrXFnxXrnxGr45Cwn8WFySywsYgwnFkFZ7uryrAryIyF47tF4qya40v3y8WrWDXFW5
+	XanYvrWkuF9xJr7anT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUPFb7Iv0xC_KF4lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2
+	z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s0DM2AIxVAIcxkEcV
+	Aq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1j
+	6r18McIj6I8E87Iv67AKxVW8JVWxJwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IYc2Ij64
+	vIr41l7I0Y6sxI4wCY1x0264kExVAvwVAq07x20xylc7Ca8VAvwVCFzxkY4VCF77xAMxkI
+	ecxEwVCI4VW8uwCY0x0Ix7I2Y4AK64vIr41lcIIF0xvE2Ix0cI8IcVAFwI0_Gr0_Xr1lcI
+	IF0xvE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwCYIxAIcVC2z280aVAFwI0_GcCE3s1lcIIF
+	0xvEx4A2jsIEc7CjxVAFwI0_GcCE3s1l42xK82IYc2Ij64vIr41l42xK82IY64kExVAvwV
+	Aq07x20xyl4x8a6x804xWl4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWU
+	JVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r4a6rW5MIIYrxkI7V
+	AKI48JMIIF0xvE42xK8VAvwI8IcIk0rVWUCVW8JbIYCTnIWIevJa73UjIFyTuYvjxUq9jj
+	UUUUU
+
+Some of the files exposed in a cgroup by bfq, for the proportional
+share policy, have the same meaning as the files owned by cfq.
+
+The old implementation of the cgroup interface didn't allow different
+entities to create cgroup files with the same name (in the same
+subsystem). So, for bfq, we had to add the prefix "bfq" to the names
+of its cgroup files.
+
+This commit renames the cgroup files of the bfq scheduler as those
+exposed by cfq, and makes bfq share these files with any other policy.
+
+Signed-off-by: Angelo Ruocco <angeloruocco90@gmail.com>
+Signed-off-by: Paolo Valente <paolo.valente@linaro.org>
+---
+ block/bfq-cgroup.c | 94 +++++++++++++++++++++++++++++++++++++++---------------
+ 1 file changed, 69 insertions(+), 25 deletions(-)
+
+diff --git a/block/bfq-cgroup.c b/block/bfq-cgroup.c
+index 50b2d7ba6b9d..9148fc38c737 100644
+--- a/block/bfq-cgroup.c
++++ b/block/bfq-cgroup.c
+@@ -1055,50 +1055,67 @@ struct blkcg_policy blkcg_policy_bfq = {
+ 
+ struct cftype bfq_blkcg_legacy_files[] = {
+ 	{
+-		.name = "bfq.weight",
+-		.flags = CFTYPE_NOT_ON_ROOT,
++		.name = "weight",
++		.owner_name = "bfq",
++		.flags = CFTYPE_NOT_ON_ROOT | CFTYPE_SHARES_FILE,
+ 		.seq_show = bfq_io_show_weight,
+ 		.write_u64 = bfq_io_set_weight_legacy,
+ 	},
+ 
+ 	/* statistics, covers only the tasks in the bfqg */
+ 	{
+-		.name = "bfq.io_service_bytes",
++		.name = "io_service_bytes",
++		.owner_name = "bfq",
++		.flags = CFTYPE_SHARES_FILE,
+ 		.private = (unsigned long)&blkcg_policy_bfq,
+ 		.seq_show_cft = blkg_print_stat_bytes,
+ 	},
+ 	{
+-		.name = "bfq.io_serviced",
++		.name = "io_serviced",
++		.owner_name = "bfq",
++		.flags = CFTYPE_SHARES_FILE,
+ 		.private = (unsigned long)&blkcg_policy_bfq,
+ 		.seq_show_cft = blkg_print_stat_ios,
+ 	},
+ #ifdef CONFIG_DEBUG_BLK_CGROUP
+ 	{
+-		.name = "bfq.time",
++		.name = "time",
++		.owner_name = "bfq",
++		.flags = CFTYPE_SHARES_FILE,
+ 		.private = offsetof(struct bfq_group, stats.time),
+ 		.seq_show_cft = bfqg_print_stat,
+ 	},
+ 	{
+-		.name = "bfq.sectors",
++		.name = "sectors",
++		.owner_name = "bfq",
++		.flags = CFTYPE_SHARES_FILE,
+ 		.seq_show = bfqg_print_stat_sectors,
+ 	},
+ 	{
+-		.name = "bfq.io_service_time",
++		.name = "io_service_time",
++		.owner_name = "bfq",
++		.flags = CFTYPE_SHARES_FILE,
+ 		.private = offsetof(struct bfq_group, stats.service_time),
+ 		.seq_show_cft = bfqg_print_rwstat,
+ 	},
+ 	{
+-		.name = "bfq.io_wait_time",
++		.name = "io_wait_time",
++		.owner_name = "bfq",
++		.flags = CFTYPE_SHARES_FILE,
+ 		.private = offsetof(struct bfq_group, stats.wait_time),
+ 		.seq_show_cft = bfqg_print_rwstat,
+ 	},
+ 	{
+-		.name = "bfq.io_merged",
++		.name = "io_merged",
++		.owner_name = "bfq",
++		.flags = CFTYPE_SHARES_FILE,
+ 		.private = offsetof(struct bfq_group, stats.merged),
+ 		.seq_show_cft = bfqg_print_rwstat,
+ 	},
+ 	{
+-		.name = "bfq.io_queued",
++		.name = "io_queued",
++		.owner_name = "bfq",
++		.flags = CFTYPE_SHARES_FILE,
+ 		.private = offsetof(struct bfq_group, stats.queued),
+ 		.seq_show_cft = bfqg_print_rwstat,
+ 	},
+@@ -1106,66 +1123,92 @@ struct cftype bfq_blkcg_legacy_files[] = {
+ 
+ 	/* the same statictics which cover the bfqg and its descendants */
+ 	{
+-		.name = "bfq.io_service_bytes_recursive",
++		.name = "io_service_bytes_recursive",
++		.owner_name = "bfq",
++		.flags = CFTYPE_SHARES_FILE,
+ 		.private = (unsigned long)&blkcg_policy_bfq,
+ 		.seq_show_cft = blkg_print_stat_bytes_recursive,
+ 	},
+ 	{
+-		.name = "bfq.io_serviced_recursive",
++		.name = "io_serviced_recursive",
++		.owner_name = "bfq",
++		.flags = CFTYPE_SHARES_FILE,
+ 		.private = (unsigned long)&blkcg_policy_bfq,
+ 		.seq_show_cft = blkg_print_stat_ios_recursive,
+ 	},
+ #ifdef CONFIG_DEBUG_BLK_CGROUP
+ 	{
+-		.name = "bfq.time_recursive",
++		.name = "time_recursive",
++		.owner_name = "bfq",
++		.flags = CFTYPE_SHARES_FILE,
+ 		.private = offsetof(struct bfq_group, stats.time),
+ 		.seq_show_cft = bfqg_print_stat_recursive,
+ 	},
+ 	{
+-		.name = "bfq.sectors_recursive",
++		.name = "sectors_recursive",
++		.owner_name = "bfq",
++		.flags = CFTYPE_SHARES_FILE,
+ 		.seq_show = bfqg_print_stat_sectors_recursive,
+ 	},
+ 	{
+-		.name = "bfq.io_service_time_recursive",
++		.name = "io_service_time_recursive",
++		.owner_name = "bfq",
++		.flags = CFTYPE_SHARES_FILE,
+ 		.private = offsetof(struct bfq_group, stats.service_time),
+ 		.seq_show_cft = bfqg_print_rwstat_recursive,
+ 	},
+ 	{
+-		.name = "bfq.io_wait_time_recursive",
++		.name = "io_wait_time_recursive",
++		.owner_name = "bfq",
++		.flags = CFTYPE_SHARES_FILE,
+ 		.private = offsetof(struct bfq_group, stats.wait_time),
+ 		.seq_show_cft = bfqg_print_rwstat_recursive,
+ 	},
+ 	{
+-		.name = "bfq.io_merged_recursive",
++		.name = "io_merged_recursive",
++		.owner_name = "bfq",
++		.flags = CFTYPE_SHARES_FILE,
+ 		.private = offsetof(struct bfq_group, stats.merged),
+ 		.seq_show_cft = bfqg_print_rwstat_recursive,
+ 	},
+ 	{
+-		.name = "bfq.io_queued_recursive",
++		.name = "io_queued_recursive",
++		.owner_name = "bfq",
++		.flags = CFTYPE_SHARES_FILE,
+ 		.private = offsetof(struct bfq_group, stats.queued),
+ 		.seq_show_cft = bfqg_print_rwstat_recursive,
+ 	},
+ 	{
+-		.name = "bfq.avg_queue_size",
++		.name = "avg_queue_size",
++		.owner_name = "bfq",
++		.flags = CFTYPE_SHARES_FILE,
+ 		.seq_show = bfqg_print_avg_queue_size,
+ 	},
+ 	{
+-		.name = "bfq.group_wait_time",
++		.name = "group_wait_time",
++		.owner_name = "bfq",
++		.flags = CFTYPE_SHARES_FILE,
+ 		.private = offsetof(struct bfq_group, stats.group_wait_time),
+ 		.seq_show_cft = bfqg_print_stat,
+ 	},
+ 	{
+-		.name = "bfq.idle_time",
++		.name = "idle_time",
++		.owner_name = "bfq",
++		.flags = CFTYPE_SHARES_FILE,
+ 		.private = offsetof(struct bfq_group, stats.idle_time),
+ 		.seq_show_cft = bfqg_print_stat,
+ 	},
+ 	{
+-		.name = "bfq.empty_time",
++		.name = "empty_time",
++		.owner_name = "bfq",
++		.flags = CFTYPE_SHARES_FILE,
+ 		.private = offsetof(struct bfq_group, stats.empty_time),
+ 		.seq_show_cft = bfqg_print_stat,
+ 	},
+ 	{
+-		.name = "bfq.dequeue",
++		.name = "dequeue",
++		.owner_name = "bfq",
++		.flags = CFTYPE_SHARES_FILE,
+ 		.private = offsetof(struct bfq_group, stats.dequeue),
+ 		.seq_show_cft = bfqg_print_stat,
+ 	},
+@@ -1175,8 +1218,9 @@ struct cftype bfq_blkcg_legacy_files[] = {
+ 
+ struct cftype bfq_blkg_files[] = {
+ 	{
+-		.name = "bfq.weight",
+-		.flags = CFTYPE_NOT_ON_ROOT,
++		.name = "weight",
++		.owner_name = "bfq",
++		.flags = CFTYPE_NOT_ON_ROOT | CFTYPE_SHARES_FILE,
+ 		.seq_show = bfq_io_show_weight,
+ 		.write = bfq_io_set_weight,
+ 	},
+-- 
+2.16.1

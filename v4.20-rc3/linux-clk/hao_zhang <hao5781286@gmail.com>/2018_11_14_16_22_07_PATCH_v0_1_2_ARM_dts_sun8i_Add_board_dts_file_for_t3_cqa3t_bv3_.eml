@@ -1,0 +1,422 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (61.164.42.155:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 14 Nov 2018 14:44:13 -0000
+Received: from icoremail.net (unknown [209.85.214.178])
+	by mail-app2 (Coremail) with SMTP id by_KCgDHH8JX2+tbSHuOAQ--.42610S3;
+	Wed, 14 Nov 2018 16:22:48 +0800 (CST)
+Received: from mail-pl1-f178.google.com (unknown [209.85.214.178])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwAn_jlT2+tbpHA9AA--.6763S3;
+	Wed, 14 Nov 2018 16:22:43 +0800 (CST)
+Received: by mail-pl1-f178.google.com with SMTP id a14so2818449plm.12
+        for <xuliker@zju.edu.cn>; Wed, 14 Nov 2018 00:22:43 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:delivered-to:dkim-signature:date:from:to:cc
+         :subject:message-id:mime-version:content-disposition:user-agent
+         :sender:precedence:list-id;
+        bh=K7ItcJWwvKMLaQcfSseVZvj/btn1QQHDrmPP1U1fZzA=;
+        b=XBZUK6BdE/YIZ5qo4Vha9RUaalccbyISJkGYxrpr8ulSJCH17lsw2dxlKy4E9wjbf2
+         RJphAOAYLgArtr2ivUi5BOTs+pQHLNu7prWqNKtUobJxioT0asfzgX32yvyU9uc4Gelt
+         SCO1b8RoYFSDpGvIbhrxNBceKRPBVCAqqdw9AccL+cx9RxUO2LUVNIX+3L0o3YNHtckI
+         nE8qqjGGV3FsS2SWB92501BkXBiCrhM9V06IMV8GSAB5CoMeOfQze1KTRi+Hu52Vzrb9
+         lJi08WuDovR7XVONJ7WroLmWIhi5jvHtE22PxevltLs6ry/2iFxPGQRb6DYvgE9kns6k
+         KPSg==
+X-Gm-Message-State: AGRZ1gJyfrO2n0LyPieVGhlyuRaDGrXaEGMaZPlxEVhnOBM8mqmJxRRH
+	CV1l3RTrG++Bs72Iebo0KslKL5tf8Xmf4EDtH/uYPIBk1juedT1Jog==
+X-Received: by 2002:a17:902:8e81:: with SMTP id bg1-v6mr978112plb.192.1542183763382;
+        Wed, 14 Nov 2018 00:22:43 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp5520860pjt;
+        Wed, 14 Nov 2018 00:22:42 -0800 (PST)
+X-Google-Smtp-Source: AJdET5cOGmJzGrQDRS/t31OkE/kZCR1ZrnQXyWQBBARLvKGHPiBE8HahFhu468HXM+TjNmpOq36r
+X-Received: by 2002:a62:93d5:: with SMTP id r82-v6mr979236pfk.55.1542183762319;
+        Wed, 14 Nov 2018 00:22:42 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542183762; cv=none;
+        d=google.com; s=arc-20160816;
+        b=AEcj6sRlx5Lb9o5gHRiYp5+CNuHUxuEYsQEdRy6ZZBnNAAU68CRW3PHQ6XFLehBgW9
+         Rj94gT30hftHgYAyCPzrACfeOcB9GY0XhsZDQQCpkDxRKPomuUjttp7y1i3Ac/wNgJtX
+         QLLv7vMKeBf11YIDmlr6+ft8AD18V2Qi9h2FOhiWupM/Mk5+YnUb0Je65xDnoj9zss13
+         k8PELPdKXYpRedjNnZbLBYMHIKfC0sI3HLOFc6UUD6LidNK1ndtUDiomjdgm+NJE8DiL
+         kdXrSph4KzPR+ADojbrcjiDjnFqSBJQ0QIsd3YWod/c+YuYyXMmJ8gLUpjQQ65Krbith
+         TSaQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:user-agent:content-disposition
+         :mime-version:message-id:subject:cc:to:from:date:dkim-signature;
+        bh=K7ItcJWwvKMLaQcfSseVZvj/btn1QQHDrmPP1U1fZzA=;
+        b=UpDVMLuNDwZpKM5t720Cvk1FStL+ivvsvDE4bYTnAxVSTaHRH1YgMx7XaX/p8iXqW6
+         uuhlrG5DlLqgGizPgbFprrpshCb7/eeCOK3aW7p/VNMZtVRi7TdcbPQmmphPB2vrdKg+
+         CUCLidE8WMWugKXqCLu6VevccbWMzmo7fq/K29i4v+8G2GTda3V8pmdoWViDXC7+nCrY
+         /3xDrVtOBIkiCoRQa21U6o6vRjDe6WlGZxs3TZHsGkwA7jznXwqiGb1zeP9qFGx9WqY8
+         C+yGUAmmOTjz5Nav1/CajXe4akc7VpJSMdnVftxZA5aI40jvZrxaXGgnir3tJJFoWieD
+         leHQ==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@gmail.com header.s=20161025 header.b=rtRZ+fvw;
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;
+       dmarc=pass (p=NONE sp=QUARANTINE dis=NONE) header.from=gmail.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id e39-v6si23395595plg.366.2018.11.14.00.22.26;
+        Wed, 14 Nov 2018 00:22:42 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1732082AbeKNSYb (ORCPT <rfc822;zhaoweiliew@gmail.com>
+        + 99 others); Wed, 14 Nov 2018 13:24:31 -0500
+Received: from mail-pf1-f194.google.com ([209.85.210.194]:38944 "EHLO
+        mail-pf1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725907AbeKNSYa (ORCPT
+        <rfc822;linux-kernel@vger.kernel.org>);
+        Wed, 14 Nov 2018 13:24:30 -0500
+Received: by mail-pf1-f194.google.com with SMTP id c72so2843381pfc.6;
+        Wed, 14 Nov 2018 00:22:19 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:mime-version:content-disposition
+         :user-agent;
+        bh=K7ItcJWwvKMLaQcfSseVZvj/btn1QQHDrmPP1U1fZzA=;
+        b=rtRZ+fvwv6D4KLK0GYe3CnpLy5e74ugBAP/DSK13U0UNPMirbBSrSoom1MLV8kdxy7
+         h5kmcPy1r6XGjsDPZdFyMFAZ7WQwoJQ84/DGuztowjKsFGoNyhPSU8ipJGa04FQTDshX
+         FiYEDNgAIUBEUcDVoG2S3a6sKVefTBOUnJA0rrOAINoGKiOIaINjuhUikJ7k/tXrNzK3
+         CQHJQGgOUxCXm9Yxzq3CBUs6iRzUuXx8cXnxUMvOd4f+gj4sO4v0WkKWRInUVjpu5GyZ
+         Xy5/KFodaQ8Zw0+Cwn85r8bDvXJFU2nSVE0u27fEQJlKzq58YRyrzk0W5X+s7vLxloED
+         hfbg==
+X-Received: by 2002:a63:4a0a:: with SMTP id x10mr846448pga.237.1542183738908;
+        Wed, 14 Nov 2018 00:22:18 -0800 (PST)
+Received: from arx-s1 ([114.95.230.67])
+        by smtp.gmail.com with ESMTPSA id g7-v6sm24334012pfo.139.2018.11.14.00.22.15
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 14 Nov 2018 00:22:18 -0800 (PST)
+Date: Wed, 14 Nov 2018 16:22:07 +0800
+From: hao_zhang <hao5781286@gmail.com>
+To: robh+dt@kernel.org, maxime.ripard@free-electrons.com,
+        wens@csie.org, linus.walleij@linaro.org
+Cc: linux-doc@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-kernel@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-clk@vger.kernel.org, linux-gpio@vger.kernel.org,
+        linux-sunxi@googlegroups.com, icenowy@aosc.io
+Subject: [PATCH v0 1/2] ARM: dts: sun8i: Add board dts file for t3-cqa3t-bv3.
+Message-ID: <20181114082207.GA21068@arx-s1>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.24 (2015-08-30)
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwAn_jlT2+tbpHA9AA--.6763S3
+Authentication-Results: mail-app2; spf=permerror smtp.mail=liker.xu+ca
+	f_=xuliker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW3GF1rAFWkJF1UGrW3AFyxKrg_yoW3Gr4Upa
+	9xursxCrsYkF1fJw45ur1xtF15XrnYkas3AF95CFWrArW2q3ZrGas2krySyFn5J34ku3yY
+	vFW3ZFy7tFn7JaDanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUU0bIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUmab7Iv0xC_Kw4lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2
+	z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s0DM2vYz4IE04k24V
+	AvwVAKI4IrM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xf
+	McIj6xIIjxv20xvE14v26r1j6r18McIj6I8E87Iv67AKxVW8JVWxJwAm72CE4IkC6x0Yz7
+	v_Jr0_Gr1lF7xvr2IY64vIr41l7I0Y6sxI4wCY1x0264kExVAvwVAq07x20xylc7Ca8VAv
+	wVCFzxkY4VCF77xAMxkIecxEwVCI4VW8ZwCY0x0Ix7I2Y4AK64vIr41lcIIF0xvE2Ix0cI
+	8IcVAFwI0_Jr0_JF4lcIIF0xvE2Ix0cI8IcVCY1x0267AKxVWUJVW8JwCYIxAIcVC2z280
+	aVAFwI0_Cr1j6rxdMxvI42IY6I8E87Iv6xkF7I0E14v26F4UJVW0owCF04k20xvY0x0EwI
+	xGrwCF04k20xvEw4C26cxK6c8Ij28IcwCF72vE0xvYzxyl4I8I3I0E4IkC6x0Yz7v_Jr0_
+	Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17
+	CE14v26r1q6r43MIIYrxkI7VAKI48JMIIF0xvE42xK8VAvwI8IcIk0rVW3JVWrJrUvcSsG
+	vfC2KfnxnUUI43ZEXa7IUoqiiDUUUUU==
+
+The T3/R40/V40 using the same sdk and config file in allwinner
+sdk, it seem they are the same SOC just with different name, so
+compatible with R40.
+
+The t3-cqa3t-bv3 based on Allwinner T3 SoC, it has various connectors,
+leds, buttons, and sell on:
+https://item.taobao.com/item.htm?spm=2013.1.w4023-4203040713.25.62704cce7UCgLS&id=557154455330
+
+It features:
+ - X-Powers AXP221s PMIC connected to i2c0
+ - 1/2 GB DDR3 DRAM
+ - 8 GB eMMC
+ - 2x USB 2.0 hosts
+ - 1x USB 2.0 OTG
+ - 2 LVDS connectors
+ - 24 bit RGB LCD connector
+ - HDMI output
+ - DVP camera interface (support 500w cmos camera)
+ - GPIO connectors
+ - 5 TTL uarts and 2 RS232 uarts
+ - 1 RS485 connector
+ - support i2c capacitive tp and usb infrared tp
+ - boot control, reset and customer buttons
+ - 3.5mm headphone and 3.5mm mic jack
+ - 100M RJ45
+ - micro SD card slot
+ - DC power jack
+ - RCT power slot
+ - 1 CVBS TVIN
+ - 1 CVBS TVOUT
+ - 2 customer leds
+ - 1 buzzer
+ - 1 minipcie
+ - I2C output
+ - SPI output
+ - PCM output
+ - wifi and bt connector reserved.
+
+Board info can find here:
+https://github.com/Axl-zhang/Allwinner-V40-T3-R40-manual
+
+Signed-off-by: hao_zhang <hao5781286@gmail.com>
+---
+ arch/arm/boot/dts/Makefile               |   1 +
+ arch/arm/boot/dts/sun8i-t3-cqa3t-bv3.dts | 226 +++++++++++++++++++++++++++++++
+ 2 files changed, 227 insertions(+)
+ create mode 100644 arch/arm/boot/dts/sun8i-t3-cqa3t-bv3.dts
+
+diff --git a/arch/arm/boot/dts/Makefile b/arch/arm/boot/dts/Makefile
+index 2a1a8c6..7ca266a 100644
+--- a/arch/arm/boot/dts/Makefile
++++ b/arch/arm/boot/dts/Makefile
+@@ -1053,6 +1053,7 @@ dtb-$(CONFIG_MACH_SUN8I) += \
+ 	sun8i-r16-nintendo-super-nes-classic.dtb \
+ 	sun8i-r16-parrot.dtb \
+ 	sun8i-r40-bananapi-m2-ultra.dtb \
++	sun8i-t3-cqa3t-bv3.dtb \
+ 	sun8i-v3s-licheepi-zero.dtb \
+ 	sun8i-v3s-licheepi-zero-dock.dtb \
+ 	sun8i-v40-bananapi-m2-berry.dtb
+diff --git a/arch/arm/boot/dts/sun8i-t3-cqa3t-bv3.dts b/arch/arm/boot/dts/sun8i-t3-cqa3t-bv3.dts
+new file mode 100644
+index 0000000..6931aaa
+--- /dev/null
++++ b/arch/arm/boot/dts/sun8i-t3-cqa3t-bv3.dts
+@@ -0,0 +1,226 @@
++// SPDX-License-Identifier: GPL-2.0-or-later
++/*
++ * Copyright (C) 2017 Chen-Yu Tsai <wens@csie.org>
++ * Copyright (C) 2017 Icenowy Zheng <icenowy@aosc.io>
++ * Copyright (C) 2018 Hao Zhang <hao5781286@gmail.com>
++ *
++ * This file is dual-licensed: you can use it either under the terms
++ * of the GPL or the X11 license, at your option. Note that this dual
++ * licensing only applies to this file, and not this project as a
++ * whole.
++ *
++ *  a) This file is free software; you can redistribute it and/or
++ *     modify it under the terms of the GNU General Public License as
++ *     published by the Free Software Foundation; either version 2 of the
++ *     License, or (at your option) any later version.
++ *
++ *     This file is distributed in the hope that it will be useful,
++ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ *     GNU General Public License for more details.
++ *
++ * Or, alternatively,
++ *
++ *  b) Permission is hereby granted, free of charge, to any person
++ *     obtaining a copy of this software and associated documentation
++ *     files (the "Software"), to deal in the Software without
++ *     restriction, including without limitation the rights to use,
++ *     copy, modify, merge, publish, distribute, sublicense, and/or
++ *     sell copies of the Software, and to permit persons to whom the
++ *     Software is furnished to do so, subject to the following
++ *     conditions:
++ *
++ *     The above copyright notice and this permission notice shall be
++ *     included in all copies or substantial portions of the Software.
++ *
++ *     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
++ *     EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
++ *     OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
++ *     NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
++ *     HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
++ *     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
++ *     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
++ *     OTHER DEALINGS IN THE SOFTWARE.
++ */
++
++/dts-v1/;
++#include "sun8i-r40.dtsi"
++
++#include <dt-bindings/gpio/gpio.h>
++
++/ {
++	model = "t3-cqa3t-bv3";
++	compatible = "qihua,t3-cqa3t-bv3", "allwinner,sun8i-t3",
++		     "allwinner,sun8i-r40";
++
++	aliases {
++		serial0 = &uart0;
++	};
++
++	chosen {
++		stdout-path = "serial0:115200n8";
++	};
++
++	connector {
++		compatible = "hdmi-connector";
++		type = "a";
++
++		port {
++			hdmi_con_in: endpoint {
++				remote-endpoint = <&hdmi_out_con>;
++			};
++		};
++	};
++
++	reg_vcc5v0: vcc5v0 {
++		compatible = "regulator-fixed";
++		regulator-name = "vcc5v0";
++		regulator-min-microvolt = <5000000>;
++		regulator-max-microvolt = <5000000>;
++		gpio = <&pio 7 23 GPIO_ACTIVE_HIGH>; /* PH23 */
++		enable-active-high;
++	};
++};
++
++&ahci {
++	ahci-supply = <&reg_dldo4>;
++	phy-supply = <&reg_eldo3>;
++	status = "okay";
++};
++
++&de {
++	status = "okay";
++};
++
++&ehci1 {
++	status = "okay";
++};
++
++&ehci2 {
++	status = "okay";
++};
++
++&hdmi {
++	status = "okay";
++};
++
++&hdmi_out {
++	hdmi_out_con: endpoint {
++		remote-endpoint = <&hdmi_con_in>;
++	};
++};
++
++&i2c0 {
++	status = "okay";
++
++	axp22x: pmic@34 {
++		compatible = "x-powers,axp221";
++		reg = <0x34>;
++		interrupt-parent = <&nmi_intc>;
++		interrupts = <0 IRQ_TYPE_LEVEL_LOW>;
++	};
++};
++
++#include "axp22x.dtsi"
++
++&mmc0 {
++	vmmc-supply = <&reg_dcdc1>;
++	bus-width = <4>;
++	cd-gpios = <&pio 7 15 GPIO_ACTIVE_LOW>; /* PH15 */
++	status = "okay";
++};
++
++&mmc2 {
++	vmmc-supply = <&reg_dcdc1>;
++	vqmmc-supply = <&reg_dcdc1>;
++	bus-width = <8>;
++	non-removable;
++	status = "okay";
++};
++
++&ohci1 {
++	status = "okay";
++};
++
++&ohci2 {
++	status = "okay";
++};
++
++&reg_aldo2 {
++	regulator-always-on;
++	regulator-min-microvolt = <2500000>;
++	regulator-max-microvolt = <2500000>;
++	regulator-name = "vcc-pa";
++};
++
++&reg_aldo3 {
++	regulator-always-on;
++	regulator-min-microvolt = <2700000>;
++	regulator-max-microvolt = <3300000>;
++	regulator-name = "avcc";
++};
++
++&reg_dcdc1 {
++	regulator-always-on;
++	regulator-min-microvolt = <3000000>;
++	regulator-max-microvolt = <3000000>;
++	regulator-name = "vcc-3v0";
++};
++
++&reg_dcdc2 {
++	regulator-always-on;
++	regulator-min-microvolt = <1000000>;
++	regulator-max-microvolt = <1300000>;
++	regulator-name = "vdd-cpu";
++};
++
++&reg_dcdc3 {
++	regulator-always-on;
++	regulator-min-microvolt = <1000000>;
++	regulator-max-microvolt = <1300000>;
++	regulator-name = "vdd-sys";
++};
++
++&reg_dcdc5 {
++	regulator-always-on;
++	regulator-min-microvolt = <1500000>;
++	regulator-max-microvolt = <1500000>;
++	regulator-name = "vcc-dram";
++};
++
++&reg_dldo1 {
++	regulator-always-on;
++	regulator-min-microvolt = <3300000>;
++	regulator-max-microvolt = <3300000>;
++	regulator-name = "vcc-pg";
++};
++
++&reg_dldo3 {
++	regulator-always-on;
++	regulator-min-microvolt = <3300000>;
++	regulator-max-microvolt = <3300000>;
++	regulator-name = "vcc-dldo3";
++};
++
++&reg_eldo3 {
++	regulator-always-on;
++	regulator-min-microvolt = <2800000>;
++	regulator-max-microvolt = <2800000>;
++	regulator-name = "vcc-pe";
++};
++
++&tcon_tv0 {
++	status = "okay";
++};
++
++&uart0 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&uart0_pb_pins>;
++	status = "okay";
++};
++
++&usbphy {
++	usb1_vbus-supply = <&reg_vcc5v0>;
++	usb2_vbus-supply = <&reg_vcc5v0>;
++	status = "okay";
++};
+-- 
+2.7.4

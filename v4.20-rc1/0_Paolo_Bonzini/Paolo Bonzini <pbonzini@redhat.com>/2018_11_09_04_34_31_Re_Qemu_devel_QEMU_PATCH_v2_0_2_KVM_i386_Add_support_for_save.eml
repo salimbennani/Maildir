@@ -1,0 +1,192 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 09 Nov 2018 00:37:58 -0000
+Received: from icoremail.net (unknown [209.85.214.171])
+	by mail-app2 (Coremail) with SMTP id by_KCgC3f+1SnuRb9X5iAQ--.29549S3;
+	Fri, 09 Nov 2018 04:36:35 +0800 (CST)
+Received: from mail-pl1-f171.google.com (unknown [209.85.214.171])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwA3FEBNnuRb_JceAA--.1576S3;
+	Fri, 09 Nov 2018 04:36:29 +0800 (CST)
+Received: by mail-pl1-f171.google.com with SMTP id t6-v6so10078095plo.9
+        for <xuliker@zju.edu.cn>; Thu, 08 Nov 2018 12:36:29 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :subject:to:cc:references:from:openpgp:autocrypt:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding:sender:precedence:list-id;
+        bh=EsVPF6qERwNMXUyewZWlcdR2JcHQiX0ebq5T3NrPi8s=;
+        b=KoD6MXfydR+0jdAfWNAXmKIbHEk0fPKF2YWnIKk8kI2d58nrAXqFuT44ik/fd3pGXy
+         dRhmc2U4ZcmRZnhQSCjq/Nc5f6TjeuY6m4xwodbgZbUOenjfCRrAig1y44m9PXjs1keP
+         WXII/jnE/8LuTsGliKz4V9/xwjQ8bTLvZeq/6UCHk1kypN1t2f3Vb/Xq/us78fa+q9tX
+         MMipcKrpEbm6M2ZsFQLDaaW/QvlRpjG+ztQ97sODk6//2sxIb1T6rkCcZ/t7lENNntno
+         nrIELzamQiYLTdzwZQdS+a+B0Na9o3O3Y5AuCpXwV4gO8Q6dCPU2GmYtW7bWawHAiumD
+         llVw==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=redhat.com
+X-Gm-Message-State: AGRZ1gLxX+YeWBnR+DKGOrAbASRChH5AsTdTPiKqVhKQkHhtdDzgbPC1
+	qPZ5gabhogPm0O4y5YFHPZ4AiEp2PT5YZRf0o1xbz66PgzWSMtf0sQ==
+X-Received: by 2002:a17:902:b598:: with SMTP id a24-v6mr6002782pls.231.1541709389402;
+        Thu, 08 Nov 2018 12:36:29 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp698993pjt;
+        Thu, 8 Nov 2018 12:36:28 -0800 (PST)
+X-Google-Smtp-Source: AJdET5dplvFxBE9zy0M7MQE/7NwJofKlzw9f9vCyL8/+NsqmWOQ3t3iu/OvvjXNDUjomr1Q6Y0wu
+X-Received: by 2002:a17:902:6686:: with SMTP id e6-v6mr5940024plk.173.1541709388335;
+        Thu, 08 Nov 2018 12:36:28 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1541709388; cv=none;
+        d=google.com; s=arc-20160816;
+        b=sZ17zwHH5yW3XpqMuc/CKf5WzenKxHeJ4p0j1tH4dMtO78zhtRk9uvyqjeTrM/wC29
+         dHlDf7A82p+A162ADQpD/JiOHzbcVmyMC70+PlWurmE0ZNi6mT6zV6Cq/vkgcD6/KBZi
+         oRu1ple1VZvmerP10ZQwwtKZLVuCW0tXSzKM2wfTOSeFGQiliSm7BZx01gRqaHOsnsx1
+         NsA8WP38mBI3pAazICTh1HERLu02Sv2Iw7Eg9CJT7Qm7KGkYMaMefdAvGq806WnRtI3O
+         sipLnZ3KajJIKByLVvW3ei2PfTB54oEJzDv2UQgMbBkhA+WVHOTenVMZEKB0nUCct30/
+         C9mg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:content-transfer-encoding
+         :content-language:in-reply-to:mime-version:user-agent:date
+         :message-id:autocrypt:openpgp:from:references:cc:to:subject;
+        bh=EsVPF6qERwNMXUyewZWlcdR2JcHQiX0ebq5T3NrPi8s=;
+        b=XDsUHTdye5pPKy2lXVZGcwsq+7GPaWM/NybqynYh1J63i5FotBXghVdcvdFpSFMZ6O
+         tq8o7p6qnb42Wze6++KUjBGMsJwvbgjrdF1jhzLVUU2P4yAKSZriAM+JlGnqZ/S1ZkS/
+         fpc62L1FBb3NSB/lqJmffP18mYSIPJwjd8N9ICTqNspzdGBMcvEkVSqaWRIPNXJIiqMt
+         f4UPP85P2mORBkqZaA/CS7yYN8mz+mQTawpG8U6JX16wsQ0RkFiYQWMOsovAiN0iWQN4
+         wfXBgfzjhTSg/nT1y6f3sZ+G+mwxInKRvlebm3eqZmxQfTPMySOg7pdfl7/eJCVfftaY
+         pLFw==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=redhat.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id cc17-v6si5597583plb.219.2018.11.08.12.36.13;
+        Thu, 08 Nov 2018 12:36:28 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1726813AbeKIGLo (ORCPT <rfc822;fanshuming2011@gmail.com>
+        + 99 others); Fri, 9 Nov 2018 01:11:44 -0500
+Received: from mx1.redhat.com ([209.132.183.28]:48034 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725882AbeKIGLo (ORCPT <rfc822;kvm@vger.kernel.org>);
+        Fri, 9 Nov 2018 01:11:44 -0500
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 0315258E48;
+        Thu,  8 Nov 2018 20:34:36 +0000 (UTC)
+Received: from [10.36.112.55] (ovpn-112-55.ams2.redhat.com [10.36.112.55])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 51F9B18C61;
+        Thu,  8 Nov 2018 20:34:32 +0000 (UTC)
+Subject: Re: [Qemu-devel] [QEMU PATCH v2 0/2]: KVM: i386: Add support for save
+ and restore nested state
+To: Liran Alon <liran.alon@oracle.com>
+Cc: Jim Mattson <jmattson@google.com>,
+        "Dr. David Alan Gilbert" <dgilbert@redhat.com>,
+        Eduardo Habkost <ehabkost@redhat.com>,
+        kvm list <kvm@vger.kernel.org>, mtosatti@redhat.com,
+        rth@twiddle.net, qemu-devel@nongnu.org
+References: <CALMp9eQ5zWxb2N9fyYz=WcQshwk0L6qQ4D6L6+p_dzMo4H=txA@mail.gmail.com>
+ <20181102034649.43559-1-liran.alon@oracle.com>
+ <CALMp9eRk=a1FEyr78NRGBBZ2iFCo5s2n5N=bM4zR=YF56oob3A@mail.gmail.com>
+ <1C803EF0-9E1B-4E1B-A4DD-4BE788A7A1FF@oracle.com>
+ <DF5EC0F1-BA8D-4B85-BB1A-B22234235FBA@oracle.com>
+ <CALMp9eQSptO+S1NZjQQUa=HQCXFOevHwTDS9i0KXHCGSfKzEkA@mail.gmail.com>
+ <a567de11-a106-fd6d-7998-1a18ba17eaaa@redhat.com>
+ <939A6255-306C-431C-8799-0D56A30A3BD5@oracle.com>
+ <d29d27ba-f34e-6dd6-4eec-8e75971269e3@redhat.com>
+ <59EE7141-6771-47E2-8473-C1429676AD7B@oracle.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Openpgp: preference=signencrypt
+Autocrypt: addr=pbonzini@redhat.com; prefer-encrypt=mutual; keydata=
+ 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
+Message-ID: <cb9e672a-9d5f-6a6c-2fa6-2c097c1892ab@redhat.com>
+Date: Thu, 8 Nov 2018 21:34:31 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.0
+MIME-Version: 1.0
+In-Reply-To: <59EE7141-6771-47E2-8473-C1429676AD7B@oracle.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.39]); Thu, 08 Nov 2018 20:34:36 +0000 (UTC)
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwA3FEBNnuRb_JceAA--.1576S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoWrtw4DWr1xuF1kuFW8Ar4fZrb_yoW8JF1Dp3
+	98ua9xKrsxJryv9397Ar1xZr4Sk39YqFZrJrykGw42y3WYgr9a9F4SyrW5Za9rCFs7Gr1U
+	JF13W3s8A3WqyrJanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUmvb7Iv0xC_Zr1lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2
+	z280aVAFwI0_Cr1j6rxdM28EF7xvwVC2z280aVCY1x0267AKxVWxJr0_GcWle2I262IYc4
+	CY6c8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_
+	Jrv_JF1lYx0Ex4A2jsIE14v26r1j6r4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvEwI
+	xGrwCjxxvEa2IrMxk0xIA0c2IEe2xFo4CEbIxvr21lc7CjxVAKzI0EY4vE52x082I5MxkF
+	s20EY4vE44CYbxCE4x80FwCY02Avz4vEIxC_AwCY0x0Ix7I2Y4AK64vIr41lcIIF0xvE2I
+	x0cI8IcVAFwI0_Xr0_Ar1lcIIF0xvE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwCYIxAIcVC2
+	z280aVAFwI0_Gr1j6F4UJwCYIxAIcVC2z280aVCY1x0267AKxVW8Jr0_Cr1UMxAIw28Icx
+	kI7VAKI48JMxAIw28IcVAKzI0EY4vE52x082I5MxCjnVCjjxCrMxC20s026xCaFVCjc4AY
+	6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17
+	CEb7AF67AKxVWUtVW8ZwCIc40Y0x0EwIxGrwCI42IY6xAIw20EY4v20xvaj40_Jr0_JF7v
+	cSsGvfC2KfnxnUUI43ZEXa7IU5hjjDUUUUU==
+
+On 08/11/2018 19:41, Liran Alon wrote:
+> So what I plan to do is indeed to define first 4K of data as vmcs12 and next 4K as shadow_vmcs12.
+> I will also define each of them in a separate VMState subsection that each will have it’s own .needed()
+> method that will decide if it’s relevant to send it based on kvm_state.size.
+> vmcs12 and shadow_vmcs12 will be put in a struct which is unioned with a struct
+> of 2 pages buffer to clearly indicate that one well-defined struct is used for VMX and the other for SVM.
+> (based on kvm_state.format)
+
+And SVM will use other subsections.
+
+> In addition, I will change KVM_{GET,SET}_NESTED_STATE documentation to indicate that
+> future nested state fields should be added at the end of struct and weather they are valid should
+> be determined by a flag in kvm_state.flags.
+> QEMU will handle these new states in the future by adding more VMState subsections that have
+> .needed() method based on appropriate flag in kvm_state.flags.
+> The struct itself that userspace use against it’s local kernel will be determined based on KVM_CAPs.
+> 
+> If there are no objections, I will write the needed patches for QEMU (and the documentation patch for KVM).
+
+Sure.  You can also place the flags and format in yet another subsection.
+
+Paolo

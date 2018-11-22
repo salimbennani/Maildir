@@ -1,0 +1,576 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (61.164.42.155:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 17 Nov 2018 03:13:57 -0000
+Received: from icoremail.net (unknown [209.85.210.178])
+	by mail-app2 (Coremail) with SMTP id by_KCgCn31wTH+9bQOukAQ--.49265S3;
+	Sat, 17 Nov 2018 03:48:36 +0800 (CST)
+Received: from mail-pf1-f178.google.com (unknown [209.85.210.178])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwB3XEgRH+9bbO1KAA--.1759S3;
+	Sat, 17 Nov 2018 03:48:33 +0800 (CST)
+Received: by mail-pf1-f178.google.com with SMTP id q1so3875268pfi.5
+        for <xuliker@zju.edu.cn>; Fri, 16 Nov 2018 11:48:33 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:delivered-to:dkim-signature:date:from:to:cc
+         :subject:message-id:references:mime-version:content-disposition
+         :in-reply-to:user-agent:sender:precedence:list-id;
+        bh=58mAs4CEI/9CaMk27U495zad2PsbZeL5NTUl/ZBS/kk=;
+        b=U0D3BV5OijC0hcO9FU2Fq2cN9EVjwEBb0rL5/pfizoxuyIH6D8QEEN6cxLog05P42R
+         AQEfKVoPpsRnTa8/TbLXLgUqwaYuMNpLtapxUDCfnGh5niB0IvT8P/pPWQ7HLUETnZ+b
+         gNHoPhJ4FV3dNyM/Zu8dsnwaEgdHday1brFOPwNgy5g7G8v5+JqpT52i4Ag/5eIsT5FK
+         FQjkXrRsvH6pHuwh7HnaPkIPXEyyZby3E03SCXhy8vxXnBaWvqBxdXryxnaYwlWPicZt
+         oi2e4dBZRSBkKfgMSDiKItrsK+6P5Qf7ufn9YxENemp9SdCJz60ZMSDk3cjXc+4rQMUp
+         OIbQ==
+X-Gm-Message-State: AGRZ1gJQ8eGRMEZvVWNZlHY9YmTrqeB/F4AD+ElLZpQpxI1C9f+aEctU
+	/ZIGEmuTyEg7Ug4ty18lI9/QpsNcL8xBJCb6AEMBa/CU1mNbk3g=
+X-Received: by 2002:a63:580a:: with SMTP id m10mr2609754pgb.332.1542397712561;
+        Fri, 16 Nov 2018 11:48:32 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:d106:0:0:0:0 with SMTP id l6-v6csp841319pju;
+        Fri, 16 Nov 2018 11:48:31 -0800 (PST)
+X-Google-Smtp-Source: AJdET5czvm0dicrLkfg8HZlIgtQ0ARpfGXKhq6dx6bXr6BRcOwzQRrcXS7d00zbBWRHR2jaxLcxb
+X-Received: by 2002:a63:5b48:: with SMTP id l8mr11235812pgm.80.1542397711056;
+        Fri, 16 Nov 2018 11:48:31 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542397711; cv=none;
+        d=google.com; s=arc-20160816;
+        b=ntJbmAwpTWEFGkBmj3Ie4HLMPAPadFbfmsBwNZyo+8WJwX8qbwIYcDQRrCxQf63jO9
+         AtGDDbYru4yiAU2Xu5EXyQhhhdQuFph611KtxMoxJvjERgCBAUKfoHbvqEX6fU+h9N2c
+         c8GbQMgjBh6dqdJjzPk1HkY21KOAO8XNfB8M7uCyUZVN81PbTvRjQRhXM+k94k7pfbEp
+         EeYZ7HXzocVtHTE9IRBhu3fU0YrHIaeJg9dCxrhdDTVZeEO8DmJtNb6gbV3aVUxdrZrT
+         3hpmve34yQSW2fop6r0sOMYsEn/6VYcpmS7cL4arnkdNsfxZDCa4KY/eZzHUafwmSrr1
+         hpnQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:user-agent:in-reply-to
+         :content-disposition:mime-version:references:message-id:subject:cc
+         :to:from:date:dkim-signature;
+        bh=58mAs4CEI/9CaMk27U495zad2PsbZeL5NTUl/ZBS/kk=;
+        b=voYsl772Z6J3ZIYCkM6ERGEe1W5PlviC1dWkpNQ6pjkom9fUsYB2zeGgncm+bv/7KA
+         sXF1OG+GTTiH1E/GHmZnH8npvFp5yA4/tsLp3+777TveQagBVOrMxqM3wqkyLTmPRwJk
+         nVV55ktOsUZ14ZTIIhrPT7OgF1W0x9b/EhaNDoEeZPRQrr4N7zZMwcPb8U539+O0zpG5
+         cofKOaK5rV02haw/M2F97oCk8z4wRcx7jBgpfCh8FA3nzMxhKVGp6gVFqWaPq0FHfAjy
+         Teq5M+39dm4I4l14CkLZRAtlHuZhEO1yHV0R9rEgWGz4FEDeB0V1DpvTrhWuiAK1Sjzo
+         ioRA==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@kernel.org header.s=default header.b=2rWTLuf6;
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id a185si29268422pge.404.2018.11.16.11.48.15;
+        Fri, 16 Nov 2018 11:48:31 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1726529AbeKQGBU (ORCPT <rfc822;xjxyklwx@gmail.com> + 99 others);
+        Sat, 17 Nov 2018 01:01:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38844 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725753AbeKQGBU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+        Sat, 17 Nov 2018 01:01:20 -0500
+Received: from localhost (unknown [205.169.26.81])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4B6D620685;
+        Fri, 16 Nov 2018 19:47:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1542397654;
+        bh=+P76cbHUebU/69oYds/s3inbcw7dtMadL00T9U2EQ7E=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=2rWTLuf6cdBS/aEJInH4UcUCfEGeLSBKerfVm9VSGe47/s+nZ3TSg0V5AAkgruhxS
+         kDuN2qU49EjcQ42EPBHDopGmmG8wINjaxxpeOFYnVc71qxtGAkqu1aEsDZ8E6lwOnc
+         7qMyOMCMZIxwItAEjNSDthOsI21FyKt4BKp0W8YY=
+Date: Fri, 16 Nov 2018 11:47:33 -0800
+From: "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>
+To: Ioana Ciornei <ioana.ciornei@nxp.com>
+Cc: Laurentiu Tudor <laurentiu.tudor@nxp.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "netdev-owner@vger.kernel.org" <netdev-owner@vger.kernel.org>,
+        Ioana Ciocoi Radulescu <ruxandra.radulescu@nxp.com>,
+        Horia Geanta <horia.geanta@nxp.com>,
+        Leo Li <leoyang.li@nxp.com>
+Subject: Re: [PATCH v2 2/4] bus: fsl-mc: add fsl-mc userspace support
+Message-ID: <20181116194733.GA7785@kroah.com>
+References: <1542390890-3270-1-git-send-email-ioana.ciornei@nxp.com>
+ <1542390890-3270-3-git-send-email-ioana.ciornei@nxp.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1542390890-3270-3-git-send-email-ioana.ciornei@nxp.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwB3XEgRH+9bbO1KAA--.1759S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvAXoW3KFykAw4UZF1xXFWxAw13urg_yoW8GF17Ao
+	WfKr9xWF1fKwnrArW8KFyxJFZru3ykGan3J3y5CFZ8ZFy2qF4Yq3y7Kw4rXay7GrWrtFn7
+	X342qa1UXr45tF1rn29KB7ZKAUJUUUUU529EdanIXcx71UUUUj7v73VFW2AGmfu7jjvjm3
+	AaLaJ3UjIYCTnIWjp_UUUO87k0a2IF6w4kM7kC6x804xWl14x267AKxVWUJVW8JwAFIxvE
+	14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK021l84ACjcxK6xIIjx
+	v20xvE14v26w1j6s0DM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26F4j6r4UJwA2z4x0Y4vE
+	x4A2jsIE14v26rxl6s0DM28EF7xvwVC2z280aVCY1x0267AKxVW0oVCq3wAS0I0E0xvYzx
+	vE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AKxVWU
+	JVWUGwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcVAKI4
+	8JMx02cVCv0xWlc7CjxVAKzI0EY4vE52x082I5MxkFs20EY4vE44CYbxCE4x80FwCY02Av
+	z4vEIxC_WwCY0x0Ix7I2Y4AK64vIr41lcIIF0xvE2Ix0cI8IcVAFwI0_Jr0_JF4lcIIF0x
+	vE2Ix0cI8IcVCY1x0267AKxVWUJVW8JwCYIxAIcVC2z280aVAFwI0_Gr1j6F4UJwCYIxAI
+	cVC2z280aVCY1x0267AKxVW8Jr0_Cr1UMxAIw28IcxkI7VAKI48JMxAIw28IcVAKzI0EY4
+	vE52x082I5MxCjnVCjjxCrMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_
+	Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWUtVW8ZwCIc40Y0x
+	0EwIxGrwCI42IY6xAIw20EY4v20xvaj40_Zr0_Wr1UYxBIdaVFxhVjvjDU0xZFpf9x07bJ
+	ksgUUUUU=
+
+On Fri, Nov 16, 2018 at 05:55:41PM +0000, Ioana Ciornei wrote:
+> Adding userspace support for the MC (Management Complex) means exporting
+> an ioctl capable device file representing the root resource container.
+> 
+> This new functionality in the fsl-mc bus driver intends to provide
+> userspace applications an interface to interact with the MC firmware.
+> 
+> Commands that are composed in userspace are sent to the MC firmware
+> through the FSL_MC_SEND_MC_COMMAND ioctl.  By default the implicit MC
+> I/O portal is used for this operation, but if the implicit one is busy,
+> a dynamic portal is allocated and then freed upon execution.
+> 
+> Signed-off-by: Ioana Ciornei <ioana.ciornei@nxp.com>
+
+Overall, this looks almost sane :)
+
+But I do have some minor comments below on the code after only a quick
+review.
+
+
+> ---
+> Changes in v2:
+>    - use root dprc MC portal by default
+>    - create the uapi misc device from the root dprc probe function
+> 
+>  Documentation/ioctl/ioctl-number.txt |   1 +
+>  drivers/bus/fsl-mc/Kconfig           |   7 ++
+>  drivers/bus/fsl-mc/Makefile          |   3 +
+>  drivers/bus/fsl-mc/dprc-driver.c     |  14 ++-
+>  drivers/bus/fsl-mc/fsl-mc-private.h  |  41 ++++++++
+>  drivers/bus/fsl-mc/fsl-mc-uapi.c     | 179 +++++++++++++++++++++++++++++++++++
+>  include/uapi/linux/fsl_mc.h          |   9 ++
+>  7 files changed, 253 insertions(+), 1 deletion(-)
+>  create mode 100644 drivers/bus/fsl-mc/fsl-mc-uapi.c
+> 
+> diff --git a/Documentation/ioctl/ioctl-number.txt b/Documentation/ioctl/ioctl-number.txt
+> index af6f6ba..eaae7bf 100644
+> --- a/Documentation/ioctl/ioctl-number.txt
+> +++ b/Documentation/ioctl/ioctl-number.txt
+> @@ -171,6 +171,7 @@ Code  Seq#(hex)	Include File		Comments
+>  'R'	00-1F	linux/random.h		conflict!
+>  'R'	01	linux/rfkill.h		conflict!
+>  'R'	C0-DF	net/bluetooth/rfcomm.h
+> +'R'	E0	uapi/linux/fsl_mc.h
+>  'S'	all	linux/cdrom.h		conflict!
+>  'S'	80-81	scsi/scsi_ioctl.h	conflict!
+>  'S'	82-FF	scsi/scsi.h		conflict!
+> diff --git a/drivers/bus/fsl-mc/Kconfig b/drivers/bus/fsl-mc/Kconfig
+> index c23c77c..cde6f40 100644
+> --- a/drivers/bus/fsl-mc/Kconfig
+> +++ b/drivers/bus/fsl-mc/Kconfig
+> @@ -14,3 +14,10 @@ config FSL_MC_BUS
+>  	  architecture.  The fsl-mc bus driver handles discovery of
+>  	  DPAA2 objects (which are represented as Linux devices) and
+>  	  binding objects to drivers.
+> +
+> +config FSL_MC_UAPI_SUPPORT
+> +	bool "Management Complex (MC) userspace support"
+> +	depends on FSL_MC_BUS
+> +	help
+> +	  Provides userspace support for creating/destroying/configuring
+> +	  DPAA2 objects in the Management Complex.
+> diff --git a/drivers/bus/fsl-mc/Makefile b/drivers/bus/fsl-mc/Makefile
+> index 3c518c7..4ae292a 100644
+> --- a/drivers/bus/fsl-mc/Makefile
+> +++ b/drivers/bus/fsl-mc/Makefile
+> @@ -16,3 +16,6 @@ mc-bus-driver-objs := fsl-mc-bus.o \
+>  		      fsl-mc-allocator.o \
+>  		      fsl-mc-msi.o \
+>  		      dpmcp.o
+> +
+> +# MC userspace support
+> +obj-$(CONFIG_FSL_MC_UAPI_SUPPORT) += fsl-mc-uapi.o
+> diff --git a/drivers/bus/fsl-mc/dprc-driver.c b/drivers/bus/fsl-mc/dprc-driver.c
+> index 52c7e15..3919d9b 100644
+> --- a/drivers/bus/fsl-mc/dprc-driver.c
+> +++ b/drivers/bus/fsl-mc/dprc-driver.c
+> @@ -593,6 +593,7 @@ static int dprc_probe(struct fsl_mc_device *mc_dev)
+>  	struct fsl_mc_bus *mc_bus = to_fsl_mc_bus(mc_dev);
+>  	bool mc_io_created = false;
+>  	bool msi_domain_set = false;
+> +	bool uapi_created = false;
+
+I dont understand this "created" need/use.  Why is that needed?
+
+>  	u16 major_ver, minor_ver;
+>  
+>  	if (!is_fsl_mc_bus_dprc(mc_dev))
+> @@ -647,6 +648,11 @@ static int dprc_probe(struct fsl_mc_device *mc_dev)
+>  		} else {
+>  			dev_set_msi_domain(&mc_dev->dev, mc_msi_domain);
+>  			msi_domain_set = true;
+> +
+> +			error = fsl_mc_uapi_create_device_file(mc_bus);
+> +			if (error < 0)
+> +				goto error_cleanup_msi_domain;
+> +			uapi_created = true;
+
+Why are you setting this, can't you always just "know" if the misc file
+was created so when you clean up from errors you can remove it?  Or is
+the logic here just too complex?
+
+
+>  		}
+>  	}
+>  
+> @@ -654,7 +660,7 @@ static int dprc_probe(struct fsl_mc_device *mc_dev)
+>  			  &mc_dev->mc_handle);
+>  	if (error < 0) {
+>  		dev_err(&mc_dev->dev, "dprc_open() failed: %d\n", error);
+> -		goto error_cleanup_msi_domain;
+> +		goto error_cleanup_uapi;
+>  	}
+>  
+>  	error = dprc_get_attributes(mc_dev->mc_io, 0, mc_dev->mc_handle,
+> @@ -706,6 +712,10 @@ static int dprc_probe(struct fsl_mc_device *mc_dev)
+>  error_cleanup_open:
+>  	(void)dprc_close(mc_dev->mc_io, 0, mc_dev->mc_handle);
+>  
+> +error_cleanup_uapi:
+> +	if (uapi_created)
+> +		fsl_mc_uapi_remove_device_file(mc_bus);
+> +
+>  error_cleanup_msi_domain:
+>  	if (msi_domain_set)
+>  		dev_set_msi_domain(&mc_dev->dev, NULL);
+> @@ -774,6 +784,8 @@ static int dprc_remove(struct fsl_mc_device *mc_dev)
+>  	if (!fsl_mc_is_root_dprc(&mc_dev->dev)) {
+>  		fsl_destroy_mc_io(mc_dev->mc_io);
+>  		mc_dev->mc_io = NULL;
+> +	} else {
+> +		fsl_mc_uapi_remove_device_file(mc_bus);
+
+You aren't checkig that bool flag here, which kind of implies that you
+didn't need it above as well.
+
+>  	}
+>  
+>  	dev_info(&mc_dev->dev, "DPRC device unbound from driver");
+> diff --git a/drivers/bus/fsl-mc/fsl-mc-private.h b/drivers/bus/fsl-mc/fsl-mc-private.h
+> index ea11b4f..16902f9 100644
+> --- a/drivers/bus/fsl-mc/fsl-mc-private.h
+> +++ b/drivers/bus/fsl-mc/fsl-mc-private.h
+> @@ -10,6 +10,8 @@
+>  
+>  #include <linux/fsl/mc.h>
+>  #include <linux/mutex.h>
+> +#include <linux/ioctl.h>
+> +#include <linux/miscdevice.h>
+>  
+>  /*
+>   * Data Path Management Complex (DPMNG) General API
+> @@ -492,6 +494,24 @@ struct fsl_mc_resource_pool {
+>  };
+>  
+>  /**
+> + * struct fsl_mc_uapi - information associated with a device file
+> + * @misc: struct miscdevice linked to the root dprc
+> + * @device: newly created device in /dev
+> + * @mutex: mutex lock to serialize the open/release operations
+> + * @local_instance_in_use: local MC I/O instance in use or not
+> + * @dynamic_instance_count: number of dynamically created MC I/O instances
+> + * @static_mc_io: pointer to the static MC I/O object
+> + */
+> +struct fsl_mc_uapi {
+> +	struct miscdevice misc;
+> +	struct device *device;
+> +	struct mutex mutex; /* serialize open/release operations */
+> +	u32 local_instance_in_use;
+
+Why do you care/need to know if it is in use or not?
+Why does it matter, that's a userspace decision to make, not the
+kernel's.
+
+
+> +	u32 dynamic_instance_count;
+> +	struct fsl_mc_io *static_mc_io;
+> +};
+> +
+> +/**
+>   * struct fsl_mc_bus - logical bus that corresponds to a physical DPRC
+>   * @mc_dev: fsl-mc device for the bus device itself.
+>   * @resource_pools: array of resource pools (one pool per resource type)
+> @@ -500,6 +520,7 @@ struct fsl_mc_resource_pool {
+>   * @irq_resources: Pointer to array of IRQ objects for the IRQ pool
+>   * @scan_mutex: Serializes bus scanning
+>   * @dprc_attr: DPRC attributes
+> + * @uapi_misc: struct that abstracts the interaction with userspace
+>   */
+>  struct fsl_mc_bus {
+>  	struct fsl_mc_device mc_dev;
+> @@ -507,6 +528,7 @@ struct fsl_mc_bus {
+>  	struct fsl_mc_device_irq *irq_resources;
+>  	struct mutex scan_mutex;    /* serializes bus scanning */
+>  	struct dprc_attributes dprc_attr;
+> +	struct fsl_mc_uapi uapi_misc;
+>  };
+>  
+>  #define to_fsl_mc_bus(_mc_dev) \
+> @@ -561,4 +583,23 @@ int __must_check fsl_create_mc_io(struct device *dev,
+>  
+>  bool fsl_mc_is_root_dprc(struct device *dev);
+>  
+> +#ifdef CONFIG_FSL_MC_UAPI_SUPPORT
+> +
+> +int fsl_mc_uapi_create_device_file(struct fsl_mc_bus *mc_bus);
+> +
+> +void fsl_mc_uapi_remove_device_file(struct fsl_mc_bus *mc_bus);
+> +
+> +#else
+> +
+> +static inline int fsl_mc_uapi_create_device_file(struct fsl_mc_bus *mc_bus)
+> +{
+> +	return 0;
+> +}
+> +
+> +static inline void fsl_mc_uapi_remove_device_file(struct fsl_mc_bus *mc_bus)
+> +{
+> +}
+> +
+> +#endif
+> +
+>  #endif /* _FSL_MC_PRIVATE_H_ */
+> diff --git a/drivers/bus/fsl-mc/fsl-mc-uapi.c b/drivers/bus/fsl-mc/fsl-mc-uapi.c
+> new file mode 100644
+> index 0000000..8c9debb
+> --- /dev/null
+> +++ b/drivers/bus/fsl-mc/fsl-mc-uapi.c
+> @@ -0,0 +1,179 @@
+> +// SPDX-License-Identifier: GPL-2.0
+> +/*
+> + * Management Complex (MC) userspace support
+> + *
+> + * Copyright 2018 NXP
+> + *
+> + */
+> +
+> +#include <linux/slab.h>
+> +#include <linux/fs.h>
+> +#include <linux/uaccess.h>
+> +#include <linux/miscdevice.h>
+> +
+> +#include "fsl-mc-private.h"
+> +
+> +struct uapi_priv_data {
+> +	struct fsl_mc_uapi *uapi;
+> +	struct fsl_mc_io *mc_io;
+> +};
+> +
+> +static int fsl_mc_uapi_send_command(unsigned long arg,
+> +				    struct fsl_mc_io *mc_io)
+> +{
+> +	struct fsl_mc_command mc_cmd;
+> +	int error;
+> +
+> +	error = copy_from_user(&mc_cmd, (void __user *)arg, sizeof(mc_cmd));
+> +	if (error)
+> +		return -EFAULT;
+> +
+> +	error = mc_send_command(mc_io, &mc_cmd);
+
+Is there no need for any type of validation of the command at all?
+Previously you were always sending "known good" commands from within the
+kernel.  THat is suddenly changed here, how good and robust is your
+error handling in this function?
+
+
+> +	if (error)
+> +		return error;
+> +
+> +	error = copy_to_user((void __user *)arg, &mc_cmd, sizeof(mc_cmd));
+> +	if (error)
+> +		return -EFAULT;
+> +
+> +	return 0;
+> +}
+> +
+> +static int fsl_mc_uapi_dev_open(struct inode *inode, struct file *filep)
+> +{
+> +	struct fsl_mc_device *root_mc_device;
+> +	struct uapi_priv_data *priv_data;
+> +	struct fsl_mc_io *dynamic_mc_io;
+> +	struct fsl_mc_uapi *mc_uapi;
+> +	struct fsl_mc_bus *mc_bus;
+> +	int error;
+> +
+> +	priv_data = kzalloc(sizeof(*priv_data), GFP_KERNEL);
+> +	if (!priv_data)
+> +		return -ENOMEM;
+> +
+> +	mc_uapi = container_of(filep->private_data, struct fsl_mc_uapi, misc);
+> +	mc_bus = container_of(mc_uapi, struct fsl_mc_bus, uapi_misc);
+> +	root_mc_device = &mc_bus->mc_dev;
+> +
+> +	mutex_lock(&mc_uapi->mutex);
+> +
+> +	if (!mc_uapi->local_instance_in_use) {
+> +		priv_data->mc_io = mc_uapi->static_mc_io;
+> +		mc_uapi->local_instance_in_use = true;
+
+You are setting a u32 to "true"?  The compiler did not complain?
+
+And again, why is this needed, I don't understand the distinction.
+
+> +	} else {
+> +		error = fsl_mc_portal_allocate(root_mc_device, 0,
+> +					       &dynamic_mc_io);
+> +		if (error) {
+> +			pr_err("Could not allocate MC portal\n");
+> +			goto error_portal_allocate;
+> +		}
+> +
+> +		mc_uapi->dynamic_instance_count++;
+
+Why care about the "count"?
+
+
+> +		priv_data->mc_io = dynamic_mc_io;
+> +	}
+> +	priv_data->uapi = mc_uapi;
+> +	filep->private_data = priv_data;
+> +
+> +	mutex_unlock(&mc_uapi->mutex);
+> +
+> +	return 0;
+> +
+> +error_portal_allocate:
+> +	mutex_unlock(&mc_uapi->mutex);
+> +
+> +	return error;
+> +}
+> +
+> +static int fsl_mc_uapi_dev_release(struct inode *inode, struct file *filep)
+> +{
+> +	struct uapi_priv_data *priv_data;
+> +	struct fsl_mc_uapi *mc_uapi;
+> +	struct fsl_mc_io *mc_io;
+> +
+> +	priv_data = filep->private_data;
+> +	mc_uapi = priv_data->uapi;
+> +	mc_io = priv_data->mc_io;
+> +
+> +	mutex_lock(&mc_uapi->mutex);
+> +
+> +	if (WARN_ON(!mc_uapi->local_instance_in_use &&
+> +		    mc_uapi->dynamic_instance_count == 0)) {
+> +		mutex_unlock(&mc_uapi->mutex);
+> +		return -EINVAL;
+
+Never have a WARN_ON() on a path that userspace can generate, otherwise
+when you run with panic_on_warn enabled, you just crashed the machine.
+
+If this really is such a horrible error, do a "dev_warn()" and move on.
+But again, do not print something if userspace can trigger it all the
+time, that's a local DoS.
+
+
+> +	}
+> +
+> +	if (mc_io == mc_uapi->static_mc_io) {
+> +		mc_uapi->local_instance_in_use = false;
+> +	} else {
+> +		fsl_mc_portal_free(mc_io);
+> +		mc_uapi->dynamic_instance_count--;
+> +	}
+> +
+> +	kfree(filep->private_data);
+> +	filep->private_data =  NULL;
+> +
+> +	mutex_unlock(&mc_uapi->mutex);
+> +
+> +	return 0;
+> +}
+> +
+> +static long fsl_mc_uapi_dev_ioctl(struct file *file,
+> +				  unsigned int cmd,
+> +				  unsigned long arg)
+> +{
+> +	struct uapi_priv_data *priv_data = file->private_data;
+> +	int error;
+> +
+> +	switch (cmd) {
+> +	case FSL_MC_SEND_MC_COMMAND:
+> +		error = fsl_mc_uapi_send_command(arg, priv_data->mc_io);
+> +		break;
+> +	default:
+> +		pr_err("%s: unexpected ioctl call number\n", __func__);
+> +		error = -EINVAL;
+
+dev_err()?  Same for all of your pr_* calls, use the dev_* calls
+instead.
+
+And again, this is something that userspace can easily trigger, do not
+spam the logs with this type of message.  Make it dev_dbg() instead for
+your own debugging use.
+
+
+> +	}
+> +
+> +	return error;
+> +}
+> +
+> +static const struct file_operations fsl_mc_uapi_dev_fops = {
+> +	.owner = THIS_MODULE,
+> +	.open = fsl_mc_uapi_dev_open,
+> +	.release = fsl_mc_uapi_dev_release,
+> +	.unlocked_ioctl = fsl_mc_uapi_dev_ioctl,
+> +};
+> +
+> +int fsl_mc_uapi_create_device_file(struct fsl_mc_bus *mc_bus)
+> +{
+> +	struct fsl_mc_device *mc_dev = &mc_bus->mc_dev;
+> +	struct fsl_mc_uapi *mc_uapi = &mc_bus->uapi_misc;
+> +	int error;
+> +
+> +	mc_uapi->misc.minor = MISC_DYNAMIC_MINOR;
+> +	mc_uapi->misc.name = dev_name(&mc_dev->dev);
+> +	mc_uapi->misc.fops = &fsl_mc_uapi_dev_fops;
+> +
+> +	error = misc_register(&mc_uapi->misc);
+> +	if (error)
+> +		return -EPROBE_DEFER;
+
+No, return the error given to you, don't eat it and make up a new one.
+
+> +
+> +	mc_uapi->static_mc_io = mc_bus->mc_dev.mc_io;
+> +
+> +	mutex_init(&mc_uapi->mutex);
+> +
+> +	return 0;
+> +}
+> +
+> +void fsl_mc_uapi_remove_device_file(struct fsl_mc_bus *mc_bus)
+> +{
+> +	struct fsl_mc_uapi *mc_uapi = &mc_bus->uapi_misc;
+> +
+> +	if (WARN_ON(mc_uapi->local_instance_in_use))
+> +		return;
+> +
+> +	if (WARN_ON(mc_uapi->dynamic_instance_count != 0))
+> +		return;
+
+Same comments as above on the WARN_ON(), don't do it.  make it
+dev_dbg() if you really just want to make sure your code is correct.  If
+it can happen "in the wild", then you need to refactor the code to
+prevent this from ever happening (hint, can it ever happen?  I don't
+think so but I might be wrong...)
+
+thanks,
+
+greg k-h

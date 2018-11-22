@@ -1,0 +1,529 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (61.164.42.155:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 12 Nov 2018 15:14:41 -0000
+Received: from icoremail.net (unknown [209.85.214.181])
+	by mail-app2 (Coremail) with SMTP id by_KCgDHH958VulbiL98AQ--.37099S3;
+	Mon, 12 Nov 2018 18:31:26 +0800 (CST)
+Received: from mail-pl1-f181.google.com (unknown [209.85.214.181])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwCHXzt7Vulb8z8xAA--.813S3;
+	Mon, 12 Nov 2018 18:31:23 +0800 (CST)
+Received: by mail-pl1-f181.google.com with SMTP id f12-v6so4166594plo.1
+        for <xuliker@zju.edu.cn>; Mon, 12 Nov 2018 02:31:23 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:sender:precedence:list-id;
+        bh=uBH9zComNujtWBNk8qUEEZFF3hsbjdb8SL19lTq45Uo=;
+        b=WP+3DE7hOHlkyTKL4Syh/ADwXSRRcBDb7yr1O3CSidn5qHvmjh0CjVIoTj7z0ZzAAZ
+         AKoPyWIETVoYyvvV7CXnwlPjU6+9LA5tqhkebzbp/bMtNC48YUgxM73TuEf9KbbEOM7Z
+         d53R+rSmi9tiE5aPcFBgLOlutMGnRTOqkG7n6XLcZeorEeF4d4nGIGJEvBFiVsQjKMhj
+         DMvUwFd478rQQcz1H7wJ1ANuH7lZS82DJjJx5vgH2VhYGopmS0Xj1ndyIKBiw7Fo9uaT
+         ik9rZJNt9KveHenjwlaLWBZaWerCb3BlodVucqIbW3sq7Fp0XKZYpMWCA2KbBvJAY/B7
+         W6jA==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org
+X-Gm-Message-State: AGRZ1gKNRjIw6rhjVPVHwD/PhBdCsX6RRMAGMN98d8ldJxTsEqfoW57m
+	uqvvgYZugJu7aoLK5pzba/eLdFM80wfuDab8PsqRkpZQ+prMRGUtpg==
+X-Received: by 2002:a17:902:166:: with SMTP id 93-v6mr404066plb.68.1542018682827;
+        Mon, 12 Nov 2018 02:31:22 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp3019704pjt;
+        Mon, 12 Nov 2018 02:31:21 -0800 (PST)
+X-Google-Smtp-Source: AJdET5dJLNJVp9kVW2PqYMm2BlWgGEqrOsjaA0VePmXwx9aZ4OTr5xx1cS65QPlYY+e//gdoVtMg
+X-Received: by 2002:a17:902:bccc:: with SMTP id o12-v6mr380621pls.281.1542018681828;
+        Mon, 12 Nov 2018 02:31:21 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542018681; cv=none;
+        d=google.com; s=arc-20160816;
+        b=OvDh2YXm1wpJXEwGY1B8rMkSdb1srzroH+tQQC5A6LhQKInVH3Jx7sk/vyy7VUAWo+
+         SxjhzqNRPmHWEf7tiNSScQvqjycsfVnsus7oGKAxkkSuqb4qm5+/DliV2zEW+KEuyj+r
+         xrhsODHxYy/gSe/9UdBV3teCXHWtotfoE+DXcetT8imZ0wvwx8VKce657T0Uhl0GnGFm
+         5BUXGTe+UpIdN8pIcotiTLUgQFIHmgGYr7deekQgNEBKlQH1tbR5g2nf75Lq2xYPkuje
+         8o6Fy2FQ7Bf8CA388bakGcSNeLkEAipM/yRL0J1GqVLZE3kjYHGenAkRZcaGEkK2BI/l
+         eASg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from;
+        bh=uBH9zComNujtWBNk8qUEEZFF3hsbjdb8SL19lTq45Uo=;
+        b=hz4a4smvq6UrywlIsWdQusYePno7WZGgSZZevmxqHZWN0iLaD2Ab7XWkiSfjxADuYk
+         c3rcILLsq/SHjgnMV/8zoAE+VQXYHKhW0/DRS1RkOesEozoXYBupiBOq9rXB0zXcCEJt
+         dlav7JXPs9CUyq347staYPvZLAWfVwvl1nhDyKArkLwzGrmU1h+hTfHaSN2nPkBX+pBs
+         BngjnZsvNqoCWWlZHuc+caZkN0/2qnGSaDntSQUeGh8ep2k+TnftmdN/pgwUjFGA/E/e
+         eJMdfJO9yVWF6iSeQqeveCfGS2IfRd5Rj3EP7Uhnjxng7jI7llkr9KhscUHvH/4QE0iM
+         /KNg==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id v8si481239ply.126.2018.11.12.02.31.06;
+        Mon, 12 Nov 2018 02:31:21 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1729164AbeKLUXe (ORCPT <rfc822;tomnomnom1@gmail.com>
+        + 99 others); Mon, 12 Nov 2018 15:23:34 -0500
+Received: from lhrrgout.huawei.com ([185.176.76.210]:32740 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1725873AbeKLUXd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+        Mon, 12 Nov 2018 15:23:33 -0500
+Received: from lhreml701-cah.china.huawei.com (unknown [172.18.7.108])
+        by Forcepoint Email with ESMTP id 35B69E1A79C2D;
+        Mon, 12 Nov 2018 10:30:53 +0000 (GMT)
+Received: from roberto-HP-EliteDesk-800-G2-DM-65W.huawei.com (10.204.65.153)
+ by smtpsuk.huawei.com (10.201.108.42) with Microsoft SMTP Server (TLS) id
+ 14.3.408.0; Mon, 12 Nov 2018 10:30:49 +0000
+From: Roberto Sassu <roberto.sassu@huawei.com>
+To: <dhowells@redhat.com>, <dwmw2@infradead.org>,
+        <herbert@gondor.apana.org.au>, <davem@davemloft.net>
+CC: <keyrings@vger.kernel.org>, <linux-crypto@vger.kernel.org>,
+        <linux-integrity@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <silviu.vlasceanu@huawei.com>
+Subject: [RFC][PATCH 06/12] KEYS: PGP data parser
+Date: Mon, 12 Nov 2018 11:24:17 +0100
+Message-ID: <20181112102423.30415-7-roberto.sassu@huawei.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20181112102423.30415-1-roberto.sassu@huawei.com>
+References: <20181112102423.30415-1-roberto.sassu@huawei.com>
+MIME-Version: 1.0
+Content-Type: text/plain
+X-Originating-IP: [10.204.65.153]
+X-CFilter-Loop: Reflected
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwCHXzt7Vulb8z8xAA--.813S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW3KrW7XryfCr13tF45WFy5XFb_yoWkGw4fpa
+	yrGryjkFWUGF1SkrWfAayIy34Yyry0yFWag3yFya1akwsIqr10k3yIkr4UWFyDGrs7JFW3
+	KFs0vFyY9r1DJ3DanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUU92b7Iv0xC_tr1lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2
+	z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s0DM2AIxVAIcxkEcV
+	Aq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1j
+	6r18McIj6I8E87Iv67AKxVWxJVW8Jr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcxkI7V
+	AKI48JMx02cVCv0xWlc7CjxVAKzI0EY4vE52x082I5MxkI7II2jI8vz4vEwIxGrwCYIxAI
+	cVC0I7IYx2IY67AKxVW8JVW5JwCYIxAIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMxvI42
+	IY6I8E87Iv67AKxVW0oVCq3wCYIxAIcVC2z280aVCY1x0267AKxVW0oVCq3wCF04k20xvY
+	0x0EwIxGrwCF04k20xvEw4C26cxK6c8Ij28IcwCF72vE77IF4wCFx2IqxVCFs4IE7xkEbV
+	WUJVW8JwC20s026c02F40E14v26r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF
+	67kF1VAFwI0_Jw0_GFylIxkGc2Ij64vIr41lIxAIcVCF04k26cxKx2IYs7xG6r4j6FyUYx
+	BIdaVFxhVjvjDU0xZFpf9x07jvNtxUUUUU=
+
+From: David Howells <dhowells@redhat.com>
+
+Implement a PGP data parser for the crypto key type to use when
+instantiating a key.
+
+This parser attempts to parse the instantiation data as a PGP packet
+sequence (RFC 4880) and if it parses okay, attempts to extract a public-key
+algorithm key or subkey from it.
+
+If it finds such a key, it will set up a public_key subtype payload with
+appropriate handler routines (DSA or RSA) and attach it to the key.
+
+Thanks to Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp> for pointing
+out some errors.
+
+Changelog
+
+v0:
+- remove declaration of pgp_to_public_key_algo (Roberto Sassu)
+- replace prep->type_data with prep->payload.data (Roberto Sassu)
+- replace public_key_destroy() with public_key_free() (Roberto Sassu)
+- use asymmetric_key_generate_id() to generate the key identifiers
+  (Roberto Sassu)
+- add raw_fingerprint to pgp_key_data_parse_context structure
+  (Roberto Sassu)
+- replace algorithm identifiers with strings (Roberto Sassu)
+- don't parse MPIs (Roberto Sassu)
+- don't process Public-Subkey packets (only one key will be created)
+  (Roberto Sassu)
+
+Signed-off-by: David Howells <dhowells@redhat.com>
+Co-developed-by: Roberto Sassu <roberto.sassu@huawei.com>
+---
+ crypto/asymmetric_keys/Kconfig          |  11 +
+ crypto/asymmetric_keys/Makefile         |   4 +
+ crypto/asymmetric_keys/pgp_public_key.c | 336 ++++++++++++++++++++++++
+ 3 files changed, 351 insertions(+)
+ create mode 100644 crypto/asymmetric_keys/pgp_public_key.c
+
+diff --git a/crypto/asymmetric_keys/Kconfig b/crypto/asymmetric_keys/Kconfig
+index 38c36c14d712..356b85fc34bd 100644
+--- a/crypto/asymmetric_keys/Kconfig
++++ b/crypto/asymmetric_keys/Kconfig
+@@ -99,4 +99,15 @@ config PGP_LIBRARY
+ 	  This option enables a library that provides a number of simple
+ 	  utility functions for parsing PGP (RFC 4880) packet-based messages.
+ 
++config PGP_KEY_PARSER
++	tristate "PGP key parser"
++	depends on ASYMMETRIC_PUBLIC_KEY_SUBTYPE
++	select PGP_LIBRARY
++	select MD5 # V3 fingerprint generation
++	select SHA1 # V4 fingerprint generation
++	help
++	  This option provides support for parsing PGP (RFC 4880) format blobs
++	  for key data and provides the ability to instantiate a crypto key
++	  from a public key packet found inside the blob.
++
+ endif # ASYMMETRIC_KEY_TYPE
+diff --git a/crypto/asymmetric_keys/Makefile b/crypto/asymmetric_keys/Makefile
+index 55a67ebfe8e1..a68f9a5d1746 100644
+--- a/crypto/asymmetric_keys/Makefile
++++ b/crypto/asymmetric_keys/Makefile
+@@ -91,3 +91,7 @@ $(obj)/tpm.asn1.o: $(obj)/tpm.asn1.c $(obj)/tpm.asn1.h
+ # PGP handling
+ #
+ obj-$(CONFIG_PGP_LIBRARY) += pgp_library.o
++
++obj-$(CONFIG_PGP_KEY_PARSER) += pgp_key_parser.o
++pgp_key_parser-y := \
++	pgp_public_key.o
+diff --git a/crypto/asymmetric_keys/pgp_public_key.c b/crypto/asymmetric_keys/pgp_public_key.c
+new file mode 100644
+index 000000000000..a5ce146a1250
+--- /dev/null
++++ b/crypto/asymmetric_keys/pgp_public_key.c
+@@ -0,0 +1,336 @@
++/* Instantiate a public key crypto key from PGP format data [RFC 4880]
++ *
++ * Copyright (C) 2011 Red Hat, Inc. All Rights Reserved.
++ * Written by David Howells (dhowells@redhat.com)
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public Licence
++ * as published by the Free Software Foundation; either version
++ * 2 of the Licence, or (at your option) any later version.
++ */
++
++#define pr_fmt(fmt) "PGP: "fmt
++#include <linux/module.h>
++#include <linux/kernel.h>
++#include <linux/slab.h>
++#include <linux/mpi.h>
++#include <linux/pgplib.h>
++#include <keys/asymmetric-subtype.h>
++#include <keys/asymmetric-parser.h>
++#include <crypto/hash.h>
++#include <crypto/public_key.h>
++#include "pgp_parser.h"
++
++#define MAX_MPI 5
++
++MODULE_LICENSE("GPL");
++
++static inline void digest_putc(struct shash_desc *digest, uint8_t ch)
++{
++	crypto_shash_update(digest, &ch, 1);
++}
++
++struct pgp_key_data_parse_context {
++	struct pgp_parse_context pgp;
++	struct public_key *pub;
++	unsigned char *raw_fingerprint;
++	char *fingerprint;
++};
++
++/*
++ * Calculate the public key ID (RFC4880 12.2)
++ */
++static int pgp_calc_pkey_keyid(struct shash_desc *digest,
++			       struct pgp_parse_pubkey *pgp,
++			       struct public_key *pub)
++{
++	unsigned int nb[MAX_MPI];
++	unsigned int nn[MAX_MPI];
++	unsigned int n;
++	size_t keylen = pub->keylen;
++	u8 *key_ptr = pub->key;
++	u8 *pp[MAX_MPI];
++	u32 a32;
++	int npkey;
++	int i, ret;
++
++	kenter("");
++
++	n = (pgp->version < PGP_KEY_VERSION_4) ? 8 : 6;
++	for (i = 0; i < MAX_MPI && keylen > 0; i++) {
++		ret = mpi_key_length(key_ptr, keylen, nb + i, nn + i);
++		if (ret < 0)
++			return ret;
++
++		pp[i] = key_ptr + 2;
++		key_ptr += 2 + nn[i];
++		keylen -= 2 + nn[i];
++		n += 2 + nn[i];
++	}
++
++	if (keylen != 0) {
++		pr_debug("excess %zu\n", keylen);
++		return -EBADMSG;
++	}
++
++	npkey = i;
++
++	digest_putc(digest, 0x99);     /* ctb */
++	digest_putc(digest, n >> 8);   /* 16-bit header length */
++	digest_putc(digest, n);
++	digest_putc(digest, pgp->version);
++
++	a32 = pgp->creation_time;
++	digest_putc(digest, a32 >> 24);
++	digest_putc(digest, a32 >> 16);
++	digest_putc(digest, a32 >>  8);
++	digest_putc(digest, a32 >>  0);
++
++	if (pgp->version < PGP_KEY_VERSION_4) {
++		u16 a16;
++
++		if (pgp->expires_at)
++			a16 = (pgp->expires_at - pgp->creation_time) / 86400UL;
++		else
++			a16 = 0;
++		digest_putc(digest, a16 >> 8);
++		digest_putc(digest, a16 >> 0);
++	}
++
++	digest_putc(digest, pgp->pubkey_algo);
++
++	for (i = 0; i < npkey; i++) {
++		digest_putc(digest, nb[i] >> 8);
++		digest_putc(digest, nb[i]);
++		crypto_shash_update(digest, pp[i], nn[i]);
++	}
++	ret = 0;
++
++	kleave(" = %d", ret);
++	return ret;
++}
++
++/*
++ * Calculate the public key ID fingerprint
++ */
++static int pgp_generate_fingerprint(struct pgp_key_data_parse_context *ctx,
++				    struct pgp_parse_pubkey *pgp,
++				    struct public_key *pub)
++{
++	struct crypto_shash *tfm;
++	struct shash_desc *digest;
++	char *fingerprint;
++	u8 *raw_fingerprint;
++	int digest_size, offset;
++	int ret, i;
++
++	ret = -ENOMEM;
++	tfm = crypto_alloc_shash(pgp->version < PGP_KEY_VERSION_4 ?
++				 "md5" : "sha1", 0, 0);
++	if (!tfm)
++		goto cleanup;
++
++	digest = kmalloc(sizeof(*digest) + crypto_shash_descsize(tfm),
++			 GFP_KERNEL);
++	if (!digest)
++		goto cleanup_tfm;
++
++	digest->tfm = tfm;
++	digest->flags = CRYPTO_TFM_REQ_MAY_SLEEP;
++	ret = crypto_shash_init(digest);
++	if (ret < 0)
++		goto cleanup_hash;
++
++	ret = pgp_calc_pkey_keyid(digest, pgp, pub);
++	if (ret < 0)
++		goto cleanup_hash;
++
++	digest_size = crypto_shash_digestsize(tfm);
++
++	raw_fingerprint = kmalloc(digest_size, GFP_KERNEL);
++	if (!raw_fingerprint)
++		goto cleanup_hash;
++
++	ret = crypto_shash_final(digest, raw_fingerprint);
++	if (ret < 0)
++		goto cleanup_raw_fingerprint;
++
++	fingerprint = kmalloc(digest_size * 2 + 1, GFP_KERNEL);
++	if (!fingerprint)
++		goto cleanup_raw_fingerprint;
++
++	offset = digest_size - 8;
++	pr_debug("offset %u/%u\n", offset, digest_size);
++
++	for (i = 0; i < digest_size; i++)
++		sprintf(fingerprint + i * 2, "%02x", raw_fingerprint[i]);
++	pr_debug("fingerprint %s\n", fingerprint);
++
++	ctx->raw_fingerprint = raw_fingerprint;
++	ctx->fingerprint = fingerprint;
++	ret = 0;
++cleanup_raw_fingerprint:
++	if (ret < 0)
++		kfree(raw_fingerprint);
++cleanup_hash:
++	kfree(digest);
++cleanup_tfm:
++	crypto_free_shash(tfm);
++cleanup:
++	kleave(" = %d", ret);
++	return ret;
++}
++
++/*
++ * Extract a public key or public subkey from the PGP stream.
++ */
++static int pgp_process_public_key(struct pgp_parse_context *context,
++				  enum pgp_packet_tag type,
++				  u8 headerlen,
++				  const u8 *data,
++				  size_t datalen)
++{
++	const char *algo;
++	struct pgp_key_data_parse_context *ctx =
++		container_of(context, struct pgp_key_data_parse_context, pgp);
++	struct pgp_parse_pubkey pgp;
++	struct public_key *pub;
++	int ret;
++
++	kenter(",%u,%u,,%zu", type, headerlen, datalen);
++
++	if (ctx->fingerprint) {
++		kleave(" = -ENOKEY [already]");
++		return -EBADMSG;
++	}
++
++	pub = kzalloc(sizeof(struct public_key), GFP_KERNEL);
++	if (!pub)
++		return -ENOMEM;
++	pub->id_type = "PGP";
++
++	ret = pgp_parse_public_key(&data, &datalen, &pgp);
++	if (ret < 0)
++		goto cleanup;
++
++	if (pgp.pubkey_algo >= PGP_PUBKEY__LAST)
++		goto cleanup_unsupported_pkey_algo;
++	algo = pgp_to_public_key_algo[pgp.pubkey_algo];
++	if (!algo)
++		goto cleanup_unsupported_pkey_algo;
++	pub->pkey_algo = algo;
++
++	pub->key = kmemdup(data, datalen, GFP_KERNEL);
++	if (!pub->key)
++		goto cleanup_nomem;
++
++	pub->keylen = datalen;
++
++	ret = pgp_generate_fingerprint(ctx, &pgp, pub);
++	if (ret < 0)
++		goto cleanup;
++
++	ctx->pub = pub;
++	kleave(" = 0 [use]");
++	return 0;
++
++cleanup_unsupported_pkey_algo:
++	pr_debug("Unsupported public key algorithm %u\n",
++		 pgp.pubkey_algo);
++	ret = -ENOPKG;
++	goto cleanup;
++cleanup_nomem:
++	ret = -ENOMEM;
++	goto cleanup;
++cleanup:
++	pr_devel("cleanup");
++	kfree(pub->key);
++	kfree(pub);
++	kleave(" = %d", ret);
++	return ret;
++}
++
++static struct asymmetric_key_ids *pgp_key_generate_id(
++					struct pgp_key_data_parse_context *ctx)
++{
++	struct asymmetric_key_ids *kids;
++	struct asymmetric_key_id *kid;
++	int fingerprint_len = strlen(ctx->fingerprint) / 2;
++
++	kids = kzalloc(sizeof(struct asymmetric_key_ids), GFP_KERNEL);
++	if (!kids)
++		return kids;
++
++	kid = asymmetric_key_generate_id(ctx->raw_fingerprint, fingerprint_len,
++					 NULL, 0);
++	if (IS_ERR(kid))
++		goto error;
++
++	kids->id[0] = kid;
++	kids->id[1] = kmemdup(kid, sizeof(kid) + fingerprint_len, GFP_KERNEL);
++	if (!kids->id[1])
++		goto error;
++
++	return kids;
++error:
++	kfree(kids->id[0]);
++	kfree(kids);
++
++	return NULL;
++}
++
++/*
++ * Attempt to parse the instantiation data blob for a key as a PGP packet
++ * message holding a key.
++ */
++static int pgp_key_parse(struct key_preparsed_payload *prep)
++{
++	struct pgp_key_data_parse_context ctx;
++	int ret;
++
++	kenter("");
++
++	memset(&ctx, 0, sizeof(ctx));
++	ctx.pgp.types_of_interest = (1 << PGP_PKT_PUBLIC_KEY);
++	ctx.pgp.process_packet = pgp_process_public_key;
++
++	ret = pgp_parse_packets(prep->data, prep->datalen, &ctx.pgp);
++	if (ret < 0)
++		goto error;
++
++	/* We're pinning the module by being linked against it */
++	__module_get(public_key_subtype.owner);
++	prep->payload.data[asym_subtype] = &public_key_subtype;
++	prep->payload.data[asym_key_ids] = pgp_key_generate_id(&ctx);
++	prep->payload.data[asym_crypto] = ctx.pub;
++	prep->quotalen = 100;
++	return 0;
++
++error:
++	public_key_free(ctx.pub);
++	kfree(ctx.fingerprint);
++	kfree(ctx.raw_fingerprint);
++	return ret;
++}
++
++static struct asymmetric_key_parser pgp_key_parser = {
++	.owner		= THIS_MODULE,
++	.name		= "pgp",
++	.parse		= pgp_key_parse,
++};
++
++/*
++ * Module stuff
++ */
++static int __init pgp_key_init(void)
++{
++	return register_asymmetric_key_parser(&pgp_key_parser);
++}
++
++static void __exit pgp_key_exit(void)
++{
++	unregister_asymmetric_key_parser(&pgp_key_parser);
++}
++
++module_init(pgp_key_init);
++module_exit(pgp_key_exit);
+-- 
+2.17.1

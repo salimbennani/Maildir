@@ -1,0 +1,474 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 20 Nov 2018 00:30:07 -0000
+Received: from icoremail.net (unknown [209.85.215.181])
+	by mail-app2 (Coremail) with SMTP id by_KCgDHH0K9qvJbOOS4AQ--.54838S3;
+	Mon, 19 Nov 2018 20:21:18 +0800 (CST)
+Received: from mail-pg1-f181.google.com (unknown [209.85.215.181])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwAnDUm5qvJbZ2RYAA--.3514S3;
+	Mon, 19 Nov 2018 20:21:13 +0800 (CST)
+Received: by mail-pg1-f181.google.com with SMTP id g189so2066485pgc.5
+        for <xuliker@zju.edu.cn>; Mon, 19 Nov 2018 04:21:13 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :from:to:cc:subject:date:message-id:in-reply-to:references:sender
+         :precedence:list-id;
+        bh=RZRzInh4qGwHhbNL3FA07tTlEbf7W8r8mjCiuI265IE=;
+        b=bb//9eGzN1zOJmOmMgje2sRWXfTiolcghipTDtIoNE8H2uOinZ535qKJBZdM4G3tsl
+         D0loFIa/o4xDtVMcHXOJt7ZsDlQ9HKCoV0t0Du/eF0WrqD4RYCJBvUP940PsAWpjkNWN
+         fNw3d9HZekqFRwol1SBocJYLpO8XuVyBhFwNt/NuV1nTmyaOVO/rrQl7kqTrMA8BZUpr
+         F3nm3X0chyTcMRG57DOudJi7ES9cTSgmszWbtjgmRmrjjQ1eirjIhEkt17RoTO4yRVIK
+         tTVoU7WAKWGszoclYBpZ1TtpkKbEapQPhqtbOjVoFEvQ3opPj44sxgCLsQFWZeCX8s/1
+         TlAg==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=kernel.org
+X-Gm-Message-State: AGRZ1gL/VpSIfPQMLi9PSwo20O4XVu0wTc7tZrcYZrirAd57OZbXiwsj
+	teJAeNwwoJ7rVyHgyZ5vblv8eYuzEXfbeuVPMEdSOnWVfBO2py4=
+X-Received: by 2002:a63:f615:: with SMTP id m21mr18335391pgh.428.1542630073382;
+        Mon, 19 Nov 2018 04:21:13 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:d106:0:0:0:0 with SMTP id l6-v6csp2588291pju;
+        Mon, 19 Nov 2018 04:21:12 -0800 (PST)
+X-Google-Smtp-Source: AJdET5d6WIOgRCAn/CAnxBo2BYIJqeoBsW1MGOGqe2DQqOU44JFvhIMjgWL3McCLAZTLJajzumi4
+X-Received: by 2002:a17:902:8c91:: with SMTP id t17mr20947009plo.119.1542630072304;
+        Mon, 19 Nov 2018 04:21:12 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542630072; cv=none;
+        d=google.com; s=arc-20160816;
+        b=Xx3l8LJcsKKImmNCTgq+iAfQgKJmWPKo3uHTUSjTDtr7ABe+E4+A4N0fg4EcbJ4fN4
+         BQapUrTcCItQ+ncC8ij67Ih92aAPIlH422VnVvjB/pUdunDD96libccV4aDtR1dGGdnR
+         N952a7bBvGaRjqVAblX8jWWB9PFUjFmN/kYry4muaiqov4oel4dQy6s4vtKU0OaaaRgD
+         qFwbO9sJRWk45wK0fRGCAatOVGEDoIT0wxl5jjlTuVoRuKzaidFwSZvyRPBBaoIh4YtR
+         VrvyIopPaa2oL4uNPFmU8ArUMfiLzGC9ydnKkxuvrOPUU4MDBkipwMOuVmT8toVO6OKJ
+         uIBQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:references:in-reply-to:message-id:date
+         :subject:cc:to:from;
+        bh=RZRzInh4qGwHhbNL3FA07tTlEbf7W8r8mjCiuI265IE=;
+        b=YRk24lYgUa48y9i+LTH5rO2KODMgIOoCFQJXqbvixsrxZKNIYwZkuGjUvzg4QrycKT
+         HT/bBAmINcpU1mT67n3djC4p5w8YVkeeHCtHMLNuSDAKWMCbivV9WGZ2dHc2ogbcpos5
+         4ianqdkIpscbnH/LyrKlgQsC8PDYTXpYbs5R947K1s0oEdvwKNA/eJ+2C8U3k21qytdS
+         G6OUQfo4ni4quQMd4pVCpXBapBYlk5zzzft30oyPChc8Ah2Dv0+vJXGZM+e7pRGRCXmL
+         htC8UXcqNfFz8t6sNr9JhumYpddCCVUbURwC3CBtA869iEO36sN1vwdIc24SYxGqiiIC
+         +ieA==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=kernel.org
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id g71si6306428pgc.419.2018.11.19.04.20.57;
+        Mon, 19 Nov 2018 04:21:12 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1728911AbeKSWoE (ORCPT <rfc822;nullbytes00@gmail.com>
+        + 99 others); Mon, 19 Nov 2018 17:44:04 -0500
+Received: from mx1.redhat.com ([209.132.183.28]:58974 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728679AbeKSWoE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+        Mon, 19 Nov 2018 17:44:04 -0500
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 51522811AC;
+        Mon, 19 Nov 2018 12:20:36 +0000 (UTC)
+Received: from krava.redhat.com (ovpn-204-39.brq.redhat.com [10.40.204.39])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id BE86F45F35;
+        Mon, 19 Nov 2018 12:20:33 +0000 (UTC)
+From: Jiri Olsa <jolsa@kernel.org>
+To: Arnaldo Carvalho de Melo <acme@kernel.org>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+        Ingo Molnar <mingo@kernel.org>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Peter Zijlstra <a.p.zijlstra@chello.nl>,
+        David Miller <davem@davemloft.net>
+Subject: [PATCH 06/12] perf top: Add processing thread
+Date: Mon, 19 Nov 2018 13:20:10 +0100
+Message-Id: <20181119122016.22423-7-jolsa@kernel.org>
+In-Reply-To: <20181119122016.22423-1-jolsa@kernel.org>
+References: <20181119122016.22423-1-jolsa@kernel.org>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.27]); Mon, 19 Nov 2018 12:20:36 +0000 (UTC)
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwAnDUm5qvJbZ2RYAA--.3514S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW3uFy7uF15uF4rurWrur1Dtrb_yoWDuFykpF
+	s8Cry3Kry8Xw1fu3s5Jw40gryayrWFqFZ8GryfK3y8A3WI9rZ5JFyIgFyYyF13CrsIya4a
+	q3yqgrWUK3ykJFJanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUU0bIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUP0b7Iv0xC_Kw4lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1l84ACjcxK6I8E
+	87Iv67AKxVW0oVCq3wA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_GcCE3s1le2I262IYc4CY6c
+	8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_Jr0_
+	Jr4lYx0Ex4A2jsIE14v26r4j6F4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvEwIxGrw
+	CjxxvEa2IrMxkF7I0Ew4C26cxK6c8Ij28IcwCY1Ik26cxK6xAEc7vF6xCjj44lc2xSY4AK
+	6IIF6ryUMxkI7II2jI8vz4vEwIxGrwCYIxAIcVC0I7IYx2IY67AKxVW8JVW5JwCYIxAIcV
+	C0I7IYx2IY6xkF7I0E14v26r4j6F4UMxvI42IY6I8E87Iv67AKxVWxJr0_GcWlcIIF0xvE
+	x4A2jsIEc7CjxVAFwI0_Cr1j6rxdMxAIw28IcxkI7VAKI48JMxAIw28IcVAKzI0EY4vE52
+	x082I5MxCjnVCjjxCrMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr0_
+	Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWUtVW8ZwCIc40Y0x0EwI
+	xGrwCI42IY6xAIw20EY4v20xvaj40_Jr0_JF7vcSsGvfC2KfnxnUUI43ZEXa7IUOBMNUUU
+	UUU==
+
+Adding new thread that takes care of the hist creating
+to alleviate the main reader thread so it can keep
+perf mmaps served in time and we won't lose events.
+
+The perf top command now spawns 2 extra threads,
+the data processing is following:
+
+  1) main thread reads the data from mmaps
+     and queues them to ordered events object
+  2) processing threads takes the data from
+     the ordered events object and create
+     initial histogram
+  3) gui thread periodically sorts the initial
+     histogram and presents it
+
+Passing the data between threads 1 and 2 is dont by
+having 2 ordered events queues. One is always being
+stored to by thread 1 while the other is flushed
+out in thread 2.
+
+Passing the data between threads 2 and 3 stays the
+same as was initialy for threads 1 and 3.
+
+Link: http://lkml.kernel.org/n/tip-hhf4hllgkmle9wl1aly1jli0@git.kernel.org
+Signed-off-by: Jiri Olsa <jolsa@kernel.org>
+---
+ tools/perf/builtin-top.c         | 202 +++++++++++++++++++++----------
+ tools/perf/util/ordered-events.c |   4 +-
+ tools/perf/util/ordered-events.h |   1 +
+ tools/perf/util/top.h            |   6 +
+ 4 files changed, 151 insertions(+), 62 deletions(-)
+
+diff --git a/tools/perf/builtin-top.c b/tools/perf/builtin-top.c
+index 1d77aa7650da..f8dcdf0f54e1 100644
+--- a/tools/perf/builtin-top.c
++++ b/tools/perf/builtin-top.c
+@@ -46,6 +46,7 @@
+ #include "arch/common.h"
+ 
+ #include "util/debug.h"
++#include "util/ordered-events.h"
+ 
+ #include <assert.h>
+ #include <elf.h>
+@@ -830,78 +831,28 @@ static void perf_top__mmap_read_idx(struct perf_top *top, int idx)
+ {
+ 	struct record_opts *opts = &top->record_opts;
+ 	struct perf_evlist *evlist = top->evlist;
+-	struct perf_sample sample;
+-	struct perf_evsel *evsel;
+ 	struct perf_mmap *md;
+-	struct perf_session *session = top->session;
+ 	union perf_event *event;
+-	struct machine *machine;
+-	int ret;
+ 
+ 	md = opts->overwrite ? &evlist->overwrite_mmap[idx] : &evlist->mmap[idx];
+ 	if (perf_mmap__read_init(md) < 0)
+ 		return;
+ 
+ 	while ((event = perf_mmap__read_event(md)) != NULL) {
+-		ret = perf_evlist__parse_sample(evlist, event, &sample);
+-		if (ret) {
+-			pr_err("Can't parse sample, err = %d\n", ret);
+-			goto next_event;
+-		}
+-
+-		evsel = perf_evlist__id2evsel(session->evlist, sample.id);
+-		assert(evsel != NULL);
++		u64 timestamp = -1ULL;
++		int ret;
+ 
+-		if (event->header.type == PERF_RECORD_SAMPLE)
+-			++top->samples;
+-
+-		switch (sample.cpumode) {
+-		case PERF_RECORD_MISC_USER:
+-			++top->us_samples;
+-			if (top->hide_user_symbols)
+-				goto next_event;
+-			machine = &session->machines.host;
+-			break;
+-		case PERF_RECORD_MISC_KERNEL:
+-			++top->kernel_samples;
+-			if (top->hide_kernel_symbols)
+-				goto next_event;
+-			machine = &session->machines.host;
++		ret = perf_evlist__parse_sample_timestamp(evlist, event, &timestamp);
++		if (ret && ret != -1)
+ 			break;
+-		case PERF_RECORD_MISC_GUEST_KERNEL:
+-			++top->guest_kernel_samples;
+-			machine = perf_session__find_machine(session,
+-							     sample.pid);
+-			break;
+-		case PERF_RECORD_MISC_GUEST_USER:
+-			++top->guest_us_samples;
+-			/*
+-			 * TODO: we don't process guest user from host side
+-			 * except simple counting.
+-			 */
+-			goto next_event;
+-		default:
+-			if (event->header.type == PERF_RECORD_SAMPLE)
+-				goto next_event;
+-			machine = &session->machines.host;
+-			break;
+-		}
+ 
++		pthread_mutex_lock(&top->qe.lock);
++		ret = ordered_events__queue(top->qe.in, event, timestamp, 0);
++		pthread_mutex_unlock(&top->qe.lock);
+ 
+-		if (event->header.type == PERF_RECORD_SAMPLE) {
+-			perf_event__process_sample(&top->tool, event, evsel,
+-						   &sample, machine);
+-		} else if (event->header.type == PERF_RECORD_LOST) {
+-			perf_top__process_lost(top, event, evsel);
+-		} else if (event->header.type == PERF_RECORD_LOST_SAMPLES) {
+-			perf_top__process_lost_samples(top, event, evsel);
+-		} else if (event->header.type < PERF_RECORD_MAX) {
+-			hists__inc_nr_events(evsel__hists(evsel), event->header.type);
+-			machine__process_event(machine, event, &sample);
+-		} else
+-			++session->evlist->stats.nr_unknown_events;
+-next_event:
+ 		perf_mmap__consume(md);
++		if (ret)
++			break;
+ 	}
+ 
+ 	perf_mmap__read_done(md);
+@@ -1084,6 +1035,125 @@ static int callchain_param__setup_sample_type(struct callchain_param *callchain)
+ 	return 0;
+ }
+ 
++static struct ordered_events *rotate_queues(struct perf_top *top)
++{
++	struct ordered_events *in = top->qe.in;
++
++	if (top->qe.in == &top->qe.data[1])
++		top->qe.in = &top->qe.data[0];
++	else
++		top->qe.in = &top->qe.data[1];
++
++	return in;
++}
++
++static void *process_thread(void *arg)
++{
++	struct perf_top *top = arg;
++
++	while (!done) {
++		struct ordered_events *out, *in = top->qe.in;
++
++		if (!in->nr_events) {
++			usleep(100);
++			continue;
++		}
++
++		pthread_mutex_lock(&top->qe.lock);
++		out = rotate_queues(top);
++		pthread_mutex_unlock(&top->qe.lock);
++
++		if (ordered_events__flush(out, OE_FLUSH__TOP))
++			pr_err("failed to process events\n");
++	}
++
++	return NULL;
++}
++
++static int deliver_event(struct ordered_events *qe,
++			 struct ordered_event *qevent)
++{
++	struct perf_top *top = qe->data;
++	struct perf_evlist *evlist = top->evlist;
++	struct perf_session *session = top->session;
++	union perf_event *event = qevent->event;
++	struct perf_sample sample;
++	struct perf_evsel *evsel;
++	struct machine *machine;
++	int ret = -1;
++
++	ret = perf_evlist__parse_sample(evlist, event, &sample);
++	if (ret) {
++		pr_err("Can't parse sample, err = %d\n", ret);
++		goto next_event;
++	}
++
++	evsel = perf_evlist__id2evsel(session->evlist, sample.id);
++	assert(evsel != NULL);
++
++	if (event->header.type == PERF_RECORD_SAMPLE)
++		++top->samples;
++
++	switch (sample.cpumode) {
++	case PERF_RECORD_MISC_USER:
++		++top->us_samples;
++		if (top->hide_user_symbols)
++			goto next_event;
++		machine = &session->machines.host;
++		break;
++	case PERF_RECORD_MISC_KERNEL:
++		++top->kernel_samples;
++		if (top->hide_kernel_symbols)
++			goto next_event;
++		machine = &session->machines.host;
++		break;
++	case PERF_RECORD_MISC_GUEST_KERNEL:
++		++top->guest_kernel_samples;
++		machine = perf_session__find_machine(session,
++						     sample.pid);
++		break;
++	case PERF_RECORD_MISC_GUEST_USER:
++		++top->guest_us_samples;
++		/*
++		 * TODO: we don't process guest user from host side
++		 * except simple counting.
++		 */
++		goto next_event;
++	default:
++		if (event->header.type == PERF_RECORD_SAMPLE)
++			goto next_event;
++		machine = &session->machines.host;
++		break;
++	}
++
++	if (event->header.type == PERF_RECORD_SAMPLE) {
++		perf_event__process_sample(&top->tool, event, evsel,
++					   &sample, machine);
++	} else if (event->header.type == PERF_RECORD_LOST) {
++		perf_top__process_lost(top, event, evsel);
++	} else if (event->header.type == PERF_RECORD_LOST_SAMPLES) {
++		perf_top__process_lost_samples(top, event, evsel);
++	} else if (event->header.type < PERF_RECORD_MAX) {
++		hists__inc_nr_events(evsel__hists(evsel), event->header.type);
++		machine__process_event(machine, event, &sample);
++	} else
++		++session->evlist->stats.nr_unknown_events;
++
++	ret = 0;
++next_event:
++	return ret;
++}
++
++static void init_process_thread(struct perf_top *top)
++{
++	ordered_events__init(&top->qe.data[0], deliver_event, top);
++	ordered_events__init(&top->qe.data[1], deliver_event, top);
++	ordered_events__set_copy_on_queue(&top->qe.data[0], true);
++	ordered_events__set_copy_on_queue(&top->qe.data[1], true);
++	top->qe.in = &top->qe.data[0];
++	pthread_mutex_init(&top->qe.lock, NULL);
++}
++
+ static int __cmd_top(struct perf_top *top)
+ {
+ 	char msg[512];
+@@ -1091,7 +1161,7 @@ static int __cmd_top(struct perf_top *top)
+ 	struct perf_evsel_config_term *err_term;
+ 	struct perf_evlist *evlist = top->evlist;
+ 	struct record_opts *opts = &top->record_opts;
+-	pthread_t thread;
++	pthread_t thread, thread_process;
+ 	int ret;
+ 
+ 	top->session = perf_session__new(NULL, false, NULL);
+@@ -1115,6 +1185,8 @@ static int __cmd_top(struct perf_top *top)
+ 	if (top->nr_threads_synthesize > 1)
+ 		perf_set_multithreaded();
+ 
++	init_process_thread(top);
++
+ 	machine__synthesize_threads(&top->session->machines.host, &opts->target,
+ 				    top->evlist->threads, false,
+ 				    opts->proc_map_timeout,
+@@ -1156,10 +1228,15 @@ static int __cmd_top(struct perf_top *top)
+                 perf_evlist__enable(top->evlist);
+ 
+ 	ret = -1;
++	if (pthread_create(&thread_process, NULL, process_thread, top)) {
++		ui__error("Could not create process thread.\n");
++		goto out_delete;
++	}
++
+ 	if (pthread_create(&thread, NULL, (use_browser > 0 ? display_thread_tui :
+ 							    display_thread), top)) {
+ 		ui__error("Could not create display thread.\n");
+-		goto out_delete;
++		goto out_join_thread;
+ 	}
+ 
+ 	if (top->realtime_prio) {
+@@ -1194,6 +1271,8 @@ static int __cmd_top(struct perf_top *top)
+ 	ret = 0;
+ out_join:
+ 	pthread_join(thread, NULL);
++out_join_thread:
++	pthread_join(thread_process, NULL);
+ out_delete:
+ 	perf_session__delete(top->session);
+ 	top->session = NULL;
+@@ -1286,6 +1365,7 @@ int cmd_top(int argc, const char **argv)
+ 			 * stays in overwrite mode. -acme
+ 			 * */
+ 			.overwrite	= 0,
++			.sample_time	= true,
+ 		},
+ 		.max_stack	     = sysctl__max_stack(),
+ 		.annotation_opts     = annotation__default_options,
+diff --git a/tools/perf/util/ordered-events.c b/tools/perf/util/ordered-events.c
+index d053aa0a7582..c5412db05683 100644
+--- a/tools/perf/util/ordered-events.c
++++ b/tools/perf/util/ordered-events.c
+@@ -279,8 +279,10 @@ int ordered_events__flush(struct ordered_events *oe, enum oe_flush how)
+ 
+ 	switch (how) {
+ 	case OE_FLUSH__FINAL:
+-		oe->next_flush = ULLONG_MAX;
+ 		show_progress = true;
++		__fallthrough;
++	case OE_FLUSH__TOP:
++		oe->next_flush = ULLONG_MAX;
+ 		break;
+ 
+ 	case OE_FLUSH__HALF:
+diff --git a/tools/perf/util/ordered-events.h b/tools/perf/util/ordered-events.h
+index 507b4e4df79e..0c6e26aec0e3 100644
+--- a/tools/perf/util/ordered-events.h
++++ b/tools/perf/util/ordered-events.h
+@@ -18,6 +18,7 @@ enum oe_flush {
+ 	OE_FLUSH__FINAL,
+ 	OE_FLUSH__ROUND,
+ 	OE_FLUSH__HALF,
++	OE_FLUSH__TOP,
+ };
+ 
+ struct ordered_events;
+diff --git a/tools/perf/util/top.h b/tools/perf/util/top.h
+index 1fbcbd79720a..5f503293cfd8 100644
+--- a/tools/perf/util/top.h
++++ b/tools/perf/util/top.h
+@@ -40,6 +40,12 @@ struct perf_top {
+ 	const char	   *sym_filter;
+ 	float		   min_percent;
+ 	unsigned int	   nr_threads_synthesize;
++
++	struct {
++		struct ordered_events	*in;
++		struct ordered_events	 data[2];
++		pthread_mutex_t		 lock;
++	} qe;
+ };
+ 
+ #define CONSOLE_CLEAR "[H[2J"
+-- 
+2.17.2

@@ -1,0 +1,372 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 09 Nov 2018 00:34:53 -0000
+Received: from icoremail.net (unknown [209.85.214.176])
+	by mail-app2 (Coremail) with SMTP id by_KCgC3f9GUReRbuJlgAQ--.28983S3;
+	Thu, 08 Nov 2018 22:17:58 +0800 (CST)
+Received: from mail-pl1-f176.google.com (unknown [209.85.214.176])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwDnvzuSReRbZhQdAA--.2869S3;
+	Thu, 08 Nov 2018 22:17:54 +0800 (CST)
+Received: by mail-pl1-f176.google.com with SMTP id w22-v6so6281394plk.0
+        for <xuliker@zju.edu.cn>; Thu, 08 Nov 2018 06:17:54 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding:sender:precedence:list-id;
+        bh=OM2GUrUZyrY6V3TJjmrcaixegkx7s0suzQ+QwTcYPcQ=;
+        b=S61aq0FabWvEHpkWr9faYA5p/4VO4uHN0ztli+l5s3wNMHQCs2kuWxJduf51xY1JVV
+         7sOzO39rDegJAmaE3SgKpS1RfbWkU7WHgkh6vEV4pQL+wHDJ+yPiGjnVA1P5zj8kp4Ly
+         GYkGmPXqL/whEj4haBS2STSa9Cmzng1U9V0Ccs+G57wj4dCigfZJExosu7x9rLfhJcp5
+         g7Dd6s8PJqv5Fl78bA5SXZ12X395Uh65wCdKEXWTzzJ1uUX6042Wx2P3S/wa6SQxH2p8
+         lYvce+OWbECoWtWJuUWtNGgpeZ3CoRkxUcbxzxRF3Ji7j6pCePedFtnxNGGiixh6FId2
+         GVqw==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=intel.com
+X-Gm-Message-State: AGRZ1gKinmcnS5KVjgtY3DYGZcUz076fAuVwLLhihGlgwF38P6/iBdlV
+	LwB4rFeuvCciuDwruP0AoZlhYrfNQQBZ0BPlHnWuRiTB+JnCvQ1D8A==
+X-Received: by 2002:a17:902:6b4b:: with SMTP id g11-v6mr4711543plt.213.1541686674391;
+        Thu, 08 Nov 2018 06:17:54 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp242862pjt;
+        Thu, 8 Nov 2018 06:17:53 -0800 (PST)
+X-Google-Smtp-Source: AJdET5eQYrMMK49N3Wq3Bkk85jmEatG6i/N8zZ+9jTfjDB6YVG4RBhsQ+TTW58wKINI15v0V7U09
+X-Received: by 2002:a62:dbc6:: with SMTP id f189-v6mr4740076pfg.130.1541686673444;
+        Thu, 08 Nov 2018 06:17:53 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1541686673; cv=none;
+        d=google.com; s=arc-20160816;
+        b=1Bc2X2+XcifB00wImhGQcZw0S1A3huOwUJBxdAWqbulKpuHyTZ3JL08878xtIQzY/z
+         kM7UbdXpl9nu3XrFG2k7SBWh91S2/mL4v290UStKK8qhKiot8cD3bs/BDw4INlojXrCw
+         Fr+RnAsMyqWNND+jRdcMKDcGqIuVSD+vfgd6Evt34ZQ/wJjpd9Nl1xmv3WE/qA0JD0To
+         WHTYMkK7eierBl6kTx8HFKOD+9LaHcgi8apyIxUuWwDzDHzNfz4HOobIyEL4jCFIbsE0
+         qW++s3scpI6TS8VbkK0L4BN2N69t4o3mU0MpeXS6hdqTuwIrXAsAO0PYxpY8FfIIdLfZ
+         NDpg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:content-transfer-encoding:mime-version
+         :references:in-reply-to:message-id:date:subject:cc:to:from;
+        bh=OM2GUrUZyrY6V3TJjmrcaixegkx7s0suzQ+QwTcYPcQ=;
+        b=Gl7OdVHB90wzoh21yD9M8CKjqTdJbgh/LyBtUgydA/NlfKyLhtjbR1o2331X0rf94y
+         8Zlmy11wxkProDKUg8kdkQCquZawRgyXQu0BzKbLzduipHa4RVPySDam8pepj2+34Fci
+         7XKKGJHwCfqBhmkiAhq3u4GRObOLlkZsx/rcyl/2xIRqCrrzHyraidyPp9h/+4zWKoZP
+         ukzY9gaY9x7LwGRzRwpA6d2lR0yB9dBcMeKoh+5V1PwKK3K8Qre4JVxy6G7+gUCyzcJJ
+         vM1DhRX6tBuCJw4CvSfeGV9L7bxqE65BLLuTqF2ZVNoO41MWcwynHUQGPz+hUgMNdvvz
+         7lxw==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=intel.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id p10-v6si4561949pll.63.2018.11.08.06.17.38;
+        Thu, 08 Nov 2018 06:17:53 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1727564AbeKHXwd (ORCPT <rfc822;ankurbansal210989@gmail.com>
+        + 99 others); Thu, 8 Nov 2018 18:52:33 -0500
+Received: from mga07.intel.com ([134.134.136.100]:47685 "EHLO mga07.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726541AbeKHXwd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+        Thu, 8 Nov 2018 18:52:33 -0500
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga003.fm.intel.com ([10.253.24.29])
+  by orsmga105.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 08 Nov 2018 06:16:52 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.54,478,1534834800"; 
+   d="scan'208";a="94663893"
+Received: from ibanaga-mobl1.ger.corp.intel.com (HELO localhost) ([10.249.254.75])
+  by FMSMGA003.fm.intel.com with ESMTP; 08 Nov 2018 06:16:44 -0800
+From: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+To: linux-integrity@vger.kernel.org
+Cc: linux-security-module@vger.kernel.org,
+        James Bottomley <James.Bottomley@HansenPartnership.com>,
+        Tomas Winkler <tomas.winkler@intel.com>,
+        Tadeusz Struk <tadeusz.struk@intel.com>,
+        Stefan Berger <stefanb@linux.vnet.ibm.com>,
+        Nayna Jain <nayna@linux.ibm.com>,
+        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+        Peter Huewe <peterhuewe@gmx.de>,
+        Jason Gunthorpe <jgg@ziepe.ca>, Arnd Bergmann <arnd@arndb.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Nicolas Ferre <nicolas.ferre@microchip.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        linux-kernel@vger.kernel.org (open list),
+        linux-arm-kernel@lists.infradead.org (moderated list:ARM/Microchip
+        (AT91) SoC support)
+Subject: [PATCH v5 07/17] tpm: declare struct tpm_header
+Date: Thu,  8 Nov 2018 16:15:28 +0200
+Message-Id: <20181108141541.12832-8-jarkko.sakkinen@linux.intel.com>
+X-Mailer: git-send-email 2.19.1
+In-Reply-To: <20181108141541.12832-1-jarkko.sakkinen@linux.intel.com>
+References: <20181108141541.12832-1-jarkko.sakkinen@linux.intel.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwDnvzuSReRbZhQdAA--.2869S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoWxtr15KF47Cw4kur15Aw4fXwb_yoWfWw17pa
+	y5Kas3Zws8JF4Yqr1ktr4DCFW3tr40qa4UtayxJ3sIvFn0ga4FgFykGFW5uF15Kr1UGFn3
+	Xr48tr15AF109r7anT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUU9Fb7Iv0xC_KF4lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2
+	z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s0DM2AIxVAIcxkEcV
+	Aq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1j
+	6r18McIj6I8E87Iv67AKxVW8JVWxJwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IYc2Ij64
+	vIr41l7I0Y6sxI4wCY1x0264kExVAvwVAq07x20xylc2IjII80xcxEwVAKI48JMxvI42IY
+	6xIIjxv20xvE14v26ryj6F1UMxvI42IY6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1lcIIF0x
+	vEx4A2jsIE14v26rxl6s0DMxvI42IY6I8E87Iv6xkF7I0E14v26rxl6s0DMxAIw28IcxkI
+	7VAKI48JMxAIw28IcVAKzI0EY4vE52x082I5MxCjnVCjjxCrMxC20s026xCaFVCjc4AY6r
+	1j6r4UMI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CE
+	b7AF67AKxVW8ZVWrXwCIc40Y0x0EwIxGrwCI42IY6xAIw20EY4v20xvaj40_Gr0_ZrUvcS
+	sGvfC2KfnxnUUI43ZEXa7IUe038UUUUUU==
+
+Decleare struct tpm_header that replaces struct tpm_input_header and
+struct tpm_output_header.
+
+Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+---
+ drivers/char/tpm/tpm-interface.c  |  9 ++++-----
+ drivers/char/tpm/tpm.h            | 27 ++++++++++++---------------
+ drivers/char/tpm/tpm2-cmd.c       |  4 ++--
+ drivers/char/tpm/tpm2-space.c     |  6 +++---
+ drivers/char/tpm/tpm_i2c_atmel.c  |  5 ++---
+ drivers/char/tpm/tpm_vtpm_proxy.c |  8 ++++----
+ drivers/char/tpm/xen-tpmfront.c   |  2 +-
+ 7 files changed, 28 insertions(+), 33 deletions(-)
+
+diff --git a/drivers/char/tpm/tpm-interface.c b/drivers/char/tpm/tpm-interface.c
+index 28d48799b044..6abbcedc87a3 100644
+--- a/drivers/char/tpm/tpm-interface.c
++++ b/drivers/char/tpm/tpm-interface.c
+@@ -67,7 +67,7 @@ static int tpm_validate_command(struct tpm_chip *chip,
+ 				 const u8 *cmd,
+ 				 size_t len)
+ {
+-	const struct tpm_input_header *header = (const void *)cmd;
++	const struct tpm_header *header = (const void *)cmd;
+ 	int i;
+ 	u32 cc;
+ 	u32 attrs;
+@@ -166,7 +166,7 @@ static ssize_t tpm_try_transmit(struct tpm_chip *chip,
+ 				u8 *buf, size_t bufsiz,
+ 				unsigned int flags)
+ {
+-	struct tpm_output_header *header = (void *)buf;
++	struct tpm_header *header = (void *)buf;
+ 	int rc;
+ 	ssize_t len = 0;
+ 	u32 count, ordinal;
+@@ -276,7 +276,7 @@ static ssize_t tpm_try_transmit(struct tpm_chip *chip,
+ ssize_t tpm_transmit(struct tpm_chip *chip, struct tpm_space *space,
+ 		     u8 *buf, size_t bufsiz, unsigned int flags)
+ {
+-	struct tpm_output_header *header = (struct tpm_output_header *)buf;
++	struct tpm_header *header = (struct tpm_header *)buf;
+ 	/* space for header and handles */
+ 	u8 save[TPM_HEADER_SIZE + 3*sizeof(u32)];
+ 	unsigned int delay_msec = TPM2_DURATION_SHORT;
+@@ -375,8 +375,7 @@ ssize_t tpm_transmit_cmd(struct tpm_chip *chip, struct tpm_space *space,
+ 			 struct tpm_buf *buf, size_t min_rsp_body_length,
+ 			 unsigned int flags, const char *desc)
+ {
+-	const struct tpm_output_header *header =
+-		(struct tpm_output_header *)buf->data;
++	const struct tpm_header *header = (struct tpm_header *)buf->data;
+ 	int err;
+ 	ssize_t len;
+ 
+diff --git a/drivers/char/tpm/tpm.h b/drivers/char/tpm/tpm.h
+index 229ac42b644e..92638ec6ec97 100644
+--- a/drivers/char/tpm/tpm.h
++++ b/drivers/char/tpm/tpm.h
+@@ -273,16 +273,13 @@ struct tpm_chip {
+ 
+ #define to_tpm_chip(d) container_of(d, struct tpm_chip, dev)
+ 
+-struct tpm_input_header {
+-	__be16	tag;
+-	__be32	length;
+-	__be32	ordinal;
+-} __packed;
+-
+-struct tpm_output_header {
+-	__be16	tag;
+-	__be32	length;
+-	__be32	return_code;
++struct tpm_header {
++	__be16 tag;
++	__be32 length;
++	union {
++		__be32 ordinal;
++		__be32 return_code;
++	};
+ } __packed;
+ 
+ #define TPM_TAG_RQU_COMMAND 193
+@@ -401,8 +398,8 @@ struct tpm_buf {
+ 
+ static inline void tpm_buf_reset(struct tpm_buf *buf, u16 tag, u32 ordinal)
+ {
+-	struct tpm_input_header *head;
+-	head = (struct tpm_input_header *)buf->data;
++	struct tpm_header *head = (struct tpm_header *)buf->data;
++
+ 	head->tag = cpu_to_be16(tag);
+ 	head->length = cpu_to_be32(sizeof(*head));
+ 	head->ordinal = cpu_to_be32(ordinal);
+@@ -428,14 +425,14 @@ static inline void tpm_buf_destroy(struct tpm_buf *buf)
+ 
+ static inline u32 tpm_buf_length(struct tpm_buf *buf)
+ {
+-	struct tpm_input_header *head = (struct tpm_input_header *) buf->data;
++	struct tpm_header *head = (struct tpm_header *) buf->data;
+ 
+ 	return be32_to_cpu(head->length);
+ }
+ 
+ static inline u16 tpm_buf_tag(struct tpm_buf *buf)
+ {
+-	struct tpm_input_header *head = (struct tpm_input_header *) buf->data;
++	struct tpm_header *head = (struct tpm_header *) buf->data;
+ 
+ 	return be16_to_cpu(head->tag);
+ }
+@@ -444,7 +441,7 @@ static inline void tpm_buf_append(struct tpm_buf *buf,
+ 				  const unsigned char *new_data,
+ 				  unsigned int new_len)
+ {
+-	struct tpm_input_header *head = (struct tpm_input_header *) buf->data;
++	struct tpm_header *head = (struct tpm_header *) buf->data;
+ 	u32 len = tpm_buf_length(buf);
+ 
+ 	/* Return silently if overflow has already happened. */
+diff --git a/drivers/char/tpm/tpm2-cmd.c b/drivers/char/tpm/tpm2-cmd.c
+index 2bcf470c8e5d..ab03f8600f89 100644
+--- a/drivers/char/tpm/tpm2-cmd.c
++++ b/drivers/char/tpm/tpm2-cmd.c
+@@ -784,7 +784,7 @@ static int tpm2_do_selftest(struct tpm_chip *chip)
+  */
+ int tpm2_probe(struct tpm_chip *chip)
+ {
+-	struct tpm_output_header *out;
++	struct tpm_header *out;
+ 	struct tpm_buf buf;
+ 	int rc;
+ 
+@@ -797,7 +797,7 @@ int tpm2_probe(struct tpm_chip *chip)
+ 	rc = tpm_transmit_cmd(chip, NULL, &buf, 0, 0, NULL);
+ 	/* We ignore TPM return codes on purpose. */
+ 	if (rc >=  0) {
+-		out = (struct tpm_output_header *)buf.data;
++		out = (struct tpm_header *)buf.data;
+ 		if (be16_to_cpu(out->tag) == TPM2_ST_NO_SESSIONS)
+ 			chip->flags |= TPM_CHIP_FLAG_TPM2;
+ 	}
+diff --git a/drivers/char/tpm/tpm2-space.c b/drivers/char/tpm/tpm2-space.c
+index 3d5f9577e5de..393d9aadadce 100644
+--- a/drivers/char/tpm/tpm2-space.c
++++ b/drivers/char/tpm/tpm2-space.c
+@@ -334,7 +334,7 @@ static int tpm2_map_response_header(struct tpm_chip *chip, u32 cc, u8 *rsp,
+ 				    size_t len)
+ {
+ 	struct tpm_space *space = &chip->work_space;
+-	struct tpm_output_header *header = (void *)rsp;
++	struct tpm_header *header = (void *)rsp;
+ 	u32 phandle;
+ 	u32 phandle_type;
+ 	u32 vhandle;
+@@ -394,7 +394,7 @@ static int tpm2_map_response_body(struct tpm_chip *chip, u32 cc, u8 *rsp,
+ 				  size_t len)
+ {
+ 	struct tpm_space *space = &chip->work_space;
+-	struct tpm_output_header *header = (void *)rsp;
++	struct tpm_header *header = (void *)rsp;
+ 	struct tpm2_cap_handles *data;
+ 	u32 phandle;
+ 	u32 phandle_type;
+@@ -492,7 +492,7 @@ static int tpm2_save_space(struct tpm_chip *chip)
+ int tpm2_commit_space(struct tpm_chip *chip, struct tpm_space *space,
+ 		      u32 cc, u8 *buf, size_t *bufsiz)
+ {
+-	struct tpm_output_header *header = (void *)buf;
++	struct tpm_header *header = (void *)buf;
+ 	int rc;
+ 
+ 	if (!space)
+diff --git a/drivers/char/tpm/tpm_i2c_atmel.c b/drivers/char/tpm/tpm_i2c_atmel.c
+index 95ce2e9ccdc6..4720b2442ffe 100644
+--- a/drivers/char/tpm/tpm_i2c_atmel.c
++++ b/drivers/char/tpm/tpm_i2c_atmel.c
+@@ -46,7 +46,7 @@ struct priv_data {
+ 	/* This is the amount we read on the first try. 25 was chosen to fit a
+ 	 * fair number of read responses in the buffer so a 2nd retry can be
+ 	 * avoided in small message cases. */
+-	u8 buffer[sizeof(struct tpm_output_header) + 25];
++	u8 buffer[sizeof(struct tpm_header) + 25];
+ };
+ 
+ static int i2c_atmel_send(struct tpm_chip *chip, u8 *buf, size_t len)
+@@ -72,8 +72,7 @@ static int i2c_atmel_recv(struct tpm_chip *chip, u8 *buf, size_t count)
+ {
+ 	struct priv_data *priv = dev_get_drvdata(&chip->dev);
+ 	struct i2c_client *client = to_i2c_client(chip->dev.parent);
+-	struct tpm_output_header *hdr =
+-		(struct tpm_output_header *)priv->buffer;
++	struct tpm_header *hdr = (struct tpm_header *)priv->buffer;
+ 	u32 expected_len;
+ 	int rc;
+ 
+diff --git a/drivers/char/tpm/tpm_vtpm_proxy.c b/drivers/char/tpm/tpm_vtpm_proxy.c
+index 5f95fbfb7f6b..28eb5ab15b99 100644
+--- a/drivers/char/tpm/tpm_vtpm_proxy.c
++++ b/drivers/char/tpm/tpm_vtpm_proxy.c
+@@ -303,9 +303,9 @@ static int vtpm_proxy_tpm_op_recv(struct tpm_chip *chip, u8 *buf, size_t count)
+ static int vtpm_proxy_is_driver_command(struct tpm_chip *chip,
+ 					u8 *buf, size_t count)
+ {
+-	struct tpm_input_header *hdr = (struct tpm_input_header *)buf;
++	struct tpm_header *hdr = (struct tpm_header *)buf;
+ 
+-	if (count < sizeof(struct tpm_input_header))
++	if (count < sizeof(struct tpm_header))
+ 		return 0;
+ 
+ 	if (chip->flags & TPM_CHIP_FLAG_TPM2) {
+@@ -402,7 +402,7 @@ static int vtpm_proxy_request_locality(struct tpm_chip *chip, int locality)
+ {
+ 	struct tpm_buf buf;
+ 	int rc;
+-	const struct tpm_output_header *header;
++	const struct tpm_header *header;
+ 	struct proxy_dev *proxy_dev = dev_get_drvdata(&chip->dev);
+ 
+ 	if (chip->flags & TPM_CHIP_FLAG_TPM2)
+@@ -427,7 +427,7 @@ static int vtpm_proxy_request_locality(struct tpm_chip *chip, int locality)
+ 		goto out;
+ 	}
+ 
+-	header = (const struct tpm_output_header *)buf.data;
++	header = (const struct tpm_header *)buf.data;
+ 	rc = be32_to_cpu(header->return_code);
+ 	if (rc)
+ 		locality = -1;
+diff --git a/drivers/char/tpm/xen-tpmfront.c b/drivers/char/tpm/xen-tpmfront.c
+index b150f87f38f5..1259e935fd58 100644
+--- a/drivers/char/tpm/xen-tpmfront.c
++++ b/drivers/char/tpm/xen-tpmfront.c
+@@ -163,7 +163,7 @@ static int vtpm_send(struct tpm_chip *chip, u8 *buf, size_t count)
+ 	wmb();
+ 	notify_remote_via_evtchn(priv->evtchn);
+ 
+-	ordinal = be32_to_cpu(((struct tpm_input_header*)buf)->ordinal);
++	ordinal = be32_to_cpu(((struct tpm_header *)buf)->ordinal);
+ 	duration = tpm_calc_ordinal_duration(chip, ordinal);
+ 
+ 	if (wait_for_tpm_stat(chip, VTPM_STATUS_IDLE, duration,
+-- 
+2.19.1

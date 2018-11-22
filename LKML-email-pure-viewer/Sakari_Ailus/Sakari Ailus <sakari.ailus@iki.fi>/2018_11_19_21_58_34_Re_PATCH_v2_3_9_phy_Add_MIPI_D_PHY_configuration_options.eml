@@ -1,0 +1,426 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 20 Nov 2018 00:30:37 -0000
+Received: from icoremail.net (unknown [209.85.214.177])
+	by mail-app2 (Coremail) with SMTP id by_KCgCHv+TkwvJbqIa5AQ--.54665S3;
+	Mon, 19 Nov 2018 22:04:20 +0800 (CST)
+Received: from mail-pl1-f177.google.com (unknown [209.85.214.177])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwDXuESxwfJbCM1YAA--.2363S3;
+	Mon, 19 Nov 2018 21:59:13 +0800 (CST)
+Received: by mail-pl1-f177.google.com with SMTP id s5-v6so14625534plq.11
+        for <xuliker@zju.edu.cn>; Mon, 19 Nov 2018 05:59:13 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent:sender:precedence
+         :list-id;
+        bh=86HvsJ8MLGeNZjg3P1wP9TpeThwjGTVA4VkCpSaMd58=;
+        b=EL1T696SPWN1REaWeMGJ/Bmh5Id1kUcrnHq9FymX5o9l8w0+YaNmC7WBEjFmIkT1S1
+         en6ttqFBnIu6O073rIZKrIOGhUEf5dcGe8mfxhqJJU4VCto5Fj6Uy+OBFlrMF64mwlWd
+         E2Dp0rdXjx59kQvQUw9f4DyUPGGYcjxvCy1PX2R47cOBE1XgPaFwGmDva006T0RLgkCl
+         2zjleLPPFi9W46QOgOFMD52w/QDe9N4kB7r+i1to2pYBkGDRNnd2jV7fA5NEJehxm+be
+         DIyXqCnZUlbJVldjgjSsrqDsjtexJNipjRXg1Kn/EIhWF7LtEo74GL1O4KaZYr67Capf
+         Zt0Q==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=iki.fi
+X-Gm-Message-State: AGRZ1gJdyrkJuLBUaybqAIJ9Rxl0NW4HhjsHARtCuxUJMtZ3G/2241Lp
+	D2dKijZNxTaVuSjnaIdR+mLsGHyU0EQlJa0fj8m8eoSOmZWtQgw=
+X-Received: by 2002:a17:902:784d:: with SMTP id e13mr22787354pln.188.1542635953475;
+        Mon, 19 Nov 2018 05:59:13 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:d106:0:0:0:0 with SMTP id l6-v6csp2693203pju;
+        Mon, 19 Nov 2018 05:59:12 -0800 (PST)
+X-Google-Smtp-Source: AJdET5cfWEL1CUVfm/4h7an+Y/lQ1lC+hCewdMvYt4ZnyUFTcUk+H3Px+1sbdNBCuCrnAIYnt+Ec
+X-Received: by 2002:a63:194f:: with SMTP id 15mr20411846pgz.192.1542635952471;
+        Mon, 19 Nov 2018 05:59:12 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542635952; cv=none;
+        d=google.com; s=arc-20160816;
+        b=cp7iR6ySH8wjAnlS571u6yjOgSS5qle6se/QRxiiOVBFXfHtw7S2yDvChiR8neiWet
+         3xB83OCbhdUtct17w1rSusFzLXmVAFEOi0a9VEnDJdrK5sJWEzEVMYJ0gVtbYXJxt8+A
+         I64cUHGglxxMSghbWPicIiGFYZUdJ4CSWNCVMXFq/gorFhwNg5jlXXglQYWxPA/e22ET
+         4L/gDoEnRoJHjDCvIr0yngjRecVZxkPgO39/SSfdaMfOjoslTpLW3SGWMCIyc4stAtY6
+         w8+t92rF0E4Iho9BY3BuXxyFji7mWkL2i1K1qt02LmatsX/jL5DztFXVOaRS0InLlRuf
+         gXBg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:user-agent:in-reply-to
+         :content-disposition:mime-version:references:message-id:subject:cc
+         :to:from:date;
+        bh=86HvsJ8MLGeNZjg3P1wP9TpeThwjGTVA4VkCpSaMd58=;
+        b=QlpYslSAtRWUiuVnKPdW8RsF+4i0Tu5Behz1S0Ze39hFCk4GELUyRrCD3LfElXMvc7
+         rjTaJGder83cUBuRAfu53VWElXNszRJS80PHFs4BrLAXtrr+qaa2dC6TWQIUJBmiUJiC
+         BsRZ8sg41YgFsl7c/A8TQFHs07QHjQbBCE4qmWfRa5QbdRs+eDXahf+YKSDJR1Ja67EE
+         Bue+mO0j8BsJRP4UnNhqUoRUopdtPYBHGK4xdiTWX76pkaRtjNdY1MY9FKosylOy0x01
+         tDFR+sQVPxIguK9o6f+OV6F0ufciDpHeJmQ7G/jbt/7P+HYyxVHRZMXRWdfqus/d1Umj
+         F6QQ==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=iki.fi
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id t4si23762879pgg.110.2018.11.19.05.58.57;
+        Mon, 19 Nov 2018 05:59:12 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1729411AbeKTAWS (ORCPT <rfc822;nullbytes00@gmail.com>
+        + 99 others); Mon, 19 Nov 2018 19:22:18 -0500
+Received: from nblzone-211-213.nblnetworks.fi ([83.145.211.213]:51514 "EHLO
+        hillosipuli.retiisi.org.uk" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1728258AbeKTAWS (ORCPT
+        <rfc822;linux-kernel@vger.kernel.org>);
+        Mon, 19 Nov 2018 19:22:18 -0500
+Received: from valkosipuli.localdomain (valkosipuli.retiisi.org.uk [IPv6:2001:1bc8:1a6:d3d5::80:2])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by hillosipuli.retiisi.org.uk (Postfix) with ESMTPS id D7406634C83;
+        Mon, 19 Nov 2018 15:58:34 +0200 (EET)
+Received: from sakke by valkosipuli.localdomain with local (Exim 4.89)
+        (envelope-from <sakari.ailus@retiisi.org.uk>)
+        id 1gOk4Q-0000nf-KV; Mon, 19 Nov 2018 15:58:34 +0200
+Date: Mon, 19 Nov 2018 15:58:34 +0200
+From: Sakari Ailus <sakari.ailus@iki.fi>
+To: Maxime Ripard <maxime.ripard@bootlin.com>
+Cc: Kishon Vijay Abraham I <kishon@ti.com>,
+        Boris Brezillon <boris.brezillon@bootlin.com>,
+        Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        linux-media@vger.kernel.org,
+        Archit Taneja <architt@codeaurora.org>,
+        Andrzej Hajda <a.hajda@samsung.com>,
+        Chen-Yu Tsai <wens@csie.org>, linux-kernel@vger.kernel.org,
+        dri-devel@lists.freedesktop.org,
+        linux-arm-kernel@lists.infradead.org,
+        Krzysztof Witos <kwitos@cadence.com>,
+        Rafal Ciepiela <rafalc@cadence.com>
+Subject: Re: [PATCH v2 3/9] phy: Add MIPI D-PHY configuration options
+Message-ID: <20181119135833.zvgxsl7kwmfewdoa@valkosipuli.retiisi.org.uk>
+References: <cover.c2c2ae47383b9dbbdee6b69cafdd7391c06dde4f.1541516029.git-series.maxime.ripard@bootlin.com>
+ <b1f6e4c1c3487e1f048cce699a86bcf50f7fed69.1541516029.git-series.maxime.ripard@bootlin.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <b1f6e4c1c3487e1f048cce699a86bcf50f7fed69.1541516029.git-series.maxime.ripard@bootlin.com>
+User-Agent: NeoMutt/20170113 (1.7.2)
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwDXuESxwfJbCM1YAA--.2363S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW3GFyDZrWfKrW7tFykurW3KFg_yoWxKry8pF
+	Z5C3Z3KFZ7try3Z3srAa10yFy5uw1xXw4UJasFgr90yF47A3W2grZIg390gayrJrZ5uF1j
+	gay7ZFy3Gr4qyaDanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUBSb7Iv0xC_tr1lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2
+	z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s0DM2AIxVAIcxkEcV
+	Aq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1j
+	6r18McIj6I8E87Iv67AKxVW8JVWxJwAm72CE4IkC6x0Yz7v_Jr0_Gr1l7I0Y6sxI4wCY1x
+	0264kExVAvwVAq07x20xylc7Ca8VAvwVCFzxkY4VCF77xAMxkIecxEwVCI4VW5XwCY0x0I
+	x7I2Y4AK64vIr41lcIIF0xvE2Ix0cI8IcVAFwI0_Gr0_Xr1lcIIF0xvE2Ix0cI8IcVCY1x
+	0267AKxVW8JVWxJwCYIxAIcVC2z280aVAFwI0_Cr1j6rxdMxvI42IY6I8E87Iv6xkF7I0E
+	14v26F4UJVW0owCF04k20xvY0x0EwIxGrwCF04k20xvEw4C26cxK6c8Ij28IcwCF72vE77
+	IF4wCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v26r1j6r18MI8I3I0E7480
+	Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_Jw0_GFylIxkGc2Ij64vIr41lIxAIcVCF04
+	k26cxKx2IYs7xG6Fyj6rWUJbIYCTnIWIevJa73UjIFyTuYvjxUqfgAUUUUU
+
+Hi Maxime,
+
+On Tue, Nov 06, 2018 at 03:54:15PM +0100, Maxime Ripard wrote:
+> Now that we have some infrastructure for it, allow the MIPI D-PHY phy's to
+> be configured through the generic functions through a custom structure
+> added to the generic union.
+> 
+> The parameters added here are the ones defined in the MIPI D-PHY spec, plus
+> the number of lanes in use. The current set of parameters should cover all
+> the potential users.
+> 
+> Signed-off-by: Maxime Ripard <maxime.ripard@bootlin.com>
+> ---
+>  include/linux/phy/phy-mipi-dphy.h | 232 +++++++++++++++++++++++++++++++-
+>  include/linux/phy/phy.h           |   6 +-
+>  2 files changed, 238 insertions(+)
+>  create mode 100644 include/linux/phy/phy-mipi-dphy.h
+> 
+> diff --git a/include/linux/phy/phy-mipi-dphy.h b/include/linux/phy/phy-mipi-dphy.h
+> new file mode 100644
+> index 000000000000..0b05932916af
+> --- /dev/null
+> +++ b/include/linux/phy/phy-mipi-dphy.h
+> @@ -0,0 +1,232 @@
+> +/* SPDX-License-Identifier: GPL-2.0 */
+> +/*
+> + * Copyright (C) 2018 Cadence Design Systems Inc.
+> + */
+> +
+> +#ifndef __PHY_MIPI_DPHY_H_
+> +#define __PHY_MIPI_DPHY_H_
+> +
+> +#include <video/videomode.h>
+> +
+> +/**
+> + * struct phy_configure_opts_mipi_dphy - MIPI D-PHY configuration set
+> + *
+> + * This structure is used to represent the configuration state of a
+> + * MIPI D-PHY phy.
+> + */
+> +struct phy_configure_opts_mipi_dphy {
+> +	/**
+> +	 * @clk_miss:
+> +	 *
+> +	 * Timeout, in nanoseconds, for receiver to detect absence of
+> +	 * Clock transitions and disable the Clock Lane HS-RX.
+> +	 */
+> +	unsigned int		clk_miss;
+> +
+> +	/**
+> +	 * @clk_post:
+> +	 *
+> +	 * Time, in nanoseconds, that the transmitter continues to
+> +	 * send HS clock after the last associated Data Lane has
+> +	 * transitioned to LP Mode. Interval is defined as the period
+> +	 * from the end of @hs_trail to the beginning of @clk_trail.
+> +	 */
+> +	unsigned int		clk_post;
+> +
+> +	/**
+> +	 * @clk_pre:
+> +	 *
+> +	 * Time, in nanoseconds, that the HS clock shall be driven by
+> +	 * the transmitter prior to any associated Data Lane beginning
+> +	 * the transition from LP to HS mode.
+> +	 */
+> +	unsigned int		clk_pre;
+
+Is the unit of clk_pre intended to be UI or ns?
+
+How about adding information on the limits of these values as well?
+
+> +
+> +	/**
+> +	 * @clk_prepare:
+> +	 *
+> +	 * Time, in nanoseconds, that the transmitter drives the Clock
+> +	 * Lane LP-00 Line state immediately before the HS-0 Line
+> +	 * state starting the HS transmission.
+> +	 */
+> +	unsigned int		clk_prepare;
+> +
+> +	/**
+> +	 * @clk_settle:
+> +	 *
+> +	 * Time interval, in nanoseconds, during which the HS receiver
+> +	 * should ignore any Clock Lane HS transitions, starting from
+> +	 * the beginning of @clk_prepare.
+> +	 */
+> +	unsigned int		clk_settle;
+> +
+> +	/**
+> +	 * @clk_term_en:
+> +	 *
+> +	 * Time, in nanoseconds, for the Clock Lane receiver to enable
+> +	 * the HS line termination.
+> +	 */
+> +	unsigned int		clk_term_en;
+> +
+> +	/**
+> +	 * @clk_trail:
+> +	 *
+> +	 * Time, in nanoseconds, that the transmitter drives the HS-0
+> +	 * state after the last payload clock bit of a HS transmission
+> +	 * burst.
+> +	 */
+> +	unsigned int		clk_trail;
+> +
+> +	/**
+> +	 * @clk_zero:
+> +	 *
+> +	 * Time, in nanoseconds, that the transmitter drives the HS-0
+> +	 * state prior to starting the Clock.
+> +	 */
+> +	unsigned int		clk_zero;
+> +
+> +	/**
+> +	 * @d_term_en:
+> +	 *
+> +	 * Time, in nanoseconds, for the Data Lane receiver to enable
+> +	 * the HS line termination.
+> +	 */
+> +	unsigned int		d_term_en;
+> +
+> +	/**
+> +	 * @eot:
+> +	 *
+> +	 * Transmitted time interval, in nanoseconds, from the start
+> +	 * of @hs_trail or @clk_trail, to the start of the LP- 11
+> +	 * state following a HS burst.
+> +	 */
+> +	unsigned int		eot;
+> +
+> +	/**
+> +	 * @hs_exit:
+> +	 *
+> +	 * Time, in nanoseconds, that the transmitter drives LP-11
+> +	 * following a HS burst.
+> +	 */
+> +	unsigned int		hs_exit;
+> +
+> +	/**
+> +	 * @hs_prepare:
+> +	 *
+> +	 * Time, in nanoseconds, that the transmitter drives the Data
+> +	 * Lane LP-00 Line state immediately before the HS-0 Line
+> +	 * state starting the HS transmission
+> +	 */
+> +	unsigned int		hs_prepare;
+> +
+> +	/**
+> +	 * @hs_settle:
+> +	 *
+> +	 * Time interval, in nanoseconds, during which the HS receiver
+> +	 * shall ignore any Data Lane HS transitions, starting from
+> +	 * the beginning of @hs_prepare.
+> +	 */
+> +	unsigned int		hs_settle;
+> +
+> +	/**
+> +	 * @hs_skip:
+> +	 *
+> +	 * Time interval, in nanoseconds, during which the HS-RX
+> +	 * should ignore any transitions on the Data Lane, following a
+> +	 * HS burst. The end point of the interval is defined as the
+> +	 * beginning of the LP-11 state following the HS burst.
+> +	 */
+> +	unsigned int		hs_skip;
+> +
+> +	/**
+> +	 * @hs_trail:
+> +	 *
+> +	 * Time, in nanoseconds, that the transmitter drives the
+> +	 * flipped differential state after last payload data bit of a
+> +	 * HS transmission burst
+> +	 */
+> +	unsigned int		hs_trail;
+> +
+> +	/**
+> +	 * @hs_zero:
+> +	 *
+> +	 * Time, in nanoseconds, that the transmitter drives the HS-0
+> +	 * state prior to transmitting the Sync sequence.
+> +	 */
+> +	unsigned int		hs_zero;
+> +
+> +	/**
+> +	 * @init:
+> +	 *
+> +	 * Time, in nanoseconds for the initialization period to
+> +	 * complete.
+> +	 */
+> +	unsigned int		init;
+> +
+> +	/**
+> +	 * @lpx:
+> +	 *
+> +	 * Transmitted length, in nanoseconds, of any Low-Power state
+> +	 * period.
+> +	 */
+> +	unsigned int		lpx;
+> +
+> +	/**
+> +	 * @ta_get:
+> +	 *
+> +	 * Time, in nanoseconds, that the new transmitter drives the
+> +	 * Bridge state (LP-00) after accepting control during a Link
+> +	 * Turnaround.
+> +	 */
+> +	unsigned int		ta_get;
+> +
+> +	/**
+> +	 * @ta_go:
+> +	 *
+> +	 * Time, in nanoseconds, that the transmitter drives the
+> +	 * Bridge state (LP-00) before releasing control during a Link
+> +	 * Turnaround.
+> +	 */
+> +	unsigned int		ta_go;
+> +
+> +	/**
+> +	 * @ta_sure:
+> +	 *
+> +	 * Time, in nanoseconds, that the new transmitter waits after
+> +	 * the LP-10 state before transmitting the Bridge state
+> +	 * (LP-00) during a Link Turnaround.
+> +	 */
+> +	unsigned int		ta_sure;
+> +
+> +	/**
+> +	 * @wakeup:
+> +	 *
+> +	 * Time, in nanoseconds, that a transmitter drives a Mark-1
+> +	 * state prior to a Stop state in order to initiate an exit
+> +	 * from ULPS.
+> +	 */
+> +	unsigned int		wakeup;
+> +
+> +	/**
+> +	 * @hs_clk_rate:
+> +	 *
+> +	 * Clock rate, in Hertz, of the high-speed clock.
+> +	 */
+> +	unsigned long		hs_clk_rate;
+> +
+> +	/**
+> +	 * @lp_clk_rate:
+> +	 *
+> +	 * Clock rate, in Hertz, of the low-power clock.
+> +	 */
+> +	unsigned long		lp_clk_rate;
+> +
+> +	/**
+> +	 * @lanes:
+> +	 *
+> +	 * Number of lanes used for the transmissions.
+> +	 */
+> +	unsigned char		lanes;
+
+This is related to the data_lanes DT property. I assume this is intended to
+be the number of active lanes. And presumably the first "lanes" number of
+lanes would be used in that case?
+
+> +};
+> +
+> +#endif /* __PHY_MIPI_DPHY_H_ */
+> diff --git a/include/linux/phy/phy.h b/include/linux/phy/phy.h
+> index 89cf8b685546..d7ea2dc4e2be 100644
+> --- a/include/linux/phy/phy.h
+> +++ b/include/linux/phy/phy.h
+> @@ -20,6 +20,8 @@
+>  #include <linux/pm_runtime.h>
+>  #include <linux/regulator/consumer.h>
+>  
+> +#include <linux/phy/phy-mipi-dphy.h>
+> +
+>  struct phy;
+>  
+>  enum phy_mode {
+> @@ -47,8 +49,12 @@ enum phy_mode {
+>  
+>  /**
+>   * union phy_configure_opts - Opaque generic phy configuration
+> + *
+> + * @mipi_dphy:	Configuration set applicable for phys supporting
+> + *		the MIPI_DPHY phy mode.
+>   */
+>  union phy_configure_opts {
+> +	struct phy_configure_opts_mipi_dphy	mipi_dphy;
+>  };
+>  
+>  /**
+
+-- 
+Kind regards,
+
+Sakari Ailus
+e-mail: sakari.ailus@iki.fi

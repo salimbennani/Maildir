@@ -1,0 +1,231 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (61.164.42.155:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 08 Nov 2018 10:29:47 -0000
+Received: from icoremail.net (unknown [209.85.210.170])
+	by mail-app2 (Coremail) with SMTP id by_KCgDXv_q7DeRbiTxfAQ--.29024S3;
+	Thu, 08 Nov 2018 18:19:47 +0800 (CST)
+Received: from mail-pf1-f170.google.com (unknown [209.85.210.170])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwCXcz+3DeRbHDocAA--.3256S3;
+	Thu, 08 Nov 2018 18:19:35 +0800 (CST)
+Received: by mail-pf1-f170.google.com with SMTP id y18-v6so6718929pfn.1
+        for <xuliker@zju.edu.cn>; Thu, 08 Nov 2018 02:19:35 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :from:to:subject:date:message-id:in-reply-to:references:mime-version
+         :sender:precedence:list-id;
+        bh=M9g2FWR6RMXJBVHYTd8W98ccmoKzQAVsPE8MX27GHrw=;
+        b=foLngeS/nUISKwmxkpH1UcHXNS5kQk6TpO5bcke2b/j3HG5vkNe6cdSVxRdlb1tibr
+         uYEHPOLOIPImRY8tagK0bW68GyDkuwjQAjUGnG0xBt0wat1dIaDXbAnTtqtT3VUBCILt
+         N/iBZxOQjsJ9WcKpzEicJSyIJc9od0U3YFT5VSxCUjglwsbdlFjpEd781PBHqaDF2f0D
+         qQDtJpjC6qm+Up3aregyZcgIV0EUys85yLg2hTNwoGKZ8bCII6Za5LTQYLFTCxESbPcZ
+         imEbMBwBQ6WL/12Oeyts24chSOU3/eLoyzMDF7PgZJGiAybwDoRtJKx3XsHQmdWLHefg
+         p8IQ==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org
+X-Gm-Message-State: AGRZ1gJWOES/hm2EWtXFdU92Bja4wQRCVUOzBNyBusheaXIJ7/scr2xV
+	FvtAFIpsxvFoWn375HGx6oFoV2Aj+ku4xmmSGjXLIcGQfFIG1UJpXw==
+X-Received: by 2002:a65:64d5:: with SMTP id t21-v6mr3406583pgv.428.1541672374955;
+        Thu, 08 Nov 2018 02:19:34 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp7921pjt;
+        Thu, 8 Nov 2018 02:19:33 -0800 (PST)
+X-Google-Smtp-Source: AJdET5cLAsgbbz773/qdynbK+l+rv7ONZjupy2ALHzb8NGoFC354l94yOPCf+2ydYeXe3yOIC0yG
+X-Received: by 2002:a17:902:4583:: with SMTP id n3-v6mr3929214pld.53.1541672373362;
+        Thu, 08 Nov 2018 02:19:33 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1541672373; cv=none;
+        d=google.com; s=arc-20160816;
+        b=hWhsoawZZaLuiqBTMAxNd5ULO3y4FGoevcMqKxAVOOEmogefwLViKeLoKXG1zsPk+y
+         qZWZP6XogvvlesLRkgAJcjI6bw5bV2AxksDbCKRtUDIS52FawrA5Lj4h7KZXbZloVJX6
+         /lgniEl1vMdhR4GYvjM0RQ3v5/+CQyTftREafd/Q3yLs4efetc2eg4S2SHxD2uVo5W33
+         r7FJ6KCtlvtDX5pl94C3oKUBho8KnkOClyINkq/O3iUF+XJLeDbDIsjW+6SxbXGD6gpP
+         8GgjHFukxtC4foIB7Czv9ceF8F21AAgueBE9LK2c3XCyIQdzx1HsuZ2Rss5+PzBTrPZt
+         6SwA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:mime-version:references:in-reply-to
+         :message-id:date:subject:to:from;
+        bh=M9g2FWR6RMXJBVHYTd8W98ccmoKzQAVsPE8MX27GHrw=;
+        b=c61gplLWvvUNrCkxdaRXj71ejQ97lPEpnp0/O2vzjVSfjhPaoYQ/YqoLmSOH1Zz8eA
+         pABgKD5SrnIx4F6LIzMPEAZzVqkV/Wn+4DduIxnFyb/ra6G4Kfpm+DzU/GK0wSVunswx
+         MX8BWiP71ZauEYQBjnfzgldf7WPdXsx4xDIHfX0O7LWJZXAQ9sPtrDZZUHFD05oiwDJz
+         q3sTUgMF80Ya/9cTSL6h3YnRinHGn7elpXeNElQCHsWL//AnlkuxptbxRH893iztEaL1
+         pv48PaSbmhyS6pKH7QbTU1u08LE6CTxRQ/yoYvSGC0raqjSbZX3LiuLav0iuR9+nrGH6
+         Pf3g==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id 27si3183264pgp.135.2018.11.08.02.19.18;
+        Thu, 08 Nov 2018 02:19:33 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1727086AbeKHTxh (ORCPT <rfc822;fanshuming2011@gmail.com>
+        + 99 others); Thu, 8 Nov 2018 14:53:37 -0500
+Received: from szxga04-in.huawei.com ([45.249.212.190]:14624 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1727065AbeKHTxd (ORCPT <rfc822;kvm@vger.kernel.org>);
+        Thu, 8 Nov 2018 14:53:33 -0500
+Received: from DGGEMS405-HUB.china.huawei.com (unknown [172.30.72.59])
+        by Forcepoint Email with ESMTP id 619A138332895;
+        Thu,  8 Nov 2018 18:18:44 +0800 (CST)
+Received: from ros.huawei.com (10.143.28.118) by
+ DGGEMS405-HUB.china.huawei.com (10.3.19.205) with Microsoft SMTP Server id
+ 14.3.408.0; Thu, 8 Nov 2018 18:18:36 +0800
+From: Dongjiu Geng <gengdongjiu@huawei.com>
+To: <imammedo@redhat.com>, <mst@redhat.com>,
+        <peter.maydell@linaro.org>, <pbonzini@redhat.com>,
+        <mtosatti@redhat.com>, <rth@twiddle.net>, <ehabkost@redhat.com>,
+        <kvm@vger.kernel.org>, <shannon.zhaosl@gmail.com>,
+        <qemu-devel@nongnu.org>, <qemu-arm@nongnu.org>,
+        <gengdongjiu@huawei.com>
+Subject: [PATCH v15 06/10] docs: APEI GHES generation and CPER record description
+Date: Thu, 8 Nov 2018 02:15:49 -0800
+Message-ID: <1541672153-15529-7-git-send-email-gengdongjiu@huawei.com>
+X-Mailer: git-send-email 2.7.4
+In-Reply-To: <1541672153-15529-1-git-send-email-gengdongjiu@huawei.com>
+References: <1541672153-15529-1-git-send-email-gengdongjiu@huawei.com>
+MIME-Version: 1.0
+Content-Type: text/plain
+X-Originating-IP: [10.143.28.118]
+X-CFilter-Loop: Reflected
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwCXcz+3DeRbHDocAA--.3256S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW3Gr43urW7Kw1UZFyDZF1DKFg_yoW7Zw1Dpw
+	n3JrZ3JF4UJry2qr47tw45AryUJF4kGa1UJr1ftryxXr15CF1UAr18GrykXFWUGrykZr1U
+	JFWjqryDGFWUAwUanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUPIb7Iv0xC_Cr1lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2
+	z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s0DM2AIxVAIcxkEcV
+	Aq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1Y
+	6r17McIj6I8E87Iv67AKxVW8JVWxJwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IYc2Ij64
+	vIr41l7I0Y6sxI4wCY1x0264kExVAvwVAq07x20xylc7Ca8VAvwVCFzxkY4VCF77xAMxkI
+	ecxEwVCI4VW8twCY0x0Ix7I2Y4AK64vIr41lcIIF0xvE2Ix0cI8IcVAFwI0_Xr0_Ar1lcI
+	IF0xvE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwCYIxAIcVC2z280aVAFwI0_Cr1j6rxdMxvI
+	42IY6I8E87Iv6xkF7I0E14v26F4UJVW0owCF04k20xvY0x0EwIxGrwCF04k20xvEw4C26c
+	xK6c8Ij28IcwCF72vE77IF4wCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v2
+	6r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_Jw0_GFylIxkGc2
+	Ij64vIr41lIxAIcVCF04k26cxKx2IYs7xG6r4j6FyUYxBIdaVFxhVjvjDU0xZFpf9x07b8
+	uc_UUUUU=
+
+Add APEI/GHES detailed design document
+
+Signed-off-by: Dongjiu Geng <gengdongjiu@huawei.com>
+
+Address Igor's comments to add a doc
+---
+ docs/specs/acpi_hest_ghes.txt | 97 +++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 97 insertions(+)
+ create mode 100644 docs/specs/acpi_hest_ghes.txt
+
+diff --git a/docs/specs/acpi_hest_ghes.txt b/docs/specs/acpi_hest_ghes.txt
+new file mode 100644
+index 0000000..fbfc787
+--- /dev/null
++++ b/docs/specs/acpi_hest_ghes.txt
+@@ -0,0 +1,97 @@
++APEI tables generating and CPER record
++=============================
++
++Copyright (C) 2017 HuaWei Corporation.
++
++Design Details:
++-------------------
++
++       etc/acpi/tables                                 etc/hardware_errors
++    ====================                      ==========================================
+++ +--------------------------+            +-----------------------+
++| | HEST                     |            |    address            |            +--------------+
++| +--------------------------+            |    registers          |            | Error Status |
++| | GHES1                    |            | +---------------------+            | Data Block 1 |
++| +--------------------------+ +--------->| |error_block_address1 |----------->| +------------+
++| | .................        | |          | +---------------------+            | |  CPER      |
++| | error_status_address-----+-+ +------->| |error_block_address2 |--------+   | |  CPER      |
++| | .................        |   |        | +---------------------+        |   | |  ....      |
++| | read_ack_register--------+-+ |        | |    ..............   |        |   | |  CPER      |
++| | read_ack_preserve        | | |        +-----------------------+        |   | +------------+
++| | read_ack_write           | | | +----->| |error_block_addressN |------+ |   | Error Status |
+++ +--------------------------+ | | |      | +---------------------+      | |   | Data Block 2 |
++| | GHES2                    | +-+-+----->| |read_ack_register1   |      | +-->| +------------+
+++ +--------------------------+   | |      | +---------------------+      |     | |  CPER      |
++| | .................        |   | | +--->| |read_ack_register2   |      |     | |  CPER      |
++| | error_status_address-----+---+ | |    | +---------------------+      |     | |  ....      |
++| | .................        |     | |    | |  .............      |      |     | |  CPER      |
++| | read_ack_register--------+-----+-+    | +---------------------+      |     +-+------------+
++| | read_ack_preserve        |     |   +->| |read_ack_registerN   |      |     | |..........  |
++| | read_ack_write           |     |   |  | +---------------------+      |     | +------------+
+++ +--------------------------|     |   |                                 |     | Error Status |
++| | ...............          |     |   |                                 |     | Data Block N |
+++ +--------------------------+     |   |                                 +---->| +------------+
++| | GHESN                    |     |   |                                       | |  CPER      |
+++ +--------------------------+     |   |                                       | |  CPER      |
++| | .................        |     |   |                                       | |  ....      |
++| | error_status_address-----+-----+   |                                       | |  CPER      |
++| | .................        |         |                                       +-+------------+
++| | read_ack_register--------+---------+
++| | read_ack_preserve        |
++| | read_ack_write           |
+++ +--------------------------+
++
++(1) QEMU generates the ACPI HEST table. This table goes in the current
++    "etc/acpi/tables" fw_cfg blob. Each error source has different
++    notification type.
++
++(2) A new fw_cfg blob called "etc/hardware_errors" is introduced. QEMU
++    also need to populate this blob. The "etc/hardwre_errors" fw_cfg blob
++    contains one address registers table and one Error Status Data Block
++    table, all of which are pre-allocated.
++
++(3) The address registers table contains N Error Block Address entries
++    and N Read Ack Address entries, the size for each entry is 8-byte.
++    The Error Status Data Block table contains N Error Status Data Block
++    entries, the size for each entry is 4096(0x1000) bytes. The total size
++    for "etc/hardware_errors" fw_cfg blob is (N * 8 * 2 + N * 4096) bytes.
++
++(4) QEMU generates the ACPI linker/loader script for the firmware
++
++(4a) The HEST table is part of "etc/acpi/tables", the firmware already
++    allocates the memory for it, because QEMU already generates an ALLOCATE
++    linker/loader command for it
++
++(4b) QEMU creates another ALLOCATE command for the "etc/hardware_errors"
++    blob. The firmware allocates memory for this blob and downloads it.
++
++(5) QEMU generates N ADD_POINTER commands, which patch address in the
++    "error_status_address" fields of the HEST table with a pointer to the
++    corresponding "address registers" in the downloaded "etc/hardware_errors"
++    blob.
++
++(6) QEMU generates N ADD_POINTER commands, which patch address in the
++    "read_ack_register" fields of the HEST table with a pointer to the
++    corresponding "address registers" in the downloaded "etc/hardware_errors" blob.
++
++(7) QEMU generates N ADD_POINTER commands for the firmware, which patch
++    address in the " error_block_address" fields with a pointer to the
++    respective "Error Status Data Block" in the downloaded "etc/hardware_errors"
++    blob.
++
++(8) QEMU Defines a third and write-only fw_cfg blob which is called
++    "etc/hardware_errors_addr". Through that blob, the firmware can send back
++    the guest-side allocation addresses to QEMU. The "etc/hardware_errors_addr"
++    blob contains a 8-byte entry. QEMU generates a single WRITE_POINTER commands
++    for the firmware, the firmware will write back the start address of
++    "etc/hardware_errors" blob to fw_cfg file "etc/hardware_errors_addr". Then
++    Qemu will know the Error Status Data Block for every error source. Each of
++    Error Status Data Block has fixed size which is 4096(0x1000).
++
++(9) When QEMU gets SIGBUS from the kernel, QEMU formats the CPER right into
++    guest memory, and then injects whatever interrupt (or assert whatever GPIO line)
++    as a notification which is necessary for notifying the guest.
++
++(10) This notification (in virtual hardware) will be handled by guest kernel,
++    guest APEI driver will read the CPER which is recorded by QEMU and do the
++    recovery.
+-- 
+1.8.3.1

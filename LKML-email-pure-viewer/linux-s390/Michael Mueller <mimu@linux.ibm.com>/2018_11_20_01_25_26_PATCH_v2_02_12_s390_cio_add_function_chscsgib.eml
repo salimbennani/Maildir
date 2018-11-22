@@ -1,0 +1,239 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 20 Nov 2018 00:33:53 -0000
+Received: from icoremail.net (unknown [209.85.214.179])
+	by mail-app2 (Coremail) with SMTP id by_KCgCn3_hz8vJbgrC6AQ--.55787S3;
+	Tue, 20 Nov 2018 01:27:16 +0800 (CST)
+Received: from mail-pl1-f179.google.com (unknown [209.85.214.179])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwDnzEhu8vJb6IJZAA--.1709S3;
+	Tue, 20 Nov 2018 01:27:10 +0800 (CST)
+Received: by mail-pl1-f179.google.com with SMTP id s5-v6so14882660plq.11
+        for <xuliker@zju.edu.cn>; Mon, 19 Nov 2018 09:27:10 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :from:to:cc:subject:date:in-reply-to:references:message-id:sender
+         :precedence:list-id;
+        bh=MuaOd/8nMh2nrwHaLbDEHrlpMMpNFEvXA+044B6DfQE=;
+        b=oKYjtl1/AMfagqo+cRueGVzp7Ao5uqzviKRXaDudxNZpE//15+Lx5urdZ2D8//VEfk
+         20HFHqfzMHejaC39KfGuHk6qcsFEAa+sLhlEzmcM1DVvXlFrp0slz9cPVadWlbwwbfmL
+         ca8Ecgq/1xYx1pLRIg1knIek9W+zfAEbAVlXmLv3TA7U/nkzooZ2SeYLL3BAQ5991LJe
+         Ht+WUE2BlmY0pWkxZEaSfPnRuh/ziZN5HcpBb5ep66Y8B+uJ+pWvX3z7eoJl9so+iSqA
+         EfWbn48hBt4AJtosEWknGOOQNAAXXe2Qt6oUKXpQRTSKgtbypaIyN0IN7W69m49KPCkc
+         7YRA==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=ibm.com
+X-Gm-Message-State: AGRZ1gJNIyMuzWyhUzMqe4vFxbHvOkdF1aWR//Du9V7CNEU8TGMhQItf
+	QW9mOCU/LpiG11/L+gLMb+SN/vnp16Bq641/gBQ9hnPIVMq12gk=
+X-Received: by 2002:a17:902:a9c4:: with SMTP id b4mr23255793plr.298.1542648430460;
+        Mon, 19 Nov 2018 09:27:10 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:d106:0:0:0:0 with SMTP id l6-v6csp2947060pju;
+        Mon, 19 Nov 2018 09:27:09 -0800 (PST)
+X-Google-Smtp-Source: AFSGD/Ul1M4YD7SEQy2NiJJoBgvm+Ru53RG56Umd4w3GfpBIWzletqMuJDoe5bpy6XYU6twRGDTo
+X-Received: by 2002:a17:902:f082:: with SMTP id go2mr4620959plb.115.1542648429064;
+        Mon, 19 Nov 2018 09:27:09 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542648429; cv=none;
+        d=google.com; s=arc-20160816;
+        b=SCevvj/R0/jcJwObFVRg0jo7fgIevqsSDFGBL3tSPWbzjIMI5wQ3/YOQX6r06h1JvP
+         +h5DcMCjrKgFjyzFE8/zrmAGD0WqCHlcimr09FVYR/qehli7ihwnYLXUdxFNWLgNYGgC
+         3UnH+04f3rqqbD5JwClbeRm2EHmwBH/btPJiNgDMrye9nnHQ2NISXsxN+FzIjSZwgVnC
+         ILhPCqjB5U1ykhmbKLmiR+P8M/ndVrv593qPP4YeUxjxSeDqgn2RRTnVMNdwjo/pAeZw
+         q2lEh3w4zF7DIiSlvZFaiYUpAy97BkLFY6cdIhMicJ9LhmCXoflJAfdznvchsEHKpVV/
+         LXlw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:message-id:references:in-reply-to:date
+         :subject:cc:to:from;
+        bh=MuaOd/8nMh2nrwHaLbDEHrlpMMpNFEvXA+044B6DfQE=;
+        b=D24Dy8h4zQEgpXyS9oZPeRO+rtEFCfdSw1cu00AxlNzEQ1+1IxogHR52z3VhsGyMPs
+         mJzsijIuMRezjndLuoJr0QUP8mHkjGBLaQySdpRKDTzjHbcaTvZCJUo1sfomieW/DdrF
+         llooYWrcijPD/p3/alfUK25MGJcU/DlFQk83Cd8WMELR+alhJ4cJXnCZ9/RSZ/0KF+g9
+         wSoAdXGbt0P0AHBrNUh2QndE4WoklNau++91vR1xuoGoSJeOcyc74YXB0GoJVHZ6mF1m
+         jv49IZQVZ9XXmAUMOkq5AhKihgJEVrj6lesTtIrh/RorMOdEoN18B5Pl7oZkmFN81f+K
+         /Xlw==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=ibm.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id a6si20626521plz.316.2018.11.19.09.26.37;
+        Mon, 19 Nov 2018 09:27:09 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S2404411AbeKTDuV (ORCPT <rfc822;ww9210@gmail.com> + 99 others);
+        Mon, 19 Nov 2018 22:50:21 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:49554 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S2404201AbeKTDuU (ORCPT
+        <rfc822;kvm@vger.kernel.org>); Mon, 19 Nov 2018 22:50:20 -0500
+Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.22/8.16.0.22) with SMTP id wAJHPGcn093954
+        for <kvm@vger.kernel.org>; Mon, 19 Nov 2018 12:25:56 -0500
+Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2nv0kyb0x9-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <kvm@vger.kernel.org>; Mon, 19 Nov 2018 12:25:55 -0500
+Received: from localhost
+        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <kvm@vger.kernel.org> from <mimu@linux.ibm.com>;
+        Mon, 19 Nov 2018 17:25:53 -0000
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (9.149.109.194)
+        by e06smtp04.uk.ibm.com (192.168.101.134) with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted;
+        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256/256)
+        Mon, 19 Nov 2018 17:25:52 -0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id wAJHPoop61276406
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
+        Mon, 19 Nov 2018 17:25:50 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 49FA04C044;
+        Mon, 19 Nov 2018 17:25:50 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id D25134C046;
+        Mon, 19 Nov 2018 17:25:49 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Mon, 19 Nov 2018 17:25:49 +0000 (GMT)
+From: Michael Mueller <mimu@linux.ibm.com>
+To: kvm@vger.kernel.org, linux-s390@vger.kernel.org
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>,
+        Heiko Carstens <heiko.carstens@de.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Michael Mueller <mimu@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Pierre Morel <pmorel@linux.ibm.com>
+Subject: [PATCH v2 02/12] s390/cio: add function chsc_sgib()
+Date: Mon, 19 Nov 2018 18:25:26 +0100
+X-Mailer: git-send-email 2.16.4
+In-Reply-To: <20181119172536.52649-1-mimu@linux.ibm.com>
+References: <20181119172536.52649-1-mimu@linux.ibm.com>
+X-TM-AS-GCONF: 00
+x-cbid: 18111917-0016-0000-0000-000002295398
+X-IBM-AV-DETECTION: SAVI=unused REMOTE=unused XFE=unused
+x-cbparentid: 18111917-0017-0000-0000-000032818852
+Message-Id: <20181119172536.52649-3-mimu@linux.ibm.com>
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2018-11-19_06:,,
+ signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ malwarescore=0 suspectscore=0 phishscore=0 bulkscore=0 spamscore=0
+ clxscore=1015 lowpriorityscore=0 mlxscore=0 impostorscore=0
+ mlxlogscore=683 adultscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.0.1-1810050000 definitions=main-1811190159
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwDnzEhu8vJb6IJZAA--.1709S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoWxAF4Dtr18Cw4kJr1kKFW8Xrb_yoW5Zry3pF
+	4fCr4rAayrJ3yfZr1fJw1DZFyrJayxCa9FgFy7t3yjvw1xtF9xury8K3W09F98Jrs8JFZI
+	9rWjq3sYg3WjqaDanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUPIb7Iv0xC_tr1lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_tr0E3s1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2
+	z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s0DM2AIxVAIcxkEcV
+	Aq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r10
+	6r15McIj6I8E87Iv67AKxVW8JVWxJwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IYc2Ij64
+	vIr41l7I0Y6sxI4wCY1x0264kExVAvwVAq07x20xylc7Ca8VAvwVCFzxkY4VCF77xAMxkI
+	ecxEwVCI4VW8MxkI7II2jI8vz4vEwIxGrwCYIxAIcVC0I7IYx2IY67AKxVW7JVWDJwCYIx
+	AIcVC0I7IYx2IY6xkF7I0E14v26F4j6r4UJwCYIxAIcVC2z280aVAFwI0_Cr1j6rxdMxvI
+	42IY6I8E87Iv6xkF7I0E14v26F4UJVW0owCF04k20xvY0x0EwIxGrwCF04k20xvEw4C26c
+	xK6c8Ij28IcwCF72vE77IF4wCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v2
+	6r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_Jw0_GFylIxkGc2
+	Ij64vIr41lIxAIcVCF04k26cxKx2IYs7xG6r1j6r1xYxBIdaVFxhVjvjDU0xZFpf9x07b8
+	oGQUUUUU=
+
+This patch implements the Set Guest Information Block operation
+to request association or disassociation of a Guest Information
+Block (GIB) with the Adapter Interruption Facility. The operation
+is required to receive GIB alert interrupts for guest adapters
+in conjunction with AIV and GISA.
+
+Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
+Reviewed-by: Sebastian Ott <sebott@linux.ibm.com>
+Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Acked-by: Halil Pasic <pasic@linux.ibm.com>
+Acked-by: Janosch Frank <frankja@linux.ibm.com>
+Acked-by: Cornelia Huck <cohuck@redhat.com>
+---
+ arch/s390/include/asm/cio.h |  1 +
+ drivers/s390/cio/chsc.c     | 37 +++++++++++++++++++++++++++++++++++++
+ drivers/s390/cio/chsc.h     |  1 +
+ 3 files changed, 39 insertions(+)
+
+diff --git a/arch/s390/include/asm/cio.h b/arch/s390/include/asm/cio.h
+index 225667652069..1727180e8ca1 100644
+--- a/arch/s390/include/asm/cio.h
++++ b/arch/s390/include/asm/cio.h
+@@ -331,5 +331,6 @@ extern void css_schedule_reprobe(void);
+ /* Function from drivers/s390/cio/chsc.c */
+ int chsc_sstpc(void *page, unsigned int op, u16 ctrl, u64 *clock_delta);
+ int chsc_sstpi(void *page, void *result, size_t size);
++int chsc_sgib(u32 origin);
+ 
+ #endif
+diff --git a/drivers/s390/cio/chsc.c b/drivers/s390/cio/chsc.c
+index a0baee25134c..4159c63a5fd2 100644
+--- a/drivers/s390/cio/chsc.c
++++ b/drivers/s390/cio/chsc.c
+@@ -1382,3 +1382,40 @@ int chsc_pnso_brinfo(struct subchannel_id schid,
+ 	return chsc_error_from_response(brinfo_area->response.code);
+ }
+ EXPORT_SYMBOL_GPL(chsc_pnso_brinfo);
++
++int chsc_sgib(u32 origin)
++{
++	struct {
++		struct chsc_header request;
++		u16 op;
++		u8  reserved01[2];
++		u8  reserved02:4;
++		u8  fmt:4;
++		u8  reserved03[7];
++		/* operation data area begin */
++		u8  reserved04[4];
++		u32 gib_origin;
++		u8  reserved05[10];
++		u8  aix;
++		u8  reserved06[4029];
++		struct chsc_header response;
++		u8  reserved07[4];
++	} *sgib_area;
++	int ret;
++
++	spin_lock_irq(&chsc_page_lock);
++	memset(chsc_page, 0, PAGE_SIZE);
++	sgib_area = chsc_page;
++	sgib_area->request.length = 0x0fe0;
++	sgib_area->request.code = 0x0021;
++	sgib_area->op = 0x1;
++	sgib_area->gib_origin = origin;
++
++	ret = chsc(sgib_area);
++	if (ret == 0)
++		ret = chsc_error_from_response(sgib_area->response.code);
++	spin_unlock_irq(&chsc_page_lock);
++
++	return ret;
++}
++EXPORT_SYMBOL_GPL(chsc_sgib);
+diff --git a/drivers/s390/cio/chsc.h b/drivers/s390/cio/chsc.h
+index 78aba8d94eec..e57d68e325a3 100644
+--- a/drivers/s390/cio/chsc.h
++++ b/drivers/s390/cio/chsc.h
+@@ -164,6 +164,7 @@ int chsc_get_channel_measurement_chars(struct channel_path *chp);
+ int chsc_ssqd(struct subchannel_id schid, struct chsc_ssqd_area *ssqd);
+ int chsc_sadc(struct subchannel_id schid, struct chsc_scssc_area *scssc,
+ 	      u64 summary_indicator_addr, u64 subchannel_indicator_addr);
++int chsc_sgib(u32 origin);
+ int chsc_error_from_response(int response);
+ 
+ int chsc_siosl(struct subchannel_id schid);
+-- 
+2.13.4

@@ -1,0 +1,437 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (61.164.42.155:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 13 Nov 2018 15:22:52 -0000
+Received: from icoremail.net (unknown [209.85.210.170])
+	by mail-app2 (Coremail) with SMTP id by_KCgDnX98qpOpbIU+FAQ--.40164S3;
+	Tue, 13 Nov 2018 18:15:06 +0800 (CST)
+Received: from mail-pf1-f170.google.com (unknown [209.85.210.170])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwBXP0sopOpbeqA3AA--.6055S3;
+	Tue, 13 Nov 2018 18:15:04 +0800 (CST)
+Received: by mail-pf1-f170.google.com with SMTP id v76-v6so2978270pfa.5
+        for <xuliker@zju.edu.cn>; Tue, 13 Nov 2018 02:15:04 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:sender:precedence:list-id;
+        bh=dmfU8z1dSuJH0l+404XjTUpGD5mLSZgup+CgDrvqJic=;
+        b=L0YkCBxpoLuNyo0zUwiJygFZic8QGJXbglOpNIBpqsb8fvm4tV9SUq7/JsH8NHU4ZR
+         DH+1HDOUQKi0YaP4R9XaaHhW0hDD7JpuV8Q66ZTm7edotBPx6s1jwKm673uDTb9LUNMN
+         9/b3PTK6YB+vatmMfQuJq223tuG5E2bfXPLu/ahzlraKyH+W0OWqrNKdEjEpwekCNH1k
+         brGAJGatK5YKpt4YdaUOrBWG3BS8q2uJedSU236QCphwlsXuppTyYtQ0WC6zh6MvCRu1
+         7rxojgxRLLWEq+3jAVvB42WMK+nnc9Zciz7syM6MkVC3acOJU2/28SThWZ38DMBjebrJ
+         ZzNg==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org
+X-Gm-Message-State: AGRZ1gJixzbFu6R7w0xDtOKIl0QGBhdyNG+X29W+5Gu1xkTzfkGmb9Bm
+	foJsOjI1DPvYmiFukIhtxTd8gr3JNTafvnphMJ7/+deNTViLfJVarA==
+X-Received: by 2002:a62:c20b:: with SMTP id l11-v6mr4600339pfg.251.1542104104181;
+        Tue, 13 Nov 2018 02:15:04 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp4275360pjt;
+        Tue, 13 Nov 2018 02:15:02 -0800 (PST)
+X-Google-Smtp-Source: AJdET5e02FCaXX3bgkcmGACg+9Xmp+BdgRJn718HG4fF2vHYzPLypyvhPfOoy0LFM7DB0nBKbB/9
+X-Received: by 2002:a63:4c04:: with SMTP id z4mr4214573pga.312.1542104102796;
+        Tue, 13 Nov 2018 02:15:02 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542104102; cv=none;
+        d=google.com; s=arc-20160816;
+        b=Jw/Lqi5suVHoOc2LfUmviuJ+GWZWePlZdhuvtx3E+gWlwzYm7RIUx1sCUcDHvhGxZy
+         dBYmSC0iEcjjXMFrjq1sHEHtEb1wE9m5CAXZZMLYH0cSjIkWIfdsUqq2kOTTMHq30eiS
+         4BfY0HCBs3LauBDptAchT6b6E7jJ2It4N5hPi6dgeFcVPHzpupNdJioymwvsggc0rSFv
+         kriBPIhJGzEPgZOUQyX3pjQSy+W5z0ZpT+41A4OeF/rx/ZJu743a+QUKUeUaf7XhBwKe
+         pfB9HHQiiaYOhIRrIWr5SmCp2ep+GkMeP34b89fnlN43cnosG8HNSIQrQanoYmSEzZuk
+         VLhw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from;
+        bh=dmfU8z1dSuJH0l+404XjTUpGD5mLSZgup+CgDrvqJic=;
+        b=0gcAn0NOp1Swh74AnCsBmRFfDKQIGRea06DtExBL/J4MTqFQCkNLJ/IiPTH9BzES1p
+         ZwZ3xB4Oicx5bGrUv48UjSWLQyPfbu0YeDD4QgqX7cvgfnryLIWd5uT3r/WedYAJcMca
+         UcMBGll3hq4KXdRUc+sAU5vwit8ARiTnnpp0pOSpczfFGxzUd4bL1Gv5TXBNs38nBHXb
+         r+UqWpnasbzTHPjCBad2WoJM3kXH3TFwfFxEgENGb+B1eB+gyMHg5dRcSLkVnYKaOeTT
+         z7H/zpVyaLLgrpiiwmqZGbh91qXSvFY1wjsipJtE1ceJNpf1sdYPJgxuAL7r1vDf7XNm
+         jHFA==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id b6si13450929pgg.2.2018.11.13.02.14.48;
+        Tue, 13 Nov 2018 02:15:02 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1732153AbeKMULx (ORCPT <rfc822;revogelaar@gmail.com>
+        + 99 others); Tue, 13 Nov 2018 15:11:53 -0500
+Received: from szxga07-in.huawei.com ([45.249.212.35]:49996 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1731878AbeKMULw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+        Tue, 13 Nov 2018 15:11:52 -0500
+Received: from DGGEMS411-HUB.china.huawei.com (unknown [172.30.72.60])
+        by Forcepoint Email with ESMTP id 969E7D2E4E637;
+        Tue, 13 Nov 2018 18:14:25 +0800 (CST)
+Received: from S00293818-DELL1.china.huawei.com (10.47.86.21) by
+ DGGEMS411-HUB.china.huawei.com (10.3.19.211) with Microsoft SMTP Server id
+ 14.3.408.0; Tue, 13 Nov 2018 18:14:17 +0800
+From: Salil Mehta <salil.mehta@huawei.com>
+To: <davem@davemloft.net>
+CC: <salil.mehta@huawei.com>, <yisen.zhuang@huawei.com>,
+        <lipeng321@huawei.com>, <mehta.salil@opnsrc.net>,
+        <netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <linux-rdma@vger.kernel.org>, <linuxarm@huawei.com>
+Subject: [PATCH net-next 2/5] net: hns3: Add handling of GRO Pkts not fully RX'ed in NAPI poll
+Date: Tue, 13 Nov 2018 10:13:04 +0000
+Message-ID: <20181113101307.6020-3-salil.mehta@huawei.com>
+X-Mailer: git-send-email 2.8.3
+In-Reply-To: <20181113101307.6020-1-salil.mehta@huawei.com>
+References: <20181113101307.6020-1-salil.mehta@huawei.com>
+MIME-Version: 1.0
+Content-Type: text/plain
+X-Originating-IP: [10.47.86.21]
+X-CFilter-Loop: Reflected
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwBXP0sopOpbeqA3AA--.6055S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoWfJw15Zw1rJr4kCF1UGFyxGrg_yoWDWr45pF
+	45Kayayr4DZr4kWr40yFWkCwn8A345J345W343A3Zayw12yF4FqFy8Kryavry8CrykZr4f
+	trn0gw4293Z8CrDanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUPIb7Iv0xC_Zr1lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2
+	z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s0DM2AIxVAIcxkEcV
+	Aq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1j
+	6r18McIj6I8E87Iv67AKxVW8JVWxJwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IYc2Ij64
+	vIr41l7I0Y6sxI4wCY1x0264kExVAvwVAq07x20xylc7Ca8VAvwVCFzxkY4VCF77xAMxkI
+	ecxEwVCI4VW8twCY0x0Ix7I2Y4AK64vIr41lcIIF0xvE2Ix0cI8IcVAFwI0_Xr0_Ar1lcI
+	IF0xvE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwCYIxAIcVC2z280aVAFwI0_Cr1j6rxdMxvI
+	42IY6I8E87Iv6xkF7I0E14v26F4UJVW0owCF04k20xvY0x0EwIxGrwCF04k20xvEw4C26c
+	xK6c8Ij28IcwCF72vE77IF4wCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v2
+	6r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_Jw0_GFylIxkGc2
+	Ij64vIr41lIxAIcVCF04k26cxKx2IYs7xG6r1j6r1xYxBIdaVFxhVjvjDU0xZFpf9x07be
+	yCJUUUUU=
+
+From: Peng Li <lipeng321@huawei.com>
+
+The "FE bit" in the description means the last description for
+a packets. When HW GRO enable, HW write data to ring every
+packet/buffer, there is greater probability that driver handle
+with the describtion but HW still not set the "FE bit".
+
+When driver handle the packet and HW still not set "FE bit",
+driver stores skb and bd_num in rx ring, and continue to use the
+skb and bd_num in next napi.
+
+Signed-off-by: Peng Li <lipeng321@huawei.com>
+Signed-off-by: Salil Mehta <salil.mehta@huawei.com>
+---
+ .../net/ethernet/hisilicon/hns3/hns3_enet.c   | 196 ++++++++++++------
+ .../net/ethernet/hisilicon/hns3/hns3_enet.h   |   6 +
+ 2 files changed, 140 insertions(+), 62 deletions(-)
+
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+index a510ddfd45a5..d8c5e1198670 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+@@ -2383,6 +2383,90 @@ static bool hns3_parse_vlan_tag(struct hns3_enet_ring *ring,
+ 	}
+ }
+ 
++static int hns3_alloc_skb(struct hns3_enet_ring *ring, int length,
++			  unsigned char *va)
++{
++#define HNS3_NEED_ADD_FRAG	1
++	struct hns3_desc_cb *desc_cb = &ring->desc_cb[ring->next_to_clean];
++	struct net_device *netdev = ring->tqp->handle->kinfo.netdev;
++	struct sk_buff *skb;
++
++	ring->skb = napi_alloc_skb(&ring->tqp_vector->napi, HNS3_RX_HEAD_SIZE);
++	skb = ring->skb;
++	if (unlikely(!skb)) {
++		netdev_err(netdev, "alloc rx skb fail\n");
++
++		u64_stats_update_begin(&ring->syncp);
++		ring->stats.sw_err_cnt++;
++		u64_stats_update_end(&ring->syncp);
++
++		return -ENOMEM;
++	}
++
++	prefetchw(skb->data);
++
++	ring->pending_buf = 1;
++	if (length <= HNS3_RX_HEAD_SIZE) {
++		memcpy(__skb_put(skb, length), va, ALIGN(length, sizeof(long)));
++
++		/* We can reuse buffer as-is, just make sure it is local */
++		if (likely(page_to_nid(desc_cb->priv) == numa_node_id()))
++			desc_cb->reuse_flag = 1;
++		else /* This page cannot be reused so discard it */
++			put_page(desc_cb->priv);
++
++		ring_ptr_move_fw(ring, next_to_clean);
++		return 0;
++	}
++	u64_stats_update_begin(&ring->syncp);
++	ring->stats.seg_pkt_cnt++;
++	u64_stats_update_end(&ring->syncp);
++
++	ring->pull_len = eth_get_headlen(va, HNS3_RX_HEAD_SIZE);
++	__skb_put(skb, ring->pull_len);
++	hns3_nic_reuse_page(skb, 0, ring, ring->pull_len,
++			    desc_cb);
++	ring_ptr_move_fw(ring, next_to_clean);
++
++	return HNS3_NEED_ADD_FRAG;
++}
++
++static int hns3_add_frag(struct hns3_enet_ring *ring, struct hns3_desc *desc,
++			 struct sk_buff **out_skb, bool pending)
++{
++	struct sk_buff *skb = *out_skb;
++	struct hns3_desc_cb *desc_cb;
++	struct hns3_desc *pre_desc;
++	u32 bd_base_info;
++	int pre_bd;
++
++	/* if there is pending bd, the SW param next_to_clean has moved
++	 * to next and the next is NULL
++	 */
++	if (pending) {
++		pre_bd = (ring->next_to_clean - 1 + ring->desc_num) %
++			ring->desc_num;
++		pre_desc = &ring->desc[pre_bd];
++		bd_base_info = le32_to_cpu(pre_desc->rx.bd_base_info);
++	} else {
++		bd_base_info = le32_to_cpu(desc->rx.bd_base_info);
++	}
++
++	while (!hnae3_get_bit(bd_base_info, HNS3_RXD_FE_B)) {
++		desc = &ring->desc[ring->next_to_clean];
++		desc_cb = &ring->desc_cb[ring->next_to_clean];
++		bd_base_info = le32_to_cpu(desc->rx.bd_base_info);
++		if (!hnae3_get_bit(bd_base_info, HNS3_RXD_VLD_B))
++			return -ENXIO;
++
++		hns3_nic_reuse_page(skb, ring->pending_buf, ring, 0, desc_cb);
++		ring_ptr_move_fw(ring, next_to_clean);
++		ring->pending_buf++;
++	}
++
++	return 0;
++}
++
+ static void hns3_set_rx_skb_rss_type(struct hns3_enet_ring *ring,
+ 				     struct sk_buff *skb)
+ {
+@@ -2399,18 +2483,16 @@ static void hns3_set_rx_skb_rss_type(struct hns3_enet_ring *ring,
+ }
+ 
+ static int hns3_handle_rx_bd(struct hns3_enet_ring *ring,
+-			     struct sk_buff **out_skb, int *out_bnum)
++			     struct sk_buff **out_skb)
+ {
+ 	struct net_device *netdev = ring->tqp->handle->kinfo.netdev;
++	struct sk_buff *skb = ring->skb;
+ 	struct hns3_desc_cb *desc_cb;
+ 	struct hns3_desc *desc;
+-	struct sk_buff *skb;
+-	unsigned char *va;
+ 	u32 bd_base_info;
+-	int pull_len;
+ 	u32 l234info;
+ 	int length;
+-	int bnum;
++	int ret;
+ 
+ 	desc = &ring->desc[ring->next_to_clean];
+ 	desc_cb = &ring->desc_cb[ring->next_to_clean];
+@@ -2422,9 +2504,10 @@ static int hns3_handle_rx_bd(struct hns3_enet_ring *ring,
+ 
+ 	/* Check valid BD */
+ 	if (unlikely(!hnae3_get_bit(bd_base_info, HNS3_RXD_VLD_B)))
+-		return -EFAULT;
++		return -ENXIO;
+ 
+-	va = (unsigned char *)desc_cb->buf + desc_cb->page_offset;
++	if (!skb)
++		ring->va = (unsigned char *)desc_cb->buf + desc_cb->page_offset;
+ 
+ 	/* Prefetch first cache line of first page
+ 	 * Idea is to cache few bytes of the header of the packet. Our L1 Cache
+@@ -2433,62 +2516,42 @@ static int hns3_handle_rx_bd(struct hns3_enet_ring *ring,
+ 	 * lines. In such a case, single fetch would suffice to cache in the
+ 	 * relevant part of the header.
+ 	 */
+-	prefetch(va);
++	prefetch(ring->va);
+ #if L1_CACHE_BYTES < 128
+-	prefetch(va + L1_CACHE_BYTES);
++	prefetch(ring->va + L1_CACHE_BYTES);
+ #endif
+ 
+-	skb = *out_skb = napi_alloc_skb(&ring->tqp_vector->napi,
+-					HNS3_RX_HEAD_SIZE);
+-	if (unlikely(!skb)) {
+-		netdev_err(netdev, "alloc rx skb fail\n");
++	if (!skb) {
++		ret = hns3_alloc_skb(ring, length, ring->va);
++		*out_skb = skb = ring->skb;
+ 
+-		u64_stats_update_begin(&ring->syncp);
+-		ring->stats.sw_err_cnt++;
+-		u64_stats_update_end(&ring->syncp);
+-
+-		return -ENOMEM;
+-	}
+-
+-	prefetchw(skb->data);
+-
+-	bnum = 1;
+-	if (length <= HNS3_RX_HEAD_SIZE) {
+-		memcpy(__skb_put(skb, length), va, ALIGN(length, sizeof(long)));
+-
+-		/* We can reuse buffer as-is, just make sure it is local */
+-		if (likely(page_to_nid(desc_cb->priv) == numa_node_id()))
+-			desc_cb->reuse_flag = 1;
+-		else /* This page cannot be reused so discard it */
+-			put_page(desc_cb->priv);
++		if (ret < 0) /* alloc buffer fail */
++			return ret;
++		if (ret > 0) { /* need add frag */
++			ret = hns3_add_frag(ring, desc, &skb, false);
++			if (ret)
++				return ret;
+ 
+-		ring_ptr_move_fw(ring, next_to_clean);
++			/* As the head data may be changed when GRO enable, copy
++			 * the head data in after other data rx completed
++			 */
++			memcpy(skb->data, ring->va,
++			       ALIGN(ring->pull_len, sizeof(long)));
++		}
+ 	} else {
+-		u64_stats_update_begin(&ring->syncp);
+-		ring->stats.seg_pkt_cnt++;
+-		u64_stats_update_end(&ring->syncp);
+-
+-		pull_len = eth_get_headlen(va, HNS3_RX_HEAD_SIZE);
+-
+-		memcpy(__skb_put(skb, pull_len), va,
+-		       ALIGN(pull_len, sizeof(long)));
+-
+-		hns3_nic_reuse_page(skb, 0, ring, pull_len, desc_cb);
+-		ring_ptr_move_fw(ring, next_to_clean);
++		ret = hns3_add_frag(ring, desc, &skb, true);
++		if (ret)
++			return ret;
+ 
+-		while (!hnae3_get_bit(bd_base_info, HNS3_RXD_FE_B)) {
+-			desc = &ring->desc[ring->next_to_clean];
+-			desc_cb = &ring->desc_cb[ring->next_to_clean];
+-			bd_base_info = le32_to_cpu(desc->rx.bd_base_info);
+-			hns3_nic_reuse_page(skb, bnum, ring, 0, desc_cb);
+-			ring_ptr_move_fw(ring, next_to_clean);
+-			bnum++;
+-		}
++		/* As the head data may be changed when GRO enable, copy
++		 * the head data in after other data rx completed
++		 */
++		memcpy(skb->data, ring->va,
++		       ALIGN(ring->pull_len, sizeof(long)));
+ 	}
+ 
+-	*out_bnum = bnum;
+-
+ 	l234info = le32_to_cpu(desc->rx.l234_info);
++	bd_base_info = le32_to_cpu(desc->rx.bd_base_info);
+ 
+ 	/* Based on hw strategy, the tag offloaded will be stored at
+ 	 * ot_vlan_tag in two layer tag case, and stored at vlan_tag
+@@ -2539,6 +2602,7 @@ static int hns3_handle_rx_bd(struct hns3_enet_ring *ring,
+ 	ring->tqp_vector->rx_group.total_bytes += skb->len;
+ 
+ 	hns3_rx_checksum(ring, skb, desc);
++	*out_skb = skb;
+ 	hns3_set_rx_skb_rss_type(ring, skb);
+ 
+ 	return 0;
+@@ -2551,9 +2615,9 @@ int hns3_clean_rx_ring(
+ #define RCB_NOF_ALLOC_RX_BUFF_ONCE 16
+ 	struct net_device *netdev = ring->tqp->handle->kinfo.netdev;
+ 	int recv_pkts, recv_bds, clean_count, err;
+-	int unused_count = hns3_desc_unused(ring);
+-	struct sk_buff *skb = NULL;
+-	int num, bnum = 0;
++	int unused_count = hns3_desc_unused(ring) - ring->pending_buf;
++	struct sk_buff *skb = ring->skb;
++	int num;
+ 
+ 	num = readl_relaxed(ring->tqp->io_base + HNS3_RING_RX_RING_FBDNUM_REG);
+ 	rmb(); /* Make sure num taken effect before the other data is touched */
+@@ -2567,24 +2631,32 @@ int hns3_clean_rx_ring(
+ 			hns3_nic_alloc_rx_buffers(ring,
+ 						  clean_count + unused_count);
+ 			clean_count = 0;
+-			unused_count = hns3_desc_unused(ring);
++			unused_count = hns3_desc_unused(ring) -
++					ring->pending_buf;
+ 		}
+ 
+ 		/* Poll one pkt */
+-		err = hns3_handle_rx_bd(ring, &skb, &bnum);
++		err = hns3_handle_rx_bd(ring, &skb);
+ 		if (unlikely(!skb)) /* This fault cannot be repaired */
+ 			goto out;
+ 
+-		recv_bds += bnum;
+-		clean_count += bnum;
+-		if (unlikely(err)) {  /* Do jump the err */
+-			recv_pkts++;
++		if (err == -ENXIO) { /* Do not get FE for the packet */
++			goto out;
++		} else if (unlikely(err)) {  /* Do jump the err */
++			recv_bds += ring->pending_buf;
++			clean_count += ring->pending_buf;
++			ring->skb = NULL;
++			ring->pending_buf = 0;
+ 			continue;
+ 		}
+ 
+ 		/* Do update ip stack process */
+ 		skb->protocol = eth_type_trans(skb, netdev);
+ 		rx_fn(ring, skb);
++		recv_bds += ring->pending_buf;
++		clean_count += ring->pending_buf;
++		ring->skb = NULL;
++		ring->pending_buf = 0;
+ 
+ 		recv_pkts++;
+ 	}
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.h b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.h
+index 10ff18af3cc7..d8c0998127be 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.h
+@@ -401,11 +401,17 @@ struct hns3_enet_ring {
+ 	 */
+ 	int next_to_clean;
+ 
++	int pull_len; /* head length for current packet */
++	unsigned char *va; /* first buffer address for current packet */
++
+ 	u32 flag;          /* ring attribute */
+ 	int irq_init_flag;
+ 
+ 	int numa_node;
+ 	cpumask_t affinity_mask;
++
++	int pending_buf;
++	struct sk_buff *skb;
+ };
+ 
+ struct hns_queue;
+-- 
+2.17.1
+

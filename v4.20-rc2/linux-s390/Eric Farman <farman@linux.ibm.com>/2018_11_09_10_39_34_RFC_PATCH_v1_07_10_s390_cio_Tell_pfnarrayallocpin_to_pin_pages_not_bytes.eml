@@ -1,0 +1,195 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 09 Nov 2018 05:30:36 -0000
+Received: from icoremail.net (unknown [209.85.210.171])
+	by mail-app2 (Coremail) with SMTP id by_KCgDnX_uv8+RbaVJkAQ--.30672S3;
+	Fri, 09 Nov 2018 10:40:48 +0800 (CST)
+Received: from mail-pf1-f171.google.com (unknown [209.85.210.171])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwAnAT2r8+RbbAQgAA--.14963S3;
+	Fri, 09 Nov 2018 10:40:43 +0800 (CST)
+Received: by mail-pf1-f171.google.com with SMTP id g7-v6so213256pfo.10
+        for <xuliker@zju.edu.cn>; Thu, 08 Nov 2018 18:40:43 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :from:to:cc:subject:date:in-reply-to:references:message-id:sender
+         :precedence:list-id;
+        bh=MR79yS8UQkeitZR0lFnZMBPxeCzVuAYe1y+0rBW4kBs=;
+        b=IbJBg75GVxYMirVy+gO+Xtyf4lWzEDQMOPlt5wJH2ogF228IQgYkeMgc1RU5ronFfz
+         Zmt893hOKYrOypwIdzcPSBUHDi4A5uOHs+W6TkVy8mDwfKe+wCBFboeaCATaABtO0unP
+         Wp2Y96wGd5PhJm9afehO2ybRoQPbnsA7GLkQE//N9+R7dn/yT4yp+81XBqLlcgyVjqrQ
+         sVWvMyZZ9r+Sp9V0FEA1snuqN56ow4wYdnLOknVJZVgocfX8ZCdjjvKwFH6ewjqhGhhd
+         T5cir00ktAOMocpc0kWf8zQrvlaU7vrViRGKeaxBW887hNYqkaafOv9dUqJeCyiP2hGc
+         VKUQ==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=ibm.com
+X-Gm-Message-State: AGRZ1gJRmT+3Yl1Wlj+8s5t6sc8Rb8HErE3JuZupbGFmpQ/k6a6LhLSa
+	5BQzlrzYU+s6iQnX9iNi3D6t/sjeKJCIny7kBjr6tDiRzSt4nU4n6Q==
+X-Received: by 2002:a63:2315:: with SMTP id j21mr5997716pgj.297.1541731243179;
+        Thu, 08 Nov 2018 18:40:43 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp999821pjt;
+        Thu, 8 Nov 2018 18:40:41 -0800 (PST)
+X-Google-Smtp-Source: AJdET5e4otbb84DQTGgj7JPM9IcyXOppXd+devOQ+Jeq5LVt7BOdl9Bz4RpgCkyp+2b182HBT/iv
+X-Received: by 2002:a17:902:20c5:: with SMTP id v5-v6mr7154503plg.156.1541731241442;
+        Thu, 08 Nov 2018 18:40:41 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1541731241; cv=none;
+        d=google.com; s=arc-20160816;
+        b=t09AtE8u0D31b82AynKAK15DNtxFtua3mnRx/ywtfvo9FVTKWDb5rci1FbxBQy1IS3
+         Pq7H+f4Un5Qm3IV6ccRinONuRMSQKJc6owtE1tVWWGH+XnhoYUAVdrawAuoN4pP6tI+O
+         Qg/zGxvNG04v15R4uwzS8Iwkee9dcNyIxDlfIUPQNHQYDa1KCGAIbVT6OId/Ov4M6IDi
+         AeUNw9FhIHOCmQJT1yKcVP9O787/2Py/zI/h3wNKKiCEsb+pnF3OZxiMMhb3kOK6SL2T
+         81PueCbpuNqnrSslffK5MkMlDKsDgDMaQYdgkztj9IlfknnIYunI2ly6CC7V27I9iCd/
+         uyjw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:message-id:references:in-reply-to:date
+         :subject:cc:to:from;
+        bh=MR79yS8UQkeitZR0lFnZMBPxeCzVuAYe1y+0rBW4kBs=;
+        b=C+qYjsGkl1jDppJ8LVnF4XR5LznNRmvSWNSqlg++UIHeDNQK/nbu/8AhdyAMC2Arxu
+         HfGlwVqOvRsRtTHzBqMdbg73jCqzrTbGtYkw7hjdtwSanFYfKL5n9wZTAYcUNNAwlQbc
+         T7kcyRobWsGaCf4PwU7teeRWu690CJhQ8fe9cR7y840d3VpXAalbgD8FBjuJqoEOelZ/
+         yvqNicy9j17NzOyO8F8JMtP3DcPfFyL/YQaCKxBbEzwWgya7CLn6qxfwJifUOKqU7GqC
+         ZBFx3NIVbIgN6sHhNhzcLkP7MbqItlhWtDlaz89Elf3jc92a2r6IVkeqHnXAqThYK2v7
+         WB8Q==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=ibm.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id bh4-v6si6088805plb.386.2018.11.08.18.40.24;
+        Thu, 08 Nov 2018 18:40:41 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1727827AbeKIMSl (ORCPT <rfc822;fanshuming2011@gmail.com>
+        + 99 others); Fri, 9 Nov 2018 07:18:41 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:34430 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727634AbeKIMSl (ORCPT
+        <rfc822;kvm@vger.kernel.org>); Fri, 9 Nov 2018 07:18:41 -0500
+Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.22/8.16.0.22) with SMTP id wA92XVj4127805
+        for <kvm@vger.kernel.org>; Thu, 8 Nov 2018 21:40:09 -0500
+Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2nmym9c4ka-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <kvm@vger.kernel.org>; Thu, 08 Nov 2018 21:40:09 -0500
+Received: from localhost
+        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <kvm@vger.kernel.org> from <farman@linux.ibm.com>;
+        Fri, 9 Nov 2018 02:40:07 -0000
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (9.149.109.195)
+        by e06smtp02.uk.ibm.com (192.168.101.132) with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted;
+        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256/256)
+        Fri, 9 Nov 2018 02:40:05 -0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id wA92e3iH62849128
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
+        Fri, 9 Nov 2018 02:40:03 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 845F852051;
+        Fri,  9 Nov 2018 02:40:03 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTPS id 7279052050;
+        Fri,  9 Nov 2018 02:40:03 +0000 (GMT)
+Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 4958)
+        id 00FFB20F64E; Fri,  9 Nov 2018 03:40:02 +0100 (CET)
+From: Eric Farman <farman@linux.ibm.com>
+To: Cornelia Huck <cohuck@redhat.com>,
+        Pierre Morel <pmorel@linux.ibm.com>
+Cc: Eric Farman <farman@linux.ibm.com>, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org, Halil Pasic <pasic@linux.ibm.com>,
+        Farhan Ali <alifm@linux.ibm.com>,
+        "Jason J . Herne" <jjherne@linux.ibm.com>
+Subject: [RFC PATCH v1 07/10] s390/cio: Tell pfn_array_alloc_pin to pin pages, not bytes
+Date: Fri,  9 Nov 2018 03:39:34 +0100
+X-Mailer: git-send-email 2.16.4
+In-Reply-To: <20181109023937.96105-1-farman@linux.ibm.com>
+References: <20181109023937.96105-1-farman@linux.ibm.com>
+X-TM-AS-GCONF: 00
+x-cbid: 18110902-0008-0000-0000-0000028F7601
+X-IBM-AV-DETECTION: SAVI=unused REMOTE=unused XFE=unused
+x-cbparentid: 18110902-0009-0000-0000-000021F9BCC6
+Message-Id: <20181109023937.96105-8-farman@linux.ibm.com>
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2018-11-08_13:,,
+ signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ malwarescore=0 suspectscore=0 phishscore=0 bulkscore=0 spamscore=0
+ clxscore=1015 lowpriorityscore=0 mlxscore=0 impostorscore=0
+ mlxlogscore=999 adultscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.0.1-1807170000 definitions=main-1811090022
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwAnAT2r8+RbbAQgAA--.14963S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW7AF47ZrWUuF4fZw1rtFWUurg_yoW8AF45pF
+	W3tw1jyw4fJryxua4rAaykCFyrA34xGrZ3Kayxu3y5ZFW5JF9FqryUKFWFvrs5ZrW8CFy2
+	qFWFya4Du3WDXrJanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUPYb7Iv0xC_tr1lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Xr0_Ar1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1l84ACjcxK6I8E
+	87Iv67AKxVW0oVCq3wA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_GcCE3s1le2I262IYc4CY6c
+	8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_Jr0_
+	Jr4lYx0Ex4A2jsIE14v26r4j6F4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvY0x0EwI
+	xGrwCjxxvEa2IrMxkF7I0Ew4C26cxK6c8Ij28IcwCY1Ik26cxK6xAEc7vF6xCjj44lc2xS
+	Y4AK6IIF6r4UMxkI7II2jI8vz4vEwIxGrwCYIxAIcVC0I7IYx2IY67AKxVW8JVW5JwCYIx
+	AIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMxvI42IY6I8E87Iv67AKxVW0oVCq3wCYIxAI
+	cVC2z280aVCY1x0267AKxVW0oVCq3wCF04k20xvY0x0EwIxGrwCF04k20xvEw4C26cxK6c
+	8Ij28IcwCF72vE77IF4wCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v26r1j
+	6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_Jw0_GFylIxkGc2Ij64
+	vIr41lIxAIcVCF04k26cxKx2IYs7xG6r1j6r1xYxBIdaVFxhVjvjDU0xZFpf9x07bO6wZU
+	UUUU=
+
+This simplifies the code a little bit, both now and for later patches.
+
+The inline function idal_nr_words() performs the same function that
+we were doing here, which is figure out how many pages a given
+contiguous piece of memory might span.  (That is, len/4K if aligned
+on a 4K page, or len/4K + 1 if not.)  So we'll use this routine as
+a matter of convenience, even though we're not building an IDAL.
+
+Signed-off-by: Eric Farman <farman@linux.ibm.com>
+---
+ drivers/s390/cio/vfio_ccw_cp.c | 10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
+index efc30152a89a..5f16aa88c629 100644
+--- a/drivers/s390/cio/vfio_ccw_cp.c
++++ b/drivers/s390/cio/vfio_ccw_cp.c
+@@ -54,7 +54,7 @@ struct ccwchain {
+  * @pa: pfn_array on which to perform the operation
+  * @mdev: the mediated device to perform pin/unpin operations
+  * @iova: target guest physical address
+- * @len: number of bytes that should be pinned from @iova
++ * @len: number of pages that should be pinned from @iova
+  *
+  * Attempt to allocate memory for PFNs, and pin user pages in memory.
+  *
+@@ -80,10 +80,7 @@ static int pfn_array_alloc_pin(struct pfn_array *pa, struct device *mdev,
+ 		return -EINVAL;
+ 
+ 	pa->pa_iova = iova;
+-
+-	pa->pa_nr = ((iova & ~PAGE_MASK) + len + (PAGE_SIZE - 1)) >> PAGE_SHIFT;
+-	if (!pa->pa_nr)
+-		return -EINVAL;
++	pa->pa_nr = len;
+ 
+ 	pa->pa_iova_pfn = kcalloc(pa->pa_nr,
+ 				  sizeof(*pa->pa_iova_pfn) +
+@@ -209,7 +206,8 @@ static long copy_from_iova(struct device *mdev,
+ 	int i, ret;
+ 	unsigned long l, m;
+ 
+-	ret = pfn_array_alloc_pin(&pa, mdev, iova, n);
++	ret = pfn_array_alloc_pin(&pa, mdev, iova,
++				  idal_nr_words((void *)(iova), n));
+ 	if (ret <= 0)
+ 		return ret;
+ 
+-- 
+2.16.4

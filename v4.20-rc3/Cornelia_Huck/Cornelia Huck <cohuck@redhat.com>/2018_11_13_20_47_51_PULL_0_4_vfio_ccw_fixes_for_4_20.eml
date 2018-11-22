@@ -1,0 +1,144 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (61.164.42.155:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 13 Nov 2018 15:24:18 -0000
+Received: from icoremail.net (unknown [209.85.210.178])
+	by mail-app2 (Coremail) with SMTP id by_KCgDHH3oZyOpbkT+GAQ--.40067S3;
+	Tue, 13 Nov 2018 20:48:26 +0800 (CST)
+Received: from mail-pf1-f178.google.com (unknown [209.85.210.178])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwBn4EwXyOpbpWU4AA--.3540S3;
+	Tue, 13 Nov 2018 20:48:23 +0800 (CST)
+Received: by mail-pf1-f178.google.com with SMTP id b81-v6so5506049pfe.11
+        for <xuliker@zju.edu.cn>; Tue, 13 Nov 2018 04:48:23 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :from:to:cc:subject:date:message-id:sender:precedence:list-id;
+        bh=r4THZw1cmwgET+lK5qcaBTHR2IxoVMWHSXpZhQYKReg=;
+        b=jdKCEvHGDnKvE+XZACVleyI3y4zd7mHBqR0hkcZBt4YcXvhGpfoGuXuzPiZsaxIgbI
+         q74eL658n3s8AVbCiFP8q6Y3bbWw4T2rXQzYGYhvPsNLnWfrxGqQyGMx058NPri3TnT/
+         V4UIrsEATX/W8Y5oet6kSHxmi3Vwnm31DWiPVQvjH6+L2PL5194A77rKugNiS6+odvdL
+         60SC3jUKVW6WG5llyfi7d51+7VUdZK+Mal+4zO4X5/gJagzkxM47iuhOsXIWWvGRK2QE
+         WzRMduJkO5ZfyRHhBEDQ0fnBVFpC+kVSHoomdqLBe4V+v9Ee7rE8x5d40dccisLkXxlF
+         2bew==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=redhat.com
+X-Gm-Message-State: AGRZ1gIDXXYPmNgfCo+qcNWiP09rgzX538o9DVybpVrrKi04w9vL7C+c
+	pBGBE6CYG+/GIRqzMIoyvBQ9LgqfyyxM2lPFlgtLKRnThVC/PCtSCQ==
+X-Received: by 2002:a63:1d10:: with SMTP id d16-v6mr4500218pgd.228.1542113303180;
+        Tue, 13 Nov 2018 04:48:23 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp4420630pjt;
+        Tue, 13 Nov 2018 04:48:22 -0800 (PST)
+X-Google-Smtp-Source: AJdET5frsGuszE1i/nLRB/pGvqnUQS5oEEUmaDQZeyUzGfge41hVgly9eqpPQ1rwwThzmtDSFK26
+X-Received: by 2002:a17:902:ab81:: with SMTP id f1-v6mr5043103plr.103.1542113302539;
+        Tue, 13 Nov 2018 04:48:22 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542113302; cv=none;
+        d=google.com; s=arc-20160816;
+        b=pvfPOWxD/N+zmyLLQKWmcHSQw7Vhx2UVW66X8xAPmKtKNcPCV16dxLrynhKnaQAEeN
+         dKrED3oNMM1pPg0m4rlshX7LABljjSRKZ/jjVSSUaR4L5IR4HQRGe6kNLurdFXuAf/xZ
+         SDN28jVZGu+NA6pl2tb8PN6Sp8ifCHdac1JqDsAcb98yQ9iMMWYieGqOhGNXGajB3vak
+         h620t+bCT73a07tL4+ZPCvNeANRiestVCOtZKPLhHcR1iKaDi5ZzEBIYN0a73I9VnJyD
+         qH1XLxTqv+pmwEDVMvSoYXT76YDkuYHCFtCK380FAOOkhIuJUihXVP2CUpNeCTLQ5yER
+         LMrQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:message-id:date:subject:cc:to:from;
+        bh=r4THZw1cmwgET+lK5qcaBTHR2IxoVMWHSXpZhQYKReg=;
+        b=lIwuItqhCI+bfSQ/DVeKGg674DrrBSD4SuCWI5SwlRAh/9hI6dkoJDM7fLer6EIB5X
+         Pf+DxUvwNzGz3bjTzgjYV0b6I+PAjP0kfYTyVSbltczViXai1c4wJdMOpxxwCbL4E/z7
+         NrLse+0L3OAhYTlbMg5eTVIf+85onTP7kAsROidVX85RsCxMyoHWW7xwQbd2Odek7SYZ
+         eaXb0fzjdb9dxrwOJQjDzxHohqBwu26ly0mc2Gxoy9Cus74RwJItxzoNVMDpYPJT1k35
+         ZAP9JiIH9kqnCsCGJxccXhwISCh9JFtq2JdxzvbkYlbQ08ArF9nAgNxIQpSADxpiwvrq
+         QZMA==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=redhat.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id v69si19310577pgd.284.2018.11.13.04.48.09;
+        Tue, 13 Nov 2018 04:48:22 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1733071AbeKMWp5 (ORCPT <rfc822;fanshuming2011@gmail.com>
+        + 99 others); Tue, 13 Nov 2018 17:45:57 -0500
+Received: from mx1.redhat.com ([209.132.183.28]:34656 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1733060AbeKMWp5 (ORCPT <rfc822;kvm@vger.kernel.org>);
+        Tue, 13 Nov 2018 17:45:57 -0500
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 4174A307B95E;
+        Tue, 13 Nov 2018 12:47:58 +0000 (UTC)
+Received: from localhost (dhcp-192-222.str.redhat.com [10.33.192.222])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id D9CEB1001914;
+        Tue, 13 Nov 2018 12:47:57 +0000 (UTC)
+From: Cornelia Huck <cohuck@redhat.com>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>,
+        Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>
+Subject: [PULL 0/4] vfio-ccw fixes for 4.20
+Date: Tue, 13 Nov 2018 13:47:51 +0100
+Message-Id: <20181113124755.4798-1-cohuck@redhat.com>
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.47]); Tue, 13 Nov 2018 12:47:58 +0000 (UTC)
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwBn4EwXyOpbpWU4AA--.3540S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvdXoW7Jw1UJry7tFyDJFW5Zry7ZFb_yoWDKrb_JF
+	yrJa10qr4UXFyDta47Cr17trWjkw4UGr1jyr17tF47Jw17JryrAr18trW7Wry8WFsxAF1D
+	Wr1Ut345Cr1UujkaLaAFLSUrUUUUUb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAU7a7-sFnT
+	9fnUUIcSsGvfJTRUUUb6AYjsxI4VW3JwAYFVCjjxCrM7AC8VAFwI0_Jr0_Gr1l1IIY67AE
+	w4v_Jr0_Jr4l8cAvFVAK0II2c7xJM28CjxkF64kEwVA0rcxSw2x7M28EF7xvwVC0I7IYx2
+	IY67AKxVW7JVWDJwA2z4x0Y4vE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwA2z4x0Y4vEx4A2
+	jsIE14v26rxl6s0DM28EF7xvwVC2z280aVCY1x0267AKxVW0oVCq3wAS0I0E0xvYzxvE52
+	x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AKxVWUJVWU
+	GwAv7VC2z280aVAFwI0_Gr0_Cr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcVAKI48JMx
+	02cVCv0xWlc7CjxVAKzI0EY4vE52x082I5MxkFs20EY4vE44CYbxCE4x80FwCY02Avz4vE
+	IxC_Xr1lc2IjII80xcxEwVAKI48JMxvI42IY6xIIjxv20xvE14v26r1I6r4UMxvI42IY6x
+	IIjxv20xvEc7CjxVAFwI0_Jr0_Gr1lcIIF0xvEx4A2jsIE14v26rxl6s0DMxvI42IY6I8E
+	87Iv6xkF7I0E14v26rxl6s0DMxAIw28IcxkI7VAKI48JMxAIw28IcVAKzI0EY4vE52x082
+	I5MxCjnVCjjxCrMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr0_Jr4l
+	x2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWUAVWUtwCIc40Y0x0EwIxGrw
+	CI42IY6xAIw20EY4v20xvaj40_Gr0_ZrUvcSsGvfC2KfnxnUUI43ZEXa7IU5sJ55UUUUU=
+	=
+
+The following changes since commit ccda4af0f4b92f7b4c308d3acc262f4a7e3affad:
+
+  Linux 4.20-rc2 (2018-11-11 17:12:31 -0600)
+
+are available in the Git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/vfio-ccw.git tags/vfio-ccw-20181113
+
+for you to fetch changes up to b89e242eee8d4cd8261d8d821c62c5d1efc454d0:
+
+  s390/cio: Fix cleanup when unsupported IDA format is used (2018-11-13 11:45:17 +0100)
+
+----------------------------------------------------------------
+several bugfixes for vfio-ccw
+
+----------------------------------------------------------------
+
+Eric Farman (2):
+  s390/cio: Fix cleanup of pfn_array alloc failure
+  s390/cio: Fix cleanup when unsupported IDA format is used
+
+Pierre Morel (1):
+  vfio: ccw: Register mediated device once all structures are
+    initialized
+
+Sebastian Ott (1):
+  s390/cio: make vfio_ccw_io_region static
+
+ drivers/s390/cio/vfio_ccw_cp.c  |  6 ++++--
+ drivers/s390/cio/vfio_ccw_drv.c | 10 +++++-----
+ 2 files changed, 9 insertions(+), 7 deletions(-)
+
+-- 
+2.17.2

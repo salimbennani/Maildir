@@ -1,0 +1,193 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (61.164.42.155:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 10 Nov 2018 00:54:26 -0000
+Received: from icoremail.net (unknown [209.85.214.171])
+	by mail-app2 (Coremail) with SMTP id by_KCgDHH3qztOVbtv9oAQ--.31731S3;
+	Sat, 10 Nov 2018 00:24:20 +0800 (CST)
+Received: from mail-pl1-f171.google.com (unknown [209.85.214.171])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwA3FECxtOVbNk8jAA--.962S3;
+	Sat, 10 Nov 2018 00:24:17 +0800 (CST)
+Received: by mail-pl1-f171.google.com with SMTP id p6-v6so1163960pll.4
+        for <xuliker@zju.edu.cn>; Fri, 09 Nov 2018 08:24:17 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :date:from:to:cc:subject:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding:sender:precedence:list-id;
+        bh=D2/RrY4yCIne6C1EN3KPk3K569O3Z/me3vdNTz9lYNs=;
+        b=KbPnqhHaLcoQ4HLMq7sD5tADRdOMe+bdPgjGj8g5MH5ImmNbT6jlITEBvqXPPSIJyw
+         OCHw9J6Q0gFy5K2nDWqiAaxp3qErohy4movQgLChtDI6E/1SvMsvSx3L9BHOLnw+Dc+2
+         RjTjcqaRx4X1xVrTP7xVQWvtn8luYz9aCW0DxyTTeHxbP3NmwF4S/ApTpVCmsN74+uW0
+         koflMpZDErJh4PVvL0TjHKvXsNKNBS2OEjjmkGvZ9D6ONzJVJKO3JW2ifOxapLtxHGkT
+         hA1RLRrjuVSOjmqDBDhViIzjGhBbEMydqOzAiC8PRIzk5H4p3qit4C1P0+407sgvTb7Z
+         dFYg==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=redhat.com
+X-Gm-Message-State: AGRZ1gJs3HbeXIoNrdQK4TJ60S1DsNm24Bol//9DPPeWHqAeRbimvAmm
+	pfVkNkf6SI/ufTxPca0pC1plcyct9Y9wzdQiqxJXgjAGGueodiLwrQ==
+X-Received: by 2002:a17:902:7082:: with SMTP id z2-v6mr9638037plk.78.1541780657246;
+        Fri, 09 Nov 2018 08:24:17 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp94292pjt;
+        Fri, 9 Nov 2018 08:24:16 -0800 (PST)
+X-Google-Smtp-Source: AJdET5faq3Qy3rgSzeRJf3FARSEj5ywO9TLFenXTC0UMo92DBIU9pXn3S/OMv/0AC1a12CaLCFyU
+X-Received: by 2002:aa7:8498:: with SMTP id u24-v6mr9646703pfn.220.1541780656555;
+        Fri, 09 Nov 2018 08:24:16 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1541780656; cv=none;
+        d=google.com; s=arc-20160816;
+        b=uuGPH7i+NaPtnHn3TQyWCVG7PyCSnXlMvTWYRC6wWzNSqAjadJHy25FEO2yvcwO/zB
+         SN0JGmlMegLatR0B5QoGYv9R14UP+jDUihdHG2wlv8f5CBzue23mVoPXeqGVCCzdAWG+
+         Fon/RY2p1p/IAf2xlMCXmJCWIFh4qr1ILHKbycKBJWPb3FesK2A98DvepswZEE3jUHsI
+         1Ae2xCR3cVS75Nkq2NEzuerol856NlRbDP1OBheHn01k7uZiwJPsLg4g3jGvQnM3vazh
+         Q5gRYaD/zRE/t1KM0KeiRtg2xJPHwqrr4JBo4D1H5enFlGWYHEjTR/NavIWItyG5Ptiv
+         AY0g==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:content-transfer-encoding:mime-version
+         :references:in-reply-to:message-id:subject:cc:to:from:date;
+        bh=D2/RrY4yCIne6C1EN3KPk3K569O3Z/me3vdNTz9lYNs=;
+        b=gA5IFJKxJTllEBptMx0iqDp8MwxFEMBDBu4dLL/ocNSSQtPXFsNfKYu59lYosoujGi
+         7tQ6xYuuvl0Aaiww06bLrWxP4UjAekmcsZo7GVwvCnvbPnTd4Oi92lPjLvDsUe8ozTr/
+         FpT58wgmwpWy0bcuYVmKBX9V5/kPneOpdcT9kB+DsNAC4/MNASoqy70HTtM8b6uj5e4q
+         J/2OyT5ACFQRhfYNzYD7GxGefRK1PZgt/euH+dQL384ma5EfKi71WiZgLdLrRyRQceXo
+         lAwB5806NEZmAsJhpPRWxtoILQlsGcBOgmPOdb+I3WVZZnWZwUWQuLYoDBwBrDoVKSJm
+         KfKA==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=redhat.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id v16-v6si7969458plo.417.2018.11.09.08.23.53;
+        Fri, 09 Nov 2018 08:24:16 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1728322AbeKJCEq (ORCPT <rfc822;fanshuming2011@gmail.com>
+        + 99 others); Fri, 9 Nov 2018 21:04:46 -0500
+Received: from mx1.redhat.com ([209.132.183.28]:59524 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727941AbeKJCEq (ORCPT <rfc822;kvm@vger.kernel.org>);
+        Fri, 9 Nov 2018 21:04:46 -0500
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id DABB185A07;
+        Fri,  9 Nov 2018 16:23:30 +0000 (UTC)
+Received: from t450s.home (ovpn-116-133.phx2.redhat.com [10.3.116.133])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 6400C5D736;
+        Fri,  9 Nov 2018 16:23:30 +0000 (UTC)
+Date: Fri, 9 Nov 2018 09:23:29 -0700
+From: Alex Williamson <alex.williamson@redhat.com>
+To: Joerg Roedel <joro@8bytes.org>
+Cc: iommu@lists.linux-foundation.org, kvm@vger.kernel.org,
+        linux-kernel@vger.kernel.org, jroedel@suse.de
+Subject: Re: [PATCH 7/7] vfio/type1: Remove map_try_harder() code path
+Message-ID: <20181109092329.79b0fe91@t450s.home>
+In-Reply-To: <20181109110712.12469-8-joro@8bytes.org>
+References: <20181109110712.12469-1-joro@8bytes.org>
+        <20181109110712.12469-8-joro@8bytes.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.26]); Fri, 09 Nov 2018 16:23:31 +0000 (UTC)
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwA3FECxtOVbNk8jAA--.962S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW7KrW5uF4ftw4xCr4rAFWfGrg_yoW5JrWDpF
+	sxGry7Cw4xtr4xuFyj9wsYvFZ0va4aqFy7Z3y5X39YvFyDZrnFqrW8CFWSyr9Y9rWUAF1x
+	Zr48CrZ8Ka4UZFJanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUP2b7Iv0xC_tr1lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_tr0E3s1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2
+	z280aVAFwI0_Gr1j6F4UJwA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_Gr1j6F4UJwAS0I0E0x
+	vYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AK
+	xVWUJVWUGwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcV
+	AKI48JMx02cVCv0xWlc7CjxVAKzI0EY4vE52x082I5MxkFs20EY4vE44CYbxCE4x80FwCY
+	02Avz4vEIxC_JwCY0x0Ix7I2Y4AK64vIr41lcIIF0xvE2Ix0cI8IcVAFwI0_Gr0_Xr1lcI
+	IF0xvE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwCYIxAIcVC2z280aVAFwI0_Gr0_Cr1lcIIF
+	0xvEx4A2jsIEc7CjxVAFwI0_Gr0_Gr1UMxAIw28IcxkI7VAKI48JMxAIw28IcVAKzI0EY4
+	vE52x082I5MxCjnVCjjxCrMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_
+	Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWUAVWUtwCIc40Y0x
+	0EwIxGrwCI42IY6xAIw20EY4v20xvaj40_Gr0_ZrUvcSsGvfC2KfnxnUUI43ZEXa7IU5hA
+	w7UUUUU==
+
+On Fri,  9 Nov 2018 12:07:12 +0100
+Joerg Roedel <joro@8bytes.org> wrote:
+
+> From: Joerg Roedel <jroedel@suse.de>
+> 
+> The AMD IOMMU driver can now map a huge-page where smaller
+> mappings existed before, so this code-path is no longer
+> triggered.
+> 
+> Signed-off-by: Joerg Roedel <jroedel@suse.de>
+> ---
+>  drivers/vfio/vfio_iommu_type1.c | 33 ++-------------------------------
+>  1 file changed, 2 insertions(+), 31 deletions(-)
+
+Cool, glad to see this finally fixed.  My "should be fixed soon"
+comment turned out to be a little optimistic with the fix finally
+coming 5 years later.  We could of course keep this code as it really
+doesn't harm anything, but I'm in favor trying to remove it if we think
+it's dead now.  In order to expedite into one pull:
+
+Acked-by: Alex Williamson <alex.williamson@redhat.com>
+
+Thanks,
+Alex
+ 
+> diff --git a/drivers/vfio/vfio_iommu_type1.c b/drivers/vfio/vfio_iommu_type1.c
+> index d9fd3188615d..7651cfb14836 100644
+> --- a/drivers/vfio/vfio_iommu_type1.c
+> +++ b/drivers/vfio/vfio_iommu_type1.c
+> @@ -978,32 +978,6 @@ static int vfio_dma_do_unmap(struct vfio_iommu *iommu,
+>  	return ret;
+>  }
+>  
+> -/*
+> - * Turns out AMD IOMMU has a page table bug where it won't map large pages
+> - * to a region that previously mapped smaller pages.  This should be fixed
+> - * soon, so this is just a temporary workaround to break mappings down into
+> - * PAGE_SIZE.  Better to map smaller pages than nothing.
+> - */
+> -static int map_try_harder(struct vfio_domain *domain, dma_addr_t iova,
+> -			  unsigned long pfn, long npage, int prot)
+> -{
+> -	long i;
+> -	int ret = 0;
+> -
+> -	for (i = 0; i < npage; i++, pfn++, iova += PAGE_SIZE) {
+> -		ret = iommu_map(domain->domain, iova,
+> -				(phys_addr_t)pfn << PAGE_SHIFT,
+> -				PAGE_SIZE, prot | domain->prot);
+> -		if (ret)
+> -			break;
+> -	}
+> -
+> -	for (; i < npage && i > 0; i--, iova -= PAGE_SIZE)
+> -		iommu_unmap(domain->domain, iova, PAGE_SIZE);
+> -
+> -	return ret;
+> -}
+> -
+>  static int vfio_iommu_map(struct vfio_iommu *iommu, dma_addr_t iova,
+>  			  unsigned long pfn, long npage, int prot)
+>  {
+> @@ -1013,11 +987,8 @@ static int vfio_iommu_map(struct vfio_iommu *iommu, dma_addr_t iova,
+>  	list_for_each_entry(d, &iommu->domain_list, next) {
+>  		ret = iommu_map(d->domain, iova, (phys_addr_t)pfn << PAGE_SHIFT,
+>  				npage << PAGE_SHIFT, prot | d->prot);
+> -		if (ret) {
+> -			if (ret != -EBUSY ||
+> -			    map_try_harder(d, iova, pfn, npage, prot))
+> -				goto unwind;
+> -		}
+> +		if (ret)
+> +			goto unwind;
+>  
+>  		cond_resched();
+>  	}

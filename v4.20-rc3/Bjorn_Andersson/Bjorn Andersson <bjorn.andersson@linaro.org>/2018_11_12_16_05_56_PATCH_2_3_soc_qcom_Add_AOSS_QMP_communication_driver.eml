@@ -1,0 +1,508 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (61.164.42.155:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 12 Nov 2018 15:13:45 -0000
+Received: from icoremail.net (unknown [209.85.215.180])
+	by mail-app2 (Coremail) with SMTP id by_KCgDXvwrlNOlbtuR7AQ--.37384S3;
+	Mon, 12 Nov 2018 16:08:06 +0800 (CST)
+Received: from mail-pg1-f180.google.com (unknown [209.85.215.180])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwD33UmxM+lbRYswAA--.1000S3;
+	Mon, 12 Nov 2018 16:02:57 +0800 (CST)
+Received: by mail-pg1-f180.google.com with SMTP id n10-v6so3692635pgv.10
+        for <xuliker@zju.edu.cn>; Mon, 12 Nov 2018 00:02:57 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:delivered-to:dkim-signature:from:to:cc:subject
+         :date:message-id:in-reply-to:references:sender:precedence:list-id;
+        bh=yWAg4gljNrz5fiygCPdoWrW7oKiVUtzBnr6OWGeFQa4=;
+        b=ZTnH3yme84rdmF8AJMwdudIMt5Rj9fuC8ZfTw/sftBc8xcUdMEwRP9pOmwfLG6ywNR
+         atH/+W595f167xfpdtu0kG1c/EjoUyeZgATYHMxltlyIC6EmiJr1UVcFxFA3pj8xHFF8
+         IlpHZL/AWtjZUcTQyXzIhrMVwRr/zKeO8qSYh3CyhsG3oARuIwtHqSWWYOl4yusGd3kp
+         Cwft/jHuW+rYQ9LWr415ae9ejzp+W9QEnCyeQ4s5Ogd/Kt+KIE162SEso+0TWj3vdxGm
+         uEUKwY7cEKeJwj5Qis02lZZnGN1tyVTPsBb76jwQkTdxtcTA0C+bKvBGugk8V8qyfnvl
+         ng+A==
+X-Gm-Message-State: AGRZ1gL5wmHPp7yRIMmQYp+9S4V6phGvlTaUKnTPyNf2r3TO6xeqJ3+g
+	DhN61zHQ/Ch+7/P/+ulv9gNBTu3cuIyfAqWfgEKTzawrkNGdfN96TQ==
+X-Received: by 2002:a63:a91a:: with SMTP id u26mr16375011pge.349.1542009777212;
+        Mon, 12 Nov 2018 00:02:57 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp2902584pjt;
+        Mon, 12 Nov 2018 00:02:56 -0800 (PST)
+X-Google-Smtp-Source: AJdET5e21eHIjhrvT53NoTfjWKnBVIYixK9OvlIUCuxnAAjOVzbqtqMnNGSQj8OSy5stK4SaM/VS
+X-Received: by 2002:a17:902:124:: with SMTP id 33-v6mr19120357plb.287.1542009776371;
+        Mon, 12 Nov 2018 00:02:56 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542009776; cv=none;
+        d=google.com; s=arc-20160816;
+        b=0LK/XSo559OUAxHR8QSAz2OH/M+62DjbwRmNuIgaX9FIoxdUFOzAVuWfk7G7hLeVf0
+         3qNyPz7JTipxpVwNNEnnW3Y+YWnwPuaguHUXwTohmN1FBa3c0v9nLOTfKexJEok77xfN
+         nrUDe/ZNEc4DG0i2f69z/DRgcCq/QylHERz5V53Xm+zAsXeHzkFGME/6kSKSf7qNhAhy
+         0Xpw85LBKxWUJu6KEDPkCZ3WUbc+ijVLeAH8NkVUeoEwjMpxd1kKT+MKFaWIxgdJvQQZ
+         ODo/V+vxzG9fUnW5+1CCv/k6TuRWmFC59tAKvDniXYnT4d4hScrp8EtZE+tuk96/WM0a
+         1cDA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:references:in-reply-to:message-id:date
+         :subject:cc:to:from:dkim-signature;
+        bh=yWAg4gljNrz5fiygCPdoWrW7oKiVUtzBnr6OWGeFQa4=;
+        b=V+KwV+lx+AltO1kbejR2XyhVTVk6cYXE+aulugyONWxhKfaaJ5wddF97TUsi8tCyU/
+         /fy8kIR8RxT47x60rPolFEVsLV0R0QZ7U6ppS/3Z9mqilihvSh7hyeaV637Z1Gg4jgUY
+         NYFP9MRVzT7QP5RKTEEi4xAOOhwoEShMUFu2sOoQwvZFt1+c5iAeHs6zBxJVvNT3U579
+         CoGUex2bD8mYvan+xRgA/+KQER8bTA9LF2v52qZ74zcbkF1VPGMELj6HK18z3j3k5X6g
+         ek/9YHDV/ZsGb9QdPTU8IvvOj3cdJqmZOStqcdUwXYV1RIF6Hhvz+dqoqciKs70oNImm
+         fjhw==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@linaro.org header.s=google header.b=FnHFGOjh;
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;
+       dmarc=pass (p=NONE sp=NONE dis=NONE) header.from=linaro.org
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id r199-v6si22133851pfr.105.2018.11.12.00.02.41;
+        Mon, 12 Nov 2018 00:02:56 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1729154AbeKLRyO (ORCPT <rfc822;tomnomnom1@gmail.com>
+        + 99 others); Mon, 12 Nov 2018 12:54:14 -0500
+Received: from mail-pl1-f195.google.com ([209.85.214.195]:36159 "EHLO
+        mail-pl1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729124AbeKLRyN (ORCPT
+        <rfc822;linux-kernel@vger.kernel.org>);
+        Mon, 12 Nov 2018 12:54:13 -0500
+Received: by mail-pl1-f195.google.com with SMTP id w24-v6so3952383plq.3
+        for <linux-kernel@vger.kernel.org>; Mon, 12 Nov 2018 00:02:10 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references;
+        bh=yWAg4gljNrz5fiygCPdoWrW7oKiVUtzBnr6OWGeFQa4=;
+        b=FnHFGOjhzs8MBpnk7iZVFtNm7uoU0h1qcSmyFncyL+fmBR5NpFuG/SMVv7dHh9GimO
+         xtBXNF8segDobhmYNK+0s2WhvTJAZb7LuVMTvwoarbXh8cDxjAYTnApMKhUV43dMegjn
+         KjJh7XqCoILmFE7iL4t65GWY+j0GOabzh/J2A=
+X-Received: by 2002:a17:902:7c94:: with SMTP id y20-v6mr19015205pll.218.1542009729226;
+        Mon, 12 Nov 2018 00:02:09 -0800 (PST)
+Received: from localhost.localdomain (104-188-17-28.lightspeed.sndgca.sbcglobal.net. [104.188.17.28])
+        by smtp.gmail.com with ESMTPSA id 134sm13590085pgb.78.2018.11.12.00.02.07
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 12 Nov 2018 00:02:08 -0800 (PST)
+From: Bjorn Andersson <bjorn.andersson@linaro.org>
+To: Andy Gross <andy.gross@linaro.org>,
+        David Brown <david.brown@linaro.org>
+Cc: Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        linux-arm-msm@vger.kernel.org, linux-soc@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 2/3] soc: qcom: Add AOSS QMP communication driver
+Date: Mon, 12 Nov 2018 00:05:56 -0800
+Message-Id: <20181112080557.22698-3-bjorn.andersson@linaro.org>
+X-Mailer: git-send-email 2.18.0
+In-Reply-To: <20181112080557.22698-1-bjorn.andersson@linaro.org>
+References: <20181112080557.22698-1-bjorn.andersson@linaro.org>
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwD33UmxM+lbRYswAA--.1000S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW3Kr1rAr17Ww45tF48CrW5trb_yoWDKF1kpF
+	y5AFW3WrWDGa13G3yktFWUAF45Cw1Fg348KFyDX3ySy3Wrtr1vyFs5ta4YyF95XFZ7Kw43
+	J39YqFy3GFy3XaDanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUU0bIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUPFb7Iv0xC_Kw4lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2
+	z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s0DM2AIxVAIcxkEcV
+	Aq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1j
+	6r18McIj6I8E87Iv67AKxVW8JVWxJwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IYc2Ij64
+	vIr41l7I0Y6sxI4wCY1x0264kExVAvwVAq07x20xylc7Ca8VAvwVCFzxkY4VCF77xAMxkI
+	ecxEwVCI4VW8ZwCY0x0Ix7I2Y4AK64vIr41lcIIF0xvE2Ix0cI8IcVAFwI0_Gr0_Xr1lcI
+	IF0xvE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwCYIxAIcVC2z280aVAFwI0_GcCE3s1lcIIF
+	0xvEx4A2jsIEc7CjxVAFwI0_GcCE3s1l42xK82IYc2Ij64vIr41l42xK82IY64kExVAvwV
+	Aq07x20xyl4x8a6x804xWl4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWU
+	JVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r1q6r43MIIYrxkI7V
+	AKI48JMIIF0xvE42xK8VAvwI8IcIk0rVW8JVW3JbIYCTnIWIevJa73UjIFyTuYvjxUHiZc
+	UUUUU
+
+The AOSS QMP driver is used to communicate with the AOSS for certain
+side-channel requests, that are not enabled through the RPMh interface.
+
+The communication is a very simple synchronous mechanism of messages
+being written in message RAM and a doorbell in the AOSS is rung. As the
+AOSS has processed the message length is cleared and an interrupt is
+fired by the AOSS as acknowledgment.
+
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+---
+ drivers/soc/qcom/Kconfig          |   7 +
+ drivers/soc/qcom/Makefile         |   1 +
+ drivers/soc/qcom/aoss-qmp.c       | 313 ++++++++++++++++++++++++++++++
+ include/linux/soc/qcom/aoss-qmp.h |  12 ++
+ 4 files changed, 333 insertions(+)
+ create mode 100644 drivers/soc/qcom/aoss-qmp.c
+ create mode 100644 include/linux/soc/qcom/aoss-qmp.h
+
+diff --git a/drivers/soc/qcom/Kconfig b/drivers/soc/qcom/Kconfig
+index a51458022d21..ba08fc00d7f5 100644
+--- a/drivers/soc/qcom/Kconfig
++++ b/drivers/soc/qcom/Kconfig
+@@ -3,6 +3,13 @@
+ #
+ menu "Qualcomm SoC drivers"
+ 
++config QCOM_AOSS_QMP
++	tristate "Qualcomm AOSS Messaging Driver"
++	help
++	  This driver provides the means for communicating with the
++	  micro-controller in the AOSS, using QMP, to control certain resource
++	  that are not exposed through RPMh.
++
+ config QCOM_COMMAND_DB
+ 	bool "Qualcomm Command DB"
+ 	depends on ARCH_QCOM || COMPILE_TEST
+diff --git a/drivers/soc/qcom/Makefile b/drivers/soc/qcom/Makefile
+index 67cb85d0373c..d0d7fdc94d9a 100644
+--- a/drivers/soc/qcom/Makefile
++++ b/drivers/soc/qcom/Makefile
+@@ -1,5 +1,6 @@
+ # SPDX-License-Identifier: GPL-2.0
+ CFLAGS_rpmh-rsc.o := -I$(src)
++obj-$(CONFIG_QCOM_AOSS_QMP) +=	aoss-qmp.o
+ obj-$(CONFIG_QCOM_GENI_SE) +=	qcom-geni-se.o
+ obj-$(CONFIG_QCOM_COMMAND_DB) += cmd-db.o
+ obj-$(CONFIG_QCOM_GLINK_SSR) +=	glink_ssr.o
+diff --git a/drivers/soc/qcom/aoss-qmp.c b/drivers/soc/qcom/aoss-qmp.c
+new file mode 100644
+index 000000000000..acc5677a06ed
+--- /dev/null
++++ b/drivers/soc/qcom/aoss-qmp.c
+@@ -0,0 +1,313 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * Copyright (c) 2018, Linaro Ltd
++ */
++#include <linux/interrupt.h>
++#include <linux/io.h>
++#include <linux/mailbox_client.h>
++#include <linux/module.h>
++#include <linux/of_platform.h>
++#include <linux/platform_device.h>
++#include <linux/soc/qcom/aoss-qmp.h>
++#include <linux/wait.h>
++
++#define QMP_DESC_MAGIC			0x0
++#define QMP_DESC_VERSION		0x4
++#define QMP_DESC_FEATURES		0x8
++
++#define QMP_DESC_UCORE_LINK_STATE	0xc
++#define QMP_DESC_UCORE_LINK_STATE_ACK	0x10
++#define QMP_DESC_UCORE_CH_STATE		0x14
++#define QMP_DESC_UCORE_CH_STATE_ACK	0x18
++#define QMP_DESC_UCORE_MBOX_SIZE	0x1c
++#define QMP_DESC_UCORE_MBOX_OFFSET	0x20
++
++#define QMP_DESC_MCORE_LINK_STATE	0x24
++#define QMP_DESC_MCORE_LINK_STATE_ACK	0x28
++#define QMP_DESC_MCORE_CH_STATE		0x2c
++#define QMP_DESC_MCORE_CH_STATE_ACK	0x30
++#define QMP_DESC_MCORE_MBOX_SIZE	0x34
++#define QMP_DESC_MCORE_MBOX_OFFSET	0x38
++
++#define QMP_STATE_UP	0x0000ffff
++#define QMP_STATE_DOWN	0xffff0000
++
++#define QMP_MAGIC	0x4d41494c
++#define QMP_VERSION	1
++
++/**
++ * struct qmp - driver state for QMP implementation
++ * @msgram: iomem referencing the message RAM used for communication
++ * @dev: reference to QMP device
++ * @mbox_client: mailbox client used to ring the doorbell on transmit
++ * @mbox_chan: mailbox channel used to ring the doorbell on transmit
++ * @offset: offset within @msgram where messages should be written
++ * @size: maximum size of the messages to be transmitted
++ * @event: wait_queue for synchronization with the IRQ
++ * @tx_lock: provides syncrhonization between multiple callers of qmp_send()
++ */
++struct qmp {
++	void __iomem *msgram;
++	struct device *dev;
++
++	struct mbox_client mbox_client;
++	struct mbox_chan *mbox_chan;
++
++	size_t offset;
++	size_t size;
++
++	wait_queue_head_t event;
++
++	struct mutex tx_lock;
++};
++
++static void qmp_kick(struct qmp *qmp)
++{
++	mbox_send_message(qmp->mbox_chan, NULL);
++	mbox_client_txdone(qmp->mbox_chan, 0);
++}
++
++static bool qmp_magic_valid(struct qmp *qmp)
++{
++	return readl(qmp->msgram + QMP_DESC_MAGIC) == QMP_MAGIC;
++}
++
++static bool qmp_link_acked(struct qmp *qmp)
++{
++	return readl(qmp->msgram + QMP_DESC_MCORE_LINK_STATE_ACK) == QMP_STATE_UP;
++}
++
++static bool qmp_mcore_channel_acked(struct qmp *qmp)
++{
++	return readl(qmp->msgram + QMP_DESC_MCORE_CH_STATE_ACK) == QMP_STATE_UP;
++}
++
++static bool qmp_ucore_channel_up(struct qmp *qmp)
++{
++	return readl(qmp->msgram + QMP_DESC_UCORE_CH_STATE) == QMP_STATE_UP;
++}
++
++static int qmp_open(struct qmp *qmp)
++{
++	int ret;
++	u32 val;
++
++	ret = wait_event_timeout(qmp->event, qmp_magic_valid(qmp), HZ);
++	if (!ret) {
++		dev_err(qmp->dev, "QMP magic doesn't match\n");
++		return -ETIMEDOUT;
++	}
++
++	val = readl(qmp->msgram + QMP_DESC_VERSION);
++	if (val != QMP_VERSION) {
++		dev_err(qmp->dev, "unsupported QMP version %d\n", val);
++		return -EINVAL;
++	}
++
++	qmp->offset = readl(qmp->msgram + QMP_DESC_MCORE_MBOX_OFFSET);
++	qmp->size = readl(qmp->msgram + QMP_DESC_MCORE_MBOX_SIZE);
++	if (!qmp->size) {
++		dev_err(qmp->dev, "invalid mailbox size 0x%zx\n", qmp->size);
++		return -EINVAL;
++	}
++
++	/* Ack remote core's link state */
++	val = readl(qmp->msgram + QMP_DESC_UCORE_LINK_STATE);
++	writel(val, qmp->msgram + QMP_DESC_UCORE_LINK_STATE_ACK);
++
++	/* Set local core's link state to up */
++	writel(QMP_STATE_UP, qmp->msgram + QMP_DESC_MCORE_LINK_STATE);
++
++	qmp_kick(qmp);
++
++	ret = wait_event_timeout(qmp->event, qmp_link_acked(qmp), HZ);
++	if (!ret) {
++		dev_err(qmp->dev, "ucore didn't ack link\n");
++		goto timeout_close_link;
++	}
++
++	writel(QMP_STATE_UP, qmp->msgram + QMP_DESC_MCORE_CH_STATE);
++
++	ret = wait_event_timeout(qmp->event, qmp_ucore_channel_up(qmp), HZ);
++	if (!ret) {
++		dev_err(qmp->dev, "ucore didn't open channel\n");
++		goto timeout_close_channel;
++	}
++
++	/* Ack remote core's channel state */
++	val = readl(qmp->msgram + QMP_DESC_UCORE_CH_STATE);
++	writel(val, qmp->msgram + QMP_DESC_UCORE_CH_STATE_ACK);
++
++	qmp_kick(qmp);
++
++	ret = wait_event_timeout(qmp->event, qmp_mcore_channel_acked(qmp), HZ);
++	if (!ret) {
++		dev_err(qmp->dev, "ucore didn't ack channel\n");
++		goto timeout_close_channel;
++	}
++
++	return 0;
++
++timeout_close_channel:
++	writel(QMP_STATE_DOWN, qmp->msgram + QMP_DESC_MCORE_CH_STATE);
++
++timeout_close_link:
++	writel(QMP_STATE_DOWN, qmp->msgram + QMP_DESC_MCORE_LINK_STATE);
++	qmp_kick(qmp);
++
++	return -ETIMEDOUT;
++}
++
++static void qmp_close(struct qmp *qmp)
++{
++	writel(QMP_STATE_DOWN, qmp->msgram + QMP_DESC_MCORE_CH_STATE);
++	writel(QMP_STATE_DOWN, qmp->msgram + QMP_DESC_MCORE_LINK_STATE);
++	qmp_kick(qmp);
++}
++
++static irqreturn_t qmp_intr(int irq, void *data)
++{
++	struct qmp *qmp = data;
++
++	wake_up_interruptible_all(&qmp->event);
++
++	return IRQ_HANDLED;
++}
++
++static bool qmp_message_empty(struct qmp *qmp)
++{
++	return readl(qmp->msgram + qmp->offset) == 0;
++}
++
++/**
++ * qmp_send() - send a message to the AOSS
++ * @qmp: qmp context
++ * @data: message to be sent
++ * @len: length of the message
++ *
++ * Transmit @data to AOSS and wait for the AOSS to acknowledge the message.
++ * @len must be a multiple of 4 and not longer than the mailbox size. Access is
++ * synchronized by this implementation.
++ *
++ * Return: 0 on success, negative errno on failure
++ */
++int qmp_send(struct qmp *qmp, const void *data, size_t len)
++{
++	int ret;
++
++	if (WARN_ON(len + sizeof(u32) > qmp->size)) {
++		dev_err(qmp->dev, "message too long\n");
++		return -EINVAL;
++	}
++
++	if (WARN_ON(len % sizeof(u32))) {
++		dev_err(qmp->dev, "message not 32-bit aligned\n");
++		return -EINVAL;
++	}
++
++	mutex_lock(&qmp->tx_lock);
++
++	if (!qmp_message_empty(qmp)) {
++		dev_err(qmp->dev, "mailbox left busy\n");
++		ret = -EINVAL;
++		goto out_unlock;
++	}
++
++	/* The message RAM only implements 32-bit accesses */
++	__iowrite32_copy(qmp->msgram + qmp->offset + sizeof(u32),
++			 data, len / sizeof(u32));
++	writel(len, qmp->msgram + qmp->offset);
++	qmp_kick(qmp);
++
++	ret = wait_event_interruptible_timeout(qmp->event,
++					       qmp_message_empty(qmp), HZ);
++	if (!ret) {
++		dev_err(qmp->dev, "ucore did not ack channel\n");
++		ret = -ETIMEDOUT;
++
++		writel(0, qmp->msgram + qmp->offset);
++	} else {
++		ret = 0;
++	}
++
++out_unlock:
++	mutex_unlock(&qmp->tx_lock);
++
++	return ret;
++}
++EXPORT_SYMBOL(qmp_send);
++
++static int qmp_probe(struct platform_device *pdev)
++{
++	struct resource *res;
++	struct qmp *qmp;
++	int irq;
++	int ret;
++
++	qmp = devm_kzalloc(&pdev->dev, sizeof(*qmp), GFP_KERNEL);
++	if (!qmp)
++		return -ENOMEM;
++
++	qmp->dev = &pdev->dev;
++	init_waitqueue_head(&qmp->event);
++	mutex_init(&qmp->tx_lock);
++
++	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	qmp->msgram = devm_ioremap_resource(&pdev->dev, res);
++	if (IS_ERR(qmp->msgram))
++		return PTR_ERR(qmp->msgram);
++
++	qmp->mbox_client.dev = &pdev->dev;
++	qmp->mbox_client.knows_txdone = true;
++	qmp->mbox_chan = mbox_request_channel(&qmp->mbox_client, 0);
++	if (IS_ERR(qmp->mbox_chan)) {
++		dev_err(&pdev->dev, "failed to acquire ipc mailbox\n");
++		return PTR_ERR(qmp->mbox_chan);
++	}
++
++	irq = platform_get_irq(pdev, 0);
++	ret = devm_request_irq(&pdev->dev, irq, qmp_intr, IRQF_ONESHOT,
++			       "aoss-qmp", qmp);
++	if (ret < 0) {
++		dev_err(&pdev->dev, "failed to request interrupt\n");
++		return ret;
++	}
++
++	ret = qmp_open(qmp);
++	if (ret < 0)
++		return ret;
++
++	platform_set_drvdata(pdev, qmp);
++
++	return of_platform_populate(pdev->dev.of_node, NULL, NULL, &pdev->dev);
++}
++
++static int qmp_remove(struct platform_device *pdev)
++{
++	struct qmp *qmp = platform_get_drvdata(pdev);
++
++	of_platform_depopulate(&pdev->dev);
++
++	qmp_close(qmp);
++
++	return 0;
++}
++
++static const struct of_device_id qmp_dt_match[] = {
++	{ .compatible = "qcom,sdm845-aoss-qmp", },
++	{}
++};
++MODULE_DEVICE_TABLE(of, qmp_dt_match);
++
++static struct platform_driver qmp_driver = {
++	.driver = {
++		.name		= "aoss_qmp",
++		.of_match_table	= qmp_dt_match,
++	},
++	.probe = qmp_probe,
++	.remove	= qmp_remove,
++};
++module_platform_driver(qmp_driver);
++
++MODULE_DESCRIPTION("Qualcomm AOSS QMP driver");
++MODULE_LICENSE("GPL v2");
+diff --git a/include/linux/soc/qcom/aoss-qmp.h b/include/linux/soc/qcom/aoss-qmp.h
+new file mode 100644
+index 000000000000..32ccaa091a9f
+--- /dev/null
++++ b/include/linux/soc/qcom/aoss-qmp.h
+@@ -0,0 +1,12 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++/*
++ * Copyright (c) 2018, Linaro Ltd
++ */
++#ifndef __AOP_QMP_H__
++#define __AOP_QMP_H__
++
++struct qmp;
++
++int qmp_send(struct qmp *qmp, const void *data, size_t len);
++
++#endif
+-- 
+2.18.0

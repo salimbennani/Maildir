@@ -1,0 +1,237 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 09 Nov 2018 00:37:01 -0000
+Received: from icoremail.net (unknown [209.85.214.177])
+	by mail-app2 (Coremail) with SMTP id by_KCgCn35jweeRbrr9hAQ--.29421S3;
+	Fri, 09 Nov 2018 02:01:20 +0800 (CST)
+Received: from mail-pl1-f177.google.com (unknown [209.85.214.177])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwCXcz_ueeRbQf4dAA--.6935S3;
+	Fri, 09 Nov 2018 02:01:18 +0800 (CST)
+Received: by mail-pl1-f177.google.com with SMTP id w22-v6so6568215plk.0
+        for <xuliker@zju.edu.cn>; Thu, 08 Nov 2018 10:01:18 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :reply-to:subject:to:cc:references:from:date:user-agent:mime-version
+         :in-reply-to:content-language:content-transfer-encoding:message-id
+         :sender:precedence:list-id;
+        bh=uEMV5L1+aCJTuk97cHbVY3gSri3ugz8I/pSmAf1kOX0=;
+        b=XXqJOnbnmvMBHj9OTfQOqHcmxHyNevV4lB0oJ54Zr8zJ5Cq7ue3BLkeKX2p/YQ6ITJ
+         ljYtByaj5Y7M7CM4SjIbYn+LupgMwD7QdA/LVSeOK+fwHt4K94azBOJ2gP6a5nKtqgk2
+         kv1y/xValnunSxGF7/QraIm1B1F3/HhUA7hS8STFyu3wMCvXTWJNE2kwMCPQ4HUKrU32
+         WgVG3a8BTg/dw+eLv1XfCjxb2Snf11fCup4Di7zMtgcyIV1Mxb9uBnhs/bGBOMld6+nU
+         2dbnQ6wtuX7+6AJbzQFq3J8rUEUPvwg7izfyZhLTgFJh+FOVdnb9dShK0Bp+DlGMphes
+         o2wg==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=ibm.com
+X-Gm-Message-State: AGRZ1gKC+SVKK3AfO8PQciiDrtvnbaf8yYnbcmaTj7MpQYWA8agavSeB
+	22MFS32YMgGrGolfQbU2EHCUj92740HHCo2o7/ARze4CbGXqKTHOig==
+X-Received: by 2002:a17:902:7882:: with SMTP id q2-v6mr5577487pll.188.1541700078036;
+        Thu, 08 Nov 2018 10:01:18 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp520521pjt;
+        Thu, 8 Nov 2018 10:01:16 -0800 (PST)
+X-Google-Smtp-Source: AJdET5fJ7v7l135WS8SYY3yUqNPkArVF5ngZM3tRi2Yjr7jhSv2WC6LC/i9DS8GDtP+JCXZEYqgf
+X-Received: by 2002:a63:4d66:: with SMTP id n38mr4586295pgl.270.1541700076625;
+        Thu, 08 Nov 2018 10:01:16 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1541700076; cv=none;
+        d=google.com; s=arc-20160816;
+        b=W1p94aziieAxlOxRhJ3ySeAyC/33E6QvcvmH5Vj0kKZJu8+kGYPe9s0Xe1P5hl7K1D
+         3RDJvUf78PV3EJ1aoyyGSG2lGeCoD+9bxyH2uhPbgYxLzpoImWue8r7wv8CqXIVDBkyn
+         iDXGFDeaSgU7TCYV5QOZp8puU8exVknOvgYNCInbizzlwMMaRfZ2owzzj6RxImgGhkCk
+         N1FehDpliYwouTfKlrM2AKU/xC4/sUjwonlaqgZtupSGPDxsR61dQSX6lehJlZsyl/Ic
+         gdHYf8ZTJ+WBJSn+buX8y5pXkQeHkr9GkRkeNrAEgZQNNwe0y4YMvIgHtwU5JPOnPzvv
+         PL1A==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:message-id:content-transfer-encoding
+         :content-language:in-reply-to:mime-version:user-agent:date:from
+         :references:cc:to:subject:reply-to;
+        bh=uEMV5L1+aCJTuk97cHbVY3gSri3ugz8I/pSmAf1kOX0=;
+        b=eUeG+mXf/oSTSSCDCrk/a22jL7qeC1YB5GAqBaw36qew0wrLSS0q1kN4sc5PbFl9gk
+         6oYrFM81f9nlMNlUHIJiM/XH72yjVysDCYnNDHoe8MBigLv1ggqbui3QZGGgTzQmaB4z
+         siiijzXaXmZthrHEnA4Xr1uPHNmvOfvDSeYssClWOig4Lhg+CEank7nOkOCwmw45oYwg
+         M/ogPktnABJMa6XYIpIgbGO2ArK9fi+cJ3jgfmbkAN3MLP1B8qG3Beh6aD+I7hpD0nlR
+         U9GWVGnab+nMYtiBUAaM9Mh3308UBuzMZ22uCszXNPf7+xhT/GWGm34Qc0WTkSHbDf1J
+         m6aA==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=ibm.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id m4-v6si4838873pls.376.2018.11.08.10.01.02;
+        Thu, 08 Nov 2018 10:01:16 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1727180AbeKIDhZ (ORCPT <rfc822;fanshuming2011@gmail.com>
+        + 99 others); Thu, 8 Nov 2018 22:37:25 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:58295 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726634AbeKIDhZ (ORCPT
+        <rfc822;kvm@vger.kernel.org>); Thu, 8 Nov 2018 22:37:25 -0500
+Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.22/8.16.0.22) with SMTP id wA8Hx6YD106811
+        for <kvm@vger.kernel.org>; Thu, 8 Nov 2018 13:00:46 -0500
+Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2nmqfxqq8w-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <kvm@vger.kernel.org>; Thu, 08 Nov 2018 13:00:45 -0500
+Received: from localhost
+        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <kvm@vger.kernel.org> from <pmorel@linux.ibm.com>;
+        Thu, 8 Nov 2018 18:00:43 -0000
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (9.149.109.194)
+        by e06smtp04.uk.ibm.com (192.168.101.134) with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted;
+        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256/256)
+        Thu, 8 Nov 2018 18:00:40 -0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id wA8I0cUI34865354
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
+        Thu, 8 Nov 2018 18:00:38 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id AF63011C05C;
+        Thu,  8 Nov 2018 18:00:38 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 1116811C04A;
+        Thu,  8 Nov 2018 18:00:38 +0000 (GMT)
+Received: from [9.145.183.4] (unknown [9.145.183.4])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu,  8 Nov 2018 18:00:37 +0000 (GMT)
+Reply-To: pmorel@linux.ibm.com
+Subject: Re: [PATCH v1 4/7] vfio: ap: AP Queue Interrupt Control VFIO ioctl
+ calls
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: borntraeger@de.ibm.com, alex.williamson@redhat.com,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org, frankja@linux.ibm.com, akrowiak@linux.ibm.com,
+        pasic@linux.ibm.com, david@redhat.com, schwidefsky@de.ibm.com,
+        heiko.carstens@de.ibm.com, freude@linux.ibm.com, mimu@linux.ibm.com
+References: <1541009577-29656-1-git-send-email-pmorel@linux.ibm.com>
+ <1541009577-29656-5-git-send-email-pmorel@linux.ibm.com>
+ <20181107104624.36707cca.cohuck@redhat.com>
+ <97094e1c-f74c-7b90-8439-5177301d3189@linux.ibm.com>
+ <20181108101435.023e835d.cohuck@redhat.com>
+From: Pierre Morel <pmorel@linux.ibm.com>
+Date: Thu, 8 Nov 2018 19:00:37 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.2.1
+MIME-Version: 1.0
+In-Reply-To: <20181108101435.023e835d.cohuck@redhat.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+x-cbid: 18110818-0016-0000-0000-000002234D8F
+X-IBM-AV-DETECTION: SAVI=unused REMOTE=unused XFE=unused
+x-cbparentid: 18110818-0017-0000-0000-0000327BA3B6
+Message-Id: <29392872-d8a0-3ddd-77fe-342202ed1d2a@linux.ibm.com>
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2018-11-08_08:,,
+ signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ malwarescore=0 suspectscore=0 phishscore=0 bulkscore=0 spamscore=0
+ clxscore=1015 lowpriorityscore=0 mlxscore=0 impostorscore=0
+ mlxlogscore=999 adultscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.0.1-1807170000 definitions=main-1811080152
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwCXcz_ueeRbQf4dAA--.6935S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoWxury5Gr1fWry8CF4xJrW8JFb_yoW5XF15pr
+	48GFWUAa1kJ3yI9F1Svw1Y9r9IkryxKrWUur97J345uryqvFyfCF1fKa1UCF4kCr18uF42
+	vr4UX34xuas8AaDanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUmlb7Iv0xC_Zr1lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2
+	z280aVAFwI0_Gr1j6F4UJwA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_Gr1j6F4UJwAS0I0E0x
+	vYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AK
+	xVWUGVWUXwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcV
+	AKI48JMx02cVCv0xWlc7I2V7IY0VAS07AlzVAYIcxG8wCY1x0264kExVAvwVAq07x20xyl
+	c7Ca8VAvwVCFzxkY4VCF77xAMxkIecxEwVCI4VW5MxkI7II2jI8vz4vEwIxGrwCYIxAIcV
+	C0I7IYx2IY67AKxVW5JVW7JwCYIxAIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMxvI42IY
+	6I8E87Iv67AKxVW8Jr0_Cr1UMxvI42IY6I8E87Iv6xkF7I0E14v26r4UJVWxJr1l42xK82
+	IYc2Ij64vIr41l42xK82IY64kExVAvwVAq07x20xyl4x8a6x804xWl4I8I3I0E4IkC6x0Y
+	z7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zV
+	AF1VAY17CE14v26r1q6r43MIIYrxkI7VAKI48JMIIF0xvE42xK8VAvwI8IcIk0rVW8JVW3
+	JbIYCTnIWIevJa73UjIFyTuYvjxUDqg4UUUUU
+
+On 08/11/2018 10:14, Cornelia Huck wrote:
+> On Wed, 7 Nov 2018 23:23:40 +0100
+> Pierre Morel <pmorel@linux.ibm.com> wrote:
+> 
+>> On 07/11/2018 10:46, Cornelia Huck wrote:
+>>> On Wed, 31 Oct 2018 19:12:54 +0100
+>>> Pierre Morel <pmorel@linux.ibm.com> wrote:
+>>>    
+>>>> This is the implementation of the VFIO ioctl calls to handle
+>>>> the AQIC interception and use GISA to handle interrupts.
+>>>>
+>>>> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+>>>> ---
+>>>>    drivers/s390/crypto/vfio_ap_ops.c | 95 +++++++++++++++++++++++++++++++
+>>>>    1 file changed, 95 insertions(+)
+>>>>
+>>>> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+>>>> index 272ef427dcc0..f68102163bf4 100644
+>>>> --- a/drivers/s390/crypto/vfio_ap_ops.c
+>>>> +++ b/drivers/s390/crypto/vfio_ap_ops.c
+>>>> @@ -895,12 +895,107 @@ static int vfio_ap_mdev_get_device_info(unsigned long arg)
+>>>>    	return copy_to_user((void __user *)arg, &info, minsz);
+>>>>    }
+>>>>    
+>>>> +static int ap_ioctl_setirq(struct ap_matrix_mdev *matrix_mdev,
+>>>> +			   struct vfio_ap_aqic *parm)
+>>>> +{
+>>>> +	struct aqic_gisa aqic_gisa = reg2aqic(0);
+>>>> +	struct kvm_s390_gisa *gisa = matrix_mdev->kvm->arch.gisa;
+>>>> +	struct ap_status ap_status = reg2status(0);
+>>>> +	unsigned long p;
+>>>> +	int ret = -1;
+>>>> +	int apqn;
+>>>> +	uint32_t gd;
+>>>> +
+>>>> +	apqn = (int)(parm->cmd & 0xffff);
+>>>
+>>> It seems you always use cmd & 0xffff only. What if there is other stuff
+>>> in the remaining bits of cmd? Do you plan to ignore it in any case, or
+>>> should you actively check that there is nothing in it?
+>>>    
+>>
+>> I do not think that the ioctl interface should reflect the hardware
+>> interface.
+>> The ioctl interface ignores the remaining bits.
+>> We ignore the FC because we obviously want to make a AQIC FC=3
+>> We ignore the T bit.
+>>
+>> But we receive the information from the intercepting software, i.e. QEMU
+>> which should I think do the checks before using the ioctl interface.
+> 
+> Yes, it should; but you still can't know whether it actually did...
+
+I do not care, I just ignore these bits.
+
+> 
+>>
+>> It seemed easier to me to pass the complete registers and to ignore some
+>> bits in them. In case we get any change in the future
+>> But we could also only pass the APQN
+> 
+> I'd prefer to use a well-defined structure that explicitly handles the
+> userspace<->kernel communication. Not that we start relying on implicit
+> assumptions and then things break when userspace does something
+> different...
+> 
+
+OK, I can pass a u16 in the ioctl parameters and explicitly reserve the 
+ignored bits.
+
+Thanks for the review.
+
+Regards,
+Pierre
+
+-- 
+Pierre Morel
+Linux/KVM/QEMU in Böblingen - Germany

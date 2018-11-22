@@ -1,0 +1,328 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 13 Nov 2018 00:32:59 -0000
+Received: from icoremail.net (unknown [209.85.210.172])
+	by mail-app2 (Coremail) with SMTP id by_KCgDHH_pTpelbnLh+AQ--.38247S3;
+	Tue, 13 Nov 2018 00:07:48 +0800 (CST)
+Received: from mail-pf1-f172.google.com (unknown [209.85.210.172])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwBXNUFSpelb8qUyAA--.3727S3;
+	Tue, 13 Nov 2018 00:07:46 +0800 (CST)
+Received: by mail-pf1-f172.google.com with SMTP id v9-v6so4541469pff.2
+        for <xuliker@zju.edu.cn>; Mon, 12 Nov 2018 08:07:46 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding:sender:precedence:list-id;
+        bh=e/V8p3hTeXcx1xYy2a1CSkxKa6cxBT/SQwUFXnkW82o=;
+        b=GTolvgUSwQNg/HyS7foXBV89Zu492D8LtABFLms93/kUAhBsBn+Sne5OL+Th8pZepZ
+         TbRhCR8HO3YJu3ZOywqOdJzFsnnXhjJDEzr7xLKF59t5t5HYdJRbY6aNXfVFn/BOtGzj
+         AeUwb7qG6cN99eQrTk3a3duyCZ02fleIk8+MVgznifETjRabHGTa4Y8ZVX1FjQM1TCG3
+         rS8yI7byOd9R663VEQx6z3H3cyFtF7rmH/wZnxPgk+3xUVYsSd0M97p1gH1vfGz4uLuY
+         n0HCt4Ci1+H0Om+LbQQAC2FJ3W6jxOoL7lxvaApbUB7OryFgF8n55hLhsvPQ3Fkp9zzp
+         M2xw==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=intel.com
+X-Gm-Message-State: AGRZ1gJMA0kmfsxHh+gUyV/zOCaAuajXUhKXyBh6MyExzexXC6Rs2wum
+	dL4l4hTSA4DfJ93I8Ct4YSO4nZlCWcvcMRE6D3qokqU3q4EKnkm6Qg==
+X-Received: by 2002:a63:4044:: with SMTP id n65mr1292200pga.90.1542038865869;
+        Mon, 12 Nov 2018 08:07:45 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp3370522pjt;
+        Mon, 12 Nov 2018 08:07:44 -0800 (PST)
+X-Google-Smtp-Source: AJdET5cRnSidl84M44mLyf88J6ffj95Yri5fOHjau/4zTVVmnHMUGtz5qWb5HwjcT+6orWJGZI8I
+X-Received: by 2002:a17:902:28e7:: with SMTP id f94-v6mr1478099plb.297.1542038864943;
+        Mon, 12 Nov 2018 08:07:44 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542038864; cv=none;
+        d=google.com; s=arc-20160816;
+        b=WHtkgdVcsL/EfwVrO+hAo/y4CECaQW8Fr3W7cGmCB8s58ktpFDgkA9HgFhbgHPV9y+
+         Yhf8zCzdm5GgvO0H73zBfwn6r3LLdOAecnTPZhQeLtcZICS1x4At3Cmpur3NphH45D+r
+         UyNMQFmGfN+SKG4RZW8zrbr9c98vt5JepUv8FBjv0O09SSZfXu9rIUx1BXw3NIsei8hW
+         /yt39vrJGEVg7C/grNoT66cXjw/+aYoxHE33h0LiNkY/9OGoeG5patfZg3WiA6nnkdAe
+         aj8VWMuUCON8gzVYtF2okazukqTfhwHj5IcE4ublza7pUPY6YMyBHHzQ3+SSCxDrUTVD
+         E/Ig==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:content-transfer-encoding:mime-version
+         :references:in-reply-to:message-id:date:subject:cc:to:from;
+        bh=e/V8p3hTeXcx1xYy2a1CSkxKa6cxBT/SQwUFXnkW82o=;
+        b=MxCNT+SNJt39d/aW2Kpu9lQgyP4ygKW+DOgvnZEjzmxcEfkTDlnerCDmzJBBudos4O
+         hzmWUhb3naNW8VKHLsAl2i248aBzB91m+mH1e9RJIZbTOlqz68nOa+mlGIvUofrEXetT
+         ET/SQezGOl5xrj2XO6kqCNXukaVN57/coum/P5aiui9tYlpEfT+WzR0E0FTXvld6JlVj
+         78RwQx4vjLtqNz1XEa4F4ksLH1cG78LVulQCLqnfL9gkSx/qfXWXvSxvK8XSp4JLamxF
+         Wwqm9W2CdskrmTzByvKqJTvSu7imejNdpxedGLPXgIEsg/ZGWFkwZEpPulJvr7a7Q4WV
+         JtvQ==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=intel.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id c138-v6si10980216pfc.6.2018.11.12.08.07.11;
+        Mon, 12 Nov 2018 08:07:44 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1729973AbeKMCA0 (ORCPT <rfc822;changseok.bae@gmail.com>
+        + 99 others); Mon, 12 Nov 2018 21:00:26 -0500
+Received: from mga12.intel.com ([192.55.52.136]:26426 "EHLO mga12.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729371AbeKMCA0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+        Mon, 12 Nov 2018 21:00:26 -0500
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga005.fm.intel.com ([10.253.24.32])
+  by fmsmga106.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 12 Nov 2018 08:06:34 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.54,495,1534834800"; 
+   d="scan'208";a="279166938"
+Received: from black.fi.intel.com ([10.237.72.28])
+  by fmsmga005.fm.intel.com with ESMTP; 12 Nov 2018 08:06:29 -0800
+Received: by black.fi.intel.com (Postfix, from userid 1001)
+        id 7E30F84B; Mon, 12 Nov 2018 18:06:28 +0200 (EET)
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+To: iommu@lists.linux-foundation.org
+Cc: Joerg Roedel <joro@8bytes.org>,
+        David Woodhouse <dwmw2@infradead.org>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
+        Ashok Raj <ashok.raj@intel.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        Jacob jun Pan <jacob.jun.pan@intel.com>,
+        Andreas Noever <andreas.noever@gmail.com>,
+        Michael Jamet <michael.jamet@intel.com>,
+        Yehezkel Bernat <YehezkelShB@gmail.com>,
+        Lukas Wunner <lukas@wunner.de>,
+        Christian Kellner <ckellner@redhat.com>,
+        Mario.Limonciello@dell.com,
+        Anthony Wong <anthony.wong@canonical.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        linux-acpi@vger.kernel.org, linux-pci@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH 2/4] iommu/vt-d: Force IOMMU on for platform opt in hint
+Date: Mon, 12 Nov 2018 19:06:26 +0300
+Message-Id: <20181112160628.86620-3-mika.westerberg@linux.intel.com>
+X-Mailer: git-send-email 2.19.1
+In-Reply-To: <20181112160628.86620-1-mika.westerberg@linux.intel.com>
+References: <20181112160628.86620-1-mika.westerberg@linux.intel.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwBXNUFSpelb8qUyAA--.3727S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoWxtw43Jr1ftF48JryfGr1UGFg_yoW7Kr4xpF
+	srCFyfKrWrKF1Iga43J3Wj9FWYyrsaya45Kry3Gr4DA3W5ury5XFZ7Ka4rXF93J3y8JF13
+	XF1jyr4UCa1qvrJanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUU0bIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUP2b7Iv0xC_Kw4lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2
+	z280aVAFwI0_Gr0_Cr1l84ACjcxK6I8E87Iv6xkF7I0E14v26r4j6r4UJwAS0I0E0xvYzx
+	vE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AKxVWU
+	GVWUXwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcxkI7V
+	AKI48JMx02cVCv0xWlc7CjxVAKzI0EY4vE52x082I5MxkFs20EY4vE44CYbxCE4x80FwCY
+	02Avz4vEIxC_JwCY0x0Ix7I2Y4AK64vIr41lcIIF0xvE2Ix0cI8IcVAFwI0_Xr0_Ar1lcI
+	IF0xvE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwCYIxAIcVC2z280aVAFwI0_Gr0_Cr1lcIIF
+	0xvEx4A2jsIEc7CjxVAFwI0_Gr0_Gr1UMxAIw28IcxkI7VAKI48JMxAIw28IcVAKzI0EY4
+	vE52x082I5MxCjnVCjjxCrMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_
+	Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVW8ZVWrXwCIc40Y0x
+	0EwIxGrwCI42IY6xAIw20EY4v20xvaj40_Gr0_ZrUvcSsGvfC2KfnxnUUI43ZEXa7IUOQZ
+	2PUUUUU==
+
+From: Lu Baolu <baolu.lu@linux.intel.com>
+
+Intel VT-d spec added a new DMA_CTRL_PLATFORM_OPT_IN_FLAG flag
+in DMAR ACPI table for BIOS to report compliance about platform
+initiated DMA restricted to RMRR ranges when transferring control
+to the OS. The OS treats this as a hint that the IOMMU should be
+enabled to prevent DMA attacks from possible malicious devices.
+
+A use of this flag is Kernel DMA protection for Thunderbolt[1]
+which in practice means that IOMMU should be enabled for PCIe
+devices connected to the Thunderbolt ports. With IOMMU enabled
+for these devices, all DMA operations are limited in the range
+reserved for it, thus the DMA attacks are prevented. All these
+devices are enumerated in the PCI/PCIe module and marked with
+an is_external flag.
+
+This forces IOMMU to be enabled if DMA_CTRL_PLATFORM_OPT_IN_FLAG
+is set in DMAR ACPI table and there are PCIe devices marked as
+is_external in the system. This can be turned off by adding
+"intel_iommu=off" in the kernel command line, if any problems are
+found.
+
+[1] https://docs.microsoft.com/en-us/windows/security/information-protection/kernel-dma-protection-for-thunderbolt
+
+Cc: Ashok Raj <ashok.raj@intel.com>
+Cc: Jacob Pan <jacob.jun.pan@linux.intel.com>
+Cc: Sohil Mehta <sohil.mehta@intel.com>
+Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+---
+ drivers/iommu/dmar.c        | 25 +++++++++++++++++
+ drivers/iommu/intel-iommu.c | 55 +++++++++++++++++++++++++++++++++++--
+ include/linux/dmar.h        |  8 ++++++
+ 3 files changed, 86 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/iommu/dmar.c b/drivers/iommu/dmar.c
+index d9c748b6f9e4..1edf2a251336 100644
+--- a/drivers/iommu/dmar.c
++++ b/drivers/iommu/dmar.c
+@@ -2042,3 +2042,28 @@ int dmar_device_remove(acpi_handle handle)
+ {
+ 	return dmar_device_hotplug(handle, false);
+ }
++
++/*
++ * dmar_platform_optin - Is %DMA_CTRL_PLATFORM_OPT_IN_FLAG set in DMAR table
++ *
++ * Returns true if the platform has %DMA_CTRL_PLATFORM_OPT_IN_FLAG set in
++ * the ACPI DMAR table. This means that the platform boot firmware has made
++ * sure no device can issue DMA outside of RMRR regions.
++ */
++bool dmar_platform_optin(void)
++{
++	struct acpi_table_dmar *dmar;
++	acpi_status status;
++	bool ret;
++
++	status = acpi_get_table(ACPI_SIG_DMAR, 0,
++				(struct acpi_table_header **)&dmar);
++	if (ACPI_FAILURE(status))
++		return false;
++
++	ret = !!(dmar->flags & DMAR_PLATFORM_OPT_IN);
++	acpi_put_table((struct acpi_table_header *)dmar);
++
++	return ret;
++}
++EXPORT_SYMBOL_GPL(dmar_platform_optin);
+diff --git a/drivers/iommu/intel-iommu.c b/drivers/iommu/intel-iommu.c
+index f3ccf025108b..ada786b05a59 100644
+--- a/drivers/iommu/intel-iommu.c
++++ b/drivers/iommu/intel-iommu.c
+@@ -184,6 +184,7 @@ static int rwbf_quirk;
+  */
+ static int force_on = 0;
+ int intel_iommu_tboot_noforce;
++static int no_platform_optin;
+ 
+ #define ROOT_ENTRY_NR (VTD_PAGE_SIZE/sizeof(struct root_entry))
+ 
+@@ -503,6 +504,7 @@ static int __init intel_iommu_setup(char *str)
+ 			pr_info("IOMMU enabled\n");
+ 		} else if (!strncmp(str, "off", 3)) {
+ 			dmar_disabled = 1;
++			no_platform_optin = 1;
+ 			pr_info("IOMMU disabled\n");
+ 		} else if (!strncmp(str, "igfx_off", 8)) {
+ 			dmar_map_gfx = 0;
+@@ -2895,6 +2897,14 @@ static int iommu_should_identity_map(struct device *dev, int startup)
+ 		if (device_is_rmrr_locked(dev))
+ 			return 0;
+ 
++		/*
++		 * Prevent any device marked as an external one from getting
++		 * placed into the statically identity mapping domain. This
++		 * is done because external devices are always untrusted.
++		 */
++		if (pdev->is_external)
++			return 0;
++
+ 		if ((iommu_identity_mapping & IDENTMAP_AZALIA) && IS_AZALIA(pdev))
+ 			return 1;
+ 
+@@ -4728,14 +4738,55 @@ const struct attribute_group *intel_iommu_groups[] = {
+ 	NULL,
+ };
+ 
++static int __init platform_optin_force_iommu(void)
++{
++	struct pci_dev *pdev = NULL;
++	bool has_ext_dev = false;
++
++	if (!dmar_platform_optin() || no_platform_optin)
++		return 0;
++
++	for_each_pci_dev(pdev) {
++		if (pdev->is_external) {
++			has_ext_dev = true;
++			break;
++		}
++	}
++
++	if (!has_ext_dev)
++		return 0;
++
++	if (no_iommu || dmar_disabled)
++		pr_info("Intel-IOMMU force enabled due to platform opt in\n");
++
++	/*
++	 *  If Intel-IOMMU is disabled by default, we will apply
++	 *  identity map for all devices except those marked as
++	 *  unsafe external devices.
++	 */
++	if (dmar_disabled)
++		iommu_identity_mapping |= IDENTMAP_ALL;
++
++	dmar_disabled = 0;
++#if defined(CONFIG_X86) && defined(CONFIG_SWIOTLB)
++	swiotlb = 0;
++#endif
++	no_iommu = 0;
++
++	return 1;
++}
++
+ int __init intel_iommu_init(void)
+ {
+ 	int ret = -ENODEV;
+ 	struct dmar_drhd_unit *drhd;
+ 	struct intel_iommu *iommu;
+ 
+-	/* VT-d is required for a TXT/tboot launch, so enforce that */
+-	force_on = tboot_force_iommu();
++	/*
++	 * Intel IOMMU is required for a TXT/tboot launch or platform
++	 * opt in, so enforce that.
++	 */
++	force_on = tboot_force_iommu() || platform_optin_force_iommu();
+ 
+ 	if (iommu_init_mempool()) {
+ 		if (force_on)
+diff --git a/include/linux/dmar.h b/include/linux/dmar.h
+index 843a41ba7e28..f8af1d770520 100644
+--- a/include/linux/dmar.h
++++ b/include/linux/dmar.h
+@@ -39,6 +39,7 @@ struct acpi_dmar_header;
+ /* DMAR Flags */
+ #define DMAR_INTR_REMAP		0x1
+ #define DMAR_X2APIC_OPT_OUT	0x2
++#define DMAR_PLATFORM_OPT_IN	0x4
+ 
+ struct intel_iommu;
+ 
+@@ -170,6 +171,8 @@ static inline int dmar_ir_hotplug(struct dmar_drhd_unit *dmaru, bool insert)
+ { return 0; }
+ #endif /* CONFIG_IRQ_REMAP */
+ 
++extern bool dmar_platform_optin(void);
++
+ #else /* CONFIG_DMAR_TABLE */
+ 
+ static inline int dmar_device_add(void *handle)
+@@ -182,6 +185,11 @@ static inline int dmar_device_remove(void *handle)
+ 	return 0;
+ }
+ 
++static inline bool dmar_platform_optin(void)
++{
++	return false;
++}
++
+ #endif /* CONFIG_DMAR_TABLE */
+ 
+ struct irte {
+-- 
+2.19.1

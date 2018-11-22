@@ -1,0 +1,251 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 12 Nov 2018 00:40:01 -0000
+Received: from icoremail.net (unknown [209.85.214.173])
+	by mail-app2 (Coremail) with SMTP id by_KCgDHH0IGcuhbB0J3AQ--.35992S3;
+	Mon, 12 Nov 2018 02:16:39 +0800 (CST)
+Received: from mail-pl1-f173.google.com (unknown [209.85.214.173])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwCXf0sCcuhbRNstAA--.4810S3;
+	Mon, 12 Nov 2018 02:16:34 +0800 (CST)
+Received: by mail-pl1-f173.google.com with SMTP id f12-v6so3208680plo.1
+        for <xuliker@zju.edu.cn>; Sun, 11 Nov 2018 10:16:34 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :subject:to:cc:references:from:date:user-agent:mime-version
+         :in-reply-to:content-language:content-transfer-encoding:message-id
+         :sender:precedence:list-id;
+        bh=jFoP1d3M+av/cRdv/fxPUZlqTlbpE5j4cOW9fS+qbu4=;
+        b=IO+ow0i1VwhpA6hlQaW1IpGn7uxbesJdCrxkYvgsRKlIxxJoiSmhfP/Jf2mmcpYEbT
+         yaGXI9oTHHTr3vdLZoko6zLnu+hfgfIrYnZd1TTnMVAjftVx43Q3x8qbGbqm4vKWhrmd
+         tmPH5AKjJllIwXEyCnBRXZFHSKYLWcU1Xyv7srCFsgwkeYfwX1GpBRssoZ5Wfy/+0agv
+         Y7n3hyw6X22FgJpvTtkbYDDekRrwPHrq9R8qMPGkdlsxncf/DSrDU11PVIIPcPZKcvvN
+         mGjfPAc+b9AIQaCXQkuzLskXNtYjR3Wli5+8cf2mckSinro3crF9hMY3rMZ2B4nkuY0i
+         siwQ==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=ibm.com
+X-Gm-Message-State: AGRZ1gL0JsXDCm+ExYqVUtOhYGwMKlWoXTqdrevYVyIKNYvBBZ0wc9jf
+	wLy5AS23WT9AzQk9wJ4ZEzv5GRozN/VnsJddul4IjtvPWcO0Rrc=
+X-Received: by 2002:a17:902:9698:: with SMTP id n24-v6mr17428413plp.9.1541960194114;
+        Sun, 11 Nov 2018 10:16:34 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp2345750pjt;
+        Sun, 11 Nov 2018 10:16:33 -0800 (PST)
+X-Google-Smtp-Source: AJdET5c5lM9X0PEpV2MBSkMCJmKnSXGyhQ4XQNW52X6u0Q4mGbNHXyUUlaAFyrMpWfZxP6eeXFYK
+X-Received: by 2002:a17:902:d207:: with SMTP id t7-v6mr17075658ply.90.1541960193175;
+        Sun, 11 Nov 2018 10:16:33 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1541960193; cv=none;
+        d=google.com; s=arc-20160816;
+        b=QDBV4zo+mlEXTpTbmgLRKGMsbac/dcZahx4dCZ+tonSldIh7KaQRmix5dbASx4mK9d
+         WvUhZFDV4P0IsnxWkPzNMH8EBYjSewqE2ffnzRcAOKDO1D5+f4ST70ZtQGxMmDWTdM4M
+         4EESPWUbfgEW81LsIzxij9FFf/DWwWDK5nR4ITUjbBMpBj80IP5n5+C1p5BuycamjFMV
+         OdSg1PyhDerdAf9+vme1palMYunmXwvo9grTES7XtG3waB1XQcMvvMetx2GvTS3vESEI
+         e3nzJc8MfrvcveYCCF65nIQtf0rpwfsVsRlbrVe5jw6EOeubJelkRjohaMU0JP/Q3Uue
+         fDUw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:message-id:content-transfer-encoding
+         :content-language:in-reply-to:mime-version:user-agent:date:from
+         :references:cc:to:subject;
+        bh=jFoP1d3M+av/cRdv/fxPUZlqTlbpE5j4cOW9fS+qbu4=;
+        b=CBWrzx7WZ110xtSIc3n+rxb+7RIhKO4gMr1AcmJeLWpcfLJWdH2Yv/ffnXQvVSn0pX
+         f2IjtIM8V6xUhFyvhyhy242p7dfTK9XUWfF7Kt+K/FVtAEpaWOidST5K3VLE/aBM+W2u
+         O7sY/cF0kIRulsR8wV/Bkx1jN5ItLmyMztIXytPX7HQE5mWfyI798/Y8Vj1NkLmg9ALw
+         96Kuai/B/Ym1Ags/2jannYkTeTwqpbP0rpxit13jStS7WWvtDrLLwFP5TqUwgAgXT8tR
+         H/TjP9ACJkGgspe+YF7I/o0Nwaszt5WcGxlMI1THD2HOHKnkApeuTS4m4gQMXsVRldKU
+         YZxQ==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=ibm.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id bh4-v6si774382plb.196.2018.11.11.10.16.05;
+        Sun, 11 Nov 2018 10:16:33 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1729314AbeKLEDJ (ORCPT <rfc822;fanshuming2011@gmail.com>
+        + 99 others); Sun, 11 Nov 2018 23:03:09 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:40028 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1729295AbeKLEDJ (ORCPT
+        <rfc822;kvm@vger.kernel.org>); Sun, 11 Nov 2018 23:03:09 -0500
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.22/8.16.0.22) with SMTP id wABI96Sc147285
+        for <kvm@vger.kernel.org>; Sun, 11 Nov 2018 13:13:54 -0500
+Received: from e31.co.us.ibm.com (e31.co.us.ibm.com [32.97.110.149])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2npdfwf71t-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <kvm@vger.kernel.org>; Sun, 11 Nov 2018 13:13:54 -0500
+Received: from localhost
+        by e31.co.us.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <kvm@vger.kernel.org> from <farman@linux.ibm.com>;
+        Sun, 11 Nov 2018 18:13:53 -0000
+Received: from b03cxnp07028.gho.boulder.ibm.com (9.17.130.15)
+        by e31.co.us.ibm.com (192.168.1.131) with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted;
+        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256/256)
+        Sun, 11 Nov 2018 18:13:52 -0000
+Received: from b03ledav003.gho.boulder.ibm.com (b03ledav003.gho.boulder.ibm.com [9.17.130.234])
+        by b03cxnp07028.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id wABIDo9020709596
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
+        Sun, 11 Nov 2018 18:13:50 GMT
+Received: from b03ledav003.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A54716A054;
+        Sun, 11 Nov 2018 18:13:50 +0000 (GMT)
+Received: from b03ledav003.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A6F736A04F;
+        Sun, 11 Nov 2018 18:13:49 +0000 (GMT)
+Received: from [9.85.147.102] (unknown [9.85.147.102])
+        by b03ledav003.gho.boulder.ibm.com (Postfix) with ESMTP;
+        Sun, 11 Nov 2018 18:13:49 +0000 (GMT)
+Subject: Re: [RFC PATCH v1 01/10] s390/cio: Fix cleanup of pfn_array alloc
+ failure
+To: Farhan Ali <alifm@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>
+Cc: Cornelia Huck <cohuck@redhat.com>,
+        Pierre Morel <pmorel@linux.ibm.com>,
+        linux-s390@vger.kernel.org, kvm@vger.kernel.org,
+        "Jason J . Herne" <jjherne@linux.ibm.com>
+References: <20181109023937.96105-1-farman@linux.ibm.com>
+ <20181109023937.96105-2-farman@linux.ibm.com>
+ <20181109114554.2d46b32d.cohuck@redhat.com>
+ <b5bee4de-9c46-fe7f-c690-027fdb3095a4@linux.ibm.com>
+ <20181109180152.7547c9a9@oc0155643701>
+ <c7394e78-69d8-b765-3d28-babed29e938e@linux.ibm.com>
+From: Eric Farman <farman@linux.ibm.com>
+Date: Sun, 11 Nov 2018 13:13:48 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:52.0) Gecko/20100101
+ Thunderbird/52.9.1
+MIME-Version: 1.0
+In-Reply-To: <c7394e78-69d8-b765-3d28-babed29e938e@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+x-cbid: 18111118-8235-0000-0000-00000E25C045
+X-IBM-SpamModules-Scores: 
+X-IBM-SpamModules-Versions: BY=3.00010028; HX=3.00000242; KW=3.00000007;
+ PH=3.00000004; SC=3.00000270; SDB=6.01115989; UDB=6.00578715; IPR=6.00896089;
+ MB=3.00024114; MTD=3.00000008; XFM=3.00000015; UTC=2018-11-11 18:13:53
+X-IBM-AV-DETECTION: SAVI=unused REMOTE=unused XFE=unused
+x-cbparentid: 18111118-8236-0000-0000-00004352601B
+Message-Id: <86ce9013-f245-9cb0-8042-f6c0cf7857d7@linux.ibm.com>
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2018-11-11_12:,,
+ signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ malwarescore=0 suspectscore=2 phishscore=0 bulkscore=0 spamscore=0
+ clxscore=1015 lowpriorityscore=0 mlxscore=0 impostorscore=0
+ mlxlogscore=999 adultscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.0.1-1807170000 definitions=main-1811110173
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwCXf0sCcuhbRNstAA--.4810S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoWxZF4fuFWfWF1rGw47WF17KFg_yoW5ury3pF
+	WrKFyYkayrJr40vrn2yF1kury8tr1DCFWDWw48ZryjyF1qqryvqr4IgFWj9Fn5Jr48GF43
+	trWFqa4xuF1UX3DanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUU0bIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUmqb7Iv0xC_Kw4lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Xr0_Ar1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1l84ACjcxK6I8E
+	87Iv67AKxVW8Jr0_Cr1UM28EF7xvwVC2z280aVCY1x0267AKxVW8Jr0_Cr1UM2AIxVAIcx
+	kEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v2
+	6r1j6r18McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IY64
+	vIr41l7I0Y6sxI4wCYjI0SjxkI62AI1cAE67vIY487MxkF7I0Ew4C26cxK6c8Ij28IcwCY
+	1Ik26cxK6xAEc7vF6xCjj44lc2xSY4AK6IIF6rylc2IjII80xcxEwVAKI48JMxvI42IY6x
+	IIjxv20xvE14v26r1j6r1xMxvI42IY6xIIjxv20xvEc7CjxVAFwI0_Jr0_Gr1lcIIF0xvE
+	x4A2jsIE14v26r4j6F4UMxvI42IY6I8E87Iv6xkF7I0E14v26r4j6r4UJwCF04k20xvY0x
+	0EwIxGrwCF04k20xvEw4C26cxK6c8Ij28IcwCF72vE77IF4wCFx2IqxVCFs4IE7xkEbVWU
+	JVW8JwC20s026c02F40E14v26r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67
+	kF1VAFwI0_Jw0_GFylIxkGc2Ij64vIr41lIxAIcVCF04k26cxKx2IYs7xG6Fyj6rWUJbIY
+	CTnIWIevJa73UjIFyTuYvjxUQFoXUUUUU
+
+
+
+On 11/09/2018 04:19 PM, Farhan Ali wrote:
+> 
+> 
+> On 11/09/2018 12:01 PM, Halil Pasic wrote:
+>> On Fri, 9 Nov 2018 09:49:22 -0500
+>> Eric Farman <farman@linux.ibm.com> wrote:
+>>
+>>>
+>>>
+>>> On 11/09/2018 05:45 AM, Cornelia Huck wrote:
+>>>> On Fri,  9 Nov 2018 03:39:28 +0100
+>>>> Eric Farman <farman@linux.ibm.com> wrote:
+>>>>
+>>>>> If pfn_array_alloc fails somehow, we need to release the
+>>>>> pfn_array_table that was malloc'd earlier.
+>>>>>
+>>>>> Signed-off-by: Eric Farman <farman@linux.ibm.com>
+>>>>> ---
+>>>>>    drivers/s390/cio/vfio_ccw_cp.c | 2 +-
+>>>>>    1 file changed, 1 insertion(+), 1 deletion(-)
+>>>>>
+>>>>> diff --git a/drivers/s390/cio/vfio_ccw_cp.c
+>>>>> b/drivers/s390/cio/vfio_ccw_cp.c index fd77e46eb3b2..ef5ab45d94b3
+>>>>> 100644 --- a/drivers/s390/cio/vfio_ccw_cp.c
+>>>>> +++ b/drivers/s390/cio/vfio_ccw_cp.c
+>>>>> @@ -528,7 +528,7 @@ static int ccwchain_fetch_direct(struct
+>>>>> ccwchain *chain,
+>>>>>        ret = pfn_array_alloc_pin(pat->pat_pa, cp->mdev,
+>>>>> ccw->cda, ccw->count); if (ret < 0)
+>>>>> -        goto out_init;
+>>>>> +        goto out_unpin;
+>>>>>        /* Translate this direct ccw to a idal ccw. */
+>>>>>        idaws = kcalloc(ret, sizeof(*idaws), GFP_DMA |
+>>>>> GFP_KERNEL);
+>>>>
+>>>> It's a bit confusing that this will also call vfio_unpin_pages()
+>>>> even though there should not be any pinned pages at that point in
+>>>> time; but from what I see, it should not hurt, so this patch is
+>>>> fine.
+>>>>
+>>>
+>>> Yeah, confusing indeed.  The problem today is that we don't undo the
+>>> pfn_array_table_init() call that happened prior to this error, and so
+>>> there would be a leak of the pat->pat_pa memory.  So going to
+>>> out_init is certainly not right.
+>>>
+>>> In the pfn_array patches later, I do conditionally call
+>>> vfio_unpin_pages() based on the contents of pfn_array->pa_iova, to
+>>> avoid the scenario you describe.
+>>>
+>>>    - Eric
+>>>
+>>
+>> Quite confusing and generally awful. I will try to figure out the
+>> before-after on a series level, and then consider the individual
+>> patches in detail. The in between states are predestined to look awful
+>> because of the current state.
+>>
+>> Regards,
+>> Halil
+>>
+>>
+>>
+> The fix is correct but yeah we are unpinning pages when we shouldn't 
+> have anymore pinned pages.
+> Maybe add an extra check in pfn_array_unpin_free to see if pa_iova_pfn 
+> is null? I don't know if it would make it even more confusing :)
+
+I know I put this check in later, but I think it's a 
+belts-and-suspenders situation.  If pfn_array_alloc_pin failed, then we 
+took one of three error exits:
+
+1) pa->pa_nr is set to zero, based on the input length
+2) pa->pa_iova_pfn is zero, because of -ENOMEM
+3) vfio_pin_pages() failed somehow, so on cleanup we set pa->pa_nr to 
+zero, kfree(pa->pa_iova_pfn), and set pa->pa_iova_pfn to NULL
+
+Since both pa_nr (npages) and pa_iova_pfn (user_pfn) are zero/NULL, the 
+unpin routine will exit out early with -EINVAL.  We don't check the 
+return code from vfio_unpin_pages, but that's fine since we're already 
+in an error path.
+
+I'm not opposed to a check here, so can spin a v2 of this patch if 
+desired.  But I'm not as concerned about it with the state of the code 
+on this patch.
+
+  - Eric

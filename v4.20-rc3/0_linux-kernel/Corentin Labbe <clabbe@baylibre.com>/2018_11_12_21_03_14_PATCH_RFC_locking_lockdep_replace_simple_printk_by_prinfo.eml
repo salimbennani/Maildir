@@ -1,0 +1,543 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (61.164.42.155:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 12 Nov 2018 15:16:12 -0000
+Received: from icoremail.net (unknown [209.85.215.178])
+	by mail-app2 (Coremail) with SMTP id by_KCgDXv2JAeulbXK19AQ--.38346S3;
+	Mon, 12 Nov 2018 21:04:02 +0800 (CST)
+Received: from mail-pg1-f178.google.com (unknown [209.85.215.178])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwA3DTk_eulb9NsxAA--.2073S3;
+	Mon, 12 Nov 2018 21:03:59 +0800 (CST)
+Received: by mail-pg1-f178.google.com with SMTP id w7so4045728pgp.13
+        for <xuliker@zju.edu.cn>; Mon, 12 Nov 2018 05:03:59 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:delivered-to:dkim-signature:from:to:cc:subject
+         :date:message-id:sender:precedence:list-id;
+        bh=WyOYtBKXz6FLIjL3yBN5qXtR4cY/RREpww7JUBviVhI=;
+        b=DjcTz3ijz3ObCQJVhZYfybF89JxGi+87zXddkHH/xVsNHMZYuroWENwbExo3ILFI9P
+         aCGDNDY2ClyyGmqZYSawhyLl+BRHL5OBvCDumY7ScLZmDn0reJMg0Yu1PSzn0pv3W06y
+         jo8gTOM0B8dz4WnPsu7B1nvGT+S8eOElrch3VGnJGWeLvWfQ+knSmWDCbb9pbkG9WHzm
+         LE1aIvpBzuZ/gckDwUSwotkYUkeDGlx4zaAJY5KL4igNQZBc1nf7I8r2yhzn3DbWQJL+
+         dsj8c2HtYhtbjyjGRqTMRcNaIVjMgo4+0JGqIStiRSFDmVuYv4qqwKdlz3kiM3kUJbe7
+         v22g==
+X-Gm-Message-State: AGRZ1gJYKh5LEQ4NO8KOa9lHvG7y9aZ+yy2+hohdvYfLLs1FtRwVDJtj
+	4bYKmztwAv5na/wCbUnWsZDkevuiVP+iXrm+tek+g0/nu42W9ZoJlQ==
+X-Received: by 2002:a65:64d5:: with SMTP id t21-v6mr768412pgv.428.1542027839060;
+        Mon, 12 Nov 2018 05:03:59 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp3158619pjt;
+        Mon, 12 Nov 2018 05:03:58 -0800 (PST)
+X-Google-Smtp-Source: AJdET5c6sWqk0L1vonRefMbhm0QaH5y2wTRgJoBR591WYVMhAwS3svmxaSz94UADcnmfn18SQggf
+X-Received: by 2002:a17:902:e01:: with SMTP id 1-v6mr824432plw.251.1542027837991;
+        Mon, 12 Nov 2018 05:03:57 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542027837; cv=none;
+        d=google.com; s=arc-20160816;
+        b=1H9DDWNh8z3CmaDbEcLL39h+OiWiOHMAg4uS6ZSKjd9JOTxfukcLaj1Xd4M5bIvYrc
+         rvYvy14w+QE/mEraavZbvnFdRUUlmXtdc7XHrpW1gYNkrsa4KcOhUqW3oC+eEnP8Atyt
+         3O1ivuW3DxgxgkCHPyywNfeQ40ZZsaU9AGZk3kTAP35A4lQU/EA9VUvTbTOjc+llBoWf
+         P+sC768eTFWZwqzNWL1chwaxlR29KP1oaiqhMaljkfk55x+r1t7Zlt614fqwjH4b7vxG
+         3X1uiSiqd51mDcn7fdIjxnqyu2/vsqP2H+wurcdea42feU1aLUnmBakhJO0R8Uy0itOs
+         gcpQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:message-id:date:subject:cc:to:from
+         :dkim-signature;
+        bh=WyOYtBKXz6FLIjL3yBN5qXtR4cY/RREpww7JUBviVhI=;
+        b=GabuXmW1jcsbK18SfWcsaUo5c0M0jPAkqD8im7NkbaAAbVa95L9fvLQJFQmb98OWS1
+         5VNDo7ZvuSMVM83mbzGbAyZjrAqeAYuwqeHwZjDBWFN2SGqEoKZntSpqHeYpjHzXk91W
+         iTiRe6ST2D+fAETawO/dmZYZ6vyZWHSGp/PtsPBGxtg5wSYhvoaz0ORkvciIl9pocQ7Z
+         Z04eIfWBiOssjsDih1hgxL3fa2imphfJ8nMPE/AmUYzIoSLNbAidrnBkD5ZdV7XpE5sk
+         FSbaexDGbJ2EYslQhtbZY4w6p3eaXnXC9YkqL8cWJZspbYOlGDP4SBWPx1JuMRMo+LW+
+         9m4w==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@baylibre-com.20150623.gappssmtp.com header.s=20150623 header.b=t4poFByS;
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id x142si15535641pgx.202.2018.11.12.05.03.42;
+        Mon, 12 Nov 2018 05:03:57 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1729679AbeKLW4j (ORCPT <rfc822;tomnomnom1@gmail.com>
+        + 99 others); Mon, 12 Nov 2018 17:56:39 -0500
+Received: from mail-wr1-f67.google.com ([209.85.221.67]:37090 "EHLO
+        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727989AbeKLW4j (ORCPT
+        <rfc822;linux-kernel@vger.kernel.org>);
+        Mon, 12 Nov 2018 17:56:39 -0500
+Received: by mail-wr1-f67.google.com with SMTP id o15-v6so9245288wrv.4
+        for <linux-kernel@vger.kernel.org>; Mon, 12 Nov 2018 05:03:25 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=baylibre-com.20150623.gappssmtp.com; s=20150623;
+        h=from:to:cc:subject:date:message-id;
+        bh=WyOYtBKXz6FLIjL3yBN5qXtR4cY/RREpww7JUBviVhI=;
+        b=t4poFBySv7hND8UXdpG2vPlnYxp63JT4b1/p2wS0/GBN54WvZreKqrapV32Qct9osS
+         RKyXRiVNXQGLSSQAIdUMtllx6aFnPkU+8XY555TORxuytrJBnahpxyUmwr7Wr6aCj/3T
+         1ixqnnQo/NHYUptgAVOosGvnVY8+W49ZAVrq/KwR6+p3NcJU4m7KD4ZsyBrEMSOFx8Tw
+         YMxXi3T48pVo01Fr089i8HdtUvS+vQl0nL8+noKUNgmKv8ISbgDGZjZnRubZHKcdnEZt
+         R/M2+8vX9RFWoo7RLry5kEFFZJN6fuGUW49xeyGr3Xzq519SrO/kwL2cXYWMZsp+mqCF
+         OZGw==
+X-Received: by 2002:adf:a20a:: with SMTP id p10-v6mr852062wra.249.1542027804606;
+        Mon, 12 Nov 2018 05:03:24 -0800 (PST)
+Received: from localhost.localdomain ([51.15.160.169])
+        by smtp.googlemail.com with ESMTPSA id g8-v6sm17836045wri.58.2018.11.12.05.03.23
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
+        Mon, 12 Nov 2018 05:03:23 -0800 (PST)
+From: Corentin Labbe <clabbe@baylibre.com>
+To: mingo@redhat.com, peterz@infradead.org, will.deacon@arm.com
+Cc: linux-kernel@vger.kernel.org, Corentin Labbe <clabbe@baylibre.com>
+Subject: [PATCH RFC] locking/lockdep: replace simple printk by pr_info
+Date: Mon, 12 Nov 2018 13:03:14 +0000
+Message-Id: <1542027794-2255-1-git-send-email-clabbe@baylibre.com>
+X-Mailer: git-send-email 2.7.4
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwA3DTk_eulb9NsxAA--.2073S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvAXoW3tF17trWrCw15ZryUXF4ktFb_yoW8XFy8uo
+	ZrZ34UKw4rtF9rK3yUAF13tFyjgw1DZa9xAF4Y9FsrAF18KrWrKr9rCw47CFyYgFWrurn5
+	Z34Iqw13Aa12kF47n29KB7ZKAUJUUUUU529EdanIXcx71UUUUj7v73VFW2AGmfu7jjvjm3
+	AaLaJ3UjIYCTnIWjp_UUUYk7k0a2IF6w4kM7kC6x804xWl14x267AKxVWUJVW8JwAFIxvE
+	14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK021l84ACjcxK6xIIjx
+	v20xvE14v26F1j6w1UM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26F4j6r4UJwA2z4x0Y4vE
+	x4A2jsIE14v26rxl6s0DM28EF7xvwVC2z280aVCY1x0267AKxVW0oVCq3wAS0I0E0xvYzx
+	vE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AKxVWU
+	JVWUGwAv7VC2z280aVAFwI0_Cr0_Gr1UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvY0x
+	0EwIxGrwCjxxvEa2IrMxkF7I0Ew4C26cxK6c8Ij28IcwCY0x0Ix7I2Y4AK64vIr41lcIIF
+	0xvE2Ix0cI8IcVAFwI0_Gr0_Xr1lcIIF0xvE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwCYIx
+	AIcVC2z280aVAFwI0_GcCE3s1lcIIF0xvEx4A2jsIEc7CjxVAFwI0_GcCE3s1l42xK82IY
+	c2Ij64vIr41l42xK82IY64kExVAvwVAq07x20xyl4x8a6x804xWl4I8I3I0E4IkC6x0Yz7
+	v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF
+	1VAY17CE14v26r126r1DMIIYrxkI7VAKI48JMIIF0xvE42xK8VAvwI8IcIk0rVW8JVW3Jb
+	IYCTnIWIevJa73UjIFyTuYvjxU9na9DUUUU
+
+While working on detector of new warn/err/crit/... messages, I found that the
+following messages was printed with the warn loglevel:
+[    0.001607] Lock dependency validator: Copyright (c) 2006 Red Hat, Inc., Ingo Molnar
+[    0.001625] ... MAX_LOCKDEP_SUBCLASSES:  8
+[    0.001641] ... MAX_LOCK_DEPTH:          48
+[    0.001658] ... MAX_LOCKDEP_KEYS:        8191
+[    0.001673] ... CLASSHASH_SIZE:          4096
+[    0.001689] ... MAX_LOCKDEP_ENTRIES:     32768
+[    0.001704] ... MAX_LOCKDEP_CHAINS:      65536
+[    0.001719] ... CHAINHASH_SIZE:          32768
+[    0.001735]  memory used by lock dependency info: 4623 kB
+
+While the cause is still unknown to me, converting printk to pr_info fixed the issue.
+
+Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
+---
+ kernel/locking/lockdep.c | 152 +++++++++++++++++++++++------------------------
+ 1 file changed, 76 insertions(+), 76 deletions(-)
+
+diff --git a/kernel/locking/lockdep.c b/kernel/locking/lockdep.c
+index 1efada2..9454597 100644
+--- a/kernel/locking/lockdep.c
++++ b/kernel/locking/lockdep.c
+@@ -560,9 +560,9 @@ static void lockdep_print_held_locks(struct task_struct *p)
+ 	int i, depth = READ_ONCE(p->lockdep_depth);
+ 
+ 	if (!depth)
+-		printk("no locks held by %s/%d.\n", p->comm, task_pid_nr(p));
++		pr_info("no locks held by %s/%d.\n", p->comm, task_pid_nr(p));
+ 	else
+-		printk("%d lock%s held by %s/%d:\n", depth,
++		pr_info("%d lock%s held by %s/%d:\n", depth,
+ 		       depth > 1 ? "s" : "", p->comm, task_pid_nr(p));
+ 	/*
+ 	 * It's not reliable to print a task's held locks if it's not sleeping
+@@ -571,14 +571,14 @@ static void lockdep_print_held_locks(struct task_struct *p)
+ 	if (p->state == TASK_RUNNING && p != current)
+ 		return;
+ 	for (i = 0; i < depth; i++) {
+-		printk(" #%d: ", i);
++		pr_info(" #%d: ", i);
+ 		print_lock(p->held_locks + i);
+ 	}
+ }
+ 
+ static void print_kernel_ident(void)
+ {
+-	printk("%s %.*s %s\n", init_utsname()->release,
++	pr_info("%s %.*s %s\n", init_utsname()->release,
+ 		(int)strcspn(init_utsname()->version, " "),
+ 		init_utsname()->version,
+ 		print_tainted());
+@@ -806,7 +806,7 @@ register_lock_class(struct lockdep_map *lock, unsigned int subclass, int force)
+ 	if (verbose(class)) {
+ 		graph_unlock();
+ 
+-		printk("\nnew class %px: %s", class->key, class->name);
++		pr_info("\nnew class %px: %s", class->key, class->name);
+ 		if (class->name_version > 1)
+ 			printk(KERN_CONT "#%d", class->name_version);
+ 		printk(KERN_CONT "\n");
+@@ -1085,7 +1085,7 @@ print_circular_bug_entry(struct lock_list *target, int depth)
+ {
+ 	if (debug_locks_silent)
+ 		return 0;
+-	printk("\n-> #%u", depth);
++	pr_info("\n-> #%u", depth);
+ 	print_lock_name(target->class);
+ 	printk(KERN_CONT ":\n");
+ 	print_stack_trace(&target->trace, 6);
+@@ -1116,7 +1116,7 @@ print_circular_lock_scenario(struct held_lock *src,
+ 	 * from the safe_class lock to the unsafe_class lock.
+ 	 */
+ 	if (parent != source) {
+-		printk("Chain exists of:\n  ");
++		pr_info("Chain exists of:\n  ");
+ 		__print_lock_name(source);
+ 		printk(KERN_CONT " --> ");
+ 		__print_lock_name(parent);
+@@ -1125,22 +1125,22 @@ print_circular_lock_scenario(struct held_lock *src,
+ 		printk(KERN_CONT "\n\n");
+ 	}
+ 
+-	printk(" Possible unsafe locking scenario:\n\n");
+-	printk("       CPU0                    CPU1\n");
+-	printk("       ----                    ----\n");
+-	printk("  lock(");
++	pr_info(" Possible unsafe locking scenario:\n\n");
++	pr_info("       CPU0                    CPU1\n");
++	pr_info("       ----                    ----\n");
++	pr_info("  lock(");
+ 	__print_lock_name(target);
+ 	printk(KERN_CONT ");\n");
+-	printk("                               lock(");
++	pr_info("                               lock(");
+ 	__print_lock_name(parent);
+ 	printk(KERN_CONT ");\n");
+-	printk("                               lock(");
++	pr_info("                               lock(");
+ 	__print_lock_name(target);
+ 	printk(KERN_CONT ");\n");
+-	printk("  lock(");
++	pr_info("  lock(");
+ 	__print_lock_name(source);
+ 	printk(KERN_CONT ");\n");
+-	printk("\n *** DEADLOCK ***\n\n");
++	pr_info("\n *** DEADLOCK ***\n\n");
+ }
+ 
+ /*
+@@ -1211,13 +1211,13 @@ static noinline int print_circular_bug(struct lock_list *this,
+ 		parent = get_lock_parent(parent);
+ 	}
+ 
+-	printk("\nother info that might help us debug this:\n\n");
++	pr_info("\nother info that might help us debug this:\n\n");
+ 	print_circular_lock_scenario(check_src, check_tgt,
+ 				     first_parent);
+ 
+ 	lockdep_print_held_locks(curr);
+ 
+-	printk("\nstack backtrace:\n");
++	pr_info("\nstack backtrace:\n");
+ 	dump_stack();
+ 
+ 	return 0;
+@@ -1389,7 +1389,7 @@ static void print_lock_class_header(struct lock_class *class, int depth)
+ {
+ 	int bit;
+ 
+-	printk("%*s->", depth, "");
++	pr_info("%*s->", depth, "");
+ 	print_lock_name(class);
+ #ifdef CONFIG_DEBUG_LOCKDEP
+ 	printk(KERN_CONT " ops: %lu", debug_class_ops_read(class));
+@@ -1400,14 +1400,14 @@ static void print_lock_class_header(struct lock_class *class, int depth)
+ 		if (class->usage_mask & (1 << bit)) {
+ 			int len = depth;
+ 
+-			len += printk("%*s   %s", depth, "", usage_str[bit]);
++			len += pr_info("%*s   %s", depth, "", usage_str[bit]);
+ 			len += printk(KERN_CONT " at:\n");
+ 			print_stack_trace(class->usage_traces + bit, len);
+ 		}
+ 	}
+-	printk("%*s }\n", depth, "");
++	pr_info("%*s }\n", depth, "");
+ 
+-	printk("%*s ... key      at: [<%px>] %pS\n",
++	pr_info("%*s ... key      at: [<%px>] %pS\n",
+ 		depth, "", class->key, class->key);
+ }
+ 
+@@ -1426,12 +1426,12 @@ print_shortest_lock_dependencies(struct lock_list *leaf,
+ 
+ 	do {
+ 		print_lock_class_header(entry->class, depth);
+-		printk("%*s ... acquired at:\n", depth, "");
++		pr_info("%*s ... acquired at:\n", depth, "");
+ 		print_stack_trace(&entry->trace, 2);
+-		printk("\n");
++		pr_info("\n");
+ 
+ 		if (depth == 0 && (entry != root)) {
+-			printk("lockdep:%s bad path found in chain graph\n", __func__);
++			pr_info("lockdep:%s bad path found in chain graph\n", __func__);
+ 			break;
+ 		}
+ 
+@@ -1469,7 +1469,7 @@ print_irq_lock_scenario(struct lock_list *safe_entry,
+ 	 * from the safe_class lock to the unsafe_class lock.
+ 	 */
+ 	if (middle_class != unsafe_class) {
+-		printk("Chain exists of:\n  ");
++		pr_info("Chain exists of:\n  ");
+ 		__print_lock_name(safe_class);
+ 		printk(KERN_CONT " --> ");
+ 		__print_lock_name(middle_class);
+@@ -1478,24 +1478,24 @@ print_irq_lock_scenario(struct lock_list *safe_entry,
+ 		printk(KERN_CONT "\n\n");
+ 	}
+ 
+-	printk(" Possible interrupt unsafe locking scenario:\n\n");
+-	printk("       CPU0                    CPU1\n");
+-	printk("       ----                    ----\n");
+-	printk("  lock(");
++	pr_info(" Possible interrupt unsafe locking scenario:\n\n");
++	pr_info("       CPU0                    CPU1\n");
++	pr_info("       ----                    ----\n");
++	pr_info("  lock(");
+ 	__print_lock_name(unsafe_class);
+ 	printk(KERN_CONT ");\n");
+-	printk("                               local_irq_disable();\n");
+-	printk("                               lock(");
++	pr_info("                               local_irq_disable();\n");
++	pr_info("                               lock(");
+ 	__print_lock_name(safe_class);
+ 	printk(KERN_CONT ");\n");
+-	printk("                               lock(");
++	pr_info("                               lock(");
+ 	__print_lock_name(middle_class);
+ 	printk(KERN_CONT ");\n");
+-	printk("  <Interrupt>\n");
+-	printk("    lock(");
++	pr_info("  <Interrupt>\n");
++	pr_info("    lock(");
+ 	__print_lock_name(safe_class);
+ 	printk(KERN_CONT ");\n");
+-	printk("\n *** DEADLOCK ***\n\n");
++	pr_info("\n *** DEADLOCK ***\n\n");
+ }
+ 
+ static int
+@@ -1722,17 +1722,17 @@ print_deadlock_scenario(struct held_lock *nxt,
+ 	struct lock_class *next = hlock_class(nxt);
+ 	struct lock_class *prev = hlock_class(prv);
+ 
+-	printk(" Possible unsafe locking scenario:\n\n");
+-	printk("       CPU0\n");
+-	printk("       ----\n");
+-	printk("  lock(");
++	pr_info(" Possible unsafe locking scenario:\n\n");
++	pr_info("       CPU0\n");
++	pr_info("       ----\n");
++	pr_info("  lock(");
+ 	__print_lock_name(prev);
+ 	printk(KERN_CONT ");\n");
+-	printk("  lock(");
++	pr_info("  lock(");
+ 	__print_lock_name(next);
+ 	printk(KERN_CONT ");\n");
+-	printk("\n *** DEADLOCK ***\n\n");
+-	printk(" May be due to missing lock nesting notation\n\n");
++	pr_info("\n *** DEADLOCK ***\n\n");
++	pr_info(" May be due to missing lock nesting notation\n\n");
+ }
+ 
+ static int
+@@ -2052,7 +2052,7 @@ static u64 print_chain_key_iteration(int class_idx, u64 chain_key)
+ {
+ 	u64 new_chain_key = iterate_chain_key(chain_key, class_idx);
+ 
+-	printk(" class_idx:%d -> chain_key:%016Lx",
++	pr_info(" class_idx:%d -> chain_key:%016Lx",
+ 		class_idx,
+ 		(unsigned long long)new_chain_key);
+ 	return new_chain_key;
+@@ -2066,7 +2066,7 @@ print_chain_keys_held_locks(struct task_struct *curr, struct held_lock *hlock_ne
+ 	int depth = curr->lockdep_depth;
+ 	int i;
+ 
+-	printk("depth: %u\n", depth + 1);
++	pr_info("depth: %u\n", depth + 1);
+ 	for (i = get_first_held_lock(curr, hlock_next); i < depth; i++) {
+ 		hlock = curr->held_locks + i;
+ 		chain_key = print_chain_key_iteration(hlock->class_idx, chain_key);
+@@ -2084,13 +2084,13 @@ static void print_chain_keys_chain(struct lock_chain *chain)
+ 	u64 chain_key = 0;
+ 	int class_id;
+ 
+-	printk("depth: %u\n", chain->depth);
++	pr_info("depth: %u\n", chain->depth);
+ 	for (i = 0; i < chain->depth; i++) {
+ 		class_id = chain_hlocks[chain->base + i];
+ 		chain_key = print_chain_key_iteration(class_id + 1, chain_key);
+ 
+ 		print_lock_name(lock_classes + class_id);
+-		printk("\n");
++		pr_info("\n");
+ 	}
+ }
+ 
+@@ -2269,7 +2269,7 @@ static inline int lookup_chain_cache_add(struct task_struct *curr,
+ 			return 0;
+ 
+ 		if (very_verbose(class)) {
+-			printk("\nhash chain already cached, key: "
++			pr_info("\nhash chain already cached, key: "
+ 					"%016Lx tail class: [%px] %s\n",
+ 					(unsigned long long)chain_key,
+ 					class->key, class->name);
+@@ -2279,7 +2279,7 @@ static inline int lookup_chain_cache_add(struct task_struct *curr,
+ 	}
+ 
+ 	if (very_verbose(class)) {
+-		printk("\nnew hash chain, key: %016Lx tail class: [%px] %s\n",
++		pr_info("\nnew hash chain, key: %016Lx tail class: [%px] %s\n",
+ 			(unsigned long long)chain_key, class->key, class->name);
+ 	}
+ 
+@@ -2422,17 +2422,17 @@ print_usage_bug_scenario(struct held_lock *lock)
+ {
+ 	struct lock_class *class = hlock_class(lock);
+ 
+-	printk(" Possible unsafe locking scenario:\n\n");
+-	printk("       CPU0\n");
+-	printk("       ----\n");
+-	printk("  lock(");
++	pr_info(" Possible unsafe locking scenario:\n\n");
++	pr_info("       CPU0\n");
++	pr_info("       ----\n");
++	pr_info("  lock(");
+ 	__print_lock_name(class);
+ 	printk(KERN_CONT ");\n");
+-	printk("  <Interrupt>\n");
+-	printk("    lock(");
++	pr_info("  <Interrupt>\n");
++	pr_info("    lock(");
+ 	__print_lock_name(class);
+ 	printk(KERN_CONT ");\n");
+-	printk("\n *** DEADLOCK ***\n\n");
++	pr_info("\n *** DEADLOCK ***\n\n");
+ }
+ 
+ static int
+@@ -2605,17 +2605,17 @@ check_usage_backwards(struct task_struct *curr, struct held_lock *this,
+ 
+ void print_irqtrace_events(struct task_struct *curr)
+ {
+-	printk("irq event stamp: %u\n", curr->irq_events);
+-	printk("hardirqs last  enabled at (%u): [<%px>] %pS\n",
++	pr_info("irq event stamp: %u\n", curr->irq_events);
++	pr_info("hardirqs last  enabled at (%u): [<%px>] %pS\n",
+ 		curr->hardirq_enable_event, (void *)curr->hardirq_enable_ip,
+ 		(void *)curr->hardirq_enable_ip);
+-	printk("hardirqs last disabled at (%u): [<%px>] %pS\n",
++	pr_info("hardirqs last disabled at (%u): [<%px>] %pS\n",
+ 		curr->hardirq_disable_event, (void *)curr->hardirq_disable_ip,
+ 		(void *)curr->hardirq_disable_ip);
+-	printk("softirqs last  enabled at (%u): [<%px>] %pS\n",
++	pr_info("softirqs last  enabled at (%u): [<%px>] %pS\n",
+ 		curr->softirq_enable_event, (void *)curr->softirq_enable_ip,
+ 		(void *)curr->softirq_enable_ip);
+-	printk("softirqs last disabled at (%u): [<%px>] %pS\n",
++	pr_info("softirqs last disabled at (%u): [<%px>] %pS\n",
+ 		curr->softirq_disable_event, (void *)curr->softirq_disable_ip,
+ 		(void *)curr->softirq_disable_ip);
+ }
+@@ -3076,7 +3076,7 @@ static int mark_lock(struct task_struct *curr, struct held_lock *this,
+ 	 * We must printk outside of the graph_lock:
+ 	 */
+ 	if (ret == 2) {
+-		printk("\nmarked lock as {%s}:\n", usage_str[new_bit]);
++		pr_info("\nmarked lock as {%s}:\n", usage_str[new_bit]);
+ 		print_lock(this);
+ 		print_irqtrace_events(curr);
+ 		dump_stack();
+@@ -3119,7 +3119,7 @@ static void __lockdep_init_map(struct lockdep_map *lock, const char *name,
+ 	 * Sanity check, the lock-class key must be persistent:
+ 	 */
+ 	if (!static_obj(key)) {
+-		printk("BUG: key %px not in .data!\n", key);
++		pr_info("BUG: key %px not in .data!\n", key);
+ 		/*
+ 		 * What it says above ^^^^^, I suggest you read it.
+ 		 */
+@@ -3232,7 +3232,7 @@ static int __lock_acquire(struct lockdep_map *lock, unsigned int subclass,
+ 	debug_class_ops_inc(class);
+ 
+ 	if (very_verbose(class)) {
+-		printk("\nacquire class [%px] %s", class->key, class->name);
++		pr_info("\nacquire class [%px] %s", class->key, class->name);
+ 		if (class->name_version > 1)
+ 			printk(KERN_CONT "#%d", class->name_version);
+ 		printk(KERN_CONT "\n");
+@@ -3759,11 +3759,11 @@ static void check_flags(unsigned long flags)
+ 
+ 	if (irqs_disabled_flags(flags)) {
+ 		if (DEBUG_LOCKS_WARN_ON(current->hardirqs_enabled)) {
+-			printk("possible reason: unannotated irqs-off.\n");
++			pr_info("possible reason: unannotated irqs-off.\n");
+ 		}
+ 	} else {
+ 		if (DEBUG_LOCKS_WARN_ON(!current->hardirqs_enabled)) {
+-			printk("possible reason: unannotated irqs-on.\n");
++			pr_info("possible reason: unannotated irqs-on.\n");
+ 		}
+ 	}
+ 
+@@ -4258,17 +4258,17 @@ void lockdep_reset_lock(struct lockdep_map *lock)
+ 
+ void __init lockdep_init(void)
+ {
+-	printk("Lock dependency validator: Copyright (c) 2006 Red Hat, Inc., Ingo Molnar\n");
++	pr_info("Lock dependency validator: Copyright (c) 2006 Red Hat, Inc., Ingo Molnar\n");
+ 
+-	printk("... MAX_LOCKDEP_SUBCLASSES:  %lu\n", MAX_LOCKDEP_SUBCLASSES);
+-	printk("... MAX_LOCK_DEPTH:          %lu\n", MAX_LOCK_DEPTH);
+-	printk("... MAX_LOCKDEP_KEYS:        %lu\n", MAX_LOCKDEP_KEYS);
+-	printk("... CLASSHASH_SIZE:          %lu\n", CLASSHASH_SIZE);
+-	printk("... MAX_LOCKDEP_ENTRIES:     %lu\n", MAX_LOCKDEP_ENTRIES);
+-	printk("... MAX_LOCKDEP_CHAINS:      %lu\n", MAX_LOCKDEP_CHAINS);
+-	printk("... CHAINHASH_SIZE:          %lu\n", CHAINHASH_SIZE);
++	pr_info("... MAX_LOCKDEP_SUBCLASSES:  %lu\n", MAX_LOCKDEP_SUBCLASSES);
++	pr_info("... MAX_LOCK_DEPTH:          %lu\n", MAX_LOCK_DEPTH);
++	pr_info("... MAX_LOCKDEP_KEYS:        %lu\n", MAX_LOCKDEP_KEYS);
++	pr_info("... CLASSHASH_SIZE:          %lu\n", CLASSHASH_SIZE);
++	pr_info("... MAX_LOCKDEP_ENTRIES:     %lu\n", MAX_LOCKDEP_ENTRIES);
++	pr_info("... MAX_LOCKDEP_CHAINS:      %lu\n", MAX_LOCKDEP_CHAINS);
++	pr_info("... CHAINHASH_SIZE:          %lu\n", CHAINHASH_SIZE);
+ 
+-	printk(" memory used by lock dependency info: %lu kB\n",
++	pr_info(" memory used by lock dependency info: %lu kB\n",
+ 		(sizeof(struct lock_class) * MAX_LOCKDEP_KEYS +
+ 		sizeof(struct list_head) * CLASSHASH_SIZE +
+ 		sizeof(struct lock_list) * MAX_LOCKDEP_ENTRIES +
+@@ -4280,7 +4280,7 @@ void __init lockdep_init(void)
+ 		) / 1024
+ 		);
+ 
+-	printk(" per task-struct memory footprint: %lu bytes\n",
++	pr_info(" per task-struct memory footprint: %lu bytes\n",
+ 		sizeof(struct held_lock) * MAX_LOCK_DEPTH);
+ }
+ 
+@@ -4403,7 +4403,7 @@ EXPORT_SYMBOL_GPL(debug_show_all_locks);
+ void debug_show_held_locks(struct task_struct *task)
+ {
+ 	if (unlikely(!debug_locks)) {
+-		printk("INFO: lockdep is turned off.\n");
++		pr_info("INFO: lockdep is turned off.\n");
+ 		return;
+ 	}
+ 	lockdep_print_held_locks(task);
+-- 
+2.7.4

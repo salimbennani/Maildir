@@ -1,0 +1,148 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 21 Nov 2018 00:40:54 -0000
+Received: from icoremail.net (unknown [209.85.214.172])
+	by mail-app4 (Coremail) with SMTP id cS_KCgCn3_CRN_Rbq9rgAQ--.39216S3;
+	Wed, 21 Nov 2018 00:34:26 +0800 (CST)
+Received: from mail-pl1-f172.google.com (unknown [209.85.214.172])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwB3WkaON_RbIAtfAA--.2724S3;
+	Wed, 21 Nov 2018 00:34:23 +0800 (CST)
+Received: by mail-pl1-f172.google.com with SMTP id e5so1247522plb.5
+        for <xuliker@zju.edu.cn>; Tue, 20 Nov 2018 08:34:23 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:delivered-to:dkim-signature:date:from:to:cc
+         :subject:message-id:references:mime-version:content-disposition
+         :in-reply-to:user-agent:sender:precedence:list-id;
+        bh=wLqi/vF2D0NhTrVanrL5/ikBNTGd8RqVHgF0CR1yK+8=;
+        b=J6bJ/yYLisRTZZcx0VWYuX0HM10h4RSEcz5y+5O2MNhv9i3bX0rB1J4n6nRc/hvdnj
+         9jUHW5wBFarWNNVeo/q4A83qlLIPVcYcvYEhy1gDETVOkFB5NLZGHR6LH81IEWT1ID6l
+         Xg3Cf2PRYagmw3XMw2pJ1WFhB3/nNn9UCLFkBpBShA7RpUiHocxrvUH9/9NMnEG7yzjO
+         iczgRK2kZf4JpUr1eNPLL1YY2ug4D1v3IEe1WD+Wv1vabYNcRDzzJsAsaH99LtD9Ff11
+         WRsbVtlA5TSgxYIzhGMHeyLM83V9ROJf349IWcY2hEdOlrVHYaJZbCoR7IRIHbFcqaUr
+         lDQA==
+X-Gm-Message-State: AA+aEWZClSYf4pBy38LqDjevW8b61761eA9WthjUQwcmAbXtg9WLZM2m
+	qZMy2jTfvtVCsS1EzSwLm6ilYX9hBoz19Ejtu95wmDFaQDgA19c=
+X-Received: by 2002:a17:902:bd46:: with SMTP id b6mr2881892plx.231.1542731662725;
+        Tue, 20 Nov 2018 08:34:22 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:d106:0:0:0:0 with SMTP id l6-v6csp824857pju;
+        Tue, 20 Nov 2018 08:34:21 -0800 (PST)
+X-Google-Smtp-Source: AFSGD/WioMAUt1np+r/nCZCTM7f8Wtws5CtEqQi3e68P/IHn1RGP1zuXrcG4nPqzT5xXwsZzjYdu
+X-Received: by 2002:a17:902:7587:: with SMTP id j7mr2920138pll.191.1542731661774;
+        Tue, 20 Nov 2018 08:34:21 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542731661; cv=none;
+        d=google.com; s=arc-20160816;
+        b=UTTw5Q/CtrZDuI5jP/soWTZ7SJlNRGrfp2z9T9rNHo/EsJjvtXKoa/R1ImsXLCoE66
+         cUFzi4kv+GNgVeoHwhPBYddC/VPsUEOg+PGdQ+kPknQITqGMDx3atgc9VgmtUkUuKGmy
+         QgZFdbFt/Cfm6s/UMjTeEDRtbG5mXrG5MIohuH2kYxf3+mmPppRdPFz1JMazwsFV4xI+
+         QKiJtGLudamkj5gq5fNaUGe7GlTLUqgn0azY75lboxLaItWDu90GsaHIC9LB7liYqTH6
+         L5M0sCUQj8ZfZ7/SHMsN3L5m6oMAJVG8BNZjeV3XH3l0b2kEUNsYtUofw7Ie4gwW9r3Q
+         KrbA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:user-agent:in-reply-to
+         :content-disposition:mime-version:references:message-id:subject:cc
+         :to:from:date:dkim-signature;
+        bh=wLqi/vF2D0NhTrVanrL5/ikBNTGd8RqVHgF0CR1yK+8=;
+        b=BeQcfs3ihT28mmQWfNQH4b4VFF0/V1L6FnNiX/I89761OjB1Isd8CeJN4H7Z6aIlzS
+         /rJPVZXgv+8yabz8omSKAZc9h+owYeVDujl8bD7BvVhUkK8qxpywmNIzEOuQgOvdVzRV
+         zZ+iaCpsZAfGu6KGI+9SI0cMvZ5QVI2X3Qchii87JYrfwvLNZoTgMAQ5D+qeZ65UL1I/
+         r5SvenhuO9MdTxsLrR4lhzi/I/MAkJXivqZ3oCWUWoqFf9jxASO575MAA15chb4KsI6r
+         uxMlX1Cp5fXfYAna2MLNVhdYQqlZqsIbS7c4gG+rScuNKF/zTlt4umw5vD+KtEN3WRFq
+         OTAA==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=fail header.i=@gmail.com header.s=20161025 header.b=XXcuj7i8;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=kernel.org
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id e136si35269445pfh.17.2018.11.20.08.34.01;
+        Tue, 20 Nov 2018 08:34:21 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1729933AbeKUDDX (ORCPT <rfc822;alpcanarslan95@gmail.com>
+        + 99 others); Tue, 20 Nov 2018 22:03:23 -0500
+Received: from mail-yw1-f68.google.com ([209.85.161.68]:45053 "EHLO
+        mail-yw1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725904AbeKUDDW (ORCPT <rfc822;kvm@vger.kernel.org>);
+        Tue, 20 Nov 2018 22:03:22 -0500
+Received: by mail-yw1-f68.google.com with SMTP id k6-v6so997447ywa.11;
+        Tue, 20 Nov 2018 08:33:22 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=wLqi/vF2D0NhTrVanrL5/ikBNTGd8RqVHgF0CR1yK+8=;
+        b=XXcuj7i8EFzOCtQ0gd1b14G9CfQjyJP2hi8itJmkJ0TlCB/q/wNk5ZGjUqhktuLRXx
+         NgLQsuyfRbEKMLz88ajpLpsmt5U9dpcwsA2S0vDq7cBHeTWLG6DtsjgT49zvmK+QSyUl
+         YFBbB04uny6GG4r3m8L/gJGLX6cyxh+BvKuYtrV9ST50R2ol7MatBMp7iIau97vI1rS6
+         vcTUCbwL9GJJuM5NJ7cpMV227Ev9QllUOaedWNa/WfHxYHTP+SK7dPrQzLL2v9uu1sl2
+         qQhOfZ1XqaUicaoVjdrLkvHWZEClrXg5tgTxk84RiueXffTMSXBVIkidKa4dYdQ4Esac
+         xaQQ==
+X-Received: by 2002:a81:3bc1:: with SMTP id i184-v6mr2557237ywa.455.1542731601711;
+        Tue, 20 Nov 2018 08:33:21 -0800 (PST)
+Received: from localhost ([2620:10d:c091:200::7:4b6a])
+        by smtp.gmail.com with ESMTPSA id u84sm3842541ywb.12.2018.11.20.08.33.20
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 20 Nov 2018 08:33:20 -0800 (PST)
+Date: Tue, 20 Nov 2018 08:33:19 -0800
+From: Tejun Heo <tj@kernel.org>
+To: Daniel Jordan <daniel.m.jordan@oracle.com>
+Cc: linux-mm@kvack.org, kvm@vger.kernel.org,
+        linux-kernel@vger.kernel.org, aarcange@redhat.com,
+        aaron.lu@intel.com, akpm@linux-foundation.org,
+        alex.williamson@redhat.com, bsd@redhat.com,
+        darrick.wong@oracle.com, dave.hansen@linux.intel.com,
+        jgg@mellanox.com, jwadams@google.com, jiangshanlai@gmail.com,
+        mhocko@kernel.org, mike.kravetz@oracle.com,
+        Pavel.Tatashin@microsoft.com, prasad.singamsetty@oracle.com,
+        rdunlap@infradead.org, steven.sistare@oracle.com,
+        tim.c.chen@intel.com, vbabka@suse.cz
+Subject: Re: [RFC PATCH v4 05/13] workqueue, ktask: renice helper threads to
+ prevent starvation
+Message-ID: <20181120163319.GW2509588@devbig004.ftw2.facebook.com>
+References: <20181105165558.11698-1-daniel.m.jordan@oracle.com>
+ <20181105165558.11698-6-daniel.m.jordan@oracle.com>
+ <20181113163400.GK2509588@devbig004.ftw2.facebook.com>
+ <20181119164554.axobolrufu26kfah@ca-dmjordan1.us.oracle.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20181119164554.axobolrufu26kfah@ca-dmjordan1.us.oracle.com>
+User-Agent: Mutt/1.5.21 (2010-09-15)
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwB3WkaON_RbIAtfAA--.2724S3
+Authentication-Results: mail-app4; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjDUn29KB7ZKAUJUUUUU529EdanIXcx71UUUUU7v73
+	VFW2AGmfu7jjvjm3AaLaJ3UjIYCTnIWjp_UUUO07k0a2IF6F4UM7kC6x804xWl14x267AK
+	xVWUJVW8JwAFIxvE14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK02
+	1l84ACjcxK6xIIjxv20xvE14v26F1j6w1UM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26F4j
+	6r4UJwA2z4x0Y4vEx4A2jsIE14v26r4UJVWxJr1l84ACjcxK6I8E87Iv6xkF7I0E14v26r
+	4UJVWxJr1le2I262IYc4CY6c8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2Wl
+	Yx0E2Ix0cI8IcVAFwI0_JrI_JrylYx0Ex4A2jsIE14v26r1j6r4UMcvjeVCFs4IE7xkEbV
+	WUJVW8JwACjcxG0xvEwIxGrwCjxxvEa2IrMxkF7I0Ew4C26cxK6c8Ij28IcwCY1Ik26cxK
+	6xAEc7vF6xCjj44lc2xSY4AK6IIF6r1lc2IjII80xcxEwVAKI48JMxvI42IY6xIIjxv20x
+	vE14v26F1j6w1UMxvI42IY6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1lcIIF0xvEx4A2jsIE
+	14v26F4j6r4UJwCYIxAIcVC2z280aVCY1x0267AKxVW8JVW8Jr1l42xK82IYc2Ij64vIr4
+	1l42xK82IY64kExVAvwVAq07x20xyl4x8a6x804xWl4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1l
+	x2IqxVAqx4xG67AKxVWUJVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14
+	v26r4a6rW5MIIYrxkI7VAKI48JMIIF0xvE42xK8VAvwI8IcIk0rVWUCVW8JbIYCTnIWIev
+	Ja73UjIFyTuYvjxUqnXoUUUUU
+
+On Mon, Nov 19, 2018 at 08:45:54AM -0800, Daniel Jordan wrote:
+> So instead of flush_work_at_nice, how about this?:
+> 
+> void renice_work_sync(work_struct *work, long nice);
+
+Wouldn't renice_or_cancel make more sense?
+
+Thanks.
+
+-- 
+tejun

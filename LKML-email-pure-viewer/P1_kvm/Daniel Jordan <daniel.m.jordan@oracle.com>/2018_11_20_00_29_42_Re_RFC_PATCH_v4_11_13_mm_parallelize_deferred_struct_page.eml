@@ -1,0 +1,190 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 20 Nov 2018 00:31:38 -0000
+Received: from icoremail.net (unknown [209.85.215.180])
+	by mail-app2 (Coremail) with SMTP id by_KCgDXv+5K5fJbj2K6AQ--.55490S3;
+	Tue, 20 Nov 2018 00:31:17 +0800 (CST)
+Received: from mail-pg1-f180.google.com (unknown [209.85.215.180])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwAnB0NC5fJb5FpZAA--.11863S3;
+	Tue, 20 Nov 2018 00:30:58 +0800 (CST)
+Received: by mail-pg1-f180.google.com with SMTP id z11so11430701pgu.0
+        for <xuliker@zju.edu.cn>; Mon, 19 Nov 2018 08:30:58 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:delivered-to:dkim-signature:date:from:to:cc
+         :subject:message-id:references:mime-version:content-disposition
+         :in-reply-to:user-agent:sender:precedence:list-id;
+        bh=7yyGGjSNaCo/1qyqOVV7SWjrnAG0lKqsvoU2TdoxhX0=;
+        b=thyj7wFRMgp1XZJA8bnep3Ss8WX0FPYOoHf/YVt5GsHiS6bMQcuO+j8WoHY5nJB9Si
+         fv0RuKjf2MK6bDB9UC27U2C38hCL6ckRmISCXIEV5z79eLNir0KsLuLpfd19e7+zG4et
+         LrTiIDPojYebumAmnW1K2TsFS3yayIC/7nMvxxWwhD9H4+U6jX5L4r8+WfKSHV2WlqRL
+         1xltX8GKIalz9I2mQeJ0ZcmgKAHOus6EjXyaNx19BiM4d1Hlyf1uezh0wHKyeFL/SnOk
+         8TfLviebiAevyjS5zCYsYDNIQ5o2F2HfT7jZa+zkB6QfJuFaf2tp4gugJ/OnYJ/YrGw+
+         q1IQ==
+X-Gm-Message-State: AGRZ1gJW66UsHrLxFpmnvXeMDb/dPfNf0HC9rWqZ7eth3B84/Qj8gY7T
+	sqdx2ITiyyIDry7RsOu/EEJEBVnJn+eoCHlUO7y8HXj5Wa5FJYw=
+X-Received: by 2002:a63:580a:: with SMTP id m10mr12026702pgb.332.1542645057944;
+        Mon, 19 Nov 2018 08:30:57 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:d106:0:0:0:0 with SMTP id l6-v6csp2877514pju;
+        Mon, 19 Nov 2018 08:30:57 -0800 (PST)
+X-Google-Smtp-Source: AJdET5erhsjnIqzeoCX2P+Sg3G2y6cbqnTdOAvNZBeM2P3dOho/K7eQAvF8ZAsXRiiBa5Oq6tgzq
+X-Received: by 2002:a63:94:: with SMTP id 142mr20278610pga.74.1542645057012;
+        Mon, 19 Nov 2018 08:30:57 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542645056; cv=none;
+        d=google.com; s=arc-20160816;
+        b=XqZuPw++GI++FtMzeMP7a1uDkL34bOayWhccTMXV6SX0sanSIPK+7nqZ6sqJySXUWn
+         6rCL1E5I3OPoyjcWEBRk31tHdeFerenKRNCwY7PoC2rvV6jeMf9+xCAfakI8eUtcJ3sN
+         z0R7lEh8o9uLo609J7D2MMQKiMtWCcjxtXa7HtOkWQ0aJDnh7/BtlDRBhQ6pcrsKTVL4
+         zK4KrZJLkCa9m79yXZCD8/I7h6ksh9JnhWYqad3HwRivP+oS6JGOkJjzWqqwfWZgf5ti
+         jj1vfYDMageIEPzZJQxjMoK/LcBaViJ9Arcp7Y03K4tt2svJHnBNBfgKx+US7fSAAZro
+         utbg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:user-agent:in-reply-to
+         :content-disposition:mime-version:references:message-id:subject:cc
+         :to:from:date:dkim-signature;
+        bh=7yyGGjSNaCo/1qyqOVV7SWjrnAG0lKqsvoU2TdoxhX0=;
+        b=vR0jPVd6OK5gKvktJbLA6kWvscm9UcXUTQ/yE58iHrlT4f8IpKWDmtXl0P8Ytf9Rd7
+         ns1dRM1OYVqoJUdNUEnCgzI2Ltn50fFRPGwOpE2lEZ78Fr1Yy+I4jwlCFbVZ29men5I8
+         equRfkoBtXbAs0uC7vBzV/zKN9t1ribyDRGf8wmvi0tt8Jymgvv7VIEWtjOcJuyIDdBp
+         I0cioKR4GCBY7uMrwTrvNxHkAZ2FKn8EVv0V8eNr6/UfWCKNCfkn5KDpTchQgLIkmUP6
+         N3l8CsfOKS7jhtVYxn3O3pbs3I6Z+Kitgj0jHLEyj47GYbsY4wXj4CM8SvRi6+DrWk64
+         bdPw==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@oracle.com header.s=corp-2018-07-02 header.b=yDQ7mn+m;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;
+       dmarc=pass (p=NONE sp=NONE dis=NONE) header.from=oracle.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id 92-v6si23268983plw.117.2018.11.19.08.30.32;
+        Mon, 19 Nov 2018 08:30:56 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1730005AbeKTCy3 (ORCPT <rfc822;ww9210@gmail.com> + 99 others);
+        Mon, 19 Nov 2018 21:54:29 -0500
+Received: from userp2120.oracle.com ([156.151.31.85]:56268 "EHLO
+        userp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729865AbeKTCy3 (ORCPT <rfc822;kvm@vger.kernel.org>);
+        Mon, 19 Nov 2018 21:54:29 -0500
+Received: from pps.filterd (userp2120.oracle.com [127.0.0.1])
+        by userp2120.oracle.com (8.16.0.22/8.16.0.22) with SMTP id wAJGTDFV127421;
+        Mon, 19 Nov 2018 16:29:42 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=date : from : to : cc
+ : subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=corp-2018-07-02;
+ bh=7yyGGjSNaCo/1qyqOVV7SWjrnAG0lKqsvoU2TdoxhX0=;
+ b=yDQ7mn+mCSBrurH7vggztMahn+wRR0WjHskPcqUtzGQ1MQ7Wehv6WqAPk/qQVQxkiv7Q
+ 2yJU8P1v6DOlmApEYHs5WYM/hk4KwuAPHcUskv11JgqBGKtKDZnJ4TVpUGSXpfW0sVz1
+ rMD7JrnTL6pR0jh+3QyzCqENjEALH2Mbn3+siY4gu8e+USbro99VA4P1H9bbQvQQHrIU
+ tHPdQ2CshhwAwjIA9jZnomEU/FXOdFudI2KURt6XYo1TGAf4ePv+tcU6L95juboMx8+k
+ ezNDHNErC+F/o5LxSlZ5Mj6UmuofXGSzrQ+GW20mpythZXVjK5WNt9LDPcjd0A2sy8tO 5w== 
+Received: from aserv0021.oracle.com (aserv0021.oracle.com [141.146.126.233])
+        by userp2120.oracle.com with ESMTP id 2ntbmqf0h5-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 19 Nov 2018 16:29:42 +0000
+Received: from userv0122.oracle.com (userv0122.oracle.com [156.151.31.75])
+        by aserv0021.oracle.com (8.14.4/8.14.4) with ESMTP id wAJGTaMt012746
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 19 Nov 2018 16:29:36 GMT
+Received: from abhmp0013.oracle.com (abhmp0013.oracle.com [141.146.116.19])
+        by userv0122.oracle.com (8.14.4/8.14.4) with ESMTP id wAJGTY1T003332;
+        Mon, 19 Nov 2018 16:29:34 GMT
+Received: from ca-dmjordan1.us.oracle.com (/10.211.9.48)
+        by default (Oracle Beehive Gateway v4.0)
+        with ESMTP ; Mon, 19 Nov 2018 08:29:34 -0800
+Date: Mon, 19 Nov 2018 08:29:42 -0800
+From: Daniel Jordan <daniel.m.jordan@oracle.com>
+To: "Elliott, Robert (Persistent Memory)" <elliott@hpe.com>
+Cc: Daniel Jordan <daniel.m.jordan@oracle.com>,
+        "linux-mm@kvack.org" <linux-mm@kvack.org>,
+        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "aarcange@redhat.com" <aarcange@redhat.com>,
+        "aaron.lu@intel.com" <aaron.lu@intel.com>,
+        "akpm@linux-foundation.org" <akpm@linux-foundation.org>,
+        "alex.williamson@redhat.com" <alex.williamson@redhat.com>,
+        "bsd@redhat.com" <bsd@redhat.com>,
+        "darrick.wong@oracle.com" <darrick.wong@oracle.com>,
+        "dave.hansen@linux.intel.com" <dave.hansen@linux.intel.com>,
+        "jgg@mellanox.com" <jgg@mellanox.com>,
+        "jwadams@google.com" <jwadams@google.com>,
+        "jiangshanlai@gmail.com" <jiangshanlai@gmail.com>,
+        "mhocko@kernel.org" <mhocko@kernel.org>,
+        "mike.kravetz@oracle.com" <mike.kravetz@oracle.com>,
+        "Pavel.Tatashin@microsoft.com" <Pavel.Tatashin@microsoft.com>,
+        "prasad.singamsetty@oracle.com" <prasad.singamsetty@oracle.com>,
+        "rdunlap@infradead.org" <rdunlap@infradead.org>,
+        "steven.sistare@oracle.com" <steven.sistare@oracle.com>,
+        "tim.c.chen@intel.com" <tim.c.chen@intel.com>,
+        "tj@kernel.org" <tj@kernel.org>, "vbabka@suse.cz" <vbabka@suse.cz>,
+        zwisler@google.com
+Subject: Re: [RFC PATCH v4 11/13] mm: parallelize deferred struct page
+ initialization within each node
+Message-ID: <20181119162942.25qyec52mtzwe2xo@ca-dmjordan1.us.oracle.com>
+References: <20181105165558.11698-1-daniel.m.jordan@oracle.com>
+ <20181105165558.11698-12-daniel.m.jordan@oracle.com>
+ <AT5PR8401MB1169798EBEF1EE5EBA3ABFFFABC70@AT5PR8401MB1169.NAMPRD84.PROD.OUTLOOK.COM>
+ <20181112165412.vizeiv6oimsuxkbk@ca-dmjordan1.us.oracle.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20181112165412.vizeiv6oimsuxkbk@ca-dmjordan1.us.oracle.com>
+User-Agent: NeoMutt/20180323-268-5a959c
+X-Proofpoint-Virus-Version: vendor=nai engine=5900 definitions=9082 signatures=668683
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 malwarescore=0
+ phishscore=0 bulkscore=0 spamscore=0 mlxscore=0 mlxlogscore=999
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.0.1-1810050000 definitions=main-1811190151
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwAnB0NC5fJb5FpZAA--.11863S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW7Ar4ftry5XFWDZF18ur4fuFg_yoW8Jw1rpF
+	WxKFyxtrn8WryxGF10kF4aka4Yvw18Cr13Cr92vay0gF1Y9w1Sgr92gr4jv3sxC3s8ta4Y
+	qayjqF1q9398A3DanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUP2b7Iv0xC_Zr1lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2
+	z280aVAFwI0_Gr1j6F4UJwA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_Gr1j6F4UJwAS0I0E0x
+	vYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AK
+	xVWUJVWUGwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcV
+	AKI48JMx02cVCv0xWlc7CjxVAKzI0EY4vE52x082I5MxkFs20EY4vE44CYbxCE4x80FwCY
+	02Avz4vEIxC_JwCY0x0Ix7I2Y4AK64vIr41lcIIF0xvE2Ix0cI8IcVAFwI0_Gr0_Xr1lcI
+	IF0xvE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwCYIxAIcVC2z280aVAFwI0_Gr0_Cr1lcIIF
+	0xvEx4A2jsIEc7CjxVAFwI0_Gr0_Gr1UMxAIw28IcxkI7VAKI48JMxAIw28IcVAKzI0EY4
+	vE52x082I5MxCjnVCjjxCrMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_
+	Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVW8ZVWrXwCIc40Y0x
+	0EwIxGrwCI42IY6xAIw20EY4v20xvaj40_Gr0_ZrUvcSsGvfC2KfnxnUUI43ZEXa7IU5ya
+	0PUUUUU==
+
+On Mon, Nov 12, 2018 at 08:54:12AM -0800, Daniel Jordan wrote:
+> On Sat, Nov 10, 2018 at 03:48:14AM +0000, Elliott, Robert (Persistent Memory) wrote:
+> > > -----Original Message-----
+> > > From: linux-kernel-owner@vger.kernel.org <linux-kernel-
+> > > owner@vger.kernel.org> On Behalf Of Daniel Jordan
+> > > Sent: Monday, November 05, 2018 10:56 AM
+> > > Subject: [RFC PATCH v4 11/13] mm: parallelize deferred struct page
+> > > initialization within each node
+> > > 
+> > > ...  The kernel doesn't
+> > > know the memory bandwidth of a given system to get the most efficient
+> > > number of threads, so there's some guesswork involved.  
+> > 
+> > The ACPI HMAT (Heterogeneous Memory Attribute Table) is designed to report
+> > that kind of information, and could facilitate automatic tuning.
+> > 
+> > There was discussion last year about kernel support for it:
+> > https://lore.kernel.org/lkml/20171214021019.13579-1-ross.zwisler@linux.intel.com/
+> 
+> Thanks for bringing this up.  I'm traveling but will take a closer look when I
+> get back.
+
+So this series would give the total bandwidth for a memory target, but there's
+not a way to map that to a CPU count.  In other words, it seems we couldn't
+determine how many CPUs it takes to reach the max bandwidth.  If I haven't
+missed something, I'm going to remove that comment.

@@ -1,0 +1,488 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (61.164.42.155:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 18 Nov 2018 06:33:09 -0000
+Received: from icoremail.net (unknown [209.85.215.169])
+	by mail-app2 (Coremail) with SMTP id by_KCgCn33wl6vBbyrKuAQ--.52365S3;
+	Sun, 18 Nov 2018 12:27:18 +0800 (CST)
+Received: from mail-pg1-f169.google.com (unknown [209.85.215.169])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwC3mEQj6vBb2BBQAA--.12859S3;
+	Sun, 18 Nov 2018 12:27:16 +0800 (CST)
+Received: by mail-pg1-f169.google.com with SMTP id y4so12321755pgc.12
+        for <xuliker@zju.edu.cn>; Sat, 17 Nov 2018 20:27:16 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:delivered-to:dkim-signature:from:to:cc:subject
+         :date:message-id:in-reply-to:references:sender:precedence:list-id;
+        bh=E9xzUlEU1rhbmXS78V2VGOyRyzRSLYVFQFMiE3KfmVA=;
+        b=TF+r53pPTVzEAWL+nNCG0jTWoWDsPQPTicMm/99zn/s0wcs9xEgLZGrSXWTnh3CMld
+         z0bNCqsxWla0e9rabqSAB7CLynekORCAyhSSQivpqY7ITXijWgfCHA8yeAjJdD3Nya8W
+         BpiotaHIUM6q0F7TMyQVsm5/HdnGm7sCfmxjEOyt5vsV6XFYlU+wGpO7QjlPdvSUY9ao
+         n5lpkvvk3UVlAl17EtkxBHHHAWqGwIIAfpHeLSWOSsnPyt6D3VkSFJJIzC+xqh9C/ktU
+         DBhj0x9qWh1+meeMCSoF9kHSO07VhG13YmZTEhiObgrwqwZmFMuDus4GipKeCOOZ12F/
+         MLnQ==
+X-Gm-Message-State: AGRZ1gJs35nr7znSwu7uYOI3I2krjU3oqYVI9OANLhMTSSyl+DGulZaL
+	uFSjAkhHMgpX5lvqaFlU9SA6D4qnJ/k4UXAMrN6pZbpAZXj+bqY=
+X-Received: by 2002:a63:f615:: with SMTP id m21mr13944963pgh.428.1542515235611;
+        Sat, 17 Nov 2018 20:27:15 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:d106:0:0:0:0 with SMTP id l6-v6csp1171493pju;
+        Sat, 17 Nov 2018 20:27:14 -0800 (PST)
+X-Google-Smtp-Source: AJdET5e0t1tK/lWAmm0WVuek0tbK8KrWQWB/EYhyMBUfw6CZGIlpmDaKO7vb9iuyTXOiJakPcfr4
+X-Received: by 2002:a62:f94b:: with SMTP id g11-v6mr17469017pfm.244.1542515234723;
+        Sat, 17 Nov 2018 20:27:14 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542515234; cv=none;
+        d=google.com; s=arc-20160816;
+        b=yfezTAJw02h5D3qvYn4tS+SRFk7eMXOxXnU3EOLU72526M2ketY7krQ7Yw45YWb9BS
+         iy1xJ7bkOor9UuyW1LNOmeqshyqCf8fGQFk95BuqVh/grO+8Gg8QuUdcaseYzI1nu1Os
+         M+cYGS1A3e5BBvms9T0xV4TOqrLEJOkraESnUnNMcjQaJnh7gDd91DacU8MtE9V1fWc2
+         R1cNx1jYoDwuVLppa9v5+I0DoYtyzyhHgUf+S8a+aX0o4TM/I35g9xlZ3AalCNzIFuB6
+         wRNBjk55HN2Y4k8tR7CqNRY83584fd0vWzZv1ahdzYOhlR6OTRqLcVAdtE3BgyaGIe8z
+         izoQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:references:in-reply-to:message-id:date
+         :subject:cc:to:from:dkim-signature;
+        bh=E9xzUlEU1rhbmXS78V2VGOyRyzRSLYVFQFMiE3KfmVA=;
+        b=NiAqZ/v2wkLfMrX7IknFI1sHzxu6f+Wy76WlRvQzHWd8XIBxIj6ljuWyuF6a8xO0zw
+         7ijNP73nPgMFOaFvH1zI6aqeLWzKHGQvPONJo/daLeLTjG2eVRVFIKwo/wBaPwjEicWz
+         Jdl26mP3oJyCn+68GKhPrMLYbpHWepEEfMr2maF607uUdLbNKlYvgsZ6YCcRTnba6wKe
+         0EsxS+AFZUDeu54WSjoWgkNi07/vveffsvDLP51CR2IBb7y7u7P91+05jPHBCz4CBglu
+         RuQo8i0wwAj7JU1PA4e9nTU2yPw+5zIvIYMgEd6RU3tRjV8WqeupnfDNxefp8+6nJrWU
+         cTlg==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@usp-br.20150623.gappssmtp.com header.s=20150623 header.b=A22vnV6+;
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=usp.br
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id f4si16727805plf.364.2018.11.17.20.27.00;
+        Sat, 17 Nov 2018 20:27:14 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1727211AbeKROpm (ORCPT <rfc822;javier.barrio.mart@gmail.com>
+        + 99 others); Sun, 18 Nov 2018 09:45:42 -0500
+Received: from mail-qk1-f196.google.com ([209.85.222.196]:38384 "EHLO
+        mail-qk1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727188AbeKROpl (ORCPT
+        <rfc822;linux-kernel@vger.kernel.org>);
+        Sun, 18 Nov 2018 09:45:41 -0500
+Received: by mail-qk1-f196.google.com with SMTP id d19so43832178qkg.5
+        for <linux-kernel@vger.kernel.org>; Sat, 17 Nov 2018 20:26:40 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=usp-br.20150623.gappssmtp.com; s=20150623;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references;
+        bh=E9xzUlEU1rhbmXS78V2VGOyRyzRSLYVFQFMiE3KfmVA=;
+        b=A22vnV6+zm4MG5H7Xhha42mnFZSqHJqdiTTa+2CV5Kp6lpmBjfPNxisFnihidxn7fT
+         bw7JhiB8Luau8F1cskgCtzCxSJEUORj5EK31ES9iBfwNTqrWengry8G2eLaavBMMMu9B
+         PUo/NlJkEhUpQ4Ro2BLS+DEzBnFQLXzS6NNAH9/ZuHSx6CnW9rq8MN3O5RTXOKDlvBxY
+         X/r0Y65WIKbNLtt55tirUuI19yNUZ+8zYfLCd8/eqw196NJHZ6LiDj7I+9AyMN1PFK90
+         +D5s2AlqayCHFYM/TuYLg3JT6vY4wXUuXw9KmSgeX24R1jRCVNFGjLcgDodlpjAEETB8
+         sE9g==
+X-Received: by 2002:a37:6d44:: with SMTP id i65mr15844794qkc.73.1542515199710;
+        Sat, 17 Nov 2018 20:26:39 -0800 (PST)
+Received: from mango.spo.virtua.com.br ([2804:14c:81:942d::1])
+        by smtp.gmail.com with ESMTPSA id b6sm16112350qtq.29.2018.11.17.20.26.35
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sat, 17 Nov 2018 20:26:39 -0800 (PST)
+From: Matheus Tavares <matheus.bernardino@usp.br>
+To: Lars-Peter Clausen <lars@metafoo.de>,
+        Michael Hennerich <Michael.Hennerich@analog.com>,
+        Jonathan Cameron <jic23@kernel.org>,
+        Hartmut Knaack <knaack.h@gmx.de>,
+        Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>
+Cc: linux-iio@vger.kernel.org, devel@driverdev.osuosl.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Alexandru Ardelean <alexandru.ardelean@analog.com>,
+        kernel-usp@googlegroups.com, victorcolombo@gmail.com
+Subject: [PATCH v2 7/7] staging:iio:ad2s90: Move out of staging
+Date: Sun, 18 Nov 2018 02:25:40 -0200
+Message-Id: <20181118042540.12697-8-matheus.bernardino@usp.br>
+X-Mailer: git-send-email 2.18.0
+In-Reply-To: <20181118042540.12697-1-matheus.bernardino@usp.br>
+References: <20181118042540.12697-1-matheus.bernardino@usp.br>
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwC3mEQj6vBb2BBQAA--.12859S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoWxKFy7WFW8WFyUKF15Wr4UArb_yoWDXr1DpF
+	s8JayxurWkJF47CrsrX34UuFy5Ka4Du3y3KrW7Wa4293yUArnxCF1Dt343ZF95Jr92ka1Y
+	gFy3JF4UWanxZw7anT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUPab7Iv0xC_tr1lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Xr0_Ar1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1l84ACjcxK6I8E
+	87Iv67AKxVW0oVCq3wA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_GcCE3s1le2I262IYc4CY6c
+	8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_Jr0_
+	Jr4lYx0Ex4A2jsIE14v26r1j6r4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvY0x0EwI
+	xGrwCjxxvEa2IrMxkF7I0Ew4C26cxK6c8Ij28IcwCY1Ik26cxK6xAEc7vF6xCjj44lc2xS
+	Y4AK6IIF6r45MxkI7II2jI8vz4vEwIxGrwCYIxAIcVC0I7IYx2IY67AKxVW8JVW5JwCYIx
+	AIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMxvI42IY6I8E87Iv67AKxVW8Jr0_Cr1UMxvI
+	42IY6I8E87Iv6xkF7I0E14v26r4UJVWxJr1l42xK82IYc2Ij64vIr41l42xK82IY64kExV
+	AvwVAq07x20xyl4x8a6x804xWl4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AK
+	xVWUJVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r4a6rW5MIIYrx
+	kI7VAKI48JMIIF0xvE42xK8VAvwI8IcIk0rVWUCVW8JbIYCTnIWIevJa73UjIFyTuYvjxU
+	qXdbUUUUU
+
+Move ad2s90 resolver driver out of staging to the main tree.
+
+Signed-off-by: Matheus Tavares <matheus.bernardino@usp.br>
+Signed-off-by: Victor Colombo <victorcolombo@gmail.com>
+---
+Changes in v2:
+ - Disabled git move detection, to see the whole code, as Jonathan
+ suggested
+
+ drivers/iio/resolver/Kconfig          |  10 ++
+ drivers/iio/resolver/Makefile         |   1 +
+ drivers/iio/resolver/ad2s90.c         | 131 ++++++++++++++++++++++++++
+ drivers/staging/iio/resolver/Kconfig  |  10 --
+ drivers/staging/iio/resolver/Makefile |   1 -
+ drivers/staging/iio/resolver/ad2s90.c | 131 --------------------------
+ 6 files changed, 142 insertions(+), 142 deletions(-)
+ create mode 100644 drivers/iio/resolver/ad2s90.c
+ delete mode 100644 drivers/staging/iio/resolver/ad2s90.c
+
+diff --git a/drivers/iio/resolver/Kconfig b/drivers/iio/resolver/Kconfig
+index 2ced9f22aa70..786801be54f6 100644
+--- a/drivers/iio/resolver/Kconfig
++++ b/drivers/iio/resolver/Kconfig
+@@ -3,6 +3,16 @@
+ #
+ menu "Resolver to digital converters"
+ 
++config AD2S90
++	tristate "Analog Devices ad2s90 driver"
++	depends on SPI
++	help
++	  Say yes here to build support for Analog Devices spi resolver
++	  to digital converters, ad2s90, provides direct access via sysfs.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called ad2s90.
++
+ config AD2S1200
+ 	tristate "Analog Devices ad2s1200/ad2s1205 driver"
+ 	depends on SPI
+diff --git a/drivers/iio/resolver/Makefile b/drivers/iio/resolver/Makefile
+index 4e1dccae07e7..398d82d50028 100644
+--- a/drivers/iio/resolver/Makefile
++++ b/drivers/iio/resolver/Makefile
+@@ -2,4 +2,5 @@
+ # Makefile for Resolver/Synchro drivers
+ #
+ 
++obj-$(CONFIG_AD2S90) += ad2s90.o
+ obj-$(CONFIG_AD2S1200) += ad2s1200.o
+diff --git a/drivers/iio/resolver/ad2s90.c b/drivers/iio/resolver/ad2s90.c
+new file mode 100644
+index 000000000000..f04dc5dede00
+--- /dev/null
++++ b/drivers/iio/resolver/ad2s90.c
+@@ -0,0 +1,131 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * ad2s90.c simple support for the ADI Resolver to Digital Converters: AD2S90
++ *
++ * Copyright (c) 2010-2010 Analog Devices Inc.
++ */
++#include <linux/types.h>
++#include <linux/mutex.h>
++#include <linux/device.h>
++#include <linux/spi/spi.h>
++#include <linux/slab.h>
++#include <linux/sysfs.h>
++#include <linux/module.h>
++
++#include <linux/iio/iio.h>
++#include <linux/iio/sysfs.h>
++
++/*
++ * Although chip's max frequency is 2Mhz, it needs 600ns between CS and the
++ * first falling edge of SCLK, so frequency should be at most 1 / (2 * 6e-7)
++ */
++#define AD2S90_MAX_SPI_FREQ_HZ  830000
++
++struct ad2s90_state {
++	struct mutex lock; /* lock to protect rx buffer */
++	struct spi_device *sdev;
++	u8 rx[2] ____cacheline_aligned;
++};
++
++static int ad2s90_read_raw(struct iio_dev *indio_dev,
++			   struct iio_chan_spec const *chan,
++			   int *val,
++			   int *val2,
++			   long m)
++{
++	int ret;
++	struct ad2s90_state *st = iio_priv(indio_dev);
++
++	if (chan->type != IIO_ANGL)
++		return -EINVAL;
++
++	switch (m) {
++	case IIO_CHAN_INFO_SCALE:
++		/* 2 * Pi / 2^12 */
++		*val = 6283; /* mV */
++		*val2 = 12;
++		return IIO_VAL_FRACTIONAL_LOG2;
++	case IIO_CHAN_INFO_RAW:
++		mutex_lock(&st->lock);
++		ret = spi_read(st->sdev, st->rx, 2);
++		if (ret < 0) {
++			mutex_unlock(&st->lock);
++			return ret;
++		}
++		*val = (((u16)(st->rx[0])) << 4) | ((st->rx[1] & 0xF0) >> 4);
++
++		mutex_unlock(&st->lock);
++
++		return IIO_VAL_INT;
++	default:
++		break;
++	}
++
++	return -EINVAL;
++}
++
++static const struct iio_info ad2s90_info = {
++	.read_raw = ad2s90_read_raw,
++};
++
++static const struct iio_chan_spec ad2s90_chan = {
++	.type = IIO_ANGL,
++	.indexed = 1,
++	.channel = 0,
++	.info_mask_separate = BIT(IIO_CHAN_INFO_RAW) | BIT(IIO_CHAN_INFO_SCALE),
++};
++
++static int ad2s90_probe(struct spi_device *spi)
++{
++	struct iio_dev *indio_dev;
++	struct ad2s90_state *st;
++
++	if (spi->max_speed_hz > AD2S90_MAX_SPI_FREQ_HZ) {
++		dev_err(&spi->dev, "SPI CLK, %d Hz exceeds %d Hz\n",
++			spi->max_speed_hz, AD2S90_MAX_SPI_FREQ_HZ);
++		return -EINVAL;
++	}
++
++	indio_dev = devm_iio_device_alloc(&spi->dev, sizeof(*st));
++	if (!indio_dev)
++		return -ENOMEM;
++	st = iio_priv(indio_dev);
++	spi_set_drvdata(spi, indio_dev);
++
++	mutex_init(&st->lock);
++	st->sdev = spi;
++	indio_dev->dev.parent = &spi->dev;
++	indio_dev->info = &ad2s90_info;
++	indio_dev->modes = INDIO_DIRECT_MODE;
++	indio_dev->channels = &ad2s90_chan;
++	indio_dev->num_channels = 1;
++	indio_dev->name = spi_get_device_id(spi)->name;
++
++	return devm_iio_device_register(indio_dev->dev.parent, indio_dev);
++}
++
++static const struct of_device_id ad2s90_of_match[] = {
++	{ .compatible = "adi,ad2s90", },
++	{}
++};
++MODULE_DEVICE_TABLE(of, ad2s90_of_match);
++
++static const struct spi_device_id ad2s90_id[] = {
++	{ "ad2s90" },
++	{}
++};
++MODULE_DEVICE_TABLE(spi, ad2s90_id);
++
++static struct spi_driver ad2s90_driver = {
++	.driver = {
++		.name = "ad2s90",
++		.of_match_table = of_match_ptr(ad2s90_of_match),
++	},
++	.probe = ad2s90_probe,
++	.id_table = ad2s90_id,
++};
++module_spi_driver(ad2s90_driver);
++
++MODULE_AUTHOR("Graff Yang <graff.yang@gmail.com>");
++MODULE_DESCRIPTION("Analog Devices AD2S90 Resolver to Digital SPI driver");
++MODULE_LICENSE("GPL v2");
+diff --git a/drivers/staging/iio/resolver/Kconfig b/drivers/staging/iio/resolver/Kconfig
+index 6a469ee6101f..4a727c17bb8f 100644
+--- a/drivers/staging/iio/resolver/Kconfig
++++ b/drivers/staging/iio/resolver/Kconfig
+@@ -3,16 +3,6 @@
+ #
+ menu "Resolver to digital converters"
+ 
+-config AD2S90
+-	tristate "Analog Devices ad2s90 driver"
+-	depends on SPI
+-	help
+-	  Say yes here to build support for Analog Devices spi resolver
+-	  to digital converters, ad2s90, provides direct access via sysfs.
+-
+-	  To compile this driver as a module, choose M here: the
+-	  module will be called ad2s90.
+-
+ config AD2S1210
+ 	tristate "Analog Devices ad2s1210 driver"
+ 	depends on SPI
+diff --git a/drivers/staging/iio/resolver/Makefile b/drivers/staging/iio/resolver/Makefile
+index 8d901dc7500b..b2049f2ce36e 100644
+--- a/drivers/staging/iio/resolver/Makefile
++++ b/drivers/staging/iio/resolver/Makefile
+@@ -2,5 +2,4 @@
+ # Makefile for Resolver/Synchro drivers
+ #
+ 
+-obj-$(CONFIG_AD2S90) += ad2s90.o
+ obj-$(CONFIG_AD2S1210) += ad2s1210.o
+diff --git a/drivers/staging/iio/resolver/ad2s90.c b/drivers/staging/iio/resolver/ad2s90.c
+deleted file mode 100644
+index f04dc5dede00..000000000000
+--- a/drivers/staging/iio/resolver/ad2s90.c
++++ /dev/null
+@@ -1,131 +0,0 @@
+-// SPDX-License-Identifier: GPL-2.0
+-/*
+- * ad2s90.c simple support for the ADI Resolver to Digital Converters: AD2S90
+- *
+- * Copyright (c) 2010-2010 Analog Devices Inc.
+- */
+-#include <linux/types.h>
+-#include <linux/mutex.h>
+-#include <linux/device.h>
+-#include <linux/spi/spi.h>
+-#include <linux/slab.h>
+-#include <linux/sysfs.h>
+-#include <linux/module.h>
+-
+-#include <linux/iio/iio.h>
+-#include <linux/iio/sysfs.h>
+-
+-/*
+- * Although chip's max frequency is 2Mhz, it needs 600ns between CS and the
+- * first falling edge of SCLK, so frequency should be at most 1 / (2 * 6e-7)
+- */
+-#define AD2S90_MAX_SPI_FREQ_HZ  830000
+-
+-struct ad2s90_state {
+-	struct mutex lock; /* lock to protect rx buffer */
+-	struct spi_device *sdev;
+-	u8 rx[2] ____cacheline_aligned;
+-};
+-
+-static int ad2s90_read_raw(struct iio_dev *indio_dev,
+-			   struct iio_chan_spec const *chan,
+-			   int *val,
+-			   int *val2,
+-			   long m)
+-{
+-	int ret;
+-	struct ad2s90_state *st = iio_priv(indio_dev);
+-
+-	if (chan->type != IIO_ANGL)
+-		return -EINVAL;
+-
+-	switch (m) {
+-	case IIO_CHAN_INFO_SCALE:
+-		/* 2 * Pi / 2^12 */
+-		*val = 6283; /* mV */
+-		*val2 = 12;
+-		return IIO_VAL_FRACTIONAL_LOG2;
+-	case IIO_CHAN_INFO_RAW:
+-		mutex_lock(&st->lock);
+-		ret = spi_read(st->sdev, st->rx, 2);
+-		if (ret < 0) {
+-			mutex_unlock(&st->lock);
+-			return ret;
+-		}
+-		*val = (((u16)(st->rx[0])) << 4) | ((st->rx[1] & 0xF0) >> 4);
+-
+-		mutex_unlock(&st->lock);
+-
+-		return IIO_VAL_INT;
+-	default:
+-		break;
+-	}
+-
+-	return -EINVAL;
+-}
+-
+-static const struct iio_info ad2s90_info = {
+-	.read_raw = ad2s90_read_raw,
+-};
+-
+-static const struct iio_chan_spec ad2s90_chan = {
+-	.type = IIO_ANGL,
+-	.indexed = 1,
+-	.channel = 0,
+-	.info_mask_separate = BIT(IIO_CHAN_INFO_RAW) | BIT(IIO_CHAN_INFO_SCALE),
+-};
+-
+-static int ad2s90_probe(struct spi_device *spi)
+-{
+-	struct iio_dev *indio_dev;
+-	struct ad2s90_state *st;
+-
+-	if (spi->max_speed_hz > AD2S90_MAX_SPI_FREQ_HZ) {
+-		dev_err(&spi->dev, "SPI CLK, %d Hz exceeds %d Hz\n",
+-			spi->max_speed_hz, AD2S90_MAX_SPI_FREQ_HZ);
+-		return -EINVAL;
+-	}
+-
+-	indio_dev = devm_iio_device_alloc(&spi->dev, sizeof(*st));
+-	if (!indio_dev)
+-		return -ENOMEM;
+-	st = iio_priv(indio_dev);
+-	spi_set_drvdata(spi, indio_dev);
+-
+-	mutex_init(&st->lock);
+-	st->sdev = spi;
+-	indio_dev->dev.parent = &spi->dev;
+-	indio_dev->info = &ad2s90_info;
+-	indio_dev->modes = INDIO_DIRECT_MODE;
+-	indio_dev->channels = &ad2s90_chan;
+-	indio_dev->num_channels = 1;
+-	indio_dev->name = spi_get_device_id(spi)->name;
+-
+-	return devm_iio_device_register(indio_dev->dev.parent, indio_dev);
+-}
+-
+-static const struct of_device_id ad2s90_of_match[] = {
+-	{ .compatible = "adi,ad2s90", },
+-	{}
+-};
+-MODULE_DEVICE_TABLE(of, ad2s90_of_match);
+-
+-static const struct spi_device_id ad2s90_id[] = {
+-	{ "ad2s90" },
+-	{}
+-};
+-MODULE_DEVICE_TABLE(spi, ad2s90_id);
+-
+-static struct spi_driver ad2s90_driver = {
+-	.driver = {
+-		.name = "ad2s90",
+-		.of_match_table = of_match_ptr(ad2s90_of_match),
+-	},
+-	.probe = ad2s90_probe,
+-	.id_table = ad2s90_id,
+-};
+-module_spi_driver(ad2s90_driver);
+-
+-MODULE_AUTHOR("Graff Yang <graff.yang@gmail.com>");
+-MODULE_DESCRIPTION("Analog Devices AD2S90 Resolver to Digital SPI driver");
+-MODULE_LICENSE("GPL v2");
+-- 
+2.18.0

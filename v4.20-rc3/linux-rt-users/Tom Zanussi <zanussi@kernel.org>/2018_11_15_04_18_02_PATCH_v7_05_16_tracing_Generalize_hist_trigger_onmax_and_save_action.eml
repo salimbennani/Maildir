@@ -1,0 +1,557 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 15 Nov 2018 00:42:30 -0000
+Received: from icoremail.net (unknown [209.85.215.180])
+	by mail-app2 (Coremail) with SMTP id by_KCgDHH35Eg+xbhuqSAQ--.44372S3;
+	Thu, 15 Nov 2018 04:19:17 +0800 (CST)
+Received: from mail-pg1-f180.google.com (unknown [209.85.215.180])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwB3WkZAg+xbazFAAA--.2725S3;
+	Thu, 15 Nov 2018 04:19:12 +0800 (CST)
+Received: by mail-pg1-f180.google.com with SMTP id n2so693766pgm.3
+        for <xuliker@zju.edu.cn>; Wed, 14 Nov 2018 12:19:12 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:delivered-to:dkim-signature:from:to:cc:subject
+         :date:message-id:in-reply-to:references:in-reply-to:references
+         :sender:precedence:list-id;
+        bh=5GHmKyIXDORrGXy8XjsDm1lwfcccJ+Y6ReZomfvlGTw=;
+        b=eBKOM6LX/ugNZrsrAIQ+vAChLFocEUhWfnfAqo37cUgykMoWTdXChKxamgoNPTbaCi
+         AnzZANdXHeydkE+DAVgOj/fISCvbj2NxPkjUr5d7sMnmEfd0E4lgW90Us5f9F2BPvmtc
+         xqVJafBGBNgQd4+HAGN3ATINTI30HU02SI8OrbRMDXtpG9HGRj9Q7zVJmxFLqjSgf4Df
+         bSL8ze8iRTOgjQ+oaIGFhw+kzqf5dbmEyFQcuJwfDiv4GnqmQB6sxcE+53Z5tTVebHIj
+         azcX9VW761+tessX7swfTsnCzvU2gUHDh415C1bEPthgxCcrQPJ/XIRDZIW4b1DLl4zj
+         Ix0A==
+X-Gm-Message-State: AGRZ1gJcNYcZBiVYo4WC0ItQ0L4EiZDYYB2jmMk598cYbBpdMq67RINR
+	qkq/SUgfjOQ4BX31vFM0PTRKt7VpMSqVRAG0QxZYZZmkGnGBMUIePw==
+X-Received: by 2002:a63:1d10:: with SMTP id d16-v6mr2998473pgd.228.1542226751721;
+        Wed, 14 Nov 2018 12:19:11 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp6269675pjt;
+        Wed, 14 Nov 2018 12:19:10 -0800 (PST)
+X-Google-Smtp-Source: AJdET5eIPH+vrP30bG5N0QKnWxwRYBFKCdl0HnGmPLpYOkQ3dV8yk+awZElPPnfmBB5QLqkykKB3
+X-Received: by 2002:a17:902:6b01:: with SMTP id o1-v6mr3357462plk.333.1542226750149;
+        Wed, 14 Nov 2018 12:19:10 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542226750; cv=none;
+        d=google.com; s=arc-20160816;
+        b=ADNvLqNe8iAZeVpiCf6xz78vNo4TpwvEyaK5UNnK097GZo4BxeXlbya17tyejqtP4E
+         jGIzni5U2eIUfogdpsZ5aQ6fb+4uYwH9KOOjIHRvgM87sdUmI0mv5QyGIaAdAAYCy2tN
+         SV+3+A4m/JQxb0CFxgRyFfx1aAgG4vzVMhunGNCrwAJ/Warx49zcqqWn/8JAx6vx14Eo
+         eRAxF1o2Xn4F3uqKudLUNOcTiT0bPidIb9Pa4Ltfm7HD03NFNxgh6hl3k5OJdkVjxyh0
+         la+o1HKJ7WVbR+pnEBB9XVp7mWeKZTNtsng6vagMXCAAnZ92iFh0W+OEC9YTQv4UdJSZ
+         NsuQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:references:in-reply-to:references
+         :in-reply-to:message-id:date:subject:cc:to:from:dkim-signature;
+        bh=5GHmKyIXDORrGXy8XjsDm1lwfcccJ+Y6ReZomfvlGTw=;
+        b=htiZjebBcj2r/5OqnAEddeaQfZSip/eHMfpWQ/0nAwXqA1BxWxA6iyAl9cw+Iwc93v
+         jAJ+TLn9BDd7iWLT1Bkuy/iujYpld7vdKm2d61omoUx1dTPmLHVIabzUQLVJMGAkq7J2
+         mX83cUK5gRbML9iTBaIGp2Bqa5xXOZSePYku/DgM+BJeF99Cedvfc4lu3KNKbpsmUKu5
+         24XCcexKuF/DPxeOOk95B+Iry/J3Wlfm6HxK/4eQ2AX2QDbvSp+dGpClGgo6KjKwIhMc
+         Nr/uGhY6BfrxTGpIiFSLPvJ/xso8eWPo/VLXDpb+yIODjNeMOkC6MXCD6y17TCiWh6tt
+         kA4g==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@kernel.org header.s=default header.b=F0Tgiu+o;
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;
+       dmarc=pass (p=NONE sp=NONE dis=NONE) header.from=kernel.org
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id y7-v6si24065592pgi.256.2018.11.14.12.18.55;
+        Wed, 14 Nov 2018 12:19:10 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1732986AbeKOGXJ (ORCPT <rfc822;leiliang4you@gmail.com>
+        + 99 others); Thu, 15 Nov 2018 01:23:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39738 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1732815AbeKOGXI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+        Thu, 15 Nov 2018 01:23:08 -0500
+Received: from tzanussi-mobl.hsd1.il.comcast.net (c-98-220-238-81.hsd1.il.comcast.net [98.220.238.81])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 460B522522;
+        Wed, 14 Nov 2018 20:18:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1542226706;
+        bh=sGogFpN9jTTHdUodXI/3G9m3O2TMH655abYmQFCWvpI=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:In-Reply-To:
+         References:From;
+        b=F0Tgiu+o/ZTYxsYvWA1GgB7zg7Key/YXb1nNjUFGKJ/cJyuDjjpTDTJyqxTJTaUF3
+         7Tl3hollZHeTHJCoNAPbCn/CsS1HdpOnVo/gDVrY1fZIZN6WY94Iftt1SsP6DZVvlW
+         zNqHbaZw4D0vAkSXYbMQ0edKAr8tpWDUWSWerRSg=
+From: Tom Zanussi <zanussi@kernel.org>
+To: rostedt@goodmis.org
+Cc: tglx@linutronix.de, mhiramat@kernel.org, namhyung@kernel.org,
+        vedang.patel@intel.com, bigeasy@linutronix.de,
+        joel@joelfernandes.org, mathieu.desnoyers@efficios.com,
+        julia@ni.com, linux-kernel@vger.kernel.org,
+        linux-rt-users@vger.kernel.org
+Subject: [PATCH v7 05/16] tracing: Generalize hist trigger onmax and save action
+Date: Wed, 14 Nov 2018 14:18:02 -0600
+Message-Id: <9baa2b4a9b708791b39f176e3b63c207163d8c3b.1542221863.git.tom.zanussi@linux.intel.com>
+X-Mailer: git-send-email 2.14.1
+In-Reply-To: <cover.1542221862.git.tom.zanussi@linux.intel.com>
+References: <cover.1542221862.git.tom.zanussi@linux.intel.com>
+In-Reply-To: <cover.1542221862.git.tom.zanussi@linux.intel.com>
+References: <cover.1542221862.git.tom.zanussi@linux.intel.com>
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwB3WkZAg+xbazFAAA--.2725S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvAXoWfGr13Ary5Cw4fXF15tFWfAFb_yoW8Gw4kto
+	WfXF9rXryfGw1IkayUAF15tFy8uw4v9r1DJw1SyF1293Z0q398K3yfJwsxGFnrGa1rtrWq
+	yF1UJa45X3yFva1fn29KB7ZKAUJUUUUU529EdanIXcx71UUUUj7v73VFW2AGmfu7jjvjm3
+	AaLaJ3UjIYCTnIWjp_UUUOe7k0a2IF6w4kM7kC6x804xWl14x267AKxVWUJVW8JwAFIxvE
+	14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK021l84ACjcxK6xIIjx
+	v20xvE14v26F1j6w1UM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26r4j6F4UM28EF7xvwVC2
+	z280aVAFwI0_Cr1j6rxdM28EF7xvwVC2z280aVCY1x0267AKxVWxJr0_GcWle2I262IYc4
+	CY6c8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_
+	Jr0_Jr4lYx0Ex4A2jsIE14v26r1j6r4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvY0x
+	0EwIxGrwCjxxvEa2IrMxkF7I0Ew4C26cxK6c8Ij28IcwCY1Ik26cxK6xAEc7vF6xCjj44l
+	c2xSY4AK6IIF6F1lc2IjII80xcxEwVAKI48JMxvI42IY6xIIjxv20xvE14v26r4j6ryUMx
+	vI42IY6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1lcIIF0xvEx4A2jsIE14v26r4UJVWxJr1l
+	cIIF0xvEx4A2jsIEc7CjxVAFwI0_Gr1j6F4UJwCF04k20xvY0x0EwIxGrwCF04k20xvEw4
+	C26cxK6c8Ij28IcwCF72vE77IF4wCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E
+	14v26r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_Jw0_GFylIx
+	kGc2Ij64vIr41lIxAIcVCF04k26cxKx2IYs7xG6r1j6r1xYxBIdaVFxhVjvjDU0xZFpf9x
+	07bdD7-UUUUU=
+
+From: Tom Zanussi <tom.zanussi@linux.intel.com>
+
+The action refactor code allowed actions and handlers to be separated,
+but the existing onmax handler and save action code is still not
+flexible enough to handle arbitrary coupling.  This change generalizes
+them and in the process makes additional handlers and actions easier
+to implement.
+
+The onmax action can be broken up and thought of as two separate
+components - a variable to be tracked (the parameter given to the
+onmax($var_to_track) function) and an invisible variable created to
+save the ongoing result of doing something with that variable, such as
+saving the max value of that variable so far seen.
+
+Separating it out like this and renaming it appropriately allows us to
+use the same code for similar tracking functions such as
+onchange($var_to_track), which would just track the last value seen
+rather than the max seen so far, which is useful in some situations.
+
+Additionally, because different handlers and actions may want to save
+and access data differently e.g. save and retrieve tracking values as
+local variables vs something more global, save_val() and get_val()
+interface functions are introduced and max-specific implementations
+are used instead.
+
+The same goes for the code that checks whether a maximum has been hit
+- a generic check_val() interface and max-checking implementation is
+used instead, which allows future patches to make use of he same code
+using their own implemetations of similar functionality.
+
+Signed-off-by: Tom Zanussi <tom.zanussi@linux.intel.com>
+---
+ kernel/trace/trace_events_hist.c | 225 ++++++++++++++++++++++++++-------------
+ 1 file changed, 151 insertions(+), 74 deletions(-)
+
+diff --git a/kernel/trace/trace_events_hist.c b/kernel/trace/trace_events_hist.c
+index 54b78cfe2766..ac48ad1482c8 100644
+--- a/kernel/trace/trace_events_hist.c
++++ b/kernel/trace/trace_events_hist.c
+@@ -319,6 +319,15 @@ typedef void (*action_fn_t) (struct hist_trigger_data *hist_data,
+ 			     struct ring_buffer_event *rbe,
+ 			     struct action_data *data, u64 *var_ref_vals);
+ 
++typedef bool (*check_track_val_fn_t) (u64 track_val, u64 var_val);
++typedef bool (*save_track_val_fn_t) (struct hist_trigger_data *hist_data,
++				     struct tracing_map_elt *elt,
++				     struct action_data *data,
++				     unsigned int track_var_idx, u64 var_val);
++typedef u64 (*get_track_val_fn_t) (struct hist_trigger_data *hist_data,
++				   struct tracing_map_elt *elt,
++				   struct action_data *data);
++
+ enum handler_id {
+ 	HANDLER_ONMATCH = 1,
+ 	HANDLER_ONMAX,
+@@ -349,14 +358,18 @@ struct action_data {
+ 
+ 		struct {
+ 			char			*var_str;
+-			unsigned int		max_var_ref_idx;
+-			struct hist_field	*max_var;
+-			struct hist_field	*var;
+-		} onmax;
++			struct hist_field	*var_ref;
++			unsigned int		var_ref_idx;
++
++			struct hist_field	*track_var;
++
++			check_track_val_fn_t	check_val;
++			save_track_val_fn_t	save_val;
++			get_track_val_fn_t	get_val;
++		} track_data;
+ 	};
+ };
+ 
+-
+ static char last_hist_cmd[MAX_FILTER_STR_VAL];
+ static char hist_err_str[MAX_FILTER_STR_VAL];
+ 
+@@ -3133,10 +3146,10 @@ static void update_field_vars(struct hist_trigger_data *hist_data,
+ 			    hist_data->n_field_vars, 0);
+ }
+ 
+-static void update_max_vars(struct hist_trigger_data *hist_data,
+-			    struct tracing_map_elt *elt,
+-			    struct ring_buffer_event *rbe,
+-			    void *rec)
++static void update_save_vars(struct hist_trigger_data *hist_data,
++			     struct tracing_map_elt *elt,
++			     struct ring_buffer_event *rbe,
++			     void *rec)
+ {
+ 	__update_field_vars(elt, rbe, rec, hist_data->save_vars,
+ 			    hist_data->n_save_vars, hist_data->n_field_var_str);
+@@ -3274,14 +3287,68 @@ create_target_field_var(struct hist_trigger_data *target_hist_data,
+ 	return create_field_var(target_hist_data, file, var_name);
+ }
+ 
+-static void onmax_print(struct seq_file *m,
+-			struct hist_trigger_data *hist_data,
+-			struct tracing_map_elt *elt,
+-			struct action_data *data)
++static bool check_track_val_max(u64 track_val, u64 var_val)
+ {
+-	unsigned int i, save_var_idx, max_idx = data->onmax.max_var->var.idx;
++	if (var_val <= track_val)
++		return false;
++
++	return true;
++}
+ 
+-	seq_printf(m, "\n\tmax: %10llu", tracing_map_read_var(elt, max_idx));
++static u64 get_track_val_local(struct hist_trigger_data *hist_data,
++			       struct tracing_map_elt *elt,
++			       struct action_data *data)
++{
++	unsigned int track_var_idx = data->track_data.track_var->var.idx;
++	u64 track_val;
++
++	track_val = tracing_map_read_var(elt, track_var_idx);
++
++	return track_val;
++}
++
++static bool save_track_val_local(struct hist_trigger_data *hist_data,
++				 struct tracing_map_elt *elt,
++				 struct action_data *data,
++				 unsigned int track_var_idx, u64 var_val)
++{
++	bool ret = false;
++	u64 track_val;
++
++	track_val = tracing_map_read_var(elt, track_var_idx);
++
++	if (data->track_data.check_val(track_val, var_val)) {
++		tracing_map_set_var(elt, track_var_idx, var_val);
++		ret = true;
++	}
++
++	return ret;
++}
++
++static bool update_track_val(struct hist_trigger_data *hist_data,
++			     struct tracing_map_elt *elt,
++			     struct action_data *data, u64 *var_ref_vals)
++{
++	unsigned int track_var_idx = data->track_data.track_var->var.idx;
++	unsigned int track_var_ref_idx = data->track_data.var_ref_idx;
++	u64 var_val;
++
++	var_val = var_ref_vals[track_var_ref_idx];
++
++	return data->track_data.save_val(hist_data, elt, data,
++					 track_var_idx, var_val);
++}
++
++static void track_data_print(struct seq_file *m,
++			     struct hist_trigger_data *hist_data,
++			     struct tracing_map_elt *elt,
++			     struct action_data *data)
++{
++	u64 track_val = data->track_data.get_val(hist_data, elt, data);
++	unsigned int i, save_var_idx;
++
++	if (data->handler == HANDLER_ONMAX)
++		seq_printf(m, "\n\tmax: %10llu", track_val);
+ 
+ 	for (i = 0; i < hist_data->n_save_vars; i++) {
+ 		struct hist_field *save_val = hist_data->save_vars[i]->val;
+@@ -3300,25 +3367,13 @@ static void onmax_print(struct seq_file *m,
+ 	}
+ }
+ 
+-static void onmax_save(struct hist_trigger_data *hist_data,
+-		       struct tracing_map_elt *elt, void *rec,
+-		       struct ring_buffer_event *rbe,
+-		       struct action_data *data, u64 *var_ref_vals)
++static void ontrack_save(struct hist_trigger_data *hist_data,
++			 struct tracing_map_elt *elt, void *rec,
++			 struct ring_buffer_event *rbe,
++			 struct action_data *data, u64 *var_ref_vals)
+ {
+-	unsigned int max_idx = data->onmax.max_var->var.idx;
+-	unsigned int max_var_ref_idx = data->onmax.max_var_ref_idx;
+-
+-	u64 var_val, max_val;
+-
+-	var_val = var_ref_vals[max_var_ref_idx];
+-	max_val = tracing_map_read_var(elt, max_idx);
+-
+-	if (var_val <= max_val)
+-		return;
+-
+-	tracing_map_set_var(elt, max_idx, var_val);
+-
+-	update_max_vars(hist_data, elt, rbe, rec);
++	if (update_track_val(hist_data, elt, data, var_ref_vals))
++		update_save_vars(hist_data, elt, rbe, rec);
+ }
+ 
+ static void action_data_destroy(struct action_data *data)
+@@ -3340,12 +3395,13 @@ static void action_data_destroy(struct action_data *data)
+ 	mutex_unlock(&synth_event_mutex);
+ }
+ 
+-static void onmax_destroy(struct action_data *data)
++static void track_data_destroy(struct hist_trigger_data *hist_data,
++			       struct action_data *data)
+ {
+-	destroy_hist_field(data->onmax.max_var, 0);
+-	destroy_hist_field(data->onmax.var, 0);
++	destroy_hist_field(data->track_data.track_var, 0);
++	destroy_hist_field(data->track_data.var_ref, 0);
+ 
+-	kfree(data->onmax.var_str);
++	kfree(data->track_data.var_str);
+ 
+ 	action_data_destroy(data);
+ }
+@@ -3353,26 +3409,26 @@ static void onmax_destroy(struct action_data *data)
+ static int action_create(struct hist_trigger_data *hist_data,
+ 			 struct action_data *data);
+ 
+-static int onmax_create(struct hist_trigger_data *hist_data,
+-			struct action_data *data)
++static int track_data_create(struct hist_trigger_data *hist_data,
++			     struct action_data *data)
+ {
+-	struct hist_field *var_field, *ref_field, *max_var = NULL;
++	struct hist_field *var_field, *ref_field, *track_var = NULL;
+ 	struct trace_event_file *file = hist_data->event_file;
+ 	unsigned int var_ref_idx = hist_data->n_var_refs;
+-	char *onmax_var_str;
++	char *track_data_var_str;
+ 	unsigned long flags;
+ 	int ret = 0;
+ 
+-	onmax_var_str = data->onmax.var_str;
+-	if (onmax_var_str[0] != '$') {
+-		hist_err("onmax: For onmax(x), x must be a variable: ", onmax_var_str);
++	track_data_var_str = data->track_data.var_str;
++	if (track_data_var_str[0] != '$') {
++		hist_err("For onmax(x), x must be a variable: ", track_data_var_str);
+ 		return -EINVAL;
+ 	}
+-	onmax_var_str++;
++	track_data_var_str++;
+ 
+-	var_field = find_target_event_var(hist_data, NULL, NULL, onmax_var_str);
++	var_field = find_target_event_var(hist_data, NULL, NULL, track_data_var_str);
+ 	if (!var_field) {
+-		hist_err("onmax: Couldn't find onmax variable: ", onmax_var_str);
++		hist_err("Couldn't find onmax variable: ", track_data_var_str);
+ 		return -EINVAL;
+ 	}
+ 
+@@ -3388,17 +3444,18 @@ static int onmax_create(struct hist_trigger_data *hist_data,
+ 	}
+ 	hist_data->var_refs[hist_data->n_var_refs] = ref_field;
+ 	ref_field->var_ref_idx = hist_data->n_var_refs++;
+-	data->onmax.var = ref_field;
++	data->track_data.var_ref = ref_field;
+ 
+-	data->onmax.max_var_ref_idx = var_ref_idx;
++	data->track_data.var_ref_idx = var_ref_idx;
+ 
+-	max_var = create_var(hist_data, file, "max", sizeof(u64), "u64");
+-	if (IS_ERR(max_var)) {
+-		hist_err("onmax: Couldn't create onmax variable: ", "max");
+-		ret = PTR_ERR(max_var);
++	if (data->handler == HANDLER_ONMAX)
++		track_var = create_var(hist_data, file, "__max", sizeof(u64), "u64");
++	if (IS_ERR(track_var)) {
++		hist_err("Couldn't create onmax variable: ", "__max");
++		ret = PTR_ERR(track_var);
+ 		goto out;
+ 	}
+-	data->onmax.max_var = max_var;
++	data->track_data.track_var = track_var;
+ 
+ 	ret = action_create(hist_data, data);
+  out:
+@@ -3476,7 +3533,17 @@ static int action_parse(char *str, struct action_data *data,
+ 			goto out;
+ 
+ 		if (handler == HANDLER_ONMAX)
+-			data->fn = onmax_save;
++			data->track_data.check_val = check_track_val_max;
++		else {
++			hist_err("action parsing: Handler doesn't support action: ", action_name);
++			ret = -EINVAL;
++			goto out;
++		}
++
++		data->track_data.save_val = save_track_val_local;
++		data->track_data.get_val = get_track_val_local;
++
++		data->fn = ontrack_save;
+ 
+ 		data->action = ACTION_SAVE;
+ 	} else {
+@@ -3488,7 +3555,14 @@ static int action_parse(char *str, struct action_data *data,
+ 				goto out;
+ 		}
+ 
++		if (handler == HANDLER_ONMAX)
++			data->track_data.check_val = check_track_val_max;
++
++		data->track_data.save_val = save_track_val_local;
++		data->track_data.get_val = get_track_val_local;
++
+ 		data->fn = action_trace;
++
+ 		data->action = ACTION_TRACE;
+ 	}
+ 
+@@ -3503,24 +3577,25 @@ static int action_parse(char *str, struct action_data *data,
+ 	return ret;
+ }
+ 
+-static struct action_data *onmax_parse(char *str, enum handler_id handler)
++static struct action_data *track_data_parse(struct hist_trigger_data *hist_data,
++					    char *str, enum handler_id handler)
+ {
+ 	struct action_data *data;
+-	char *onmax_var_str;
+ 	int ret = -EINVAL;
++	char *var_str;
+ 
+ 	data = kzalloc(sizeof(*data), GFP_KERNEL);
+ 	if (!data)
+ 		return ERR_PTR(-ENOMEM);
+ 
+-	onmax_var_str = strsep(&str, ")");
+-	if (!onmax_var_str || !str) {
++	var_str = strsep(&str, ")");
++	if (!var_str || !str) {
+ 		ret = -EINVAL;
+ 		goto free;
+ 	}
+ 
+-	data->onmax.var_str = kstrdup(onmax_var_str, GFP_KERNEL);
+-	if (!data->onmax.var_str) {
++	data->track_data.var_str = kstrdup(var_str, GFP_KERNEL);
++	if (!data->track_data.var_str) {
+ 		ret = -ENOMEM;
+ 		goto free;
+ 	}
+@@ -3531,7 +3606,7 @@ static struct action_data *onmax_parse(char *str, enum handler_id handler)
+  out:
+ 	return data;
+  free:
+-	onmax_destroy(data);
++	track_data_destroy(hist_data, data);
+ 	data = ERR_PTR(ret);
+ 	goto out;
+ }
+@@ -4316,7 +4391,7 @@ static void destroy_actions(struct hist_trigger_data *hist_data)
+ 		if (data->handler == HANDLER_ONMATCH)
+ 			onmatch_destroy(data);
+ 		else if (data->handler == HANDLER_ONMAX)
+-			onmax_destroy(data);
++			track_data_destroy(hist_data, data);
+ 		else
+ 			kfree(data);
+ 	}
+@@ -4344,7 +4419,8 @@ static int parse_actions(struct hist_trigger_data *hist_data)
+ 		} else if (strncmp(str, "onmax(", strlen("onmax(")) == 0) {
+ 			char *action_str = str + strlen("onmax(");
+ 
+-			data = onmax_parse(action_str, HANDLER_ONMAX);
++			data = track_data_parse(hist_data, action_str,
++						HANDLER_ONMAX);
+ 			if (IS_ERR(data)) {
+ 				ret = PTR_ERR(data);
+ 				break;
+@@ -4374,7 +4450,7 @@ static int create_actions(struct hist_trigger_data *hist_data)
+ 			if (ret)
+ 				break;
+ 		} else if (data->handler == HANDLER_ONMAX) {
+-			ret = onmax_create(hist_data, data);
++			ret = track_data_create(hist_data, data);
+ 			if (ret)
+ 				break;
+ 		} else {
+@@ -4396,7 +4472,7 @@ static void print_actions(struct seq_file *m,
+ 		struct action_data *data = hist_data->actions[i];
+ 
+ 		if (data->handler == HANDLER_ONMAX)
+-			onmax_print(m, hist_data, elt, data);
++			track_data_print(m, hist_data, elt, data);
+ 	}
+ }
+ 
+@@ -4421,12 +4497,13 @@ static void print_action_spec(struct seq_file *m,
+ 	}
+ }
+ 
+-static void print_onmax_spec(struct seq_file *m,
+-			     struct hist_trigger_data *hist_data,
+-			     struct action_data *data)
++static void print_track_data_spec(struct seq_file *m,
++				  struct hist_trigger_data *hist_data,
++				  struct action_data *data)
+ {
+-	seq_puts(m, ":onmax(");
+-	seq_printf(m, "%s", data->onmax.var_str);
++	if (data->handler == HANDLER_ONMAX)
++		seq_puts(m, ":onmax(");
++	seq_printf(m, "%s", data->track_data.var_str);
+ 	seq_printf(m, ").%s(", data->action_name);
+ 
+ 	print_action_spec(m, hist_data, data);
+@@ -4484,8 +4561,8 @@ static bool actions_match(struct hist_trigger_data *hist_data,
+ 				   data_test->match_data.event) != 0)
+ 				return false;
+ 		} else if (data->handler == HANDLER_ONMAX) {
+-			if (strcmp(data->onmax.var_str,
+-				   data_test->onmax.var_str) != 0)
++			if (strcmp(data->track_data.var_str,
++				   data_test->track_data.var_str) != 0)
+ 				return false;
+ 		}
+ 	}
+@@ -4505,7 +4582,7 @@ static void print_actions_spec(struct seq_file *m,
+ 		if (data->handler == HANDLER_ONMATCH)
+ 			print_onmatch_spec(m, hist_data, data);
+ 		else if (data->handler == HANDLER_ONMAX)
+-			print_onmax_spec(m, hist_data, data);
++			print_track_data_spec(m, hist_data, data);
+ 	}
+ }
+ 
+-- 
+2.14.1

@@ -1,0 +1,188 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (61.164.42.155:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 08 Nov 2018 12:54:59 -0000
+Received: from icoremail.net (unknown [209.85.215.172])
+	by mail-app2 (Coremail) with SMTP id by_KCgDXv34ZJ+Rbld5fAQ--.29511S3;
+	Thu, 08 Nov 2018 20:07:54 +0800 (CST)
+Received: from mail-pg1-f172.google.com (unknown [209.85.215.172])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwBnSEQVJ+RbhpMcAA--.1809S3;
+	Thu, 08 Nov 2018 20:07:49 +0800 (CST)
+Received: by mail-pg1-f172.google.com with SMTP id n10-v6so8769716pgv.10
+        for <xuliker@zju.edu.cn>; Thu, 08 Nov 2018 04:07:49 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:delivered-to:dkim-signature:date:from:to:cc
+         :subject:message-id:references:mime-version:content-disposition
+         :in-reply-to:user-agent:sender:precedence:list-id;
+        bh=Zae2umIdz6wZvczSkLmHyXSMXJNc1Lza+hGyNK1+MnE=;
+        b=fueFx1bABhlw0CD8zEwX5fsGf5/4ZsD4UgLRzpfPgbye8Y/l8UcJixCl/JL+Khzcw/
+         gFm4G/kTVvQy8bSIS3PPPXcqq6bSB7HIq8Uc5fA6jNaEORedYkeynBNBlYAs7GZH72v0
+         X9FzLITtqKI61v8WwitTTHY4a2Nh8KnVUZbHkc/IrROUnhS36T8aBChTAe89WbRtCqx/
+         DFV2keH7zRCUPrHQzwcee9s+d3Us/iiTf/d5Pf/DTrvl1dsTz2fkDrZkqd2tjn6FnaCu
+         CWLg+CbOe8YYsAYsxulTdy2hnDvoXEZUE9hBr8br06RkOglsL/9mb8bVx1bQ3gkkyRix
+         ZlrQ==
+X-Gm-Message-State: AGRZ1gLvSGLNfyi/IjbT0blJB4zygvKoGw+lVP5xjWaGm/9uGaoy8mV2
+	r35lzvFSJTu/q3xVWUbZcv6N28BxQ/9fpW1irlou8yekVuL0jDLbFg==
+X-Received: by 2002:a65:64d5:: with SMTP id t21-v6mr3685844pgv.428.1541678869162;
+        Thu, 08 Nov 2018 04:07:49 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp103495pjt;
+        Thu, 8 Nov 2018 04:07:48 -0800 (PST)
+X-Google-Smtp-Source: AJdET5cymS4AH8WhT5WRRFrinR6EfpU5vkMXAhpbAeXd9sStmiZ9WYX6OigAKIAd7jiWH2B22a52
+X-Received: by 2002:a63:f34b:: with SMTP id t11mr3584013pgj.341.1541678868353;
+        Thu, 08 Nov 2018 04:07:48 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1541678868; cv=none;
+        d=google.com; s=arc-20160816;
+        b=q11MV10TD40qxlz+3fCnNF7ynp6ooShk5HtY7guRCqioTQ+9vVOrNieY0xd54C2rg+
+         Kid78M0p/1Hh0PlW8XlLXf/p5yBvwkenFOT6AqYiraeQL9BkzDuHScU8YTeUSLm0Gh+x
+         vv73UP6wGT9XjBDcPynDRwDXHBfYfTUo3l8PQW4NpR9Z89HIj78DHBeEU6oshn0oYMS5
+         Zl2bWQ5vkhsjuSHsF8+jInb2MCl9H9PHoRzbqu5kumeH1geb1RdFdN3D+IXSk5VFLvN9
+         xkUQr851Z8A4I9WNqbF52m9RiHhfU2yb2nhNCJWST+2Nx1BT/8d2/CMh5qnbQGwcyQeL
+         incA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:user-agent:in-reply-to
+         :content-disposition:mime-version:references:message-id:subject:cc
+         :to:from:date:dkim-signature;
+        bh=Zae2umIdz6wZvczSkLmHyXSMXJNc1Lza+hGyNK1+MnE=;
+        b=VIadpGy1Sek9HI91QGBmdlwc709cDhbk7rA1G8ggS2Pq8rh0GujnqnLZvy7FLMmeef
+         SfFpw76jANxgRAbQiienatF/lqCUJLCfd4ogyDI0epN7uyKekqrugjyaY4+vfmEd9iEF
+         HIlt8HvPzCFIQdJOr89VX0LXHVdfizg2m8N/V5BzID5+ADdWSO6zzOTaWYakmdteayQq
+         BX55DEaJl0LctchNs1Ug46NE5W6f0tB1qxzHPLoPhnDQ7GT37yqVNde9R7goCZR4BzGR
+         +0Uu8pX37x57VgNCNFehwi27Ks6/Le/F2cFVZAgq6FoRMl/QL1u6GhpQ1egJkD4Sqj7o
+         tsTQ==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@gibson.dropbear.id.au header.s=201602 header.b=Z0O1JeYi;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id r17-v6si3525817pgi.132.2018.11.08.04.06.59;
+        Thu, 08 Nov 2018 04:07:48 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1726469AbeKHVjb (ORCPT <rfc822;fanshuming2011@gmail.com>
+        + 99 others); Thu, 8 Nov 2018 16:39:31 -0500
+Received: from ozlabs.org ([203.11.71.1]:41115 "EHLO ozlabs.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726252AbeKHVjb (ORCPT <rfc822;kvm@vger.kernel.org>);
+        Thu, 8 Nov 2018 16:39:31 -0500
+Received: by ozlabs.org (Postfix, from userid 1007)
+        id 42rMQT58Dwz9sBZ; Thu,  8 Nov 2018 23:04:16 +1100 (AEDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+        d=gibson.dropbear.id.au; s=201602; t=1541678657;
+        bh=d8oHpwuvhZOLM4oHoJ46eeJ8JZhHTDitG3HrGWRnBMI=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Z0O1JeYioq3l9a+ds0lPrnu6cj/3gP4KYzj9iMwXKWxVUw++XeXfG6hk6lR6Y/toG
+         /uQznaFiJyezq0o5r55ga9FZDxX6zmI30s4MqQ93NW9KTjLL5KA8ZIwUGgJPW9W0r/
+         M1qOhWHVu5PkAm3gI7yaDSSMzLC4WOZDDryKH36s=
+Date: Thu, 8 Nov 2018 18:16:23 +1100
+From: David Gibson <david@gibson.dropbear.id.au>
+To: Alexey Kardashevskiy <aik@ozlabs.ru>
+Cc: linuxppc-dev@lists.ozlabs.org, kvm-ppc@vger.kernel.org,
+        kvm@vger.kernel.org, Alex Williamson <alex.williamson@redhat.com>,
+        Alistair Popple <alistair@popple.id.au>,
+        Reza Arbab <arbab@linux.ibm.com>
+Subject: Re: [PATCH kernel 2/3] vfio_pci: Allow regions to add own
+ capabilities
+Message-ID: <20181108071623.GA26872@umbus.fritz.box>
+References: <20181015094233.1324-1-aik@ozlabs.ru>
+ <20181015094233.1324-3-aik@ozlabs.ru>
+ <20181108062139.GQ5575@umbus.fritz.box>
+ <72022e34-6cf0-3946-8049-ba3d998097f3@ozlabs.ru>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="LZvS9be/3tNcYl/X"
+Content-Disposition: inline
+In-Reply-To: <72022e34-6cf0-3946-8049-ba3d998097f3@ozlabs.ru>
+User-Agent: Mutt/1.10.1 (2018-07-13)
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwBnSEQVJ+RbhpMcAA--.1809S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW7Aw45JrWUXF1xGr1Utw1kZrb_yoW8XFWDpa
+	yfXFsayFZYyrWfuw1DAa4xtFyYqw1vkFWfGr9xuF4Yvwn8GFySgw1Sg342yFWkWr97G3Z0
+	vrW0vrykurn8C3DanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUH0b7Iv0xC_KF4lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M280x2IEY4vE77IFxVWUWVWUZwA2ocxC64kIII0Yj41l84x0c7CEw4AK67
+	xGY2AK021l84ACjcxK6xIIjxv20xvE14v26ryj6F1UM28EF7xvwVC0I7IYx2IY6xkF7I0E
+	14v26r4j6F4UM28EF7xvwVC2z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14
+	v26rxl6s0DM2vj62AExVA0xI801c8C04v26x02cVCv0xWle2I262IYc4CY6c8Ij28IcVAa
+	Y2xG8wASzI0EjI02j7AqF2xKxwAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcV
+	AFwI0_Jr0_Jr4lYx0Ex4A2jsIE14v26r4j6F4UMcvjeVCFs4IE7xkEbVWUJVW8JwCjxxvE
+	a2IrMxkF7I0Ew4C26cxK6c8Ij28IcwCY1Ik26cxK6xAEc7vF6xCjj44lc2xSY4AK6IIF6r
+	yUMxkI7II2jI8vz4vEwIxGrwCYIxAIcVC0I7IYx2IY67AKxVW8JVW5JwCYIxAIcVC0I7IY
+	x2IY6xkF7I0E14v26r4j6F4UMxvI42IY6I8E87Iv67AKxVWxJr0_GcWlcIIF0xvEx4A2js
+	IEc7CjxVAFwI0_Cr1j6rxdMxAIw28IcxkI7VAKI48JMxAIw28IcVAKzI0EY4vE52x082I5
+	MxCjnVCjjxCrMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2
+	IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWUtVW8ZwCIc40Y0x0EwIxGrwCI
+	42IY6xAIw20EY4v20xvaj40_Gr0_ZrUvcSsGvfC2KfnxnUUI43ZEXa7IUeYL9UUUUUU==
+
+
+--LZvS9be/3tNcYl/X
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Thu, Nov 08, 2018 at 05:48:58PM +1100, Alexey Kardashevskiy wrote:
+>=20
+>=20
+> On 08/11/2018 17:21, David Gibson wrote:
+> > On Mon, Oct 15, 2018 at 08:42:32PM +1100, Alexey Kardashevskiy wrote:
+> >> VFIO regions already support region capabilities with a limited set of
+> >> fields. However the subdriver might have to report to the userspace
+> >> additional bits.
+> >>
+> >> This adds an add_capability() hook to vfio_pci_regops.
+> >>
+> >> This is aiming Witherspoon POWER9 machines which have multiple
+> >> interconnected NVIDIA V100 GPUs with coherent RAM; each GPU's RAM
+> >> is mapped to a system bus and to each of GPU internal system bus and
+> >> the GPUs use this for DMA routing as DMA trafic can go via any
+> >> of many NVLink2 (GPU-GPU or GPU-CPU) or even stay local within a
+> >> GPU.
+> >=20
+> > This description doesn't really make clear how per-region capabilities
+> > are relevant to these devices.
+>=20
+>=20
+> I am confused. This patch just adds a hook, and the device specifics are
+> explained in the next patch where they are used...
+
+Well, my point is the last paragraph of the commit message appears to
+be a rationale for this change in terms of what's needed for the GPU
+devices.  But how those described properties of the GPU mean that
+region capabilites are useful / necessary isn't made clear.  If it's
+not meant to be a rationale, I'm not sure what it's doing there at
+all.
+
+--=20
+David Gibson			| I'll have my music baroque, and my code
+david AT gibson.dropbear.id.au	| minimalist, thank you.  NOT _the_ _other_
+				| _way_ _around_!
+http://www.ozlabs.org/~dgibson
+
+--LZvS9be/3tNcYl/X
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEEdfRlhq5hpmzETofcbDjKyiDZs5IFAlvj4sQACgkQbDjKyiDZ
+s5Ih1xAA0Lr5Tj0mBKT85tbpp4uub6lvh5gJy2J+/juXrz1c2DLuSgW2ZNGWqSUN
+CxxWHepsSITw3xfAgs7RcBgWetsF372MLQAunAYPVRW0zzXQFBfmANKVfiUCJ9zm
+E7KkfprxMWFU9a4LoNe0q7Nd9U4GMGTskDD3GtnQ3o3W6iGUslyHA3nWg4t0Ggvj
+DCpTn9cBAmNg3dZYr11TeqmPetKeTf4IPjnubAYL7gCk/cEub1vUXxz/ZDyTFgPG
+PnWlELGh/KoU18+q03UYJF9pf62Gv08f8PxTzlA30b+hg8JdAC0xSSl8HOnvR2mo
+FLakDfeblPMk6AEbonk0oE95HQfxDHY7DyWaauGDxr3IJwVv5lQ/g9/JEO4sx1Sc
+mUCpH5SXwOOBPplhyertdRABXcGJYt3G9TfJuMGxdD2eK6qPOSPcninQfcaEwZfF
+1yGot1TxaMvft6LUuyBJhfD7zVymWyVnRSgfSxAdhHSdArQyTFGREckbczRfr82z
+tXKf7DL1wQmtfjbxQb2L7Ijkvp8cWqiBgaxkR7s2qO3JmFSv40S4BpDCUVOy8hKm
+15AL5eqVxa0vsevow2FAeJ3XeprS7fWNpXMhC7N3Z6Ea3GuIedbXdgKGlLogBqlX
+2t8Q9AoAsaoSZtCjtzEQ1XI8PCYvvXQ1mDvo2SAo59glnFSVcU8=
+=Uten
+-----END PGP SIGNATURE-----
+
+--LZvS9be/3tNcYl/X--

@@ -1,0 +1,654 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (61.164.42.155:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 08 Nov 2018 12:55:10 -0000
+Received: from icoremail.net (unknown [209.85.215.173])
+	by mail-app2 (Coremail) with SMTP id by_KCgDHHyYWMeRb3xlgAQ--.29344S3;
+	Thu, 08 Nov 2018 20:50:32 +0800 (CST)
+Received: from mail-pg1-f173.google.com (unknown [209.85.215.173])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwCHb0sTMeRbbL0cAA--.9124S3;
+	Thu, 08 Nov 2018 20:50:27 +0800 (CST)
+Received: by mail-pg1-f173.google.com with SMTP id i4-v6so8819704pgq.9
+        for <xuliker@zju.edu.cn>; Thu, 08 Nov 2018 04:50:27 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:delivered-to:dkim-signature:from:to:cc:subject
+         :date:message-id:mime-version:content-transfer-encoding:sender
+         :precedence:list-id;
+        bh=YWfaIKWa7XzKD8jFFM0ogEl8xEd0MazpcIBmKAvjhSE=;
+        b=NPXOvKs9tLz7QMMw7PzFau2IWcDRblNDAZaNP65ZdqZYLQqIFalTslsXWfcAH329mo
+         U5d+b6jXPZNjOPeEPPUHgLoV1D7InoQVnHwyV1LrAH1/fJt6IDF6LXlWJd6CatvU8Yid
+         h4QQsJclYLu//84oF+HQq5m21IHlc3IKm9AT1Xf4Pjxp2T2nD7Kd34wKNpRZc18obmFh
+         wSdvAQ/wlMfag7a3Ns7pda43wZyxhogGdrwc6/3IAj1G9rATlYGmrWpqTmVSW3inOHop
+         IfpanIkdaQBYpYbqfVsPN2mDrHgfDal78+N5S+HVV/Bcr+Ap+Tt/6vkkUM1g/xCmgCzl
+         MGfw==
+X-Gm-Message-State: AGRZ1gJpzyPrC3UkXA/45MLRuSO7aTlWOmABLP6QqkCai5eqp14GD0u+
+	Fng29w3EokMdjVi8tTMcveSpdOUpb+0gEEcmza1DyLcH4GkiPZKNkQ==
+X-Received: by 2002:a63:fd53:: with SMTP id m19mr3737385pgj.340.1541681426914;
+        Thu, 08 Nov 2018 04:50:26 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp143139pjt;
+        Thu, 8 Nov 2018 04:50:25 -0800 (PST)
+X-Google-Smtp-Source: AJdET5e/h1xxZmm7KyeVLDZAsQwpzvp33Mdj63VVYczq9Gn17diGM+otnaUk7849H1+z5kzQ3oFJ
+X-Received: by 2002:a65:4145:: with SMTP id x5-v6mr3640416pgp.309.1541681425677;
+        Thu, 08 Nov 2018 04:50:25 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1541681425; cv=none;
+        d=google.com; s=arc-20160816;
+        b=aDFebNO0Qvrm0TV2csYrtjO9Lh4APMWH3QDHFrTZI7VlOtiZ7cMoip7JKqHNlTkO8y
+         e1mdNWIzMantUjzBdm76+yxNTGvGEsZXL/uLazQpcTnsIVnLhvJ2vb/1VaVLJxuIEVTa
+         GavEZ4mexSU3WQnw2P3W+BdYUksxocfUghoeIrMAaobmlukbDCUQ3Easvxntl1d3EdtY
+         HeVvQWpVJYoI+JsyYM93ewp1rq9TiQFxJWil0CMddNeHToR7My5omtP/+b386YDxM4G9
+         lyjqrauXr/C59YlmBILZ6ZtUs98P5/9+V2L7RpGiixbp9av7GqmqBUTgDKAQ71pwV2nE
+         BNuQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:content-transfer-encoding:mime-version
+         :message-id:date:subject:cc:to:from:dkim-signature;
+        bh=YWfaIKWa7XzKD8jFFM0ogEl8xEd0MazpcIBmKAvjhSE=;
+        b=Zfl9kO1YOjSi7ojK5HkRuLTjBE55lKnNIeqCTDXnuK/+yCusZtC0RMVOdUzBclLRI9
+         5evLUj+wtOvrPpKNQxEB/SkeL0L9X7TTo46/hGqj+jJZXcjpVOqn2HU6VyyDXTu709eM
+         XSSAkd/IkfsNr62yUMKMhrSADWb1WhKBXM5+Urx228RQ6UvfUlw1ilQoig4Ta8S1MIKm
+         RcrvJn/AvjOoYeG9WuCJ+lPcLtfnCSPYVSZ7kHq30KSXnmnFxMix65dpRyT48JQ8hidy
+         uX8JdL4dr0WEqWnS9UK6NCcZqZ23PK/WxISrffI7RRFKXFCGCEWBF3evMsdUMZTzvcbw
+         +Bjw==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@gmail.com header.s=20161025 header.b=I7TGm6+h;
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;
+       dmarc=pass (p=NONE sp=QUARANTINE dis=NONE) header.from=gmail.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id n188-v6si3625228pga.434.2018.11.08.04.50.10;
+        Thu, 08 Nov 2018 04:50:25 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1727037AbeKHWZF (ORCPT <rfc822;ankurbansal210989@gmail.com>
+        + 99 others); Thu, 8 Nov 2018 17:25:05 -0500
+Received: from mail-wm1-f68.google.com ([209.85.128.68]:54128 "EHLO
+        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726541AbeKHWZE (ORCPT
+        <rfc822;linux-kernel@vger.kernel.org>);
+        Thu, 8 Nov 2018 17:25:04 -0500
+Received: by mail-wm1-f68.google.com with SMTP id f10-v6so1130507wme.3;
+        Thu, 08 Nov 2018 04:49:42 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=YWfaIKWa7XzKD8jFFM0ogEl8xEd0MazpcIBmKAvjhSE=;
+        b=I7TGm6+hiSk0gldjPmlwer7lyow+T8grB7onzylvQOHmNWHho1h68V2NuurmcG1M0q
+         wX6jvqGYjXRDzQvTgj1qav8wIX0SO+NoQ0lqFaPicmH0b3LJOTTniXQsK4pPhsavptuD
+         XFvSia2NdqORFbW4x0KfI4gnGs58mU2NpBxuxJCYhcamczQL8BxZJ3JBxtoxERl4ElYA
+         VM5LbzjQigMk1C3vL4yWKPOfcNE6Rr1kqSJWEpNHhDu4T0bgdD+rmL3d6RyMgB1JipY5
+         8/6T1gmvTQMNL6M9qDdJwGYQXkLdANpnP+QLa1/ADBwekjHhxdIz3so+y7Jxk7w5gP2q
+         NLiQ==
+X-Received: by 2002:a7b:c083:: with SMTP id r3-v6mr1117365wmh.101.1541681381012;
+        Thu, 08 Nov 2018 04:49:41 -0800 (PST)
+Received: from cperon-Latitude-7490.devialet.com (static-css-csd-151233.business.bouyguestelecom.com. [176.162.151.233])
+        by smtp.gmail.com with ESMTPSA id y4-v6sm4956622wrd.61.2018.11.08.04.49.39
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 08 Nov 2018 04:49:40 -0800 (PST)
+From: =?UTF-8?q?Cl=C3=A9ment=20P=C3=A9ron?= <peron.clem@gmail.com>
+To: Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>,
+        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>
+Cc: alsa-devel@alsa-project.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Adrien Charruel <adrien.charruel@devialet.com>,
+        =?UTF-8?q?Cl=C3=A9ment=20P=C3=A9ron?= <peron.clem@gmail.com>
+Subject: [PATCH 1/2] ASoC: ak4118: Add support for AK4118 S/PDIF transceiver
+Date: Thu,  8 Nov 2018 13:49:33 +0100
+Message-Id: <20181108124934.32381-1-peron.clem@gmail.com>
+X-Mailer: git-send-email 2.19.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwCHb0sTMeRbbL0cAA--.9124S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvAXoW3Cr4fZr1UGr45AFW5tw1xuFg_yoW8Xw17Co
+	ZFqFn5tF4UJw18Z3y5X3yxJFyI9F45Gr4vyr4DAwsrC3yUArWagFWDta1UAF4aqr4FgF43
+	Gw43twn5XrWS9343n29KB7ZKAUJUUUUU529EdanIXcx71UUUUj7v73VFW2AGmfu7jjvjm3
+	AaLaJ3UjIYCTnIWjp_UUUO87k0a2IF6w4kM7kC6x804xWl14x267AKxVWUJVW8JwAFIxvE
+	14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK021l84ACjcxK6xIIjx
+	v20xvE14v26F1j6w1UM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26r4j6F4UM28EF7xvwVC2
+	z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s0DM2AIxVAIcxkEcV
+	Aq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r10
+	6r15McIj6I8E87Iv67AKxVW8JVWxJwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IYc2Ij64
+	vIr41l7I0Y6sxI4wCY1x0264kExVAvwVAq07x20xylc7Ca8VAvwVCFzxkY4VCF77xAMxkI
+	ecxEwVCI4VW5JwCY0x0Ix7I2Y4AK64vIr41lcIIF0xvE2Ix0cI8IcVAFwI0_Gr0_Xr1lcI
+	IF0xvE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwCYIxAIcVC2z280aVAFwI0_Cr1j6rxdMxvI
+	42IY6I8E87Iv6xkF7I0E14v26F4UJVW0owCF04k20xvY0x0EwIxGrwCF04k20xvEw4C26c
+	xK6c8Ij28IcwCF72vE77IF4wCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v2
+	6r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_Jw0_GFylIxkGc2
+	Ij64vIr41lIxAIcVCF04k26cxKx2IYs7xG6r4j6FyUYxBIdaVFxhVjvjDU0xZFpf9x07bB
+	yIUUUUUU=
+
+From: Adrien Charruel <adrien.charruel@devialet.com>
+
+The AK4118A is a digital audio transceiver supporting 8 input channels
+at 192kHz and with 24bits resolution.
+It converts the S/PDIF signal to I2S format and is configurable over I2C.
+
+This driver introduce a minimal support of the AK4118, like selecting the
+input channel, reading input frequency and detecting some errors.
+
+Datasheet is available here:
+https://www.akm.com/akm/en/file/datasheet/AK4118AEQ.pdf
+
+Signed-off-by: Adrien Charruel <adrien.charruel@devialet.com>
+Signed-off-by: Clément Péron <peron.clem@gmail.com>
+---
+ sound/soc/codecs/Kconfig  |   6 +
+ sound/soc/codecs/Makefile |   2 +
+ sound/soc/codecs/ak4118.c | 449 ++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 457 insertions(+)
+ create mode 100644 sound/soc/codecs/ak4118.c
+
+diff --git a/sound/soc/codecs/Kconfig b/sound/soc/codecs/Kconfig
+index 9cc4f1848c9b..62bdb7e333b8 100644
+--- a/sound/soc/codecs/Kconfig
++++ b/sound/soc/codecs/Kconfig
+@@ -35,6 +35,7 @@ config SND_SOC_ALL_CODECS
+ 	select SND_SOC_ADAU7002
+ 	select SND_SOC_ADS117X
+ 	select SND_SOC_AK4104 if SPI_MASTER
++	select SND_SOC_AK4118 if I2C
+ 	select SND_SOC_AK4458 if I2C
+ 	select SND_SOC_AK4535 if I2C
+ 	select SND_SOC_AK4554
+@@ -392,6 +393,11 @@ config SND_SOC_AK4104
+ 	tristate "AKM AK4104 CODEC"
+ 	depends on SPI_MASTER
+ 
++config SND_SOC_AK4118
++	tristate "AKM AK4118 CODEC"
++	depends on I2C
++	select REGMAP_I2C
++
+ config SND_SOC_AK4458
+ 	tristate "AKM AK4458 CODEC"
+ 	depends on I2C
+diff --git a/sound/soc/codecs/Makefile b/sound/soc/codecs/Makefile
+index 8ffab8c8dbfa..66f55d185620 100644
+--- a/sound/soc/codecs/Makefile
++++ b/sound/soc/codecs/Makefile
+@@ -27,6 +27,7 @@ snd-soc-adav801-objs := adav801.o
+ snd-soc-adav803-objs := adav803.o
+ snd-soc-ads117x-objs := ads117x.o
+ snd-soc-ak4104-objs := ak4104.o
++snd-soc-ak4118-objs := ak4118.o
+ snd-soc-ak4458-objs := ak4458.o
+ snd-soc-ak4535-objs := ak4535.o
+ snd-soc-ak4554-objs := ak4554.o
+@@ -290,6 +291,7 @@ obj-$(CONFIG_SND_SOC_ADAV801)  += snd-soc-adav801.o
+ obj-$(CONFIG_SND_SOC_ADAV803)  += snd-soc-adav803.o
+ obj-$(CONFIG_SND_SOC_ADS117X)	+= snd-soc-ads117x.o
+ obj-$(CONFIG_SND_SOC_AK4104)	+= snd-soc-ak4104.o
++obj-$(CONFIG_SND_SOC_AK4118)	+= snd-soc-ak4118.o
+ obj-$(CONFIG_SND_SOC_AK4458)	+= snd-soc-ak4458.o
+ obj-$(CONFIG_SND_SOC_AK4535)	+= snd-soc-ak4535.o
+ obj-$(CONFIG_SND_SOC_AK4554)	+= snd-soc-ak4554.o
+diff --git a/sound/soc/codecs/ak4118.c b/sound/soc/codecs/ak4118.c
+new file mode 100644
+index 000000000000..a88e7d6a65a3
+--- /dev/null
++++ b/sound/soc/codecs/ak4118.c
+@@ -0,0 +1,449 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * ak4118.c  --  Asahi Kasei ALSA Soc Audio driver
++ *
++ * Copyright 2018 DEVIALET
++ */
++
++#include <linux/i2c.h>
++#include <linux/module.h>
++#include <linux/of_device.h>
++#include <linux/of_gpio.h>
++#include <linux/regmap.h>
++#include <linux/slab.h>
++
++#include <sound/asoundef.h>
++#include <sound/core.h>
++#include <sound/initval.h>
++#include <sound/soc.h>
++
++#define AK4118_REG_CLK_PWR_CTL		0x00
++#define AK4118_REG_FORMAT_CTL		0x01
++#define AK4118_REG_IO_CTL0		0x02
++#define AK4118_REG_IO_CTL1		0x03
++#define AK4118_REG_INT0_MASK		0x04
++#define AK4118_REG_INT1_MASK		0x05
++#define AK4118_REG_RCV_STATUS0		0x06
++#define AK4118_REG_RCV_STATUS1		0x07
++#define AK4118_REG_RXCHAN_STATUS0	0x08
++#define AK4118_REG_RXCHAN_STATUS1	0x09
++#define AK4118_REG_RXCHAN_STATUS2	0x0a
++#define AK4118_REG_RXCHAN_STATUS3	0x0b
++#define AK4118_REG_RXCHAN_STATUS4	0x0c
++#define AK4118_REG_TXCHAN_STATUS0	0x0d
++#define AK4118_REG_TXCHAN_STATUS1	0x0e
++#define AK4118_REG_TXCHAN_STATUS2	0x0f
++#define AK4118_REG_TXCHAN_STATUS3	0x10
++#define AK4118_REG_TXCHAN_STATUS4	0x11
++#define AK4118_REG_BURST_PREAMB_PC0	0x12
++#define AK4118_REG_BURST_PREAMB_PC1	0x13
++#define AK4118_REG_BURST_PREAMB_PD0	0x14
++#define AK4118_REG_BURST_PREAMB_PD1	0x15
++#define AK4118_REG_QSUB_CTL		0x16
++#define AK4118_REG_QSUB_TRACK		0x17
++#define AK4118_REG_QSUB_INDEX		0x18
++#define AK4118_REG_QSUB_MIN		0x19
++#define AK4118_REG_QSUB_SEC		0x1a
++#define AK4118_REG_QSUB_FRAME		0x1b
++#define AK4118_REG_QSUB_ZERO		0x1c
++#define AK4118_REG_QSUB_ABS_MIN		0x1d
++#define AK4118_REG_QSUB_ABS_SEC		0x1e
++#define AK4118_REG_QSUB_ABS_FRAME	0x1f
++#define AK4118_REG_GPE			0x20
++#define AK4118_REG_GPDR			0x21
++#define AK4118_REG_GPSCR		0x22
++#define AK4118_REG_GPLR			0x23
++#define AK4118_REG_DAT_MASK_DTS		0x24
++#define AK4118_REG_RX_DETECT		0x25
++#define AK4118_REG_STC_DAT_DETECT	0x26
++#define AK4118_REG_RXCHAN_STATUS5	0x27
++#define AK4118_REG_TXCHAN_STATUS5	0x28
++#define AK4118_REG_MAX			0x29
++
++#define AK4118_REG_FORMAT_CTL_DIF0	(1 << 4)
++#define AK4118_REG_FORMAT_CTL_DIF1	(1 << 5)
++#define AK4118_REG_FORMAT_CTL_DIF2	(1 << 6)
++
++struct ak4118_priv {
++	struct regmap *regmap;
++	struct gpio_desc *reset;
++	struct gpio_desc *irq;
++	struct snd_soc_component *component;
++};
++
++static const struct reg_default ak4118_reg_defaults[] = {
++	{AK4118_REG_CLK_PWR_CTL,	0x43},
++	{AK4118_REG_FORMAT_CTL,		0x6a},
++	{AK4118_REG_IO_CTL0,		0x88},
++	{AK4118_REG_IO_CTL1,		0x48},
++	{AK4118_REG_INT0_MASK,		0xee},
++	{AK4118_REG_INT1_MASK,		0xb5},
++	{AK4118_REG_RCV_STATUS0,	0x00},
++	{AK4118_REG_RCV_STATUS1,	0x10},
++	{AK4118_REG_TXCHAN_STATUS0,	0x00},
++	{AK4118_REG_TXCHAN_STATUS1,	0x00},
++	{AK4118_REG_TXCHAN_STATUS2,	0x00},
++	{AK4118_REG_TXCHAN_STATUS3,	0x00},
++	{AK4118_REG_TXCHAN_STATUS4,	0x00},
++	{AK4118_REG_GPE,		0x77},
++	{AK4118_REG_GPDR,		0x00},
++	{AK4118_REG_GPSCR,		0x00},
++	{AK4118_REG_GPLR,		0x00},
++	{AK4118_REG_DAT_MASK_DTS,	0x3f},
++	{AK4118_REG_RX_DETECT,		0x00},
++	{AK4118_REG_STC_DAT_DETECT,	0x00},
++	{AK4118_REG_TXCHAN_STATUS5,	0x00},
++};
++
++static const char * const ak4118_input_select_txt[] = {
++	"RX0", "RX1", "RX2", "RX3", "RX4", "RX5", "RX6", "RX7",
++};
++static SOC_ENUM_SINGLE_DECL(ak4118_insel_enum, AK4118_REG_IO_CTL1, 0,
++			    ak4118_input_select_txt);
++
++static const struct snd_kcontrol_new ak4118_input_mux_controls =
++			SOC_DAPM_ENUM("Input Select", ak4118_insel_enum);
++
++static const char * const ak4118_iec958_fs_texts[] = {
++	"44100",
++	"Reserved",
++	"48000",
++	"32000",
++	"22050",
++	"11025",
++	"24000",
++	"16000",
++	"88200",
++	"8000",
++	"96000",
++	"64000",
++	"176400",
++	"Unused",
++	"192000",
++};
++
++static const struct soc_enum ak4118_iec958_fs_enum =
++	SOC_ENUM_SINGLE(AK4118_REG_RCV_STATUS1, 4,
++			ARRAY_SIZE(ak4118_iec958_fs_texts),
++			ak4118_iec958_fs_texts);
++
++static struct snd_kcontrol_new ak4118_iec958_controls[] = {
++	SOC_SINGLE("IEC958 Parity Errors", AK4118_REG_RCV_STATUS0, 0, 1, 0),
++	SOC_SINGLE("IEC958 No Audio", AK4118_REG_RCV_STATUS0, 1, 1, 0),
++	SOC_SINGLE("IEC958 PLL Lock", AK4118_REG_RCV_STATUS0, 4, 1, 1),
++	SOC_SINGLE("IEC958 Non PCM", AK4118_REG_RCV_STATUS0, 6, 1, 0),
++	SOC_ENUM("IEC958 Sampling Freq", ak4118_iec958_fs_enum),
++};
++
++static const struct snd_soc_dapm_widget ak4118_dapm_widgets[] = {
++	SND_SOC_DAPM_INPUT("INRX0"),
++	SND_SOC_DAPM_INPUT("INRX1"),
++	SND_SOC_DAPM_INPUT("INRX2"),
++	SND_SOC_DAPM_INPUT("INRX3"),
++	SND_SOC_DAPM_INPUT("INRX4"),
++	SND_SOC_DAPM_INPUT("INRX5"),
++	SND_SOC_DAPM_INPUT("INRX6"),
++	SND_SOC_DAPM_INPUT("INRX7"),
++	SND_SOC_DAPM_MUX("Input Mux", SND_SOC_NOPM, 0, 0,
++			 &ak4118_input_mux_controls),
++};
++
++static const struct snd_soc_dapm_route ak4118_dapm_routes[] = {
++	{"Input Mux", "RX0", "INRX0"},
++	{"Input Mux", "RX1", "INRX1"},
++	{"Input Mux", "RX2", "INRX2"},
++	{"Input Mux", "RX3", "INRX3"},
++	{"Input Mux", "RX4", "INRX4"},
++	{"Input Mux", "RX5", "INRX5"},
++	{"Input Mux", "RX6", "INRX6"},
++	{"Input Mux", "RX7", "INRX7"},
++};
++
++
++static int ak4118_set_dai_fmt_master(struct ak4118_priv *ak4118,
++				     unsigned int format)
++{
++	int dif;
++
++	switch (format & SND_SOC_DAIFMT_FORMAT_MASK) {
++	case SND_SOC_DAIFMT_I2S:
++		dif = AK4118_REG_FORMAT_CTL_DIF0 | AK4118_REG_FORMAT_CTL_DIF2;
++		break;
++	case SND_SOC_DAIFMT_RIGHT_J:
++		dif = AK4118_REG_FORMAT_CTL_DIF0 | AK4118_REG_FORMAT_CTL_DIF1;
++		break;
++	case SND_SOC_DAIFMT_LEFT_J:
++		dif = AK4118_REG_FORMAT_CTL_DIF2;
++		break;
++	default:
++		return -ENOTSUPP;
++	}
++
++	return dif;
++}
++
++static int ak4118_set_dai_fmt_slave(struct ak4118_priv *ak4118,
++				    unsigned int format)
++{
++	int dif;
++
++	switch (format & SND_SOC_DAIFMT_FORMAT_MASK) {
++	case SND_SOC_DAIFMT_I2S:
++		dif = AK4118_REG_FORMAT_CTL_DIF0 | AK4118_REG_FORMAT_CTL_DIF1 |
++		      AK4118_REG_FORMAT_CTL_DIF2;
++		break;
++	case SND_SOC_DAIFMT_LEFT_J:
++		dif = AK4118_REG_FORMAT_CTL_DIF1 | AK4118_REG_FORMAT_CTL_DIF2;
++		break;
++	default:
++		return -ENOTSUPP;
++	}
++
++	return dif;
++}
++
++static int ak4118_set_dai_fmt(struct snd_soc_dai *dai,
++			      unsigned int format)
++{
++	struct snd_soc_component *component = dai->component;
++	struct ak4118_priv *ak4118 = snd_soc_component_get_drvdata(component);
++	int dif;
++	int ret = 0;
++
++	switch (format & SND_SOC_DAIFMT_MASTER_MASK) {
++	case SND_SOC_DAIFMT_CBM_CFM:
++		/* component is master */
++		dif = ak4118_set_dai_fmt_master(ak4118, format);
++		break;
++	case SND_SOC_DAIFMT_CBS_CFS:
++		/*component is slave */
++		dif = ak4118_set_dai_fmt_slave(ak4118, format);
++		break;
++	default:
++		ret = -ENOTSUPP;
++		goto exit;
++	}
++
++	/* format not supported */
++	if (dif < 0) {
++		ret = dif;
++		goto exit;
++	}
++
++	ret = regmap_update_bits(ak4118->regmap, AK4118_REG_FORMAT_CTL,
++				 AK4118_REG_FORMAT_CTL_DIF0 |
++				 AK4118_REG_FORMAT_CTL_DIF1 |
++				 AK4118_REG_FORMAT_CTL_DIF2, dif);
++	if (ret < 0)
++		goto exit;
++
++exit:
++	return ret;
++}
++
++static int ak4118_hw_params(struct snd_pcm_substream *substream,
++			    struct snd_pcm_hw_params *params,
++			    struct snd_soc_dai *dai)
++{
++	return 0;
++}
++
++static const struct snd_soc_dai_ops ak4118_dai_ops = {
++	.hw_params = ak4118_hw_params,
++	.set_fmt   = ak4118_set_dai_fmt,
++};
++
++static struct snd_soc_dai_driver ak4118_dai = {
++	.name = "ak4118-hifi",
++	.capture = {
++		.stream_name = "Capture",
++		.channels_min = 2,
++		.channels_max = 2,
++		.rates = SNDRV_PCM_RATE_22050 | SNDRV_PCM_RATE_32000 |
++			 SNDRV_PCM_RATE_44100 | SNDRV_PCM_RATE_48000 |
++			 SNDRV_PCM_RATE_88200 | SNDRV_PCM_RATE_96000 |
++			 SNDRV_PCM_RATE_176400 | SNDRV_PCM_RATE_192000,
++		.formats = SNDRV_PCM_FMTBIT_S16_LE  |
++			   SNDRV_PCM_FMTBIT_S24_3LE |
++			   SNDRV_PCM_FMTBIT_S24_LE
++	},
++	.ops = &ak4118_dai_ops,
++};
++
++static irqreturn_t ak4118_irq_handler(int irq, void *data)
++{
++	struct ak4118_priv *ak4118 = data;
++	struct snd_soc_component *component = ak4118->component;
++	struct snd_kcontrol_new *kctl_new;
++	struct snd_kcontrol *kctl;
++	struct snd_ctl_elem_id *id;
++	unsigned int i;
++
++	if (!component)
++		return IRQ_NONE;
++
++	for (i = 0; i < ARRAY_SIZE(ak4118_iec958_controls); i++) {
++		kctl_new = &ak4118_iec958_controls[i];
++		kctl = snd_soc_card_get_kcontrol(component->card,
++						 kctl_new->name);
++		if (!kctl)
++			continue;
++		id = &kctl->id;
++		snd_ctl_notify(component->card->snd_card,
++			       SNDRV_CTL_EVENT_MASK_VALUE, id);
++	}
++
++	return IRQ_HANDLED;
++}
++
++static int ak4118_probe(struct snd_soc_component *component)
++{
++	struct ak4118_priv *ak4118 = snd_soc_component_get_drvdata(component);
++	int ret = 0;
++
++	ak4118->component = component;
++
++	/* release reset */
++	gpiod_set_value(ak4118->reset, 0);
++
++	/* unmask all int1 sources */
++	ret = regmap_write(ak4118->regmap, AK4118_REG_INT1_MASK, 0x00);
++	if (ret < 0) {
++		dev_err(component->dev,
++			"failed to write regmap 0x%x 0x%x: %d\n",
++			AK4118_REG_INT1_MASK, 0x00, ret);
++		return ret;
++	}
++
++	/* rx detect enable on all channels */
++	ret = regmap_write(ak4118->regmap, AK4118_REG_RX_DETECT, 0xff);
++	if (ret < 0) {
++		dev_err(component->dev,
++			"failed to write regmap 0x%x 0x%x: %d\n",
++			AK4118_REG_RX_DETECT, 0xff, ret);
++		return ret;
++	}
++
++	ret = snd_soc_add_component_controls(component, ak4118_iec958_controls,
++					 ARRAY_SIZE(ak4118_iec958_controls));
++	if (ret) {
++		dev_err(component->dev,
++			"failed to add component kcontrols: %d\n", ret);
++		return ret;
++	}
++
++	ret = request_threaded_irq(gpiod_to_irq(ak4118->irq), NULL,
++				   ak4118_irq_handler, IRQF_TRIGGER_RISING |
++				   IRQF_ONESHOT, "ak4118-irq", ak4118);
++	if (ret < 0) {
++		dev_err(component->dev, "Fail to request_irq: %d\n", ret);
++		return ret;
++	}
++
++	return 0;
++}
++
++static void ak4118_remove(struct snd_soc_component *component)
++{
++	struct ak4118_priv *ak4118 = snd_soc_component_get_drvdata(component);
++
++	/* hold reset */
++	gpiod_set_value(ak4118->reset, 1);
++
++	free_irq(gpiod_to_irq(ak4118->irq), ak4118);
++}
++
++static const struct snd_soc_component_driver soc_component_drv_ak4118 = {
++	.probe			= ak4118_probe,
++	.remove			= ak4118_remove,
++	.dapm_widgets		= ak4118_dapm_widgets,
++	.num_dapm_widgets	= ARRAY_SIZE(ak4118_dapm_widgets),
++	.dapm_routes		= ak4118_dapm_routes,
++	.num_dapm_routes	= ARRAY_SIZE(ak4118_dapm_routes),
++	.idle_bias_on		= 1,
++	.use_pmdown_time	= 1,
++	.endianness		= 1,
++	.non_legacy_dai_naming	= 1,
++};
++
++static const struct regmap_config ak4118_regmap = {
++	.reg_bits = 8,
++	.val_bits = 8,
++
++	.reg_defaults = ak4118_reg_defaults,
++	.num_reg_defaults = ARRAY_SIZE(ak4118_reg_defaults),
++
++	.cache_type = REGCACHE_NONE,
++	.max_register = AK4118_REG_MAX - 1,
++};
++
++static int ak4118_i2c_probe(struct i2c_client *i2c,
++			    const struct i2c_device_id *id)
++{
++	struct ak4118_priv *ak4118;
++	int ret;
++
++	ak4118 = devm_kzalloc(&i2c->dev, sizeof(struct ak4118_priv),
++			      GFP_KERNEL);
++	if (ak4118 == NULL)
++		return -ENOMEM;
++
++	ak4118->regmap = devm_regmap_init_i2c(i2c, &ak4118_regmap);
++	if (IS_ERR(ak4118->regmap))
++		return PTR_ERR(ak4118->regmap);
++
++	i2c_set_clientdata(i2c, ak4118);
++
++	ak4118->reset = devm_gpiod_get(&i2c->dev, "reset", GPIOD_OUT_HIGH);
++	if (IS_ERR(ak4118->reset)) {
++		ret = PTR_ERR(ak4118->reset);
++		if (ret != -EPROBE_DEFER)
++			dev_err(&i2c->dev, "Failed to get reset: %d\n", ret);
++		return ret;
++	}
++
++	ak4118->irq = devm_gpiod_get(&i2c->dev, "irq", GPIOD_IN);
++	if (IS_ERR(ak4118->irq)) {
++		ret = PTR_ERR(ak4118->irq);
++		if (ret != -EPROBE_DEFER)
++			dev_err(&i2c->dev, "Failed to get IRQ: %d\n", ret);
++		return ret;
++	}
++
++	return snd_soc_register_component(&i2c->dev, &soc_component_drv_ak4118,
++					  &ak4118_dai, 1);
++}
++
++static int ak4118_i2c_remove(struct i2c_client *i2c)
++{
++	snd_soc_unregister_component(&i2c->dev);
++	return 0;
++}
++
++static const struct of_device_id ak4118_of_match[] = {
++	{ .compatible = "asahi-kasei,ak4118", },
++	{}
++};
++MODULE_DEVICE_TABLE(of, ak4118_of_match);
++
++static const struct i2c_device_id ak4118_id_table[] = {
++	{ "ak4118", 0 },
++	{}
++};
++MODULE_DEVICE_TABLE(i2c, ak4118_id_table);
++
++static struct i2c_driver ak4118_i2c_driver = {
++	.driver  = {
++		.name = "ak4118",
++		.of_match_table = of_match_ptr(ak4118_of_match),
++	},
++	.id_table = ak4118_id_table,
++	.probe  = ak4118_i2c_probe,
++	.remove = ak4118_i2c_remove,
++};
++
++module_i2c_driver(ak4118_i2c_driver);
++
++MODULE_DESCRIPTION("Asahi Kasei AK4118 ALSA SoC driver");
++MODULE_AUTHOR("Adrien Charruel <adrien.charruel@devialet.com>");
++MODULE_LICENSE("GPL");
+-- 
+2.19.1

@@ -1,0 +1,155 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (61.164.42.155:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 10 Nov 2018 00:55:23 -0000
+Received: from icoremail.net (unknown [209.85.210.171])
+	by mail-app2 (Coremail) with SMTP id by_KCgCn3wxxxeVblFppAQ--.31970S3;
+	Sat, 10 Nov 2018 01:35:46 +0800 (CST)
+Received: from mail-pf1-f171.google.com (unknown [209.85.210.171])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwAH5UBsxeVb_IYjAA--.808S3;
+	Sat, 10 Nov 2018 01:35:41 +0800 (CST)
+Received: by mail-pf1-f171.google.com with SMTP id v68-v6so1241614pfk.0
+        for <xuliker@zju.edu.cn>; Fri, 09 Nov 2018 09:35:41 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:delivered-to:dkim-signature:date:message-id
+         :mime-version:subject:from:to:cc:sender:precedence:list-id;
+        bh=jdAUXu5lNXycMnC8J4rezRDwYrRhTRudIDMqEjmZt8w=;
+        b=X6+vHciD5PicyD/c0POo01sJdMPTMbouVDf8XQGmBLJGM2JR2f8cfe6cxjhkkTzKS1
+         0GFWwK7/Ts9z4Y220f3V0+QXQH8ZbCIaOucgG5s2lMHT9Ge+NCf4VMH58kbeqZhPaMWp
+         yE9aTgsqasadqa2yUkkdUApWpDDsy2vwm+KDux182jIXs8gLJIGA0vrMcYSHuE/nt6nM
+         EKBTxT8dqmftNLpXQXgY0xjc01s8weNdD5l+1rbUCYVz1JgrAonTPlsxHtnBTE0lEHFl
+         Ag7OFq7z9VLym+yN1/5PBegp4TF3SrLO2uWHrWg612FUvDYvEnuccizszko+NClH3kWj
+         0L+Q==
+X-Gm-Message-State: AGRZ1gIqbQ8UsguRd0Jb7fovVFuQYK3269t00CcnjvusJ3Tiy7jkQlLa
+	tIcfsyTeouc6Ct611ioQUkOy1o72ykxa+YtiVkZGOP0RjrBBWpLYXA==
+X-Received: by 2002:a65:64d5:: with SMTP id t21-v6mr8488641pgv.428.1541784940766;
+        Fri, 09 Nov 2018 09:35:40 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp173367pjt;
+        Fri, 9 Nov 2018 09:35:39 -0800 (PST)
+X-Google-Smtp-Source: AJdET5c/DVqx+052d+6IPYW9Ap+xbD900yyS1zqk2xMn2IjxZSpX5KgoEpcz8RhQTtf1v9KdJyMF
+X-Received: by 2002:a17:902:5590:: with SMTP id g16-v6mr9779520pli.56.1541784939845;
+        Fri, 09 Nov 2018 09:35:39 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1541784939; cv=none;
+        d=google.com; s=arc-20160816;
+        b=kN61vL1FhSujLbsXw1m8v1n1V6J7KCt8lS0oN2KbsiYYb2+gIzMQejpYhx0IY3F/Y2
+         8CxJQTQ3Ux27tTAm3klKBTh62Ch8+HMOh7KFapeiWvvCt/4HKFABWSJPL8eJQym4cZNE
+         0ArR1siWY5D0Hoz2Vhw9GKPhqvliMPlsNf2ZAjIKQioN/J0q0iZW+jgwZd/NhGzvu06D
+         ZuC28VU6oayg6ScCbng65wj7YUpi1AOy/r7N6aXMXMUeEIaGk9TgkKZcCpgGL2wly9DI
+         s5rTpTneVzFGEg26z4+wLvlQEmkqAEKwqezd73YlLJjIPiQlqpIjsAf132WWA7K/4FJD
+         Yzkw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:cc:to:from:subject:mime-version
+         :message-id:date:dkim-signature;
+        bh=jdAUXu5lNXycMnC8J4rezRDwYrRhTRudIDMqEjmZt8w=;
+        b=o8tM+DkaVlDpX5TaNsvKPb0fhPc3sCRRUkXMLXL8efViyhXkdMNoFa6gQtTgRvbq7V
+         dkglqQxYmXoa9gT1wjSdEvxUilg9dWsGhiitfQf5l35K/uNbmhZpJ4iaJxbBITHyzeEK
+         cVBf4NhDJht1Uxr8BxvGF/7jzJXEywqAtJwkp+NE2PxNOambcvwEVeJKYDCNlYSntdhh
+         8oQv6D+3lSHPNXKQUO6CqF/ue9Jt6WkAI6ufinOCl1QBTDGuZ5T3X5+T6/XL8ttCBC/o
+         1Czd8Gd5YR1GslH2caEsRQNdo4utLyJinNJ2Npjf7NWrjzN+KB8KM7Hc18bnyQN/zr1f
+         z+Kg==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@google.com header.s=20161025 header.b=hbwBB4oR;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;
+       dmarc=pass (p=REJECT sp=REJECT dis=NONE) header.from=google.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id g35-v6si7585916pgm.514.2018.11.09.09.35.15;
+        Fri, 09 Nov 2018 09:35:39 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1728169AbeKJDQE (ORCPT <rfc822;fanshuming2011@gmail.com>
+        + 99 others); Fri, 9 Nov 2018 22:16:04 -0500
+Received: from mail-ot1-f73.google.com ([209.85.210.73]:33762 "EHLO
+        mail-ot1-f73.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727995AbeKJDQE (ORCPT <rfc822;kvm@vger.kernel.org>);
+        Fri, 9 Nov 2018 22:16:04 -0500
+Received: by mail-ot1-f73.google.com with SMTP id s3so1505177otb.0
+        for <kvm@vger.kernel.org>; Fri, 09 Nov 2018 09:34:30 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=date:message-id:mime-version:subject:from:to:cc;
+        bh=jdAUXu5lNXycMnC8J4rezRDwYrRhTRudIDMqEjmZt8w=;
+        b=hbwBB4oROH82Dv+zwPb2qSM+EFChJ7Yrm4blZe4Ak5jEgmrbvxeOiDH57COCaeIxVq
+         Yts1zvXn0wyDcCyyCvzZwL+Y2Vd7Z7NcvAMw5OWwIIxZP7gqjXbb/PEtR/eycd3iM/tM
+         EOhmlRrxjzSQW0dkHE4nHpl1EVlmlG6HSFZ1+Q0PSv8q+64jO2IbTHJbnnwnr8RN+Mxo
+         ozjl+1tKynsBRv//e4z/5fWQ3H0CPOxWl3u6Mt+0+Y2Hjgjgg0KAzdAvVvG1yvAxx7A/
+         2aYetwNx296m7O3P4VK1oc5wnfQBKR9MMh2yyq3gUKGTIG+SkOrvF2civJFclr5Lps8N
+         hpmA==
+X-Received: by 2002:a9d:fb0:: with SMTP id d45mr6957250otd.59.1541784870166;
+ Fri, 09 Nov 2018 09:34:30 -0800 (PST)
+Date: Fri,  9 Nov 2018 09:34:21 -0800
+Message-Id: <20181109173421.177250-1-jmattson@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.19.1.930.g4563a0d9d0-goog
+Subject: [PATCH] kvm: vmx: Set IA32_TSC_AUX for legacy mode guests
+From: Jim Mattson <jmattson@google.com>
+To: kvm@vger.kernel.org
+Cc: Marc Orr <marcorr@google.com>, Peter Shier <pshier@google.com>,
+        Jim Mattson <jmattson@google.com>
+Content-Type: text/plain; charset="UTF-8"
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwAH5UBsxeVb_IYjAA--.808S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW7Ww1fKw15ZF45AF45ZF48Crg_yoW8XF47pa
+	9FyF1kK3WUXa9rGrWrAF18uw4aka4kGFy3XF4UuF13AFnFgwnrXF1a9as8AFykXrZ2vFy5
+	Xa4jvw18uw4DtFDanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUPqb7Iv0xC_KF4lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2
+	z280aVAFwI0_Cr1j6rxdM28EF7xvwVC2z280aVCY1x0267AKxVWxJr0_GcWle2I262IYc4
+	CY6c8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_
+	JrI_JrylYx0Ex4A2jsIE14v26r1j6r4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvY0x
+	0EwIxGrwCjxxvEa2IrMxkF7I0Ew4C26cxK6c8Ij28IcwCY1Ik26cxK6xAEc7vF6xCjj44l
+	c2xSY4AK6IIF6r4lc2IjII80xcxEwVAKI48JMxvI42IY6xIIjxv20xvE14v26ryj6F1UMx
+	vI42IY6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1lcIIF0xvEx4A2jsIE14v26r4UJVWxJr1l
+	cIIF0xvEx4A2jsIEc7CjxVAFwI0_Gr1j6F4UJwCF04k20xvY0x0EwIxGrwCF04k20xvEw4
+	C26cxK6c8Ij28IcwCF72vE77IF4wCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E
+	14v26r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_JF0_Jw1lIx
+	kGc2Ij64vIr41lIxAIcVCF04k26cxKx2IYs7xG6r1j6r1xYxBIdaVFxhVjvjDU0xZFpf9x
+	07bjPfQUUUUU=
+
+RDTSCP is supported in legacy mode as well as long mode. The
+IA32_TSC_AUX MSR should be set to the correct guest value before
+entering any guest that supports RDTSCP.
+
+Fixes: 4e47c7a6d714 ("KVM: VMX: Add instruction rdtscp support for guest")
+Signed-off-by: Jim Mattson <jmattson@google.com>
+Reviewed-by: Peter Shier <pshier@google.com>
+Reviewed-by: Marc Orr <marcorr@google.com>
+---
+ arch/x86/kvm/vmx.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/arch/x86/kvm/vmx.c b/arch/x86/kvm/vmx.c
+index ccc6a01eb4f4..120fc97a63fc 100644
+--- a/arch/x86/kvm/vmx.c
++++ b/arch/x86/kvm/vmx.c
+@@ -3415,9 +3415,6 @@ static void setup_msrs(struct vcpu_vmx *vmx)
+ 		index = __find_msr_index(vmx, MSR_CSTAR);
+ 		if (index >= 0)
+ 			move_msr_up(vmx, index, save_nmsrs++);
+-		index = __find_msr_index(vmx, MSR_TSC_AUX);
+-		if (index >= 0 && guest_cpuid_has(&vmx->vcpu, X86_FEATURE_RDTSCP))
+-			move_msr_up(vmx, index, save_nmsrs++);
+ 		/*
+ 		 * MSR_STAR is only needed on long mode guests, and only
+ 		 * if efer.sce is enabled.
+@@ -3430,6 +3427,9 @@ static void setup_msrs(struct vcpu_vmx *vmx)
+ 	index = __find_msr_index(vmx, MSR_EFER);
+ 	if (index >= 0 && update_transition_efer(vmx, index))
+ 		move_msr_up(vmx, index, save_nmsrs++);
++	index = __find_msr_index(vmx, MSR_TSC_AUX);
++	if (index >= 0 && guest_cpuid_has(&vmx->vcpu, X86_FEATURE_RDTSCP))
++		move_msr_up(vmx, index, save_nmsrs++);
+ 
+ 	vmx->save_nmsrs = save_nmsrs;
+ 
+-- 
+2.19.1.930.g4563a0d9d0-goog

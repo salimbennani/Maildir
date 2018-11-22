@@ -1,0 +1,354 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (61.164.42.155:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 11 Nov 2018 15:02:37 -0000
+Received: from icoremail.net (unknown [209.85.210.181])
+	by mail-app2 (Coremail) with SMTP id by_KCgDXv5prnOZbcMhtAQ--.33524S3;
+	Sat, 10 Nov 2018 16:52:59 +0800 (CST)
+Received: from mail-pf1-f181.google.com (unknown [209.85.210.181])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwAX+URknOZbUjsmAA--.11061S3;
+	Sat, 10 Nov 2018 16:52:52 +0800 (CST)
+Received: by mail-pf1-f181.google.com with SMTP id v9-v6so2018841pff.2
+        for <xuliker@zju.edu.cn>; Sat, 10 Nov 2018 00:52:52 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:delivered-to:dkim-signature:from:to:cc:subject
+         :date:message-id:mime-version:content-transfer-encoding:sender
+         :precedence:list-id;
+        bh=3HHH/WZkwLyN0HVfq6hG0fbrJVVCwXQmV6dnMOtebeI=;
+        b=jatt68gotc2/q24rZCVujBOIeq+MB00kLLsV4a65LfilttTAw7QIl7g5tcGnTQsHCw
+         +BnYPgZDH4ZCxPCRTvvJNBC38hjaxDmAdlaZgDrpxRw20+uWNOkroHdaEyQstmw8g+Nb
+         u0oKfye6hmePCZPxPrbbMda8vDZvH02scSkvCxQc2S+uWya/Mm3ZDSk3Yg/q6jEKq6bX
+         tswLavpOiV/3H7fSmhsMqA3QdJUvVDRkeOBAegsTGs3n9aJt/Y1Lx4vx9B/O5vEhAszG
+         tstU17KnBuzQ0MXJL4yn+jmFvu5EWdcG6z/AVaAe9JFFJBZTfvufR0P+/mJ80aObGTYa
+         g5wA==
+X-Gm-Message-State: AGRZ1gKHT+SSavnY8IfGO8+wS8xOMeTqVe+ZEbtiBF7bSui4sy/TeNsv
+	dzNNoRsppSzR62v9k1YNVoxCRWSDMdQc1D69mbpEJejVgB2RCWc=
+X-Received: by 2002:a63:5816:: with SMTP id m22-v6mr10239560pgb.332.1541839971840;
+        Sat, 10 Nov 2018 00:52:51 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp892846pjt;
+        Sat, 10 Nov 2018 00:52:50 -0800 (PST)
+X-Google-Smtp-Source: AJdET5d6BzTdCtDYzJ+rPN4TEn4Ghe/uzh1znGncU+jfq92oEwnr7EK2o4/mB9cnx57xRKwpDhJp
+X-Received: by 2002:a62:1693:: with SMTP id 141-v6mr12590144pfw.183.1541839970839;
+        Sat, 10 Nov 2018 00:52:50 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1541839970; cv=none;
+        d=google.com; s=arc-20160816;
+        b=qvd6BIYf+GhyBwy4X60NRylE50ZhWPoap0+QGRgxb2JqwnrsqPrNZgkLWqin9P2+Kq
+         xTzrmRicun4A+o8ERa3I8Ceq/ZN5WvyZHFMSINP411Vw9Lz5/9Iuw8TzBB2cHIVs4qpC
+         hBibwQ9xbc/SEk3jZV+TFOkWbkxi4e/tX26ygrBDYLWS7KGEgA2fd8qAaUM/XXon7w85
+         i5G6wGV+RvBawuV4dy8gRpjRTkOGJ7s+vwGaKqmaZS91SBrT5h652YWpt8Q9cyhsptls
+         TTlgQosuxUrDgsJmUPln9ccoVwxX+fizMCiGb/argNLj+FWPKZqwGIAVjnfifSTu42J0
+         BfXQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:content-transfer-encoding:mime-version
+         :message-id:date:subject:cc:to:from:dkim-signature;
+        bh=3HHH/WZkwLyN0HVfq6hG0fbrJVVCwXQmV6dnMOtebeI=;
+        b=ZA9/w/420g4I5gN6ehwDdvRGtZD6pRG2kiAF9Yv4mIdKqQlK8cISzebqN/NISSUBmw
+         EN08blSFIhaAWzuQ7w+FL6txabN0ZFKKCAjNwZEuujGW1n/C+84n8tWOPME7guJ38yDi
+         oLqdxV3dZpaobXIm37NrCOmpskY851C2hK2EqKJCYdcUUBbCkqL+/khFus2S0ZTYJpxB
+         Fo8qha8dM83nsTYLTHVw51Hha8C5oQEO/JFl0wSkRAKtmWoKoxsnel4TLfyO0l7WyOus
+         3IdLQ/X+4zVQtYXSR2JqhOXjaRyw3OuOAKOWsJK9gbyp9HSR4b+SmgOTaJwapIfEYfm0
+         x+Sw==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@gmail.com header.s=20161025 header.b=F2PYalPL;
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;
+       dmarc=pass (p=NONE sp=QUARANTINE dis=NONE) header.from=gmail.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id 1-v6si10727514plj.146.2018.11.10.00.52.35;
+        Sat, 10 Nov 2018 00:52:50 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1728910AbeKJSfJ (ORCPT <rfc822;tu.k.phung@gmail.com>
+        + 99 others); Sat, 10 Nov 2018 13:35:09 -0500
+Received: from mail-oi1-f195.google.com ([209.85.167.195]:45108 "EHLO
+        mail-oi1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728791AbeKJSfI (ORCPT
+        <rfc822;linux-kernel@vger.kernel.org>);
+        Sat, 10 Nov 2018 13:35:08 -0500
+Received: by mail-oi1-f195.google.com with SMTP id p144-v6so3463394oic.12;
+        Sat, 10 Nov 2018 00:50:55 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=3HHH/WZkwLyN0HVfq6hG0fbrJVVCwXQmV6dnMOtebeI=;
+        b=F2PYalPLNhhdb6E5i1uq6XaD5tNwTnKOR9ZH/GoCVMpxyLN7Ln6Pjg2goPmQs9rzi/
+         QUws+joL4VqKJB+oYAw5u5B2o+C0ZgMgtzh0n62GVuWLpPzW/Pr36FCdNKedkkytqd12
+         pUD4R6Gf88EjLNnZozjLWBgF//Jlyc60hZBKvVnoR9r1D+2SeCxgqs+tOH5NpjOPOMkh
+         IZF/U2phIeJYhBHYUDajmBZb8WT/v0qQ9ZoirDH4V9aVz3sq0Zt4uhc3eeYHwmZephhW
+         Ocj8j1wPWS0eL5u2jaRBWVG1O3zp4jCSnJuduvNLVEKeAWehvMhOLNrP38DwxhA2Zj32
+         rmoA==
+X-Received: by 2002:aca:dd08:: with SMTP id u8-v6mr6487085oig.94.1541839854575;
+        Sat, 10 Nov 2018 00:50:54 -0800 (PST)
+Received: from sandstorm.nvidia.com ([2600:1700:43b0:3120:feaa:14ff:fe9e:34cb])
+        by smtp.gmail.com with ESMTPSA id c7-v6sm3908683oia.58.2018.11.10.00.50.52
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sat, 10 Nov 2018 00:50:53 -0800 (PST)
+From: john.hubbard@gmail.com
+X-Google-Original-From: jhubbard@nvidia.com
+To: linux-mm@kvack.org
+Cc: Andrew Morton <akpm@linux-foundation.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        linux-rdma <linux-rdma@vger.kernel.org>,
+        linux-fsdevel@vger.kernel.org, John Hubbard <jhubbard@nvidia.com>
+Subject: [PATCH v2 0/6] RFC: gup+dma: tracking dma-pinned pages
+Date: Sat, 10 Nov 2018 00:50:35 -0800
+Message-Id: <20181110085041.10071-1-jhubbard@nvidia.com>
+X-Mailer: git-send-email 2.19.1
+MIME-Version: 1.0
+X-NVConfidentiality: public
+Content-Transfer-Encoding: 8bit
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwAX+URknOZbUjsmAA--.11061S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW3Kw18Cry7tFy3CFWktr13urg_yoWDZFW8pr
+	y3G34S9ry8X347Gw47tryI9w4fZr1rJa98Gas8Jr18C3WYvryjyF15JF18u34UCrWrCanx
+	ZFyrtw1j9r4vqrDanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUU0bIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUmYb7Iv0xC_Kw4lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Xr0_Ar1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1l84ACjcxK6I8E
+	87Iv67AKxVW0oVCq3wA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_GcCE3s1le2I262IYc4CY6c
+	8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_Jr0_
+	Jr4lYx0Ex4A2jsIE14v26r4j6F4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvY0x0EwI
+	xGrwAKzVCY07xG64k0F24l7I0Y6sxI4wCY1x0264kExVAvwVAq07x20xylc7Ca8VAvwVCF
+	zxkY4VCF77xAMxkIecxEwVCI4VW8ZwCY0x0Ix7I2Y4AK64vIr41lcIIF0xvE2Ix0cI8IcV
+	AFwI0_Gr0_Xr1lcIIF0xvE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwCYIxAIcVC2z280aVAF
+	wI0_Cr1j6rxdMxvI42IY6I8E87Iv6xkF7I0E14v26F4UJVW0owCF04k20xvY0x0EwIxGrw
+	CF04k20xvEw4C26cxK6c8Ij28IcwCF72vE77IF4wCFx2IqxVCFs4IE7xkEbVWUJVW8JwC2
+	0s026c02F40E14v26r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI
+	0_JF0_Jw1lIxkGc2Ij64vIr41lIxAIcVCF04k26cxKx2IYs7xG6Fyj6rWUJbIYCTnIWIev
+	Ja73UjIFyTuYvjxUdr-PUUUUU
+
+From: John Hubbard <jhubbard@nvidia.com>
+
+Hi, here is fodder for conversation during LPC.
+
+Changes since v1:
+
+a) Uses a simpler set/clear/test bit approach in the page flags.
+
+b) Added some initial performance results in the cover letter here, below.
+
+c) Rebased to latest linux.git
+
+d) Puts pages back on the LRU when its done with them.
+
+Here is an updated proposal for tracking pages that have had
+get_user_pages*() called on them. This is in support of fixing the problem
+discussed in [1]. This RFC only shows how to set up a reliable
+PageDmaPinned flag. What to *do* with that flag is left for a later
+discussion.
+
+The sequence would be:
+
+    -- apply patches 1-2,
+
+    -- convert the rest of the subsystems to call put_user_page*(). Patch #3
+       is an example of that. It converts infiniband.
+
+    -- apply patches 4-6,
+
+    -- apply more patches, to actually use the new PageDmaPinned flag.
+
+One question up front was, "how do we ensure that either put_user_page()
+or put_page() are called, depending on whether the page came from
+get_user_pages() or not?". From this series, you can see that:
+
+    -- It's possible to assert within put_page(), that we are probably in the
+       right place. In practice this assertion definitely helps.
+
+    -- In the other direction, if put_user_page() is called when put_page()
+       should have been used instead, then a "clear" report of LRU list
+       corruption shows up reliably, because the first thing put_user_page()
+       attempts is to decrement the lru's list.prev pointer, and so you'll
+       see pointer values that are one less than an aligned pointer value.
+       This is not great, but it's usable. So I think that the conversion
+       will turn into an exercise of trying to get code coverage, and that
+       should work out.
+
+I have lots of other patches, not shown here, in various stages of polish, to
+convert enough of the kernel in order to run fio [2]. I did that, and got some
+rather noisy performance results.
+
+Here they are again:
+
+Performance notes:
+
+1. These fio results are noisy. The std deviation is large enough
+that some of this could be noise. In order to highlight that, I did 5 runs
+each of with, and without the patch, and while there is definitely a
+performance drop on average, it's also true that there is overlap in the
+results. In other words, the best "with patch" run is about the same as
+the worst "without patch" run.
+
+2. Initial profiling shows that we're adding about 1% total to the this
+particular test run...I think. I may have to narrow this down some more,
+but I don't seem to see any real lock contention. Hints or ideas on
+measurement methods are welcome, btw.
+
+    -- 0.59% in put_user_page
+    -- 0.2% (or 0.54%, depending on how you read the perf out below) in
+       get_user_pages_fast:
+
+
+          1.36%--iov_iter_get_pages
+                    |
+                     --1.27%--get_user_pages_fast
+                               |
+                                --0.54%--pin_page_for_dma
+
+          0.59%--put_user_page
+
+          1.34%     0.03%  fio   [kernel.vmlinux]     [k] _raw_spin_lock
+          0.95%     0.55%  fio   [kernel.vmlinux]     [k] do_raw_spin_lock
+          0.17%     0.03%  fio   [kernel.vmlinux]     [k] isolate_lru_page
+          0.06%     0.00%  fio   [kernel.vmlinux]     [k] putback_lru_page
+
+4. Here's some raw fio data: one run without the patch, and two with the patch:
+
+------------------------------------------------------
+WITHOUT the patch:
+------------------------------------------------------
+reader: (g=0): rw=read, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=libaio, iodepth=64
+fio-3.3
+Starting 1 process
+Jobs: 1 (f=1): [R(1)][100.0%][r=55.5MiB/s,w=0KiB/s][r=14.2k,w=0 IOPS][eta 00m:00s]
+reader: (groupid=0, jobs=1): err= 0: pid=1750: Tue Nov  6 20:18:06 2018
+   read: IOPS=13.9k, BW=54.4MiB/s (57.0MB/s)(1024MiB/18826msec)
+    slat (usec): min=25, max=4870, avg=68.19, stdev=85.21
+    clat (usec): min=74, max=19814, avg=4525.40, stdev=1844.03
+     lat (usec): min=183, max=19927, avg=4593.69, stdev=1866.65
+    clat percentiles (usec):
+     |  1.00th=[ 3687],  5.00th=[ 3720], 10.00th=[ 3720], 20.00th=[ 3752],
+     | 30.00th=[ 3752], 40.00th=[ 3752], 50.00th=[ 3752], 60.00th=[ 3785],
+     | 70.00th=[ 4178], 80.00th=[ 4490], 90.00th=[ 6652], 95.00th=[ 8225],
+     | 99.00th=[13173], 99.50th=[14353], 99.90th=[16581], 99.95th=[17171],
+     | 99.99th=[18220]
+   bw (  KiB/s): min=49920, max=59320, per=100.00%, avg=55742.24, stdev=2224.20, samples=37
+   iops        : min=12480, max=14830, avg=13935.35, stdev=556.05, samples=37
+  lat (usec)   : 100=0.01%, 250=0.01%, 500=0.01%, 750=0.01%, 1000=0.01%
+  lat (msec)   : 2=0.01%, 4=68.78%, 10=28.14%, 20=3.08%
+  cpu          : usr=2.39%, sys=95.30%, ctx=669, majf=0, minf=72
+  IO depths    : 1=0.1%, 2=0.1%, 4=0.1%, 8=0.1%, 16=0.1%, 32=0.1%, >=64=100.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.1%, >=64=0.0%
+     issued rwts: total=262144,0,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=64
+
+Run status group 0 (all jobs):
+   READ: bw=54.4MiB/s (57.0MB/s), 54.4MiB/s-54.4MiB/s (57.0MB/s-57.0MB/s), io=1024MiB (1074MB), run=18826-18826msec
+
+Disk stats (read/write):
+  nvme0n1: ios=259490/1, merge=0/0, ticks=14822/0, in_queue=19241, util=100.00%
+
+------------------------------------------------------
+With the patch applied:
+------------------------------------------------------
+reader: (g=0): rw=read, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=libaio, iodepth=64
+fio-3.3
+Starting 1 process
+Jobs: 1 (f=1): [R(1)][100.0%][r=51.2MiB/s,w=0KiB/s][r=13.1k,w=0 IOPS][eta 00m:00s]
+reader: (groupid=0, jobs=1): err= 0: pid=2568: Tue Nov  6 20:03:50 2018
+   read: IOPS=12.8k, BW=50.1MiB/s (52.5MB/s)(1024MiB/20453msec)
+    slat (usec): min=33, max=4365, avg=74.05, stdev=85.79
+    clat (usec): min=39, max=19818, avg=4916.61, stdev=1961.79
+     lat (usec): min=100, max=20002, avg=4990.78, stdev=1985.23
+    clat percentiles (usec):
+     |  1.00th=[ 4047],  5.00th=[ 4080], 10.00th=[ 4080], 20.00th=[ 4080],
+     | 30.00th=[ 4113], 40.00th=[ 4113], 50.00th=[ 4113], 60.00th=[ 4146],
+     | 70.00th=[ 4178], 80.00th=[ 4817], 90.00th=[ 7308], 95.00th=[ 8717],
+     | 99.00th=[14091], 99.50th=[15270], 99.90th=[17433], 99.95th=[18220],
+     | 99.99th=[19006]
+   bw (  KiB/s): min=45370, max=55784, per=100.00%, avg=51332.33, stdev=1843.77, samples=40
+   iops        : min=11342, max=13946, avg=12832.83, stdev=460.92, samples=40
+  lat (usec)   : 50=0.01%, 250=0.01%, 500=0.01%, 750=0.01%, 1000=0.01%
+  lat (msec)   : 2=0.01%, 4=0.01%, 10=96.44%, 20=3.53%
+  cpu          : usr=2.91%, sys=95.18%, ctx=398, majf=0, minf=73
+  IO depths    : 1=0.1%, 2=0.1%, 4=0.1%, 8=0.1%, 16=0.1%, 32=0.1%, >=64=100.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.1%, >=64=0.0%
+     issued rwts: total=262144,0,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=64
+
+Run status group 0 (all jobs):
+   READ: bw=50.1MiB/s (52.5MB/s), 50.1MiB/s-50.1MiB/s (52.5MB/s-52.5MB/s), io=1024MiB (1074MB), run=20453-20453msec
+
+Disk stats (read/write):
+  nvme0n1: ios=261399/0, merge=0/0, ticks=16019/0, in_queue=20910, util=100.00%
+
+------------------------------------------------------
+OR, here's a better run WITH the patch applied, and you can see that this is nearly as good
+as the "without" case:
+------------------------------------------------------
+
+reader: (g=0): rw=read, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=libaio, iodepth=64
+fio-3.3
+Starting 1 process
+Jobs: 1 (f=1): [R(1)][100.0%][r=53.2MiB/s,w=0KiB/s][r=13.6k,w=0 IOPS][eta 00m:00s]
+reader: (groupid=0, jobs=1): err= 0: pid=2521: Tue Nov  6 20:01:33 2018
+   read: IOPS=13.4k, BW=52.5MiB/s (55.1MB/s)(1024MiB/19499msec)
+    slat (usec): min=30, max=12458, avg=69.71, stdev=88.01
+    clat (usec): min=39, max=25590, avg=4687.42, stdev=1925.29
+     lat (usec): min=97, max=25704, avg=4757.25, stdev=1946.06
+    clat percentiles (usec):
+     |  1.00th=[ 3884],  5.00th=[ 3884], 10.00th=[ 3916], 20.00th=[ 3916],
+     | 30.00th=[ 3916], 40.00th=[ 3916], 50.00th=[ 3949], 60.00th=[ 3949],
+     | 70.00th=[ 3982], 80.00th=[ 4555], 90.00th=[ 6915], 95.00th=[ 8848],
+     | 99.00th=[13566], 99.50th=[14877], 99.90th=[16909], 99.95th=[17695],
+     | 99.99th=[24249]
+   bw (  KiB/s): min=48905, max=58016, per=100.00%, avg=53855.79, stdev=2115.03, samples=38
+   iops        : min=12226, max=14504, avg=13463.79, stdev=528.76, samples=38
+  lat (usec)   : 50=0.01%, 250=0.01%, 500=0.01%, 750=0.01%, 1000=0.01%
+  lat (msec)   : 2=0.01%, 4=71.80%, 10=24.66%, 20=3.51%, 50=0.02%
+  cpu          : usr=3.47%, sys=94.61%, ctx=370, majf=0, minf=73
+  IO depths    : 1=0.1%, 2=0.1%, 4=0.1%, 8=0.1%, 16=0.1%, 32=0.1%, >=64=100.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.1%, >=64=0.0%
+     issued rwts: total=262144,0,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=64
+
+Run status group 0 (all jobs):
+   READ: bw=52.5MiB/s (55.1MB/s), 52.5MiB/s-52.5MiB/s (55.1MB/s-55.1MB/s), io=1024MiB (1074MB), run=19499-19499msec
+
+Disk stats (read/write):
+  nvme0n1: ios=260720/0, merge=0/0, ticks=15036/0, in_queue=19876, util=100.00%
+
+
+[1] https://lwn.net/Articles/753027/ : "The Trouble with get_user_pages()"
+
+[2] fio: https://github.com/axboe/fio
+
+John Hubbard (6):
+  mm/gup: finish consolidating error handling
+  mm: introduce put_user_page*(), placeholder versions
+  infiniband/mm: convert put_page() to put_user_page*()
+  mm: introduce page->dma_pinned_flags, _count
+  mm: introduce zone_gup_lock, for dma-pinned pages
+  mm: track gup pages with page->dma_pinned_* fields
+
+ drivers/infiniband/core/umem.c              |   7 +-
+ drivers/infiniband/core/umem_odp.c          |   2 +-
+ drivers/infiniband/hw/hfi1/user_pages.c     |  11 +-
+ drivers/infiniband/hw/mthca/mthca_memfree.c |   6 +-
+ drivers/infiniband/hw/qib/qib_user_pages.c  |  11 +-
+ drivers/infiniband/hw/qib/qib_user_sdma.c   |   6 +-
+ drivers/infiniband/hw/usnic/usnic_uiom.c    |   7 +-
+ include/linux/mm.h                          |  13 ++
+ include/linux/mm_types.h                    |  22 +++-
+ include/linux/mmzone.h                      |   6 +
+ include/linux/page-flags.h                  |  61 +++++++++
+ mm/gup.c                                    |  58 +++++++-
+ mm/memcontrol.c                             |   8 ++
+ mm/page_alloc.c                             |   1 +
+ mm/swap.c                                   | 138 ++++++++++++++++++++
+ 15 files changed, 320 insertions(+), 37 deletions(-)
+
+-- 
+2.19.1

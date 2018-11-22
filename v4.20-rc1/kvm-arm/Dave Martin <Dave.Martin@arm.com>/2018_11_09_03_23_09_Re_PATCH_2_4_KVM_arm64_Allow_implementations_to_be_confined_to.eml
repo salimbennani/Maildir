@@ -1,0 +1,183 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 09 Nov 2018 00:37:39 -0000
+Received: from icoremail.net (unknown [209.85.215.182])
+	by mail-app2 (Coremail) with SMTP id by_KCgA3cI49jeRbKSliAQ--.32941S3;
+	Fri, 09 Nov 2018 03:23:42 +0800 (CST)
+Received: from mail-pg1-f182.google.com (unknown [209.85.215.182])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwC3nUk4jeRbC1IeAA--.7128S3;
+	Fri, 09 Nov 2018 03:23:36 +0800 (CST)
+Received: by mail-pg1-f182.google.com with SMTP id w7so9253153pgp.13
+        for <xuliker@zju.edu.cn>; Thu, 08 Nov 2018 11:23:36 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent:sender:precedence
+         :list-id;
+        bh=wWqFBoGCTJJ/llcx/65A6/1Phq+GLGEubJr5Gtnw6gU=;
+        b=pAZLeimSniRylSSzvAOSQvXOVjlnmMLM5Zel/KLrnEePqwPslkA9H/V8id/jJ+zzyp
+         QndX3xz0d8FVCKyIE38Uz95q5h2/ZMgal1w1zBKFdc+Bbu4fepZGtyczaUPS36KNA2y1
+         ESpXrqfyGuL3TlL2PzU4scyhkjeMAYthMbVSHjQlrJm7rsGV2fkFhZNc5BYCf5g5ajXJ
+         t9xpSSzW3JEkkGEnMtDKkjN/T/x9A/g57m+vtDLoywbI74F5Nl5V3Sjrd0dPzV4ff/Y3
+         GdvACG1NgUF8enFu+SX/NbOQhkl6aVaEai7C5UmUMXa4xpS7Y5Fxt60m2ycQ7XECK4YB
+         ct9g==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org
+X-Gm-Message-State: AGRZ1gJWy25S5cIK4HExRapAl11zKn7vOmE6gCvo841B1+OtqKARE1wm
+	SuMFdOUNwJYBueV5uGVIl9Bed6xgdX5DsCfYXfnYc6Mx7Yf2MvYFWQ==
+X-Received: by 2002:a63:2315:: with SMTP id j21mr4841545pgj.297.1541705015706;
+        Thu, 08 Nov 2018 11:23:35 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp616204pjt;
+        Thu, 8 Nov 2018 11:23:34 -0800 (PST)
+X-Google-Smtp-Source: AJdET5cNi1CkyR5aRI6snivxlunZdH7+pexivhUeWA+iw98yd0RiHQYLmdqopR0yzxcp93KLKhRr
+X-Received: by 2002:a62:7f8c:: with SMTP id a134-v6mr5940069pfd.22.1541705014368;
+        Thu, 08 Nov 2018 11:23:34 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1541705014; cv=none;
+        d=google.com; s=arc-20160816;
+        b=jHi7hYAtuoKvUq09Hs6B2N/7ZJ7G0TbsTttEg5OsgvUVnF2xOZftq71IPvdaSih4/o
+         E2Yj74BdKePf3VPavuF0H5h5m7CEJ8xi0UUZqwfO4FUNSXs++c/MYC26SUIDyrBtJTaq
+         hynieIBndlL1is7lZEr/altVq4X2y0nqGfy6uCLejMs3lr4RRhNPTZtnjeNQowLmp+iT
+         TgCbQccOFjz/gMmwAasTLJ/oa4UBH6+3gZgz4k2VdTfNenYSxXgYxfXAlRk9hCYBv/4k
+         ZTVPj5TD+PGU7s6mKwIpUXrTv0qIngtH/gMVreMdGAbXglNsIamfsmdGhcOH2F88MuQL
+         X29w==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:user-agent:in-reply-to
+         :content-disposition:mime-version:references:message-id:subject:cc
+         :to:from:date;
+        bh=wWqFBoGCTJJ/llcx/65A6/1Phq+GLGEubJr5Gtnw6gU=;
+        b=yJf/GlElVerMyIK3WYHICxJ49cvTyXgT9AEZpSvZvXs8lD36gZfSIuVPkbKlmsAZgo
+         fE+nszrIhbiSpHPm5MLrZBHmyfg4nKYonBMTUvDHWaQ7HlkycXL0QIAyizXBsY5pVM53
+         3fPx4ex8FLr3HWrsstgBYhtH1gpV6lJXpggVryGRetevXkKNeS1+BtEBDWQqSMWOuidq
+         3eB57XuRS5X8gs38Rh6Ye2v9xf6HiiC4qW+evqa6tcLR/3Gl/2D+rJLvF5WsrSdz8xh6
+         keHdJved2KY9M72wwMDlrn2QTr4Tk0QT+sK4xHZdZaIxDJaQaFsXtWYZcAU0qSNO0zfL
+         zEPQ==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id l6-v6si5355982pfi.179.2018.11.08.11.23.19;
+        Thu, 08 Nov 2018 11:23:34 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1725739AbeKIFAG (ORCPT <rfc822;fanshuming2011@gmail.com>
+        + 99 others); Fri, 9 Nov 2018 00:00:06 -0500
+Received: from foss.arm.com ([217.140.101.70]:47954 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725199AbeKIFAG (ORCPT <rfc822;kvm@vger.kernel.org>);
+        Fri, 9 Nov 2018 00:00:06 -0500
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.72.51.249])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 35B8BEBD;
+        Thu,  8 Nov 2018 11:23:13 -0800 (PST)
+Received: from e103592.cambridge.arm.com (usa-sjc-imap-foss1.foss.arm.com [10.72.51.249])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 028AC3F5C0;
+        Thu,  8 Nov 2018 11:23:11 -0800 (PST)
+Date: Thu, 8 Nov 2018 19:23:09 +0000
+From: Dave Martin <Dave.Martin@arm.com>
+To: Marc Zyngier <marc.zyngier@arm.com>
+Cc: linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu,
+        kvm@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will.deacon@arm.com>
+Subject: Re: [PATCH 2/4] KVM: arm64: Allow implementations to be confined to
+ using VHE
+Message-ID: <20181108192309.GH3505@e103592.cambridge.arm.com>
+References: <20181105143617.120602-1-marc.zyngier@arm.com>
+ <20181105143617.120602-3-marc.zyngier@arm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20181105143617.120602-3-marc.zyngier@arm.com>
+User-Agent: Mutt/1.5.23 (2014-03-12)
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwC3nUk4jeRbC1IeAA--.7128S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoWxZrWftr4kJF43Aw43XrWxCrg_yoW5GF4kpa
+	s0yFs5GF45GFy5t34UJw4v93yrZws5W3ZFgry8KrWUGFn0yr1kJFs5Krn0krZ5J3y8G3Wf
+	AF9aqF15Ww4qqw7anT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUPIb7Iv0xC_tr1lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1l84ACjcxK6I8E
+	87Iv67AKxVWxJr0_GcWl84ACjcxK6I8E87Iv6xkF7I0E14v26F4UJVW0owAS0I0E0xvYzx
+	vE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AKxVWU
+	JVWUGwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcVAKI4
+	8JMx02cVCv0xWlc7CjxVAKzI0EY4vE52x082I5MxkFs20EY4vE44CYbxCE4x80FwCY02Av
+	z4vEIxC_WwCY0x0Ix7I2Y4AK64vIr41lcIIF0xvE2Ix0cI8IcVAFwI0_JFI_Gr1lcIIF0x
+	vE2Ix0cI8IcVCY1x0267AKxVWUJVW8JwCYIxAIcVC2z280aVAFwI0_Gr1j6F4UJwCYIxAI
+	cVC2z280aVCY1x0267AKxVW8Jr0_Cr1UMxAIw28IcxkI7VAKI48JMxAIw28IcVAKzI0EY4
+	vE52x082I5MxCjnVCjjxCrMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_
+	Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWUAVWUtwCIc40Y0x
+	0EwIxGrwCI42IY6xAIw20EY4v20xvaj40_Zr0_Wr1UYxBIdaVFxhVjvjDU0xZFpf9x07bo
+	5rcUUUUU=
+
+On Mon, Nov 05, 2018 at 02:36:14PM +0000, Marc Zyngier wrote:
+> Some implementations may be forced to use VHE to work around HW
+> errata, for example. Let's introduce a helper that checks for
+> these cases.
+> 
+> Signed-off-by: Marc Zyngier <marc.zyngier@arm.com>
+> ---
+>  arch/arm/include/asm/kvm_host.h   | 1 +
+>  arch/arm64/include/asm/kvm_host.h | 6 ++++++
+>  virt/kvm/arm/arm.c                | 5 +++++
+>  3 files changed, 12 insertions(+)
+> 
+> diff --git a/arch/arm/include/asm/kvm_host.h b/arch/arm/include/asm/kvm_host.h
+> index c3469729f40c..0f2f782548cb 100644
+> --- a/arch/arm/include/asm/kvm_host.h
+> +++ b/arch/arm/include/asm/kvm_host.h
+> @@ -286,6 +286,7 @@ void kvm_mmu_wp_memory_region(struct kvm *kvm, int slot);
+>  struct kvm_vcpu *kvm_mpidr_to_vcpu(struct kvm *kvm, unsigned long mpidr);
+>  
+>  static inline bool kvm_arch_sve_requires_vhe(void) { return false; }
+> +static inline bool kvm_arch_impl_requires_vhe(void) { return false; }
+>  static inline void kvm_arch_hardware_unsetup(void) {}
+>  static inline void kvm_arch_sync_events(struct kvm *kvm) {}
+>  static inline void kvm_arch_vcpu_uninit(struct kvm_vcpu *vcpu) {}
+> diff --git a/arch/arm64/include/asm/kvm_host.h b/arch/arm64/include/asm/kvm_host.h
+> index ca1714148400..7d6e974d024a 100644
+> --- a/arch/arm64/include/asm/kvm_host.h
+> +++ b/arch/arm64/include/asm/kvm_host.h
+> @@ -432,6 +432,12 @@ static inline bool kvm_arch_sve_requires_vhe(void)
+>  	return system_supports_sve();
+>  }
+>  
+> +static inline bool kvm_arch_impl_requires_vhe(void)
+> +{
+> +	/* Some implementations have defects that confine them to VHE */
+> +	return false;
+> +}
+> +
+>  static inline void kvm_arch_hardware_unsetup(void) {}
+>  static inline void kvm_arch_sync_events(struct kvm *kvm) {}
+>  static inline void kvm_arch_vcpu_uninit(struct kvm_vcpu *vcpu) {}
+> diff --git a/virt/kvm/arm/arm.c b/virt/kvm/arm/arm.c
+> index 66de2efddfca..bc90a1cdd27f 100644
+> --- a/virt/kvm/arm/arm.c
+> +++ b/virt/kvm/arm/arm.c
+> @@ -1647,6 +1647,11 @@ int kvm_arch_init(void *opaque)
+>  			kvm_pr_unimpl("SVE system without VHE unsupported.  Broken cpu?");
+>  			return -ENODEV;
+>  		}
+> +
+> +		if (kvm_arch_impl_requires_vhe()) {
+> +			kvm_pr_unimpl("CPU requiring VHE in non-VHE mode");
+
+( Scratch my previous comment if unless you restructure the code so
+there's only one nested if() here. )
+
+Also, minor nit: it sounds like "VHE in non-VHE mode" is the thing this
+CPU requires, which is somewhat confusing.
+
+Does it work to word this as
+"CPU requiring VHE was booted in non-VHE mode"
+
+?
+
+Cheers
+---Dave

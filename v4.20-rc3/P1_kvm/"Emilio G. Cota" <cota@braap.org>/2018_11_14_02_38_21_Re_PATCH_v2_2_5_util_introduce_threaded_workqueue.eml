@@ -1,0 +1,296 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 14 Nov 2018 00:36:15 -0000
+Received: from icoremail.net (unknown [209.85.210.177])
+	by mail-app2 (Coremail) with SMTP id by_KCgDnX+_YGutb9yqIAQ--.41588S3;
+	Wed, 14 Nov 2018 02:41:29 +0800 (CST)
+Received: from mail-pf1-f177.google.com (unknown [209.85.210.177])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwAnADzUGutbccU5AA--.9921S3;
+	Wed, 14 Nov 2018 02:41:24 +0800 (CST)
+Received: by mail-pf1-f177.google.com with SMTP id x2-v6so6495872pfm.7
+        for <xuliker@zju.edu.cn>; Tue, 13 Nov 2018 10:41:24 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:delivered-to:dkim-signature:dkim-signature:date
+         :from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:content-transfer-encoding:in-reply-to
+         :user-agent:sender:precedence:list-id;
+        bh=Z11Wo6mEpe7uLqogXjSZbuN0ELXUWq+6zTND2zBuAK8=;
+        b=iLDgmrwliq/VbrPX7OjgPLPofMsmCr5WBuxA8v38VtzNaxH3nwSCusACLQVCSkP7ZF
+         h8aFWxFRCmorM3Kuqxi4pgUfA7oDcc7564Yvo7T1Fvd1ptFar1jxsVJnyYyXjtv9d7oM
+         13ks/JehqSjW7L6cSS7Rvf6E9Lhk1+XyYQsdqobtA37TJcsHj35SZnVTjeD2I++oJDDc
+         ee9wk+4fKmNJtOOUh/Hx3LNe2IFh9ADhPRVP8en0Oy8TC5czU61/BHaEUBrK29mKgoxx
+         MJ2+OA+q59NPK5kFQhuuMHvOQrCliCHdgAKo5o0RZGVAm1rIifiw0BQGBxkzfwu24Ded
+         ws9g==
+X-Gm-Message-State: AGRZ1gJqYNyOXXjQ4dz/SAVRY1CchPU8j2b/weCNx5wwhCjmaX3Q0SQr
+	4VsDcpPZ4MwEGB5omP3eh22FaOVQLRZ4kS01xqwGSGiASC0hdU3h9w==
+X-Received: by 2002:a62:6241:: with SMTP id w62-v6mr6233090pfb.69.1542134483829;
+        Tue, 13 Nov 2018 10:41:23 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp4840175pjt;
+        Tue, 13 Nov 2018 10:41:21 -0800 (PST)
+X-Google-Smtp-Source: AJdET5domRw2DKW+qWS8McIXDEagnQtk/vx4SSJKOhUqDzR+ZK7FYpxftJbYP9RZVt+K7Gqlb4YP
+X-Received: by 2002:a62:b802:: with SMTP id p2-v6mr6212922pfe.1.1542134481927;
+        Tue, 13 Nov 2018 10:41:21 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542134481; cv=none;
+        d=google.com; s=arc-20160816;
+        b=Fvl+oR1+4SUNdcDyZp7wa8dRN8jboN+hnyEjRWggpIs8kcJcfcbCR9b4LGS2oLyj0c
+         P7KTsAxdvVNdhJUeyR8OLQgsSSB2XZVHsZEqAq6r8Y7IbxiQ2ifmqnU73XsJxFROH2DZ
+         AyjQZ1MIwF8RtRsF1vg502mD3BH+6rleLH1jys4BPFzedgslx3GggSJBmRj+Wf/xnXjt
+         Rrs09alIV9r709IKXY+UpXHLHMs/C9AL7flFvtuP8MG5FEH3RjaUZOXDqduiraUxV8R2
+         AjB7CHMEaE0Cv8YeYJkB7m7QCdrXpSF7lapc5QRZBeKj7LMGRNggfzn4s2vQhT2uvRtf
+         2inA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:user-agent:in-reply-to
+         :content-transfer-encoding:content-disposition:mime-version
+         :references:message-id:subject:cc:to:from:date:dkim-signature
+         :dkim-signature;
+        bh=Z11Wo6mEpe7uLqogXjSZbuN0ELXUWq+6zTND2zBuAK8=;
+        b=iX+pPxTWT4YSR9zftJympY/hpRKMwxswOaDXx1fi5nUO2rNRoNeKW+ECMq1k9Nakrn
+         HDCmPF4ge9M5iNWINxe3kbS14mZ3RyMCiwelpHHq1zyJ2hJfLrxe8C9M4XTBZZ5EmRpY
+         ULt6gUX3VzPlKhmXMhAfe07hFkcd4yuqq7dpO6M0i+pfIhaGB23+WEJccqQgbWpwPbIU
+         zz52XxvNRweGNCYM10ssXNiZXhd49lhLqRC7mJEDkF5X73U7ejelMFNfhecaCucjXWi6
+         V4+zwZE+Rv2EbI6j0kwM0sj2WHxbzMAvG7XACJj9q3/TtXGda3S3TBtJ2KmZhflY+5q5
+         RTLw==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@braap.org header.s=mesmtp header.b=xbzv7dey;
+       dkim=pass header.i=@messagingengine.com header.s=fm1 header.b=vUvarZJU;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id b8si20640477pgi.575.2018.11.13.10.41.00;
+        Tue, 13 Nov 2018 10:41:21 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1731774AbeKNEhp (ORCPT <rfc822;fanshuming2011@gmail.com>
+        + 99 others); Tue, 13 Nov 2018 23:37:45 -0500
+Received: from out5-smtp.messagingengine.com ([66.111.4.29]:40351 "EHLO
+        out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726517AbeKNEho (ORCPT
+        <rfc822;kvm@vger.kernel.org>); Tue, 13 Nov 2018 23:37:44 -0500
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailout.nyi.internal (Postfix) with ESMTP id 7EA2821614;
+        Tue, 13 Nov 2018 13:38:23 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Tue, 13 Nov 2018 13:38:23 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=braap.org; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:content-transfer-encoding:in-reply-to; s=mesmtp;
+         bh=Z11Wo6mEpe7uLqogXjSZbuN0ELXUWq+6zTND2zBuAK8=; b=xbzv7dey2GBk
+        pNpilWWVDOwydH0GeqdMBXazQLX8uJ5VWHvczxVVv2d5GKfsDMemUo0bFXoAuJ9x
+        B/uRvUJtuBUpm8i3U/Ry3CR3/B9U3W8LybGrams4QFtz78DZoolCP9ymWRsKr6wi
+        zs579K4o9KmmBSGyaEbbTVEsT8OTYh0=
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:in-reply-to:message-id:mime-version:references
+        :subject:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
+        :x-sasl-enc; s=fm1; bh=Z11Wo6mEpe7uLqogXjSZbuN0ELXUWq+6zTND2zBuA
+        K8=; b=vUvarZJU0/A0CGd7RjBbHSEsG61LRci+QH/niVhliuPRWAPW+iXwpFf2Q
+        hloMXeFJ5gW0xPN4eSoBS77zDDP4ASOmceRxGLVrZ927sSSlxm0cqlcPEvveTozY
+        /7drvLwiUxkw+yU+FovgSl8nDUFA+mI6buVruyQEDrGQsp1CV5pbndEVccuRtL3K
+        72u/Syl2kajqy2XxxAYnXHRGq+dWWt1kwamiu/m1oXYvEBfL3s0P4VINKUPYsZus
+        FKE0/1Eowfz3fKksBIcDH2QOB6Pu066FIYJOneyC4KZCRNnPmMjtO4GB5U5Iq1d4
+        7fo9eZtyVw71aBdqY4idgXSYnRYEw==
+X-ME-Sender: <xms:HhrrW61F7DC_N8pOqvMZ4x2lKk_TDRsRLW_FOpfJ2lk1UNo65i080A>
+X-ME-Proxy: <xmx:HhrrW2ogdAzKmqlG_kVBMG85idM6g4YOt-a9zj5f6X1Y-KAn9U-lxw>
+    <xmx:HhrrW-32Y1Zi6KVPLgdHT6fZIty4Ez2Wa02ELeMuIp9KuHK_hgnoyQ>
+    <xmx:HhrrW7HnDz4mX5YkIb7wA7gO_oMEY6fOC5p-nG-RIHub-2MsDk8vBg>
+    <xmx:HhrrWwDFCzPf_URI-mwNMcI6Zg5WJ_yxc-ZJa3JXD1LiUVNbADfi1g>
+    <xmx:HhrrW3XNE-c08kCSxNqAJTRILOFbaphP9KCmAJToiG8DodA-l0ehFw>
+    <xmx:HxrrWxewA-qKDoEudOtY1cv_RKSMl0b27QIhZ0RcdOTQYAH12SBRlg>
+Received: from localhost (flamenco.cs.columbia.edu [128.59.20.216])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 25B9BE4678;
+        Tue, 13 Nov 2018 13:38:22 -0500 (EST)
+Date: Tue, 13 Nov 2018 13:38:21 -0500
+From: "Emilio G. Cota" <cota@braap.org>
+To: guangrong.xiao@gmail.com
+Cc: pbonzini@redhat.com, mst@redhat.com, mtosatti@redhat.com,
+        qemu-devel@nongnu.org, kvm@vger.kernel.org, dgilbert@redhat.com,
+        peterx@redhat.com, wei.w.wang@intel.com, jiang.biao2@zte.com.cn,
+        eblake@redhat.com, quintela@redhat.com,
+        Xiao Guangrong <xiaoguangrong@tencent.com>
+Subject: Re: [PATCH v2 2/5] util: introduce threaded workqueue
+Message-ID: <20181113183821.GA11606@flamenco>
+References: <20181106122025.3487-1-xiaoguangrong@tencent.com>
+ <20181106122025.3487-3-xiaoguangrong@tencent.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20181106122025.3487-3-xiaoguangrong@tencent.com>
+User-Agent: Mutt/1.9.4 (2018-02-28)
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwAnADzUGutbccU5AA--.9921S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW3GF43JF13ur4rZw4kXr1fZwb_yoW7KFWxpF
+	W3Jr13Kr1kXr17Ar1fJa48GryFkrs3XF9xJry8Jry8tan8Cw4YvryxKFWrA3yDArykGF4j
+	vrWjg3sFgr1qvrJanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUU0bIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUPab7Iv0xC_Kw4lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_tr0E3s1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2
+	z280aVAFwI0_Cr1j6rxdM28EF7xvwVC2z280aVCY1x0267AKxVWxJr0_GcWle2I262IYc4
+	CY6c8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_
+	Jr0_Jr4lYx0Ex4A2jsIE14v26r1j6r4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvEwI
+	xGrwCjxxvEa2IrMxkF7I0Ew4C26cxK6c8Ij28IcwCY1Ik26cxK6xAEc7vF6xCjj44lc2xS
+	Y4AK6IIF6rylc2IjII80xcxEwVAKI48JMxvI42IY6xIIjxv20xvE14v26ryj6F1UMxvI42
+	IY6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1lcIIF0xvEx4A2jsIE14v26r4UJVWxJr1lcIIF
+	0xvEx4A2jsIEc7CjxVAFwI0_Gr1j6F4UJwCF04k20xvY0x0EwIxGrwCF04k20xvEw4C26c
+	xK6c8Ij28IcwCF72vE77IF4wCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v2
+	6r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_Jw0_GFylIxkGc2
+	Ij64vIr41lIxAIcVCF04k26cxKx2IYs7xG6Fyj6rWUJbIYCTnIWIevJa73UjIFyTuYvjxU
+	QFoXUUUUU
+
+On Tue, Nov 06, 2018 at 20:20:22 +0800, guangrong.xiao@gmail.com wrote:
+> From: Xiao Guangrong <xiaoguangrong@tencent.com>
+> 
+> This modules implements the lockless and efficient threaded workqueue.
+(snip)
+> +++ b/util/threaded-workqueue.c
+> +struct Threads {
+> +    /*
+> +     * in order to avoid contention, the @requests is partitioned to
+> +     * @threads_nr pieces, each thread exclusively handles
+> +     * @thread_request_nr requests in the array.
+> +     */
+> +    void *requests;
+(snip)
+> +    /*
+> +     * the bit in these two bitmaps indicates the index of the ＠requests
+> +     * respectively. If it's the same, the corresponding request is free
+> +     * and owned by the user, i.e, where the user fills a request. Otherwise,
+> +     * it is valid and owned by the thread, i.e, where the thread fetches
+> +     * the request and write the result.
+> +     */
+> +
+> +    /* after the user fills the request, the bit is flipped. */
+> +    unsigned long *request_fill_bitmap;
+> +    /* after handles the request, the thread flips the bit. */
+> +    unsigned long *request_done_bitmap;
+(snip)
+> +    /* the request is pushed to the thread with round-robin manner */
+> +    unsigned int current_thread_index;
+(snip)
+> +    QemuEvent ev;
+(snip)
+> +};
+
+The fields I'm showing above are all shared by all worker threads.
+This can lead to unnecessary contention. For example:
+- Adjacent requests can share the same cache line, which might be
+  written to by different worker threads (when setting request->done)
+
+- The request_done bitmap is written to by worker threads every time
+  a job completes. At high core counts with low numbers of job slots,
+  this can result in high contention. For example, imagine we have
+  16 threads with 4 jobs each. This only requires 64 bits == 8 bytes, i.e.
+  much less than a cache line. Whenever a job completes, the cache line
+  will be atomically updated by one of the 16 threads.
+
+- The completion event (Threads.ev above) is written to by every thread.
+  Again, this can result in contention at large core counts.
+
+An orthogonal issue is the round-robin policy. This can give us fairness,
+in that we guarantee that all workers get a similar number of jobs.
+But giving one job at a time to each worker is suboptimal when the job
+sizes are small-ish, because it misses out on the benefits of batching,
+which amortize the cost of communication.
+Given that the number of jobs that we have (at least in the benchmark)
+are small, filling up a worker's queue before moving on to the next
+can yield a significant speedup at high core counts.
+
+I implemented the above on top of your series. The results are as follows:
+
+                                         threaded-workqueue-bench -r 4 -m 2 -c 20 -t #N
+                                              Host: AMD Opteron(tm) Processor 6376
+                                          Thread pinning: #N+1 cores, same-socket first
+
+         12 +-------------------------------------------------------------------------------------------------------+
+            |    +   +     +     +     +     +    A+     +     +     +     +     +     +     +     +     +     +    |
+            |                                     $                                                  before ***B*** |
+         10 |-+                                  $$                                               +batching ###D###-|
+            |                                    $$                                       +per-thread-state $$$A$$$ |
+            |                                    $$  A        A                                                     |
+            |                     $AD     D$A $A $ $ $A  A   $$               A        A  A$       A        A$ A    |
+          8 |-+               D$AA  A# D$AA# A  $#D$$  $ $$ A  $   $A $A      $$ A$ A$A $ $ AA   $A $  $A   $ A   +-|
+            |                AA  B* B$DA D  DD# A #$$   A  A   $$AA  A  A$A  $  A  A     A    $ A    AA  A$A        |
+            |               $DB*B  B $ $ BB    D   $$  #D #D   A           A$A                 A                    |
+          6 |-+          $AA*B       *A *  *       $# D  D  D#  #D #D   D#    D#DD#D   D# D#  # ##D      D#       +-|
+            |           A             BB   *       A D        DD  D  D#D  DD#D      D#D  D  DD  D  D# D#D  DD#DD    |
+            |           $                   B                                                        D              |
+            |         $A                     **BB     B                                                             |
+          4 |-+      A#                      B   *    **                                                          +-|
+            |        $                            B *B  BB* B*                    *BB*B   B*BB*BB*B  B *BB* B*BB    |
+            |      $A                              B       B  BB*BB*BB*BB*BB*BB*BB     **B         ** B    B        |
+          2 |-+   A                                                                    B           B              +-|
+            |     $                                                                                                 |
+            |    A                                                                                                  |
+            |    +   +     +     +     +     +     +     +     +     +     +     +     +     +     +     +     +    |
+          0 +-------------------------------------------------------------------------------------------------------+
+                 1   4     8     12    16    20    24    28    32    36    40    44    48    52    56    60    64
+                                                             Threads
+  png: https://imgur.com/Aj4yfGO
+
+Note: "Threads" in the X axis means "worker threads".
+
+Batching achieves higher performance at high core counts (>8),
+since worker threads go through fewer sleep+wake cycles while
+waiting for jobs. Performance however diminishes as more threads
+are used (>=24) due to cache line contention.
+
+Contention can be avoided by partitioning the request array, bitmaps
+and completion event to be entirely local to worker threads
+("+per-thread-state"). This avoids the performance decrease at >=24
+threads that we observe with batching alone. Note that the overall
+speedup does not go beyond ~8; this is explained by the fact that we
+use a single requester thread. Thus, as we add more worker threads,
+they become increasingly less busy, yet throughput remains roughly
+constant. I say roughly because there's quite a bit of noise--this
+is a 4-socket machine and I'm letting the scheduler move threads
+around, although I'm limiting the cores that can be used with
+taskset to maximize locality (this means that for 15 threads we're
+using 16 host cores that are all in the same socket; note that
+the additional thread is the requester one).
+
+I have pushed the above changes, along with some minor fixes (e.g.
+removing the Threads.name field) here:
+
+  https://github.com/cota/qemu/tree/xiao
+
+Note that the 0-len variable goes away, and that Threads become
+read-only. I also use padding to make sure the events are in
+separate cache lines.
+
+Feel free to incorporate whatever you see fit from that branch into
+a subsequent iteraiton.
+
+I have also some minor comments, but we can postpone those for later.
+There are some issues I'd like you to consider now, however:
+
+- Make sure all bitmap ops are using atomic_set/read. Add additional
+  helpers if necessary.
+
+- Constify everywhere the Ops struct.
+
+- Consider just registering a size_t instead of a function to get the
+  job size from the Ops struct.
+
+And then a possible optimization for the actual use case you have:
+
+- Consider using a system-specific number of threads (determined at
+  run-time) for compression/decompression. For example, if the host
+  system has a single core, there's no point in spawning more than a single
+  thread. If the host system has 32 cores, you're probably leaving performance 
+  on the table if you just use the default. 
+  Ideally determining this number would also take into account the
+  size of each job, which should also determine the number of
+  job slots per worker thread.
+
+Thanks,
+
+		Emilio

@@ -1,0 +1,502 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 22 Nov 2018 00:34:13 -0000
+Received: from icoremail.net (unknown [209.85.214.180])
+	by mail-app2 (Coremail) with SMTP id by_KCgDnX_uPdvVbJgjJAQ--.58636S3;
+	Wed, 21 Nov 2018 23:15:28 +0800 (CST)
+Received: from mail-pl1-f180.google.com (unknown [209.85.214.180])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwBXOERZdfVbUwlkAA--.1951S3;
+	Wed, 21 Nov 2018 23:10:18 +0800 (CST)
+Received: by mail-pl1-f180.google.com with SMTP id a14so5919808plm.12
+        for <xuliker@zju.edu.cn>; Wed, 21 Nov 2018 07:10:18 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:delivered-to:dkim-signature:from:to:cc:subject
+         :date:message-id:in-reply-to:references:sender:precedence:list-id;
+        bh=bcpE3J0kqLJApsi7Xb6FjcYI/Yg61+lMr9IEjxkjor8=;
+        b=iiRyDDYS9jbsWIKPPisAmlv1UVIfXdbSrBUJH76sJS4RKJ3a/cEwLbslpelzZpx5fi
+         53/HzHkc8CoTIko9raVCONSZMD5W/vNedgs5XBihzuXk3xsEw5i6BC+hbNGauL5rKylJ
+         Zj1wcsOxcXXOVWpNLn8nO0ByWzMpnyrIbNKM4nzFyBv/bR+C/5J75jQIs3/CyNhj9xwz
+         PceSdR8mykZxgsQqfQVadsiNc06trHKsiBKxjB9/5lFhjIjf/oa6e2zDLeFuwbS0CpUs
+         +XB77RztEqBMNgkYIl0EHDkyH+1mnzyxki7RquOmY+3DHUewuWLyCyK2H/FnNDDklIaA
+         8ocQ==
+X-Gm-Message-State: AA+aEWYiEyepUdjPp82CbEatzpIryWt4bTkfWyD7JfD/M5Iv865Ui3Rs
+	N2QIxUz5ekOVII9kBpmQB16F6WSTBzkdslsXQs4aAJHiaeScyAk=
+X-Received: by 2002:a17:902:9698:: with SMTP id n24-v6mr7379652plp.9.1542813017681;
+        Wed, 21 Nov 2018 07:10:17 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:d106:0:0:0:0 with SMTP id l6-v6csp2074458pju;
+        Wed, 21 Nov 2018 07:10:16 -0800 (PST)
+X-Google-Smtp-Source: AFSGD/Xb9N4azXJSN3ns7jH+7SPNgvP3wLIAZWfSCCiI/2kLr6uAHz7itlwanPtxzO+hy2nmpZuI
+X-Received: by 2002:a63:b16:: with SMTP id 22mr6257987pgl.306.1542813016611;
+        Wed, 21 Nov 2018 07:10:16 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542813016; cv=none;
+        d=google.com; s=arc-20160816;
+        b=kAa5NViRs6zkd0gK4yNalb/zJuomveV1dJHsjF+rpuEV4zrHP0kMk+uf7x/ZeTWNWj
+         hL3iIJn1Uj124s/hwG7w/bk+Jlq4XsWeF5PYpj6HXcFxIT5nbM2so9WrFFRztVrFyPHk
+         3bP2/+vdbuYaMnOXu5aU0edwh1+WgdxJpuAx2DrnmUnUVO5br2A8k9YfBC1VR6zxdzXg
+         9GiQqMEO/8bZ4tvhJCfYTzF7kA2Ze37V3hJXBbtxxgGzYtGbOUnxFlNp2vaTwWDMMjjG
+         rPOkMLsscIGj4MQQkf6eXnLheMnTUN8HOFvd/WU0oQKEMpdlBoXV9/iSNsa1ayeM7/r1
+         KObA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:references:in-reply-to:message-id:date
+         :subject:cc:to:from:dkim-signature;
+        bh=bcpE3J0kqLJApsi7Xb6FjcYI/Yg61+lMr9IEjxkjor8=;
+        b=lHNlzOkzwaIE039dd75NxDCdBrDtBdR+53K17oLTiWgk24hv6bwFYqnZusGZS1Fzn2
+         Noa53+qveqz9uHvCxKrLUmK/wdqwWBCemePi0WvhA+sJwDF1iPu1wZxtgOYOJyOzk2SU
+         OzFg9QckIIvbhUgDUY3YhMqhNVxXNOwPCgvrMHF0UAL0b0T8CC4D7SZPwEN6ReuV7D62
+         Gl1Yq/lWOzX1CC1s7DkrpY8T6O41m2JQMqCd+NeYlaKmOmN6T1BKJmM6kT3FHYls+MwT
+         6i6SN0y66c0YpVFQot+B1P1t7n4FUpf5lLO0ii8k40IB/ZG378i6LVgecoImUAKxGpm0
+         D3iA==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@gmail.com header.s=20161025 header.b=Xp1Nqg3i;
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;
+       dmarc=pass (p=NONE sp=QUARANTINE dis=NONE) header.from=gmail.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id 129-v6si51122434pfy.164.2018.11.21.07.09.45;
+        Wed, 21 Nov 2018 07:10:16 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1731367AbeKVBmt (ORCPT <rfc822;nullbytes00@gmail.com>
+        + 99 others); Wed, 21 Nov 2018 20:42:49 -0500
+Received: from mail-io1-f67.google.com ([209.85.166.67]:38609 "EHLO
+        mail-io1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731181AbeKVBmK (ORCPT
+        <rfc822;linux-kernel@vger.kernel.org>);
+        Wed, 21 Nov 2018 20:42:10 -0500
+Received: by mail-io1-f67.google.com with SMTP id l14so4121750ioj.5;
+        Wed, 21 Nov 2018 07:07:21 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references;
+        bh=bcpE3J0kqLJApsi7Xb6FjcYI/Yg61+lMr9IEjxkjor8=;
+        b=Xp1Nqg3iuVOBIQ9AWSbGmQObHVUuiYRy9bDr1ECHWuwAU/eJTB4cPrRSnfmnrGEoBo
+         j0M6M0kwbM/6RJwb4r3CGll1vSjSh51yKLw8a0rEnr0PzCSoMykShhK4wI9PWJ5DwLZd
+         D9Yv+qa/yZO0ytiSNtdsk/SjTNexVsiSLemQxQx8Wu7Z653Ew3OxbbBkGCmuRCtyCgS0
+         Pl0kSHltGQvXBj4O90C/JEM10T2PwFm7Fe3JaZVnnSpoo1jLQBDkELERkd4hRBdjDP6s
+         WU3I8+slnuKd4ZAg5J2q4AsE1eawTuuUqKPiw5R0P/Fijk8DHxcgulJn/IvpjClLn19+
+         QPyA==
+X-Received: by 2002:a6b:7a46:: with SMTP id k6mr5348232iop.60.1542812840527;
+        Wed, 21 Nov 2018 07:07:20 -0800 (PST)
+Received: from svens-asus.arcx.com ([184.94.50.30])
+        by smtp.gmail.com with ESMTPSA id c3sm5113119ioi.2.2018.11.21.07.07.18
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 21 Nov 2018 07:07:19 -0800 (PST)
+From: thesven73@gmail.com
+X-Google-Original-From: TheSven73@googlemail.com
+To: svendev@arcx.com, robh+dt@kernel.org, linus.walleij@linaro.org
+Cc: lee.jones@linaro.org, mark.rutland@arm.com, afaerber@suse.de,
+        treding@nvidia.com, david@lechnology.com, noralf@tronnes.org,
+        johan@kernel.org, monstr@monstr.eu, michal.vokac@ysoft.com,
+        arnd@arndb.de, gregkh@linuxfoundation.org, john.garry@huawei.com,
+        geert+renesas@glider.be, robin.murphy@arm.com,
+        paul.gortmaker@windriver.com,
+        sebastien.bourdelin@savoirfairelinux.com, icenowy@aosc.io,
+        stuyoder@gmail.com, maxime.ripard@bootlin.com,
+        linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
+Subject: [PATCH anybus v4 2/7] fieldbus: support the Arcx anybus bridge
+Date: Wed, 21 Nov 2018 10:07:04 -0500
+Message-Id: <20181121150709.6030-3-TheSven73@googlemail.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20181121150709.6030-1-TheSven73@googlemail.com>
+References: <20181121150709.6030-1-TheSven73@googlemail.com>
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwBXOERZdfVbUwlkAA--.1951S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW3tryfuF1kKFykKw1xAw1fWFg_yoWDuFyrpF
+	yqka43JrWUXr429397Ar4q9a43W3Z3Kay5WrW7Jw1Sk34Sya4DXFWvyry5AF1kJFWDG3y5
+	tF9xXrWruFWjqF7anT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUQFb7Iv0xC_KF4lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_tr0E3s1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2
+	z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s0DM2vYz4IE04k24V
+	AvwVAKI4IrM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xf
+	McIj6xIIjxv20xvE14v26r106r15McIj6I8E87Iv67AKxVWxJVW8Jr1lOx8S6xCaFVCjc4
+	AY6r1j6r4UM4x0Y48IcxkI7VAKI48JM4kE6xkIj40Ew7xC0wCjxxvEa2IrMxkF7I0Ew4C2
+	6cxK6c8Ij28IcwCY1Ik26cxK6xAEc7vF6xCjj44lc2xSY4AK6IIF6ryrMxkI7II2jI8vz4
+	vEwIxGrwCYIxAIcVC0I7IYx2IY67AKxVW5JVW7JwCYIxAIcVC0I7IYx2IY6xkF7I0E14v2
+	6r4j6F4UMxvI42IY6I8E87Iv67AKxVW0oVCq3wCYIxAIcVC2z280aVCY1x0267AKxVW0oV
+	Cq3wCF04k20xvY0x0EwIxGrwCF04k20xvEw4C26cxK6c8Ij28IcwCF72vE77IF4wCFx2Iq
+	xVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v26r1j6r18MI8I3I0E7480Y4vE14v26r
+	106r1rMI8E67AF67kF1VAFwI0_GFv_WrylIxkGc2Ij64vIr41lIxAIcVCF04k26cxKx2IY
+	s7xG6r1I6r4UYxBIdaVFxhVjvjDU0xZFpf9x07b1yCJUUUUU=
+
+Add a driver for the Arcx anybus bridge.
+
+This chip embeds up to two Anybus-S application connectors
+(slots), and connects to the SoC via a parallel memory bus.
+There is also a CAN power readout, unrelated to the Anybus,
+modelled as a regulator.
+
+Signed-off-by: Sven Van Asbroeck <svendev@arcx.com>
+---
+ drivers/fieldbus/Kconfig         |  10 +
+ drivers/fieldbus/Makefile        |   1 +
+ drivers/fieldbus/anybus-bridge.c | 321 +++++++++++++++++++++++++++++++
+ 3 files changed, 332 insertions(+)
+ create mode 100644 drivers/fieldbus/anybus-bridge.c
+
+diff --git a/drivers/fieldbus/Kconfig b/drivers/fieldbus/Kconfig
+index 1d1929ba7e27..fc2e20b59b38 100644
+--- a/drivers/fieldbus/Kconfig
++++ b/drivers/fieldbus/Kconfig
+@@ -16,4 +16,14 @@ menuconfig FIELDBUS_DEV
+ 
+ if FIELDBUS_DEV
+ 
++config ARCX_ANYBUS_BRIDGE
++	tristate "Arcx Anybus-S Bridge"
++	depends on OF && GPIOLIB
++	help
++	  Select this to get support for the Arcx Anybus bridge.
++	  It connects to the SoC via a parallel memory bus, and
++	  embeds up to two Anybus-S application connectors (slots).
++	  There is also a CAN power readout, unrelated to the Anybus,
++	  modelled as a regulator.
++
+ endif
+diff --git a/drivers/fieldbus/Makefile b/drivers/fieldbus/Makefile
+index 768a116fc9c6..a623722aace6 100644
+--- a/drivers/fieldbus/Makefile
++++ b/drivers/fieldbus/Makefile
+@@ -7,3 +7,4 @@ obj-$(CONFIG_FIELDBUS_DEV)	+= fieldbus_dev_core.o
+ fieldbus_dev_core-y		:= dev_core.o
+ 
+ # Devices
++obj-$(CONFIG_ARCX_ANYBUS_BRIDGE) += anybus-bridge.o
+diff --git a/drivers/fieldbus/anybus-bridge.c b/drivers/fieldbus/anybus-bridge.c
+new file mode 100644
+index 000000000000..9eee39efc3aa
+--- /dev/null
++++ b/drivers/fieldbus/anybus-bridge.c
+@@ -0,0 +1,321 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * Arcx Anybus Bridge driver
++ *
++ * Copyright (C) 2018 Arcx Inc
++ */
++
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/slab.h>
++#include <linux/platform_device.h>
++#include <linux/gpio/consumer.h>
++#include <linux/io.h>
++#include <linux/of.h>
++#include <linux/delay.h>
++#include <linux/idr.h>
++#include <linux/spinlock.h>
++#include <linux/reset-controller.h>
++#include <linux/regulator/driver.h>
++#include <linux/regulator/machine.h>
++
++#define CPLD_STATUS1		0x80
++#define CPLD_CONTROL		0x80
++#define CPLD_CONTROL_CRST	0x40
++#define CPLD_CONTROL_RST1	0x04
++#define CPLD_CONTROL_RST2	0x80
++#define CPLD_STATUS1_AB		0x02
++#define CPLD_STATUS1_CAN_POWER	0x01
++#define CPLD_DESIGN_LO		0x81
++#define CPLD_DESIGN_HI		0x82
++#define CPLD_CAP		0x83
++#define CPLD_CAP_COMPAT		0x01
++#define CPLD_CAP_SEP_RESETS	0x02
++
++struct bridge_priv {
++	struct device *class_dev;
++	struct reset_controller_dev rcdev;
++	bool common_reset;
++	struct gpio_desc *reset_gpiod;
++	void __iomem *cpld_base;
++	spinlock_t regs_lock;
++	u8 control_reg;
++	char version[3];
++	u16 design_no;
++};
++
++static void do_reset(struct bridge_priv *cd, u8 rst_bit, bool reset)
++{
++	unsigned long flags;
++
++	spin_lock_irqsave(&cd->regs_lock, flags);
++	/*
++	 * CPLD_CONTROL is write-only, so cache its value in
++	 * cd->control_reg
++	 */
++	if (reset)
++		cd->control_reg &= ~rst_bit;
++	else
++		cd->control_reg |= rst_bit;
++	writeb(cd->control_reg, cd->cpld_base + CPLD_CONTROL);
++	/*
++	 * h/w work-around:
++	 * the hardware is 'too fast', so a reset followed by an immediate
++	 * not-reset will _not_ change the anybus reset line in any way,
++	 * losing the reset. to prevent this from happening, introduce
++	 * a minimum reset duration.
++	 * Verified minimum safe duration required using a scope
++	 * on 14-June-2018: 100 us.
++	 */
++	if (reset)
++		udelay(100);
++	spin_unlock_irqrestore(&cd->regs_lock, flags);
++}
++
++static int anybuss_reset(struct bridge_priv *cd,
++			     unsigned long id, bool reset)
++{
++	if (id >= 2)
++		return -EINVAL;
++	if (cd->common_reset)
++		do_reset(cd, CPLD_CONTROL_CRST, reset);
++	else
++		do_reset(cd, id ? CPLD_CONTROL_RST2 : CPLD_CONTROL_RST1, reset);
++	return 0;
++}
++
++static int anybuss_reset_assert(struct reset_controller_dev *rcdev,
++			     unsigned long id)
++{
++	struct bridge_priv *cd = container_of(rcdev, struct bridge_priv, rcdev);
++
++	return anybuss_reset(cd, id, true);
++}
++
++static int anybuss_reset_deassert(struct reset_controller_dev *rcdev,
++			     unsigned long id)
++{
++	struct bridge_priv *cd = container_of(rcdev, struct bridge_priv, rcdev);
++
++	return anybuss_reset(cd, id, false);
++}
++
++static const struct reset_control_ops anybuss_reset_ops = {
++	.assert		= anybuss_reset_assert,
++	.deassert	= anybuss_reset_deassert,
++};
++
++static ssize_t version_show(struct device *dev,
++		struct device_attribute *attr, char *buf)
++{
++	struct bridge_priv *cd = dev_get_drvdata(dev);
++
++	return sprintf(buf, "%s\n", cd->version);
++}
++static DEVICE_ATTR_RO(version);
++
++static ssize_t design_number_show(struct device *dev,
++		struct device_attribute *attr, char *buf)
++{
++	struct bridge_priv *cd = dev_get_drvdata(dev);
++
++	return sprintf(buf, "%d\n", cd->design_no);
++}
++static DEVICE_ATTR_RO(design_number);
++
++static struct attribute *bridge_attributes[] = {
++	&dev_attr_version.attr,
++	&dev_attr_design_number.attr,
++	NULL,
++};
++
++static struct attribute_group bridge_attribute_group = {
++	.attrs = bridge_attributes,
++};
++
++static const struct attribute_group *bridge_attribute_groups[] = {
++	&bridge_attribute_group,
++	NULL,
++};
++
++static void bridge_device_release(struct device *dev)
++{
++	kfree(dev);
++}
++
++static int can_power_is_enabled(struct regulator_dev *rdev)
++{
++	struct bridge_priv *cd = rdev_get_drvdata(rdev);
++
++	return !(readb(cd->cpld_base + CPLD_STATUS1) & CPLD_STATUS1_CAN_POWER);
++}
++
++static struct regulator_ops can_power_ops = {
++	.is_enabled = can_power_is_enabled,
++};
++
++static const struct regulator_desc can_power_desc = {
++	.name = "regulator-can-power",
++	.id = -1,
++	.type = REGULATOR_VOLTAGE,
++	.owner = THIS_MODULE,
++	.ops = &can_power_ops,
++};
++
++static struct class *bridge_class;
++static DEFINE_IDA(bridge_index_ida);
++
++static int bridge_probe(struct platform_device *pdev)
++{
++	struct bridge_priv *cd;
++	struct device *dev = &pdev->dev;
++	struct regulator_config config = { };
++	struct regulator_dev *regulator;
++	int err, id;
++	struct resource *res;
++	u8 status1, cap;
++
++	cd = devm_kzalloc(dev, sizeof(*cd), GFP_KERNEL);
++	if (!cd)
++		return -ENOMEM;
++	dev_set_drvdata(dev, cd);
++	spin_lock_init(&cd->regs_lock);
++	cd->reset_gpiod = devm_gpiod_get(dev, "reset", GPIOD_OUT_LOW);
++	if (IS_ERR(cd->reset_gpiod))
++		return PTR_ERR(cd->reset_gpiod);
++
++	/* CPLD control memory, sits at index 0 */
++	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	cd->cpld_base = devm_ioremap_resource(dev, res);
++	if (IS_ERR(cd->cpld_base)) {
++		dev_err(dev,
++			"failed to map cpld base address\n");
++		err = PTR_ERR(cd->cpld_base);
++		goto out_reset;
++	}
++
++	/* identify cpld */
++	status1 = readb(cd->cpld_base + CPLD_STATUS1);
++	cd->design_no = (readb(cd->cpld_base + CPLD_DESIGN_HI) << 8) |
++				readb(cd->cpld_base + CPLD_DESIGN_LO);
++	snprintf(cd->version, sizeof(cd->version), "%c%d",
++			'A' + ((status1>>5) & 0x7),
++			(status1>>2) & 0x7);
++	dev_info(dev, "Bridge is design number %d, revision %s\n",
++		cd->design_no,
++		cd->version);
++	cap = readb(cd->cpld_base + CPLD_CAP);
++	if (!(cap & CPLD_CAP_COMPAT)) {
++		dev_err(dev, "unsupported bridge [cap=0x%02X]", cap);
++		err = -ENODEV;
++		goto out_reset;
++	}
++
++	if (status1 & CPLD_STATUS1_AB) {
++		dev_info(dev, "Bridge has anybus-S slot(s)");
++		cd->common_reset = !(cap & CPLD_CAP_SEP_RESETS);
++		dev_info(dev, "Bridge supports %s", cd->common_reset ?
++			"a common reset" : "separate resets");
++		cd->rcdev.owner	= THIS_MODULE;
++		cd->rcdev.nr_resets = 2;
++		cd->rcdev.ops = &anybuss_reset_ops;
++		cd->rcdev.of_node = dev->of_node;
++		err = devm_reset_controller_register(dev, &cd->rcdev);
++		if (err)
++			goto out_reset;
++	}
++
++	id = ida_simple_get(&bridge_index_ida, 0, 0, GFP_KERNEL);
++	if (id < 0) {
++		err = id;
++		goto out_reset;
++	}
++	/* export can power readout as a regulator */
++	config.dev = dev;
++	config.driver_data = cd;
++	regulator = devm_regulator_register(dev, &can_power_desc, &config);
++	if (IS_ERR(regulator)) {
++		err = PTR_ERR(regulator);
++		goto out_reset;
++	}
++	/* make bridge info visible to userspace */
++	cd->class_dev = kzalloc(sizeof(*cd->class_dev), GFP_KERNEL);
++	if (!cd->class_dev) {
++		err = -ENOMEM;
++		goto out_ida;
++	}
++	cd->class_dev->class = bridge_class;
++	cd->class_dev->groups = bridge_attribute_groups;
++	cd->class_dev->parent = dev;
++	cd->class_dev->id = id;
++	cd->class_dev->release = bridge_device_release;
++	dev_set_name(cd->class_dev, "bridge%d", cd->class_dev->id);
++	dev_set_drvdata(cd->class_dev, cd);
++	err = device_register(cd->class_dev);
++	if (err)
++		goto out_dev;
++	return 0;
++out_dev:
++	put_device(cd->class_dev);
++out_ida:
++	ida_simple_remove(&bridge_index_ida, id);
++out_reset:
++	gpiod_set_value_cansleep(cd->reset_gpiod, 1);
++	return err;
++}
++
++static int bridge_remove(struct platform_device *pdev)
++{
++	struct bridge_priv *cd = platform_get_drvdata(pdev);
++	int id = cd->class_dev->id;
++
++	device_unregister(cd->class_dev);
++	ida_simple_remove(&bridge_index_ida, id);
++	gpiod_set_value_cansleep(cd->reset_gpiod, 1);
++	return 0;
++}
++
++static const struct of_device_id bridge_of_match[] = {
++	{ .compatible = "arcx,anybus-bridge" },
++	{ }
++};
++
++MODULE_DEVICE_TABLE(of, bridge_of_match);
++
++static struct platform_driver bridge_driver = {
++	.probe = bridge_probe,
++	.remove = bridge_remove,
++	.driver		= {
++		.name   = "arcx-anybus-bridge",
++		.owner	= THIS_MODULE,
++		.of_match_table	= of_match_ptr(bridge_of_match),
++	},
++};
++
++static int __init bridge_init(void)
++{
++	int err;
++
++	bridge_class = class_create(THIS_MODULE, "arcx_anybus_bridge");
++	if (!IS_ERR(bridge_class)) {
++		err = platform_driver_register(&bridge_driver);
++		if (err)
++			class_destroy(bridge_class);
++	} else
++		err = PTR_ERR(bridge_class);
++	return err;
++}
++
++static void __exit bridge_exit(void)
++{
++	platform_driver_unregister(&bridge_driver);
++	class_destroy(bridge_class);
++}
++
++module_init(bridge_init);
++module_exit(bridge_exit);
++
++MODULE_DESCRIPTION("Arcx Anybus Bridge driver");
++MODULE_AUTHOR("Sven Van Asbroeck <svendev@arcx.com>");
++MODULE_LICENSE("GPL v2");
+-- 
+2.17.1

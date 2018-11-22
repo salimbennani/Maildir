@@ -1,0 +1,201 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 21 Nov 2018 00:40:15 -0000
+Received: from icoremail.net (unknown [209.85.215.177])
+	by mail-app4 (Coremail) with SMTP id cS_KCgCXz3RJKfRbzZTgAQ--.34083S3;
+	Tue, 20 Nov 2018 23:33:31 +0800 (CST)
+Received: from mail-pg1-f177.google.com (unknown [209.85.215.177])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwAnDkpHKfRb39heAA--.233S3;
+	Tue, 20 Nov 2018 23:33:27 +0800 (CST)
+Received: by mail-pg1-f177.google.com with SMTP id 70so1051101pgh.8
+        for <xuliker@zju.edu.cn>; Tue, 20 Nov 2018 07:33:27 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:delivered-to:dkim-signature:mime-version
+         :in-reply-to:references:from:date:message-id:subject:to:cc:sender
+         :precedence:list-id;
+        bh=nYn0eSkygK3POJn29s57zRpQ7lasw9cwgc4bQS5emXY=;
+        b=dlgKFgRr93ERvPfbQAoAH5IPZrxDca6OwRs6saZcNALJejCKG1RNGBI1vqMoIFbqjj
+         7gxV8AlM5pck7BtSJZPA2layTW0iXFqWNrfjD6CzFLFnBIqAuK3iJCDdPVJgkxpw9/Vf
+         jkky2MUaimuawCO8T9/la5dnYqUKYiLZp5waivp6srb+XYzsNZMfo2wrR9HXrKlzv7sF
+         7UyN6NZzE1lkiw38kt05B9W3po6rVOBXXog0ijUSZDUDGDERMHAfcvAxL0fWcRhgOBs9
+         qz0mtCQjeLa+VS2Yerdon+PUL1gAwTUmJVFUKSo2x8nH0FvFNgcL0Y1E7v5yaoLx7mET
+         fe2g==
+X-Gm-Message-State: AA+aEWa3vhflk+ZVxk/zNIhCFvcH0rWfm3T5oPL22jQhkwY2kBxUo15u
+	8kP8J7fz296tLIBF+OJACBmxCR7SeRPeHdutLR62rag7N2vXPPg=
+X-Received: by 2002:a63:2c0e:: with SMTP id s14mr2380297pgs.132.1542728007581;
+        Tue, 20 Nov 2018 07:33:27 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:d106:0:0:0:0 with SMTP id l6-v6csp748126pju;
+        Tue, 20 Nov 2018 07:33:26 -0800 (PST)
+X-Google-Smtp-Source: AFSGD/W6mn1SZcCXhF4Ed352mB8+TjwpL/tK617B+qXp+irRSnQ2GZ9e/JY6O73OaK5L6aGC7ffO
+X-Received: by 2002:a17:902:a81:: with SMTP id 1-v6mr2731728plp.20.1542728006678;
+        Tue, 20 Nov 2018 07:33:26 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542728006; cv=none;
+        d=google.com; s=arc-20160816;
+        b=JlTk6IER8mw8MTcl7U60fboQw2IseQcOlxiMCq9967i06Aop+7QSWVCK0PUWB5xfWH
+         520I8lV7UWV4i8AfnegGtgfteymcUdTL7V/9lTxP+nvGe3Db48HCrjbh/s72qqDjPIYb
+         ms34S4Tv51CzT3fAVtDild63SVfxTN52+7J9d4LO03XOoXJ45CCsN/PNDWHUxAG5kO5L
+         UgnFTfNqtM5m5SXPtOmq4JR2so0cPtK069P77G0oUJZLWVQuRPxI1TD6p0z20WAie5MX
+         +M5XmgsS/lA/yhFr5hyuK/h0z2qIlwxLY5HEkXCjOLbmhoqrgYSX6wBvt/Qiiyye510c
+         4NjQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:cc:to:subject:message-id:date:from
+         :references:in-reply-to:mime-version:dkim-signature;
+        bh=nYn0eSkygK3POJn29s57zRpQ7lasw9cwgc4bQS5emXY=;
+        b=cIyLiat3UIcK3BnHjTue98tVjBe3WskozPzJv/FeR8IIh/p4LI20qc2DfvleTbP2yI
+         9Es90gy3EQMz7P9LwsWkYJHJNibmQ0yxJpr6Lq33Bs7yFS2HAsekm8dfr4UtwG8p9bpK
+         /2ENK5XVfIfSu8c0ItUTk0dYuzJ/czqWo1pa4cS9PELjyCWWsRYTPQpNyyRPO342fJQ4
+         Z3cpAW6xbKZOIqJK7Qj4l7kDrjU91SFfXDuxqJmZyijwOVR53a24E8o5L4W2VmwK0qNS
+         ukuSyqtS9LCiloaKM66JuF8++yp+8ua13bpA0hEjhDwPArICKKE59rvRLhBx3Xjxo1mm
+         corA==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@linaro.org header.s=google header.b=UtXRehYD;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;
+       dmarc=pass (p=NONE sp=NONE dis=NONE) header.from=linaro.org
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id v6si36735217pgv.277.2018.11.20.07.33.12;
+        Tue, 20 Nov 2018 07:33:26 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1726554AbeKUBpZ (ORCPT <rfc822;alpcanarslan95@gmail.com>
+        + 99 others); Tue, 20 Nov 2018 20:45:25 -0500
+Received: from mail-oi1-f194.google.com ([209.85.167.194]:41457 "EHLO
+        mail-oi1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726108AbeKUBpZ (ORCPT <rfc822;kvm@vger.kernel.org>);
+        Tue, 20 Nov 2018 20:45:25 -0500
+Received: by mail-oi1-f194.google.com with SMTP id j21so1750679oii.8
+        for <kvm@vger.kernel.org>; Tue, 20 Nov 2018 07:15:47 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:in-reply-to:references:from:date:message-id:subject:to
+         :cc;
+        bh=nYn0eSkygK3POJn29s57zRpQ7lasw9cwgc4bQS5emXY=;
+        b=UtXRehYD9r3kMZ97i0GhFVv1stpBl5grV8ojYsaFK4huTPQ3yk1IK12kKl5QuCOiPp
+         BG0Go5UKGaPJ5EETOdPEPN8/qOkvoBTdkb2yR4RHK8poUKOgj4xTjEtGN2WX88oDYspU
+         NEdeD7VW7+Ds9/S/kD3FbiOzdUszHWDOwmo7I=
+X-Received: by 2002:aca:ed92:: with SMTP id l140mr1219154oih.112.1542726947183;
+ Tue, 20 Nov 2018 07:15:47 -0800 (PST)
+MIME-Version: 1.0
+Received: by 2002:a9d:4b0e:0:0:0:0:0 with HTTP; Tue, 20 Nov 2018 07:15:26
+ -0800 (PST)
+In-Reply-To: <1541672989-15967-11-git-send-email-gengdongjiu@huawei.com>
+References: <1541672989-15967-1-git-send-email-gengdongjiu@huawei.com> <1541672989-15967-11-git-send-email-gengdongjiu@huawei.com>
+From: Peter Maydell <peter.maydell@linaro.org>
+Date: Tue, 20 Nov 2018 15:15:26 +0000
+Message-ID: <CAFEAcA-6UKk-WF+M+z0=AN-X7q0XRFLo2RG_yBadDeCas4A5wQ@mail.gmail.com>
+Subject: Re: [PATCH RESEND v15 10/10] target-arm: kvm64: handle SIGBUS signal
+ from kernel or KVM
+To: Dongjiu Geng <gengdongjiu@huawei.com>
+Cc: Igor Mammedov <imammedo@redhat.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Laszlo Ersek <lersek@redhat.com>,
+        Marc Zyngier <marc.zyngier@arm.com>,
+        James Morse <james.morse@arm.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Marcelo Tosatti <mtosatti@redhat.com>,
+        Richard Henderson <rth@twiddle.net>,
+        Zheng Xiang <zhengxiang9@huawei.com>,
+        Eduardo Habkost <ehabkost@redhat.com>,
+        kvm-devel <kvm@vger.kernel.org>,
+        Shannon Zhao <shannon.zhaosl@gmail.com>,
+        QEMU Developers <qemu-devel@nongnu.org>,
+        qemu-arm <qemu-arm@nongnu.org>
+Content-Type: text/plain; charset="UTF-8"
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwAnDkpHKfRb39heAA--.233S3
+Authentication-Results: mail-app4; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW7KryUXF1xZryrKFWrWr13twb_yoW8Kw1xpF
+	W8XFn29rZYqry7KF1kGw1xua98CrWFkw17WFWYvryakan8u3sI93WkKrsrZFyrur18Aa1r
+	tF45u3Z8Kayqvr7anT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUvIb7Iv0xC_Cr1lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2
+	z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s0DM2AIxVAIcxkEcV
+	Aq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1j
+	6r18McIj6I8E87Iv67AKxVWxJVW8Jr1lOx8S6xCaFVCjc4AY6r1j6r4UMx02cVCv0xWlc7
+	CjxVAKzI0EY4vE52x082I5MxkI7II2jI8vz4vEwIxGrwCYIxAIcVC0I7IYx2IY67AKxVW5
+	JVW7JwCYIxAIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMxvI42IY6I8E87Iv67AKxVW0oV
+	Cq3wCYIxAIcVC2z280aVCY1x0267AKxVW0oVCq3wCF04k20xvY0x0EwIxGrwCF04k20xvE
+	w4C26cxK6c8Ij28IcwCF72vE77IF4wCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F4
+	0E14v26r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_GFv_Wryl
+	IxkGc2Ij64vIr41lIxAIcVCF04k26cxKx2IYs7xG6r4j6FyUYxBIdaVFxhVjvjDU0xZFpf
+	9x07jkwIDUUUUU=
+
+On 8 November 2018 at 10:29, Dongjiu Geng <gengdongjiu@huawei.com> wrote:
+> Add SIGBUS signal handler. In this handler, it checks the SIGBUS type,
+> translates the host VA delivered by host to guest PA, then fill this PA
+> to guest APEI GHES memory, then notify guest according to the SIGBUS type.
+> There are two kinds of SIGBUS that QEMU needs to handle, which are
+> BUS_MCEERR_AO and BUS_MCEERR_AR.
+>
+> If guest accesses the poisoned memory, it generates Synchronous External
+> Abort(SEA). Then host kernel gets an APEI notification and call memory_failure()
+> to unmapped the affected page from the guest's stage 2, finally return
+> to guest.
+>
+> Guest continues to access PG_hwpoison page, it will trap to KVM as stage2 fault,
+> then a SIGBUS_MCEERR_AR synchronous signal is delivered to Qemu, Qemu record this
+> error into guest APEI GHES memory and notify guest using Synchronous-External-Abort(SEA).
+>
+> Suggested-by: James Morse <james.morse@arm.com>
+> Signed-off-by: Dongjiu Geng <gengdongjiu@huawei.com>
+> ---
+> Address James's comments to record CPER and notify guest for SIGBUS signal handling.
+> Shown some discussion in [1].
+>
+> [1]:
+> https://lkml.org/lkml/2017/2/27/246
+> https://lkml.org/lkml/2017/9/14/241
+> https://lkml.org/lkml/2017/9/22/499
+> ---
+
+>
+> +void kvm_arch_on_sigbus_vcpu(CPUState *c, int code, void *addr)
+> +{
+> +    ram_addr_t ram_addr;
+> +    hwaddr paddr;
+> +
+> +    assert(code == BUS_MCEERR_AR || code == BUS_MCEERR_AO);
+> +    if (addr) {
+> +        ram_addr = qemu_ram_addr_from_host(addr);
+> +        if (ram_addr != RAM_ADDR_INVALID &&
+> +            kvm_physical_memory_addr_from_host(c->kvm_state, addr, &paddr)) {
+> +            kvm_hwpoison_page_add(ram_addr);
+> +            if (code == BUS_MCEERR_AR) {
+> +                kvm_cpu_synchronize_state(c);
+> +                if (ghes_record_errors(ACPI_HEST_NOTIFY_SEA, paddr)) {
+> +                    kvm_inject_arm_sea(c);
+> +                } else {
+> +                    fprintf(stderr, "failed to record the error\n");
+> +                }
+
+Shouldn't there be something in here to say "only report this
+error to the guest if we are actually reporting RAS errors
+to the guest" ?
+
+> +            }
+> +            return;
+> +        }
+> +        fprintf(stderr, "Hardware memory error for memory used by "
+> +                "QEMU itself instead of guest system!\n");
+> +    }
+> +
+> +    if (code == BUS_MCEERR_AR) {
+> +        fprintf(stderr, "Hardware memory error!\n");
+> +        exit(1);
+> +    }
+> +}
+> +
+>  /* C6.6.29 BRK instruction */
+>  static const uint32_t brk_insn = 0xd4200000;
+
+thanks
+-- PMM

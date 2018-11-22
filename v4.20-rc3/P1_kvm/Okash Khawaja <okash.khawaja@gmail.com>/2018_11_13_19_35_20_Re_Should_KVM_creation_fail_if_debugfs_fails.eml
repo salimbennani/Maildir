@@ -1,0 +1,192 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (61.164.42.155:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 13 Nov 2018 15:23:46 -0000
+Received: from icoremail.net (unknown [209.85.215.172])
+	by mail-app2 (Coremail) with SMTP id by_KCgCn39w1t+pbAM+FAQ--.39927S3;
+	Tue, 13 Nov 2018 19:36:22 +0800 (CST)
+Received: from mail-pg1-f172.google.com (unknown [209.85.215.172])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwBHKUUyt+pbFQs4AA--.14016S3;
+	Tue, 13 Nov 2018 19:36:18 +0800 (CST)
+Received: by mail-pg1-f172.google.com with SMTP id w3-v6so5546745pgs.11
+        for <xuliker@zju.edu.cn>; Tue, 13 Nov 2018 03:36:18 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:delivered-to:dkim-signature:mime-version
+         :references:in-reply-to:from:date:message-id:subject:to:cc:sender
+         :precedence:list-id;
+        bh=JEAt2IXMwSQp9/mdDVV5qXf8QIbQdEs2kWbCNiCZkpg=;
+        b=RhLW+cHNzyHVLVY6Z1gnCy7sAatw7SjGfKPTLyeTm0AKoFPjYcEQpp/OPKNJIOP01C
+         hVQwh9uSJ+0sGebVL6SEKU8FeRIFTXGM/dfQwmxQirpXwwFvVlU0ri6+wxteDXUTM1ue
+         IsWIfpJxiOPWDOZRoPNDpShGmArFsoAt6tiwAS/c2Jq2vrhxFc5Zoy5d8dpK2uoeG9uw
+         KXXbPxzg4N6S9oRGYwQ96qLOKnedIfmgZZ/bfxDB9BbjlhQbqBkk0H4IeQsO4xsvvD4F
+         WzUmwTIcCj/lk5vz50kZ1BhTV1JTLjIAiXIB+EzHQxD9hkHUqJ1s9nuYkoy9FcBt8Qkf
+         94Og==
+X-Gm-Message-State: AGRZ1gKo9CvcaRzzbsktImo+8FkBf40MnZif6VtFVNY/llESVjdIT51f
+	aWLy+w7oqYC8KtK1hjAvWZwWUdNN1qj+b7egEWBLvijOTlr7nSoTRQ==
+X-Received: by 2002:a63:2c0e:: with SMTP id s14mr4517225pgs.132.1542108978099;
+        Tue, 13 Nov 2018 03:36:18 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp4348468pjt;
+        Tue, 13 Nov 2018 03:36:17 -0800 (PST)
+X-Google-Smtp-Source: AJdET5d0RVcLY3cmls8Q+qPkFsyhhPU0dmpTYoMurZZZfCa4D3uuTJDQwKI1Q6J+SydgPMvmit9h
+X-Received: by 2002:a63:8f45:: with SMTP id r5mr4410603pgn.222.1542108977152;
+        Tue, 13 Nov 2018 03:36:17 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542108977; cv=none;
+        d=google.com; s=arc-20160816;
+        b=OIML7VhYgnb+rHS6sXTNmNEKehXWZyVjsy/36CpI7C7jOpsBJCsYfca0VhJo2uSdx6
+         uFS23RFaqX17bUoyW+AEoWUQrFnVwBwu94rIGCAsry0+FJo8JY/fdovwsDQg+U6mSQJO
+         Dr5/p8QWNiMRgRtuY6TqSzHRWC/lDxU5FcMl+eZpWVGLsQWx1kp9h/HVAiWtP1oDTt1/
+         DjNQ1/nZztlckoI19JNHdkvpWhKXy4N7dkbUpqkAMop+W8RgBOPE80F1GbZWfgOVZam/
+         EGojjU5G2b38ssJweyYAVjs27zgQ+d2ufBUzjBtTV/GTGf1ldUKX2jtNOn5ereCc93cH
+         pnuA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=JEAt2IXMwSQp9/mdDVV5qXf8QIbQdEs2kWbCNiCZkpg=;
+        b=qV0v/vYzsxmd+LFm1UIgPzqqDjDFgdGLi2qBkmTdrXbHP4Akm0Lj21Nq/dgVcr1W40
+         xyzwS3Wt2Dpo9UB0nRbsWMGu6qxXyVp4YtzaLLV9rIFQNl3WblrYP+BRAND2P6/ZQz/j
+         E19eRnrJxAjDohya1761Pum8WMlWuT2zGbkOTB6mr5JYEe9+YKBsL1mu61NgmACceTeJ
+         vwf12Vr8pby3eSXUigBytAFC06Rn1REEsUI2zwzCTlT1Ng5xYDvV5LolVvaUPAGlhljN
+         N+MpxR4qAq0bk6Yfn/752zKbxWN6luPjejxGXg9s4hHz8rTUt4xCqZtE/uZyXI5gAJgX
+         sp/w==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@gmail.com header.s=20161025 header.b=amb94XlU;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;
+       dmarc=pass (p=NONE sp=QUARANTINE dis=NONE) header.from=gmail.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id y5-v6si19699173pgs.31.2018.11.13.03.35.52;
+        Tue, 13 Nov 2018 03:36:17 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1732492AbeKMVdR (ORCPT <rfc822;fanshuming2011@gmail.com>
+        + 99 others); Tue, 13 Nov 2018 16:33:17 -0500
+Received: from mail-oi1-f196.google.com ([209.85.167.196]:46182 "EHLO
+        mail-oi1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1732475AbeKMVdQ (ORCPT <rfc822;kvm@vger.kernel.org>);
+        Tue, 13 Nov 2018 16:33:16 -0500
+Received: by mail-oi1-f196.google.com with SMTP id e19-v6so9959953oii.13
+        for <kvm@vger.kernel.org>; Tue, 13 Nov 2018 03:35:33 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=JEAt2IXMwSQp9/mdDVV5qXf8QIbQdEs2kWbCNiCZkpg=;
+        b=amb94XlUm9MYllSPPBBYSh7WtT5eCPJJuIJnZkT7VwY/osZ8LEzipGuXx+Os5g9sWo
+         khaor2dnSpCuCBzcpVs/ZFBlY/UQrSOyYjQ7BKYdMpS17Vuh+PvNLvnUzICNzppswS6e
+         uyErsLnLBWnnp7TEig0I7WCBy2TwxaOfMzW/1HKQ2AouxkEhMVDB7e1PEQ1KZKDvZLnD
+         bKf1LVVjMXCfwprt8G0PwkdtfpKBCNKXRUoMbC8D39CoHbxLzyPvowXCmk2ccXT0C+c4
+         /8wgJyRWXRyeRfjlh1PiVEDbICM73zSQCQZS2Owk8rxTxq7xpv8bLxpNlwLLPoLHcQo/
+         nNSA==
+X-Received: by 2002:aca:5003:: with SMTP id e3-v6mr2563352oib.111.1542108932497;
+ Tue, 13 Nov 2018 03:35:32 -0800 (PST)
+MIME-Version: 1.0
+References: <CAOtcWM0BC1kvseu-rCP9oZYkQ1MmJOhzCEEd3zuR1f8M4k26Eg@mail.gmail.com>
+ <CAOtcWM1iqBE5Rdmvysv4WjM8oFYZE7ZErOSVGb1Nqjfo7DVHgA@mail.gmail.com> <7be961d1-cee1-caf5-9d4f-73f41f16b5f7@redhat.com>
+In-Reply-To: <7be961d1-cee1-caf5-9d4f-73f41f16b5f7@redhat.com>
+From: Okash Khawaja <okash.khawaja@gmail.com>
+Date: Tue, 13 Nov 2018 11:35:20 +0000
+Message-ID: <CAOtcWM3RJGhSRTHnY4oF6FaMvYU8-Jnidbqd9RfOCTPuit8UfA@mail.gmail.com>
+Subject: Re: Should KVM creation fail if debugfs fails?
+To: david@redhat.com
+Cc: kvm@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwBHKUUyt+pbFQs4AA--.14016S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoWxCryxJFWxWF4xtF4rZw1xuFg_yoW5Xw1rp3
+	y8G3W5KryUG343CrZIkr40gr1rtayxWr4UXryj9r98ur9xArnYyFWfGrW7CFZ7uF98Cw17
+	WFW8tFy3Kwn0ka7anT9S1TB71UUUUUUqnTZGkaVYY2UrUUUU0bIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUPFb7Iv0xC_Kw4lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2
+	z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s0DM2AIxVAIcxkEcV
+	Aq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r10
+	6r15McIj6I8E87Iv67AKxVW8JVWxJwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IY64vIr4
+	1l7I0Y6sxI4wCY1x0264kExVAvwVAq07x20xylc7Ca8VAvwVCFzxkY4VCF77xAMxkIecxE
+	wVCI4VW8KwCY0x0Ix7I2Y4AK64vIr41lcIIF0xvE2Ix0cI8IcVAFwI0_Gr0_Xr1lcIIF0x
+	vE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwCYIxAIcVC2z280aVAFwI0_Cr1j6rxdMxvI42IY
+	6I8E87Iv6xkF7I0E14v26F4UJVW0owCF04k20xvY0x0EwIxGrwCF04k20xvEw4C26cxK6c
+	8Ij28IcwCF72vE77IF4wCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v26r1j
+	6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_Jrv_JF1lIxkGc2Ij64
+	vIr41lIxAIcVCF04k26cxKx2IYs7xG6Fyj6rWUJbIYCTnIWIevJa73UjIFyTuYvjxUQPfH
+	UUUUU
+
+On Tue, Nov 13, 2018 at 9:48 AM David Hildenbrand <david@redhat.com> wrote:
+>
+> On 02.11.18 11:10, Okash Khawaja wrote:
+> > On Wed, Oct 31, 2018 at 1:17 AM Okash Khawaja <okash.khawaja@gmail.com> wrote:
+> >>
+> >> Hi,
+> >>
+> >> Apologies if this has already been discussed but hasn't crossed my
+> >> eyes. It seems that KVM_CREATE_VM ioctl will fail with -ENOMEM if the
+> >> call to kvm_create_vm_debugfs() returns negative value. Is debugfs
+> >> essential for KVM operation?
+> >>
+> >> I came across this when testing with a bpf-next kernel I manually
+> >> compiled, from around v4.17. Creating a VM from QEMU threw following
+> >> error:
+> >>
+> >> ioctl(KVM_CREATE_VM) failed: 12 Cannot allocate memory
+> >>
+> >> Running 4.19.0 kernel fixed the problem. Please note that
+> >> kvm_create_vm_debugfs() would not fail if debugfs hasn't been
+> >> registered at all.
+> >>
+> >> Thanks,
+> >> Okash
+> >
+> > `kvm_create_vm_debugfs()` currently fails only if it fails to allocate
+> > memory so in a way it does make sense that KVM_CREATE_VM ioctl fails
+> > with -ENOMEM. However, failing to create VM because debugfs failed
+> > doesn't seem optimal to me. For example, let's say we change
+> > `kvm_create_vm_debugfs()` to add more error exit conditions which
+> > aren't memory allocation related, then still the ioctl will fail with
+> > -ENOMEM, unless we change the calling code to check return value of
+> > `kvm_create_vm_debugfs()`. Also, if the memory pressure is transient
+> > and `kvm_create_vm_debugfs()` fails because of that, the whole VM
+> > creation shouldn't fail. But most importantly, since VM debugfs stat
+> > isn't necessary for VM to function, VM creation shouldn't fail.
+>
+> It's okay to ignore corner cases if it makes life easier (e.g. handling
+> debugfs created or not when tearing down a VM).
+
+Thank you for getting back :) Actually this is when we are creating a
+VM. Basically VM creation fails with -ENOMEM when debugfs creation
+fails:
+
+        if (kvm_create_vm_debugfs(kvm, r) < 0) {
+                put_unused_fd(r);
+                fput(file);
+                return -ENOMEM;
+        }
+>
+> >
+> > Please correct me if I'm wrong with my reasoning above. Ultimately, we
+> > should check errors in `kvm_create_vm_debugfs()` and clean up files
+> > and directories if needed and not fail KVM_CREATE_VM ioctl. If this
+> > makes sense, I can put together a patch :)
+> >
+>
+> Is this really worth investing time and effort?
+>
+> Why I am asking: Your kernel cannot even allocate memory for debugfs.
+> How are you supposed to do anything with that VM? Maybe you cannot even
+> create a VCPU. Maybe the OOM killer will zap your process. Is there any
+> reasonable setup where this would be expected to work?
+>
+> "memory pressure is transient" is not a convincing argument. This sounds
+> like a broken setup to me.
+>
+> --
+>
+> Thanks,
+>
+> David / dhildenb

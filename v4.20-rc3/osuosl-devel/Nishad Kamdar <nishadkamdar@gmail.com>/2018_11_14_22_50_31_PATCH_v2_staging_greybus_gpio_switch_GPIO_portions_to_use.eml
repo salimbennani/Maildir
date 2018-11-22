@@ -1,0 +1,495 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 15 Nov 2018 00:40:51 -0000
+Received: from icoremail.net (unknown [209.85.210.170])
+	by mail-app2 (Coremail) with SMTP id by_KCgDXv0KYNuxbVe6QAQ--.42751S3;
+	Wed, 14 Nov 2018 22:52:09 +0800 (CST)
+Received: from mail-pf1-f170.google.com (unknown [209.85.210.170])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwBnTEiSNuxbliM_AA--.3122S3;
+	Wed, 14 Nov 2018 22:52:03 +0800 (CST)
+Received: by mail-pf1-f170.google.com with SMTP id b85so1211577pfc.3
+        for <xuliker@zju.edu.cn>; Wed, 14 Nov 2018 06:52:02 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:delivered-to:dkim-signature:date:from:to:cc
+         :subject:message-id:mime-version:content-disposition:user-agent
+         :sender:precedence:list-id;
+        bh=Q5lVi/XKX9zwzxhleNmQKYQrpga+xqbiNMbCQQIONjA=;
+        b=nUwfAAXgbsItPvKHJ2Jcd4DEclmGgrolJemyG6LcCJM7cNDMowUVH03QmUzEzsrMnI
+         4gN5m0py5m3dv3WQwmtARE/Fpm8joCXZskYy6o2rfausrQidqfCvUYgYZm9DdaZQjaax
+         hGQINMVLZVUnuTKfzFwZj8O/+JVcrpLcTuLA71SYWUg85y2TDQgM3L0wIk2YDlsw5ve4
+         qft2LnJeSu5/3EKhL6WLbc3OjamGWI2gF8QS3hi7faOwPIwm195DAa9ab/GTt4+pi3KC
+         7m1S6gTQM0dF4m8hZVG69wpJXM/95i1w6mx9fZfUnnIVqLDElAHKAjBpgoXfbDnuUfx2
+         sHYA==
+X-Gm-Message-State: AGRZ1gIZI7I/Vh24BRjD+Y0iJlRf0LSjtVh+5G5pGqOfrEdfNAH7tZUS
+	e4Mk54OrlZhLqkJmRzcaa/1oScwSCJDouI9SWwY8E2OMPc701l1gfA==
+X-Received: by 2002:a62:ab0d:: with SMTP id p13mr1725251pff.211.1542207122644;
+        Wed, 14 Nov 2018 06:52:02 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp5902964pjt;
+        Wed, 14 Nov 2018 06:52:01 -0800 (PST)
+X-Google-Smtp-Source: AJdET5eqOKQa20j9U/hiA8A9puu4nqRd0ux/Yde5UBoxz9OgYCwC2oPN59drB3SeDjGxgu1eYsse
+X-Received: by 2002:a62:7e93:: with SMTP id z141mr1039959pfc.239.1542207121396;
+        Wed, 14 Nov 2018 06:52:01 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542207121; cv=none;
+        d=google.com; s=arc-20160816;
+        b=JemsCxpGtQrZu8QdiWxEQmat2ahnHGpv6IYSRgv/++OV12fA4R3iIYBC8JtyKNvaGY
+         CRM1xRL8dBCsYZ58YhUhxHj9vjqkqJaw/nwQxTntV+H4FRUbWVQhHpX3QSoc8vi/rEJS
+         LHgm3q4VttkpyVQqHmrEkMYrpBQW42mAz3OEdF3+e+VzZjRdbEjGp7SQ4LgAb7prICcI
+         ZaMHovOHwIeKVktbX4ZQzqC+kXxD0d0RcdVEugnSdxbaqanm+ZMsNxEe/ivU1fdvP1Bo
+         zBcxlvkb8S05nKvR51op1gz9oY477M7eQQiCUSH6yipcXXVfRA7EFCw6Uv8Lfnh7xdcH
+         gpsA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:user-agent:content-disposition
+         :mime-version:message-id:subject:cc:to:from:date:dkim-signature;
+        bh=Q5lVi/XKX9zwzxhleNmQKYQrpga+xqbiNMbCQQIONjA=;
+        b=ercaXyaXrGVSjR6dDtAYAUx+YlhCLZwgDB4YRSFiLmZ8LMeH9QCukLtb7nyMpSciIk
+         Lr+lb+0Xd5vW3TEJ6Cb7qjDgzrywcqRAijcYWq3gh18V+eqkyztUGpE2umrjfbRYboHq
+         euvg0jK2Pz0Ugobx+u96U0w71UEEf5L0ZJPbiazzWQETbF/LeJHAi8/IH1fwBKKIJAVN
+         gT2sVJwXIj6uzBFq+TJH00wU7qhf52Z52C0NZJm4dC2FsaRWfkNch4nIyPZZqN/t0SeX
+         6XbiB6pOYnW2/UrTddpKrMPAmzP0BuFW05xyp537EAxjNRgEWPu0Uz9Mkc4YvGZrYK+q
+         ra0w==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@gmail.com header.s=20161025 header.b=D21qEKe4;
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;
+       dmarc=pass (p=NONE sp=QUARANTINE dis=NONE) header.from=gmail.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id z11-v6si23756257plk.90.2018.11.14.06.51.45;
+        Wed, 14 Nov 2018 06:52:01 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1733049AbeKOAyL (ORCPT <rfc822;docz2a@gmail.com> + 99 others);
+        Wed, 14 Nov 2018 19:54:11 -0500
+Received: from mail-pg1-f196.google.com ([209.85.215.196]:36188 "EHLO
+        mail-pg1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727952AbeKOAyL (ORCPT
+        <rfc822;linux-kernel@vger.kernel.org>);
+        Wed, 14 Nov 2018 19:54:11 -0500
+Received: by mail-pg1-f196.google.com with SMTP id n2so298252pgm.3
+        for <linux-kernel@vger.kernel.org>; Wed, 14 Nov 2018 06:50:38 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:mime-version:content-disposition
+         :user-agent;
+        bh=Q5lVi/XKX9zwzxhleNmQKYQrpga+xqbiNMbCQQIONjA=;
+        b=D21qEKe4ayTMkBeOP+ZIveUI1YFOplt0Ycit58+wTb5p3m8MtgyeXNdtBvduBL799w
+         rCq0jvjJWh04Dw6JsyEv1pjbCpHC3TtMiS4Vy2XLeM2mR5KKIhcYSwXxPH14hoJyIl+6
+         d8finTpY/Ly9V1zlFFKlwmb26YhPNm1mYT6+pWVykW2HYUOoeb1BnwpLW6HLE8yv0ZvC
+         QQPYecox7bGzBqrdKSfegsgU22zmLnhIgKm07OFdiAabHKKuieSK3ylBo3NqHOA8p4+N
+         xYLkWgThSQcuVOHZtmPhshboYnLlb8XFdB1n5YUxgVG/+oBW5AJjow3yaEIxx8Q/TtE5
+         V/Cg==
+X-Received: by 2002:a63:fa46:: with SMTP id g6mr2054319pgk.18.1542207038229;
+        Wed, 14 Nov 2018 06:50:38 -0800 (PST)
+Received: from nishad ([106.51.27.228])
+        by smtp.gmail.com with ESMTPSA id 4sm20918724pfq.10.2018.11.14.06.50.35
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Wed, 14 Nov 2018 06:50:37 -0800 (PST)
+Date: Wed, 14 Nov 2018 20:20:31 +0530
+From: Nishad Kamdar <nishadkamdar@gmail.com>
+To: Johan Hovold <johan@kernel.org>, Alex Elder <elder@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Rui Miguel Silva <rmfrfs@gmail.com>, greybus-dev@lists.linaro.org,
+        devel@driverdev.osuosl.org, linux-kernel@vger.kernel.org
+Subject: [PATCH v2] staging: greybus: gpio: switch GPIO portions to use
+ GPIOLIB_IRQCHIP
+Message-ID: <20181114145027.GA15851@nishad>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.9.4 (2018-02-28)
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwBnTEiSNuxbliM_AA--.3122S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvAXoW3tw1Uuw4UKr4fKFW3AF1UWrg_yoW8Gr13Ao
+	WfGrykZrWfJw17A3y7KF1vyF45Z3s7t3W8ArnYkrsYkasrAa9rKw47G3W3ua43X3W5GF47
+	tF18Cw13Wr17tF47n29KB7ZKAUJUUUUU529EdanIXcx71UUUUj7v73VFW2AGmfu7jjvjm3
+	AaLaJ3UjIYCTnIWjp_UUUOb7k0a2IF6w4kM7kC6x804xWl14x267AKxVWUJVW8JwAFIxvE
+	14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK021l84ACjcxK6xIIjx
+	v20xvE14v26F1j6w1UM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26r4j6F4UM28EF7xvwVC2
+	z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s0DM2AIxVAIcxkEcV
+	Aq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1j
+	6r18McIj6I8E87Iv67AKxVW8JVWxJwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IY64vIr4
+	1l7I0Y6sxI4wCY1x0264kExVAvwVAq07x20xylc7Ca8VAvwVCFzxkY4VCF77xAMxkIecxE
+	wVCI4VW5XwCY0x0Ix7I2Y4AK64vIr41lcIIF0xvE2Ix0cI8IcVAFwI0_Gr0_Xr1lcIIF0x
+	vE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwCYIxAIcVC2z280aVAFwI0_Cr1j6rxdMxvI42IY
+	6I8E87Iv6xkF7I0E14v26F4UJVW0owCF04k20xvY0x0EwIxGrwCF04k20xvEw4C26cxK6c
+	8Ij28IcwCF72vE77IF4wCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v26r1j
+	6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_Jw0_GFylIxkGc2Ij64
+	vIr41lIxAIcVCF04k26cxKx2IYs7xG6Fyj6rWUJbIYCTnIWIevJa73UjIFyTuYvjxUQWv3
+	DUUUU
+
+Convert the GPIO driver to use the GPIO irqchip library
+GPIOLIB_IRQCHIP instead of reimplementing the same.
+
+Signed-off-by: Nishad Kamdar <nishadkamdar@gmail.com>
+---
+Changes in v2:
+ - Retained irq.h and irqdomain.h headers.
+ - Dropped function gb_gpio_irqchip_add() and
+   called gpiochip_irqchip_add() from probe().
+ - Referred https://lkml.kernel.org/r/1476054589-28422-1-git-send-email-linus.walleij@linaro.org.
+---
+ drivers/staging/greybus/Kconfig |   1 +
+ drivers/staging/greybus/gpio.c  | 184 ++++----------------------------
+ 2 files changed, 24 insertions(+), 161 deletions(-)
+
+diff --git a/drivers/staging/greybus/Kconfig b/drivers/staging/greybus/Kconfig
+index ab096bcef98c..b571e4e8060b 100644
+--- a/drivers/staging/greybus/Kconfig
++++ b/drivers/staging/greybus/Kconfig
+@@ -148,6 +148,7 @@ if GREYBUS_BRIDGED_PHY
+ config GREYBUS_GPIO
+ 	tristate "Greybus GPIO Bridged PHY driver"
+ 	depends on GPIOLIB
++	select GPIOLIB_IRQCHIP
+ 	---help---
+ 	  Select this option if you have a device that follows the
+ 	  Greybus GPIO Bridged PHY Class specification.
+diff --git a/drivers/staging/greybus/gpio.c b/drivers/staging/greybus/gpio.c
+index b1d4698019a1..2ec54744171d 100644
+--- a/drivers/staging/greybus/gpio.c
++++ b/drivers/staging/greybus/gpio.c
+@@ -9,9 +9,9 @@
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+ #include <linux/slab.h>
+-#include <linux/gpio.h>
+ #include <linux/irq.h>
+ #include <linux/irqdomain.h>
++#include <linux/gpio/driver.h>
+ #include <linux/mutex.h>
+ 
+ #include "greybus.h"
+@@ -39,15 +39,8 @@ struct gb_gpio_controller {
+ 
+ 	struct gpio_chip	chip;
+ 	struct irq_chip		irqc;
+-	struct irq_chip		*irqchip;
+-	struct irq_domain	*irqdomain;
+-	unsigned int		irq_base;
+-	irq_flow_handler_t	irq_handler;
+-	unsigned int		irq_default_type;
+ 	struct mutex		irq_lock;
+ };
+-#define gpio_chip_to_gb_gpio_controller(chip) \
+-	container_of(chip, struct gb_gpio_controller, chip)
+ #define irq_data_to_gpio_chip(d) (d->domain->host_data)
+ 
+ static int gb_gpio_line_count_operation(struct gb_gpio_controller *ggc)
+@@ -276,7 +269,7 @@ static void _gb_gpio_irq_set_type(struct gb_gpio_controller *ggc,
+ static void gb_gpio_irq_mask(struct irq_data *d)
+ {
+ 	struct gpio_chip *chip = irq_data_to_gpio_chip(d);
+-	struct gb_gpio_controller *ggc = gpio_chip_to_gb_gpio_controller(chip);
++	struct gb_gpio_controller *ggc = gpiochip_get_data(chip);
+ 	struct gb_gpio_line *line = &ggc->lines[d->hwirq];
+ 
+ 	line->masked = true;
+@@ -286,7 +279,7 @@ static void gb_gpio_irq_mask(struct irq_data *d)
+ static void gb_gpio_irq_unmask(struct irq_data *d)
+ {
+ 	struct gpio_chip *chip = irq_data_to_gpio_chip(d);
+-	struct gb_gpio_controller *ggc = gpio_chip_to_gb_gpio_controller(chip);
++	struct gb_gpio_controller *ggc = gpiochip_get_data(chip);
+ 	struct gb_gpio_line *line = &ggc->lines[d->hwirq];
+ 
+ 	line->masked = false;
+@@ -296,7 +289,7 @@ static void gb_gpio_irq_unmask(struct irq_data *d)
+ static int gb_gpio_irq_set_type(struct irq_data *d, unsigned int type)
+ {
+ 	struct gpio_chip *chip = irq_data_to_gpio_chip(d);
+-	struct gb_gpio_controller *ggc = gpio_chip_to_gb_gpio_controller(chip);
++	struct gb_gpio_controller *ggc = gpiochip_get_data(chip);
+ 	struct gb_gpio_line *line = &ggc->lines[d->hwirq];
+ 	struct device *dev = &ggc->gbphy_dev->dev;
+ 	u8 irq_type;
+@@ -334,7 +327,7 @@ static int gb_gpio_irq_set_type(struct irq_data *d, unsigned int type)
+ static void gb_gpio_irq_bus_lock(struct irq_data *d)
+ {
+ 	struct gpio_chip *chip = irq_data_to_gpio_chip(d);
+-	struct gb_gpio_controller *ggc = gpio_chip_to_gb_gpio_controller(chip);
++	struct gb_gpio_controller *ggc = gpiochip_get_data(chip);
+ 
+ 	mutex_lock(&ggc->irq_lock);
+ }
+@@ -342,7 +335,7 @@ static void gb_gpio_irq_bus_lock(struct irq_data *d)
+ static void gb_gpio_irq_bus_sync_unlock(struct irq_data *d)
+ {
+ 	struct gpio_chip *chip = irq_data_to_gpio_chip(d);
+-	struct gb_gpio_controller *ggc = gpio_chip_to_gb_gpio_controller(chip);
++	struct gb_gpio_controller *ggc = gpiochip_get_data(chip);
+ 	struct gb_gpio_line *line = &ggc->lines[d->hwirq];
+ 
+ 	if (line->irq_type_pending) {
+@@ -391,7 +384,7 @@ static int gb_gpio_request_handler(struct gb_operation *op)
+ 		return -EINVAL;
+ 	}
+ 
+-	irq = irq_find_mapping(ggc->irqdomain, event->which);
++	irq = irq_find_mapping(ggc->chip.irq.domain, event->which);
+ 	if (!irq) {
+ 		dev_err(dev, "failed to find IRQ\n");
+ 		return -EINVAL;
+@@ -411,21 +404,21 @@ static int gb_gpio_request_handler(struct gb_operation *op)
+ 
+ static int gb_gpio_request(struct gpio_chip *chip, unsigned int offset)
+ {
+-	struct gb_gpio_controller *ggc = gpio_chip_to_gb_gpio_controller(chip);
++	struct gb_gpio_controller *ggc = gpiochip_get_data(chip);
+ 
+ 	return gb_gpio_activate_operation(ggc, (u8)offset);
+ }
+ 
+ static void gb_gpio_free(struct gpio_chip *chip, unsigned int offset)
+ {
+-	struct gb_gpio_controller *ggc = gpio_chip_to_gb_gpio_controller(chip);
++	struct gb_gpio_controller *ggc = gpiochip_get_data(chip);
+ 
+ 	gb_gpio_deactivate_operation(ggc, (u8)offset);
+ }
+ 
+ static int gb_gpio_get_direction(struct gpio_chip *chip, unsigned int offset)
+ {
+-	struct gb_gpio_controller *ggc = gpio_chip_to_gb_gpio_controller(chip);
++	struct gb_gpio_controller *ggc = gpiochip_get_data(chip);
+ 	u8 which;
+ 	int ret;
+ 
+@@ -439,7 +432,7 @@ static int gb_gpio_get_direction(struct gpio_chip *chip, unsigned int offset)
+ 
+ static int gb_gpio_direction_input(struct gpio_chip *chip, unsigned int offset)
+ {
+-	struct gb_gpio_controller *ggc = gpio_chip_to_gb_gpio_controller(chip);
++	struct gb_gpio_controller *ggc = gpiochip_get_data(chip);
+ 
+ 	return gb_gpio_direction_in_operation(ggc, (u8)offset);
+ }
+@@ -447,14 +440,14 @@ static int gb_gpio_direction_input(struct gpio_chip *chip, unsigned int offset)
+ static int gb_gpio_direction_output(struct gpio_chip *chip, unsigned int offset,
+ 				    int value)
+ {
+-	struct gb_gpio_controller *ggc = gpio_chip_to_gb_gpio_controller(chip);
++	struct gb_gpio_controller *ggc = gpiochip_get_data(chip);
+ 
+ 	return gb_gpio_direction_out_operation(ggc, (u8)offset, !!value);
+ }
+ 
+ static int gb_gpio_get(struct gpio_chip *chip, unsigned int offset)
+ {
+-	struct gb_gpio_controller *ggc = gpio_chip_to_gb_gpio_controller(chip);
++	struct gb_gpio_controller *ggc = gpiochip_get_data(chip);
+ 	u8 which;
+ 	int ret;
+ 
+@@ -468,7 +461,7 @@ static int gb_gpio_get(struct gpio_chip *chip, unsigned int offset)
+ 
+ static void gb_gpio_set(struct gpio_chip *chip, unsigned int offset, int value)
+ {
+-	struct gb_gpio_controller *ggc = gpio_chip_to_gb_gpio_controller(chip);
++	struct gb_gpio_controller *ggc = gpiochip_get_data(chip);
+ 
+ 	gb_gpio_set_value_operation(ggc, (u8)offset, !!value);
+ }
+@@ -476,7 +469,7 @@ static void gb_gpio_set(struct gpio_chip *chip, unsigned int offset, int value)
+ static int gb_gpio_set_config(struct gpio_chip *chip, unsigned int offset,
+ 			      unsigned long config)
+ {
+-	struct gb_gpio_controller *ggc = gpio_chip_to_gb_gpio_controller(chip);
++	struct gb_gpio_controller *ggc = gpiochip_get_data(chip);
+ 	u32 debounce;
+ 
+ 	if (pinconf_to_config_param(config) != PIN_CONFIG_INPUT_DEBOUNCE)
+@@ -506,135 +499,6 @@ static int gb_gpio_controller_setup(struct gb_gpio_controller *ggc)
+ 	return ret;
+ }
+ 
+-/**
+- * gb_gpio_irq_map() - maps an IRQ into a GB gpio irqchip
+- * @d: the irqdomain used by this irqchip
+- * @irq: the global irq number used by this GB gpio irqchip irq
+- * @hwirq: the local IRQ/GPIO line offset on this GB gpio
+- *
+- * This function will set up the mapping for a certain IRQ line on a
+- * GB gpio by assigning the GB gpio as chip data, and using the irqchip
+- * stored inside the GB gpio.
+- */
+-static int gb_gpio_irq_map(struct irq_domain *domain, unsigned int irq,
+-			   irq_hw_number_t hwirq)
+-{
+-	struct gpio_chip *chip = domain->host_data;
+-	struct gb_gpio_controller *ggc = gpio_chip_to_gb_gpio_controller(chip);
+-
+-	irq_set_chip_data(irq, ggc);
+-	irq_set_chip_and_handler(irq, ggc->irqchip, ggc->irq_handler);
+-	irq_set_noprobe(irq);
+-	/*
+-	 * No set-up of the hardware will happen if IRQ_TYPE_NONE
+-	 * is passed as default type.
+-	 */
+-	if (ggc->irq_default_type != IRQ_TYPE_NONE)
+-		irq_set_irq_type(irq, ggc->irq_default_type);
+-
+-	return 0;
+-}
+-
+-static void gb_gpio_irq_unmap(struct irq_domain *d, unsigned int irq)
+-{
+-	irq_set_chip_and_handler(irq, NULL, NULL);
+-	irq_set_chip_data(irq, NULL);
+-}
+-
+-static const struct irq_domain_ops gb_gpio_domain_ops = {
+-	.map	= gb_gpio_irq_map,
+-	.unmap	= gb_gpio_irq_unmap,
+-};
+-
+-/**
+- * gb_gpio_irqchip_remove() - removes an irqchip added to a gb_gpio_controller
+- * @ggc: the gb_gpio_controller to remove the irqchip from
+- *
+- * This is called only from gb_gpio_remove()
+- */
+-static void gb_gpio_irqchip_remove(struct gb_gpio_controller *ggc)
+-{
+-	unsigned int offset;
+-
+-	/* Remove all IRQ mappings and delete the domain */
+-	if (ggc->irqdomain) {
+-		for (offset = 0; offset < (ggc->line_max + 1); offset++)
+-			irq_dispose_mapping(irq_find_mapping(ggc->irqdomain,
+-							     offset));
+-		irq_domain_remove(ggc->irqdomain);
+-	}
+-
+-	if (ggc->irqchip)
+-		ggc->irqchip = NULL;
+-}
+-
+-/**
+- * gb_gpio_irqchip_add() - adds an irqchip to a gpio chip
+- * @chip: the gpio chip to add the irqchip to
+- * @irqchip: the irqchip to add to the adapter
+- * @first_irq: if not dynamically assigned, the base (first) IRQ to
+- * allocate gpio irqs from
+- * @handler: the irq handler to use (often a predefined irq core function)
+- * @type: the default type for IRQs on this irqchip, pass IRQ_TYPE_NONE
+- * to have the core avoid setting up any default type in the hardware.
+- *
+- * This function closely associates a certain irqchip with a certain
+- * gpio chip, providing an irq domain to translate the local IRQs to
+- * global irqs, and making sure that the gpio chip
+- * is passed as chip data to all related functions. Driver callbacks
+- * need to use container_of() to get their local state containers back
+- * from the gpio chip passed as chip data. An irqdomain will be stored
+- * in the gpio chip that shall be used by the driver to handle IRQ number
+- * translation. The gpio chip will need to be initialized and registered
+- * before calling this function.
+- */
+-static int gb_gpio_irqchip_add(struct gpio_chip *chip,
+-			 struct irq_chip *irqchip,
+-			 unsigned int first_irq,
+-			 irq_flow_handler_t handler,
+-			 unsigned int type)
+-{
+-	struct gb_gpio_controller *ggc;
+-	unsigned int offset;
+-	unsigned int irq_base;
+-
+-	if (!chip || !irqchip)
+-		return -EINVAL;
+-
+-	ggc = gpio_chip_to_gb_gpio_controller(chip);
+-
+-	ggc->irqchip = irqchip;
+-	ggc->irq_handler = handler;
+-	ggc->irq_default_type = type;
+-	ggc->irqdomain = irq_domain_add_simple(NULL,
+-					ggc->line_max + 1, first_irq,
+-					&gb_gpio_domain_ops, chip);
+-	if (!ggc->irqdomain) {
+-		ggc->irqchip = NULL;
+-		return -EINVAL;
+-	}
+-
+-	/*
+-	 * Prepare the mapping since the irqchip shall be orthogonal to
+-	 * any gpio calls. If the first_irq was zero, this is
+-	 * necessary to allocate descriptors for all IRQs.
+-	 */
+-	for (offset = 0; offset < (ggc->line_max + 1); offset++) {
+-		irq_base = irq_create_mapping(ggc->irqdomain, offset);
+-		if (offset == 0)
+-			ggc->irq_base = irq_base;
+-	}
+-
+-	return 0;
+-}
+-
+-static int gb_gpio_to_irq(struct gpio_chip *chip, unsigned int offset)
+-{
+-	struct gb_gpio_controller *ggc = gpio_chip_to_gb_gpio_controller(chip);
+-
+-	return irq_find_mapping(ggc->irqdomain, offset);
+-}
+-
+ static int gb_gpio_probe(struct gbphy_device *gbphy_dev,
+ 			 const struct gbphy_device_id *id)
+ {
+@@ -693,7 +557,6 @@ static int gb_gpio_probe(struct gbphy_device *gbphy_dev,
+ 	gpio->get = gb_gpio_get;
+ 	gpio->set = gb_gpio_set;
+ 	gpio->set_config = gb_gpio_set_config;
+-	gpio->to_irq = gb_gpio_to_irq;
+ 	gpio->base = -1;		/* Allocate base dynamically */
+ 	gpio->ngpio = ggc->line_max + 1;
+ 	gpio->can_sleep = true;
+@@ -702,24 +565,24 @@ static int gb_gpio_probe(struct gbphy_device *gbphy_dev,
+ 	if (ret)
+ 		goto exit_line_free;
+ 
+-	ret = gb_gpio_irqchip_add(gpio, irqc, 0,
+-				   handle_level_irq, IRQ_TYPE_NONE);
++	ret = gpiochip_add(gpio);
+ 	if (ret) {
+-		dev_err(&gbphy_dev->dev, "failed to add irq chip: %d\n", ret);
++		dev_err(&gbphy_dev->dev, "failed to add gpio chip: %d\n", ret);
+ 		goto exit_line_free;
+ 	}
+ 
+-	ret = gpiochip_add(gpio);
++	ret = gpiochip_irqchip_add(gpio, irqc, 0, handle_level_irq,
++				   IRQ_TYPE_NONE);
+ 	if (ret) {
+-		dev_err(&gbphy_dev->dev, "failed to add gpio chip: %d\n", ret);
+-		goto exit_gpio_irqchip_remove;
++		dev_err(&gbphy_dev->dev, "failed to add irq chip: %d\n", ret);
++		goto exit_gpiochip_remove;
+ 	}
+ 
+ 	gbphy_runtime_put_autosuspend(gbphy_dev);
+ 	return 0;
+ 
+-exit_gpio_irqchip_remove:
+-	gb_gpio_irqchip_remove(ggc);
++exit_gpiochip_remove:
++	gpiochip_remove(gpio);
+ exit_line_free:
+ 	kfree(ggc->lines);
+ exit_connection_disable:
+@@ -743,7 +606,6 @@ static void gb_gpio_remove(struct gbphy_device *gbphy_dev)
+ 
+ 	gb_connection_disable_rx(connection);
+ 	gpiochip_remove(&ggc->chip);
+-	gb_gpio_irqchip_remove(ggc);
+ 	gb_connection_disable(connection);
+ 	gb_connection_destroy(connection);
+ 	kfree(ggc->lines);
+-- 
+2.17.1

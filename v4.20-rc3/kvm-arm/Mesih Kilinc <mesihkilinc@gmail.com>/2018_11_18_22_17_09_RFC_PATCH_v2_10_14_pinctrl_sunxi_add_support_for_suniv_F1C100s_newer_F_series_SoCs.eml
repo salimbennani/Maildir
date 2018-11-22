@@ -1,0 +1,598 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 19 Nov 2018 00:47:11 -0000
+Received: from icoremail.net (unknown [209.85.210.179])
+	by mail-app2 (Coremail) with SMTP id by_KCgDHHybidPFb_ouxAQ--.53103S3;
+	Sun, 18 Nov 2018 22:19:16 +0800 (CST)
+Received: from mail-pf1-f179.google.com (unknown [209.85.210.179])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwBHLUnedPFbq8pRAA--.9036S3;
+	Sun, 18 Nov 2018 22:19:10 +0800 (CST)
+Received: by mail-pf1-f179.google.com with SMTP id s9-v6so13551767pfm.13
+        for <xuliker@zju.edu.cn>; Sun, 18 Nov 2018 06:19:10 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:delivered-to:dkim-signature:from:to:cc:subject
+         :date:message-id:in-reply-to:references:sender:precedence:list-id;
+        bh=86NOAPJc/1O/jJXH27ZQpP/igqBpUm1CiXzQRoBQ5tk=;
+        b=ek9to0YkBdZK6VmA4ITVp6swUfXw6alkIhhmGdK3X9W6GLZQa24VXF75ZJb/N6Jwv/
+         UMscXvwUHj4BeChbSXtivpefN8i6AHrRAw0q+oFhDVWWqukJ/F81yy5wmmusRlaSjN1t
+         u4oQahUpue2K4CL4zFzwobO4yrfVAbhFuPePjqNlnsaN06rbAYJ2A0tPrDDStgemM/Fq
+         3pmP/A/wjPlmsXmtXp+dND/PdUPkyLQoYdv4PDJxIdAI0Yp1zWdkX+EM0oF6mDdIdaAv
+         +kNK8DwP9ZrST9HgnpYgPgJxwHBHCyxIfsBBtok+KA6Q2RPeAyx3WE1ydpKQmKhKTU3E
+         raAw==
+X-Gm-Message-State: AGRZ1gI656mtVPXWlYi0nCn65vJKyfuplroxXIwizRpKo1qiFo/CFiNB
+	HKRY0j4dVqHjHilnZaa3fj/xYdU1PTkx+OgBTz6UD2jl3orHyPk=
+X-Received: by 2002:a62:a4d:: with SMTP id s74-v6mr5716443pfi.201.1542550749752;
+        Sun, 18 Nov 2018 06:19:09 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:d106:0:0:0:0 with SMTP id l6-v6csp1574017pju;
+        Sun, 18 Nov 2018 06:19:08 -0800 (PST)
+X-Google-Smtp-Source: AJdET5fP+chRgepAGoLkOOEfqd/v88qMa8aI2ruXP1jLtgIKwv7tnMwlV/c+/BtErJvx+juRA6aR
+X-Received: by 2002:a63:fe48:: with SMTP id x8mr17096937pgj.261.1542550748621;
+        Sun, 18 Nov 2018 06:19:08 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542550748; cv=none;
+        d=google.com; s=arc-20160816;
+        b=xTT+3ygDR7iv5MU9KcFtZ4NWJMVgu4XdH24J7+VnXhgrEYzQ7ctt+LNHTi2WuR7YgU
+         S5SnGyc6O9SEEt6aCI3oyzBrgmJHz2WNejN3q/euhsmm7VpQalRVP1HkZlPcu5NGR3JZ
+         Ez6epTQnucokSlU1Ts80DJmacnG4aGmZ0mOkYwQoz43aMkfIHwScYmQsrXDdttAl5Ijy
+         b1g/seGt4lE8BJKdgjOjN/nVH8wkx6UeX9mYTkLodvpsIoST9Of2C4cDKvJ0xs5Iir6Z
+         aa+87X33xE8gzKj5b8o23gY40mUTzk25yf5jVCdMFS0PROlf8/YNxKYEPoDbDPdV39Fw
+         N7cQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:references:in-reply-to:message-id:date
+         :subject:cc:to:from:dkim-signature;
+        bh=86NOAPJc/1O/jJXH27ZQpP/igqBpUm1CiXzQRoBQ5tk=;
+        b=Qmdq2m7gWOy9ZK/vk/4TUdH6D5cE4p2yZjBcMxSpXACmJhXhaPDM6tDUDkyCYtB8lF
+         8HuRzAim5yTwUK2BNhVEhK3Ma5yCLW1tP75Rxf36DN/ZnGfPro21cvfUF+toPjpWa8GD
+         sTVioS7Q785JcjI3Zj3f3ujcnLiodqccBqiWRfrsfh3w1e/Ao8VS9CEhec73TmP1mFlo
+         IhBdQY3FZciCW9lrY8ArjrppaIFbydvJvx+OG3Te6z7vUuB02ZXXA4J+gyfq8bSKhrBg
+         KPo/kGVr0WRZ9oJnIiKBt25nPMKoyCUvJczZbeWRRRwQ0szQXKHMSnM/H6qwm0YaA1Ay
+         iJTA==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@gmail.com header.s=20161025 header.b=OWSCqmUC;
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;
+       dmarc=pass (p=NONE sp=QUARANTINE dis=NONE) header.from=gmail.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id q8si13330388plr.382.2018.11.18.06.18.54;
+        Sun, 18 Nov 2018 06:19:08 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1727993AbeKSAjF (ORCPT <rfc822;kim.jamie.bradley@gmail.com>
+        + 99 others); Sun, 18 Nov 2018 19:39:05 -0500
+Received: from mail-wr1-f66.google.com ([209.85.221.66]:46425 "EHLO
+        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727885AbeKSAjE (ORCPT
+        <rfc822;linux-kernel@vger.kernel.org>);
+        Sun, 18 Nov 2018 19:39:04 -0500
+Received: by mail-wr1-f66.google.com with SMTP id l9so16423120wrt.13;
+        Sun, 18 Nov 2018 06:18:36 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references;
+        bh=86NOAPJc/1O/jJXH27ZQpP/igqBpUm1CiXzQRoBQ5tk=;
+        b=OWSCqmUCODKZZc4M4hKGnJZ0Fvcuyrbt6TFWOhdLFKvq/KMDloTkxHfCXRXvhbDhMG
+         4fm0LK3y67TMnjsRtf6fhJM+QTYW6/7ieWhbUQL3BbQYrnCFx5sMyAKUiB6kAm5zJLAS
+         O4FUjYRz8yU1Gfb41p7/HDkID39TFIzPYJ5LN3ftzt1FU3J4w0kF6/+8Kc3X6yg0+/Zz
+         DZaiV5QrWAfVlZsmTZOZZbD2fG9js5XxJnoJl3CFvxSpWModm77DtZT9NbXyEZJBCr55
+         sv/LUEqMQIsMxpHYr52kp85xGEc4aBK/ZzFQCVfD+LzLl/6MLKRqTzTePm80o5Mivtmt
+         ciFA==
+X-Received: by 2002:a5d:40cc:: with SMTP id b12-v6mr16040764wrq.133.1542550715845;
+        Sun, 18 Nov 2018 06:18:35 -0800 (PST)
+Received: from ThinkPad.home ([185.219.176.209])
+        by smtp.gmail.com with ESMTPSA id d4sm29814412wrp.89.2018.11.18.06.18.33
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
+        Sun, 18 Nov 2018 06:18:35 -0800 (PST)
+From: Mesih Kilinc <mesihkilinc@gmail.com>
+To: devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org,
+        linux-gpio@vger.kernel.org, linux-sunxi@googlegroups.com
+Cc: Mesih Kilinc <mesihkilinc@gmail.com>,
+        Maxime Ripard <maxime.ripard@free-electrons.com>,
+        Chen-Yu Tsai <wens@csie.org>,
+        Russell King <linux@armlinux.org.uk>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Marc Zyngier <marc.zyngier@arm.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Icenowy Zheng <icenowy@aosc.io>,
+        Rob Herring <robh+dt@kernel.org>,
+        Julian Calaby <julian.calaby@gmail.com>
+Subject: [RFC PATCH v2 10/14] pinctrl: sunxi: add support for suniv F1C100s (newer F-series SoCs)
+Date: Sun, 18 Nov 2018 17:17:09 +0300
+Message-Id: <706ba2bf049396c1aa99b8a47260f451935d2dc2.1542546735.git.mesihkilinc@gmail.com>
+X-Mailer: git-send-email 2.7.4
+In-Reply-To: <cover.1542546735.git.mesihkilinc@gmail.com>
+References: <cover.1542546735.git.mesihkilinc@gmail.com>
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwBHLUnedPFbq8pRAA--.9036S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvAXoWfGFy3Ww4rXFW8WrW8JrWDurg_yoW8AFWrCo
+	Wxu345Jryj9ry0vr97ZrZ7W345X3WkGF4qvFs0qFyxAayUCw1jgrn8JF98GFnrKw1Ikr4j
+	vasxGrySywnIkrWxn29KB7ZKAUJUUUUU529EdanIXcx71UUUUU7v73VFW2AGmfu7jjvjm3
+	AaLaJ3UjIYCTnIWjp_UUUYA7k0a2IF6F4UM7kC6x804xWl14x267AKxVWUJVW8JwAFIxvE
+	14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK021l84ACjcxK6xIIjx
+	v20xvE14v26F1j6w1UM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26F4j6r4UJwA2z4x0Y4vE
+	x4A2jsIE14v26rxl6s0DM28EF7xvwVC2z280aVCY1x0267AKxVW0oVCq3wAS0I0E0xvYzx
+	vE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AKxVWU
+	GVWUXwAv7VC2z280aVAFwI0_Gr0_Cr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcxkI7V
+	AKI48JMx02cVCv0xWlc7CjxVAKzI0EY4vE52x082I5MxkIecxEwVCI4VW5XwCY0x0Ix7I2
+	Y4AK64vIr41lcIIF0xvE2Ix0cI8IcVAFwI0_Gr0_Xr1lcIIF0xvE2Ix0cI8IcVCY1x0267
+	AKxVW8JVWxJwCYIxAIcVC2z280aVAFwI0_Gr1j6F4UJwCYIxAIcVC2z280aVCY1x0267AK
+	xVW8Jr0_Cr1UMxAIw28IcxkI7VAKI48JMxAIw28IcVAKzI0EY4vE52x082I5MxCjnVCjjx
+	CrMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxVCjr7xv
+	wVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVW8ZVWrXwCIc40Y0x0EwIxGrwCI42IY6xAIw2
+	0EY4v20xvaj40_Jr0_JF7vcSsGvfC2KfnxnUUI43ZEXa7IUeHrW7UUUUU==
+
+The suniv F1C100s chip (several new F-series SoCs) of Allwinner has a
+pin
+controller like other SoCs from Allwinner.
+
+Add support for it.
+
+Signed-off-by: Icenowy Zheng <icenowy@aosc.io>
+Signed-off-by: Mesih Kilinc <mesihkilinc@gmail.com>
+---
+ drivers/pinctrl/sunxi/Kconfig                 |   4 +
+ drivers/pinctrl/sunxi/Makefile                |   1 +
+ drivers/pinctrl/sunxi/pinctrl-suniv-f1c100s.c | 417 ++++++++++++++++++++++++++
+ 3 files changed, 422 insertions(+)
+ create mode 100644 drivers/pinctrl/sunxi/pinctrl-suniv-f1c100s.c
+
+diff --git a/drivers/pinctrl/sunxi/Kconfig b/drivers/pinctrl/sunxi/Kconfig
+index 95282cd..a731fc9 100644
+--- a/drivers/pinctrl/sunxi/Kconfig
++++ b/drivers/pinctrl/sunxi/Kconfig
+@@ -6,6 +6,10 @@ config PINCTRL_SUNXI
+ 	select GENERIC_PINCONF
+ 	select GPIOLIB
+ 
++config PINCTRL_SUNIV_F1C100S
++	def_bool MACH_SUNIV
++	select PINCTRL_SUNXI
++
+ config PINCTRL_SUN4I_A10
+ 	def_bool MACH_SUN4I || MACH_SUN7I || MACH_SUN8I
+ 	select PINCTRL_SUNXI
+diff --git a/drivers/pinctrl/sunxi/Makefile b/drivers/pinctrl/sunxi/Makefile
+index adb8443..fafcdae 100644
+--- a/drivers/pinctrl/sunxi/Makefile
++++ b/drivers/pinctrl/sunxi/Makefile
+@@ -3,6 +3,7 @@
+ obj-y					+= pinctrl-sunxi.o
+ 
+ # SoC Drivers
++obj-$(CONFIG_PINCTRL_SUNIV_F1C100S)	+= pinctrl-suniv-f1c100s.o
+ obj-$(CONFIG_PINCTRL_SUN4I_A10)		+= pinctrl-sun4i-a10.o
+ obj-$(CONFIG_PINCTRL_SUN5I)		+= pinctrl-sun5i.o
+ obj-$(CONFIG_PINCTRL_SUN6I_A31)		+= pinctrl-sun6i-a31.o
+diff --git a/drivers/pinctrl/sunxi/pinctrl-suniv-f1c100s.c b/drivers/pinctrl/sunxi/pinctrl-suniv-f1c100s.c
+new file mode 100644
+index 0000000..46d5667
+--- /dev/null
++++ b/drivers/pinctrl/sunxi/pinctrl-suniv-f1c100s.c
+@@ -0,0 +1,417 @@
++/*
++ * Allwinner new F-series F1C100s SoC (suniv) pinctrl driver.
++ *
++ * Copyright (C) 2018 Icenowy Zheng
++ *
++ * Icenowy Zheng <icenowy@aosc.io>
++ *
++ * Copyright (C) 2014 Jackie Hwang
++ *
++ * Jackie Hwang <huangshr@allwinnertech.com>
++ *
++ * Copyright (C) 2014 Chen-Yu Tsai
++ *
++ * Chen-Yu Tsai <wens@csie.org>
++ *
++ * Copyright (C) 2014 Maxime Ripard
++ *
++ * Maxime Ripard <maxime.ripard@free-electrons.com>
++ *
++ * This file is licensed under the terms of the GNU General Public
++ * License version 2.  This program is licensed "as is" without any
++ * warranty of any kind, whether express or implied.
++ */
++
++#include <linux/module.h>
++#include <linux/platform_device.h>
++#include <linux/of.h>
++#include <linux/of_device.h>
++#include <linux/pinctrl/pinctrl.h>
++
++#include "pinctrl-sunxi.h"
++static const struct sunxi_desc_pin suniv_f1c100s_pins[] = {
++	SUNXI_PIN(SUNXI_PINCTRL_PIN(A, 0),
++		  SUNXI_FUNCTION(0x0, "gpio_in"),
++		  SUNXI_FUNCTION(0x1, "gpio_out"),
++		  SUNXI_FUNCTION(0x2, "rtp"),		/* X1 */
++		  SUNXI_FUNCTION(0x4, "i2s"),		/* BCLK */
++		  SUNXI_FUNCTION(0x5, "uart1"),		/* RTS */
++		  SUNXI_FUNCTION(0x6, "spi1")),		/* CS */
++	SUNXI_PIN(SUNXI_PINCTRL_PIN(A, 1),
++		  SUNXI_FUNCTION(0x0, "gpio_in"),
++		  SUNXI_FUNCTION(0x1, "gpio_out"),
++		  SUNXI_FUNCTION(0x2, "rtp"),		/* X2 */
++		  SUNXI_FUNCTION(0x4, "i2s"),		/* LRCK */
++		  SUNXI_FUNCTION(0x5, "uart1"),		/* CTS */
++		  SUNXI_FUNCTION(0x6, "spi1")),		/* MOSI */
++	SUNXI_PIN(SUNXI_PINCTRL_PIN(A, 2),
++		  SUNXI_FUNCTION(0x0, "gpio_in"),
++		  SUNXI_FUNCTION(0x1, "gpio_out"),
++		  SUNXI_FUNCTION(0x2, "rtp"),		/* Y1 */
++		  SUNXI_FUNCTION(0x3, "pwm0"),		/* PWM0 */
++		  SUNXI_FUNCTION(0x4, "i2s"),		/* IN */
++		  SUNXI_FUNCTION(0x5, "uart1"),		/* RX */
++		  SUNXI_FUNCTION(0x6, "spi1")),		/* MOSI */
++	SUNXI_PIN(SUNXI_PINCTRL_PIN(A, 3),
++		  SUNXI_FUNCTION(0x0, "gpio_in"),
++		  SUNXI_FUNCTION(0x1, "gpio_out"),
++		  SUNXI_FUNCTION(0x2, "rtp"),		/* Y2 */
++		  SUNXI_FUNCTION(0x3, "ir0"),		/* RX */
++		  SUNXI_FUNCTION(0x4, "i2s"),		/* OUT */
++		  SUNXI_FUNCTION(0x5, "uart1"),		/* TX */
++		  SUNXI_FUNCTION(0x6, "spi1")),		/* MISO */
++	/* Hole */
++	SUNXI_PIN(SUNXI_PINCTRL_PIN(B, 0),
++		  SUNXI_FUNCTION(0x0, "gpio_in"),
++		  SUNXI_FUNCTION(0x1, "gpio_out"),
++		  SUNXI_FUNCTION(0x2, "dram"),		/* DQS0 */
++		  SUNXI_FUNCTION(0x3, "i2c1"),		/* SCK */
++		  SUNXI_FUNCTION(0x4, "i2s"),		/* BCLK */
++		  SUNXI_FUNCTION(0x5, "uart1"),		/* RTS */
++		  SUNXI_FUNCTION(0x6, "spi1")),		/* CS */
++	SUNXI_PIN(SUNXI_PINCTRL_PIN(B, 1),
++		  SUNXI_FUNCTION(0x0, "gpio_in"),
++		  SUNXI_FUNCTION(0x1, "gpio_out"),
++		  SUNXI_FUNCTION(0x2, "dram"),		/* DQS1 */
++		  SUNXI_FUNCTION(0x3, "i2c1"),		/* SDA */
++		  SUNXI_FUNCTION(0x4, "i2s"),		/* LRCK */
++		  SUNXI_FUNCTION(0x5, "uart1"),		/* CTS */
++		  SUNXI_FUNCTION(0x6, "spi1")),		/* MOSI */
++	SUNXI_PIN(SUNXI_PINCTRL_PIN(B, 2),
++		  SUNXI_FUNCTION(0x0, "gpio_in"),
++		  SUNXI_FUNCTION(0x1, "gpio_out"),
++		  SUNXI_FUNCTION(0x2, "dram"),		/* CKE */
++		  SUNXI_FUNCTION(0x3, "pwm0"),		/* PWM0 */
++		  SUNXI_FUNCTION(0x4, "i2s"),		/* IN */
++		  SUNXI_FUNCTION(0x5, "uart1"),		/* RX */
++		  SUNXI_FUNCTION(0x6, "spi1")),		/* CLK */
++	SUNXI_PIN(SUNXI_PINCTRL_PIN(B, 3),
++		  SUNXI_FUNCTION(0x0, "gpio_in"),
++		  SUNXI_FUNCTION(0x1, "gpio_out"),
++		  SUNXI_FUNCTION(0x2, "dram"),		/* DDR_REF_D */
++		  SUNXI_FUNCTION(0x3, "ir0"),		/* RX */
++		  SUNXI_FUNCTION(0x4, "i2s"),		/* OUT */
++		  SUNXI_FUNCTION(0x5, "uart1"),		/* TX */
++		  SUNXI_FUNCTION(0x6, "spi1")),		/* MISO */
++	/* Hole */
++	SUNXI_PIN(SUNXI_PINCTRL_PIN(C, 0),
++		  SUNXI_FUNCTION(0x1, "gpio_out"),
++		  SUNXI_FUNCTION(0x2, "spi0"),		/* CLK */
++		  SUNXI_FUNCTION(0x3, "mmc1")),		/* CLK */
++	SUNXI_PIN(SUNXI_PINCTRL_PIN(C, 1),
++		  SUNXI_FUNCTION(0x0, "gpio_in"),
++		  SUNXI_FUNCTION(0x1, "gpio_out"),
++		  SUNXI_FUNCTION(0x2, "spi0"),		/* CS */
++		  SUNXI_FUNCTION(0x3, "mmc1")),		/* CMD */
++	SUNXI_PIN(SUNXI_PINCTRL_PIN(C, 2),
++		  SUNXI_FUNCTION(0x0, "gpio_in"),
++		  SUNXI_FUNCTION(0x1, "gpio_out"),
++		  SUNXI_FUNCTION(0x2, "spi0"),		/* MISO */
++		  SUNXI_FUNCTION(0x3, "mmc1")),		/* D0 */
++	SUNXI_PIN(SUNXI_PINCTRL_PIN(C, 3),
++		  SUNXI_FUNCTION(0x0, "gpio_in"),
++		  SUNXI_FUNCTION(0x1, "gpio_out"),
++		  SUNXI_FUNCTION(0x2, "spi0"),		/* MOSI */
++		  SUNXI_FUNCTION(0x3, "uart0")),	/* TX */
++	/* Hole */
++	SUNXI_PIN(SUNXI_PINCTRL_PIN(D, 0),
++		  SUNXI_FUNCTION(0x0, "gpio_in"),
++		  SUNXI_FUNCTION(0x1, "gpio_out"),
++		  SUNXI_FUNCTION(0x2, "lcd"),		/* D2 */
++		  SUNXI_FUNCTION(0x3, "i2c0"),		/* SDA */
++		  SUNXI_FUNCTION(0x4, "rsb"),		/* SDA */
++		  SUNXI_FUNCTION_IRQ_BANK(0x6, 0, 0)),
++	SUNXI_PIN(SUNXI_PINCTRL_PIN(D, 1),
++		  SUNXI_FUNCTION(0x0, "gpio_in"),
++		  SUNXI_FUNCTION(0x1, "gpio_out"),
++		  SUNXI_FUNCTION(0x2, "lcd"),		/* D3 */
++		  SUNXI_FUNCTION(0x3, "uart1"),		/* RTS */
++		  SUNXI_FUNCTION_IRQ_BANK(0x6, 0, 1)),
++	SUNXI_PIN(SUNXI_PINCTRL_PIN(D, 2),
++		  SUNXI_FUNCTION(0x0, "gpio_in"),
++		  SUNXI_FUNCTION(0x1, "gpio_out"),
++		  SUNXI_FUNCTION(0x2, "lcd"),		/* D4*/
++		  SUNXI_FUNCTION(0x3, "uart1"),		/* CTS */
++		  SUNXI_FUNCTION_IRQ_BANK(0x6, 0, 2)),
++	SUNXI_PIN(SUNXI_PINCTRL_PIN(D, 3),
++		  SUNXI_FUNCTION(0x0, "gpio_in"),
++		  SUNXI_FUNCTION(0x1, "gpio_out"),
++		  SUNXI_FUNCTION(0x2, "lcd"),		/* D5 */
++		  SUNXI_FUNCTION(0x3, "uart1"),		/* RX */
++		  SUNXI_FUNCTION_IRQ_BANK(0x6, 0, 3)),
++	SUNXI_PIN(SUNXI_PINCTRL_PIN(D, 4),
++		  SUNXI_FUNCTION(0x0, "gpio_in"),
++		  SUNXI_FUNCTION(0x1, "gpio_out"),
++		  SUNXI_FUNCTION(0x2, "lcd"),		/* D6 */
++		  SUNXI_FUNCTION(0x3, "uart1"),		/* TX */
++		  SUNXI_FUNCTION_IRQ_BANK(0x6, 0, 4)),
++	SUNXI_PIN(SUNXI_PINCTRL_PIN(D, 5),
++		  SUNXI_FUNCTION(0x0, "gpio_in"),
++		  SUNXI_FUNCTION(0x1, "gpio_out"),
++		  SUNXI_FUNCTION(0x2, "lcd"),		/* D7 */
++		  SUNXI_FUNCTION(0x3, "i2c1"),		/* SCK */
++		  SUNXI_FUNCTION_IRQ_BANK(0x6, 0, 5)),
++	SUNXI_PIN(SUNXI_PINCTRL_PIN(D, 6),
++		  SUNXI_FUNCTION(0x0, "gpio_in"),
++		  SUNXI_FUNCTION(0x1, "gpio_out"),
++		  SUNXI_FUNCTION(0x2, "lcd"),		/* D10 */
++		  SUNXI_FUNCTION(0x3, "i2c1"),		/* SDA */
++		  SUNXI_FUNCTION_IRQ_BANK(0x6, 0, 6)),
++	SUNXI_PIN(SUNXI_PINCTRL_PIN(D, 7),
++		  SUNXI_FUNCTION(0x0, "gpio_in"),
++		  SUNXI_FUNCTION(0x1, "gpio_out"),
++		  SUNXI_FUNCTION(0x2, "lcd"),		/* D11 */
++		  SUNXI_FUNCTION(0x3, "i2s"),		/* MCLK */
++		  SUNXI_FUNCTION_IRQ_BANK(0x6, 0, 7)),
++	SUNXI_PIN(SUNXI_PINCTRL_PIN(D, 8),
++		  SUNXI_FUNCTION(0x0, "gpio_in"),
++		  SUNXI_FUNCTION(0x1, "gpio_out"),
++		  SUNXI_FUNCTION(0x2, "lcd"),		/* D12 */
++		  SUNXI_FUNCTION(0x3, "i2s"),		/* BCLK */
++		  SUNXI_FUNCTION_IRQ_BANK(0x6, 0, 8)),
++	SUNXI_PIN(SUNXI_PINCTRL_PIN(D, 9),
++		  SUNXI_FUNCTION(0x0, "gpio_in"),
++		  SUNXI_FUNCTION(0x1, "gpio_out"),
++		  SUNXI_FUNCTION(0x2, "lcd"),		/* D13 */
++		  SUNXI_FUNCTION(0x3, "i2s"),		/* LRCK */
++		  SUNXI_FUNCTION_IRQ_BANK(0x6, 0, 9)),
++	SUNXI_PIN(SUNXI_PINCTRL_PIN(D, 10),
++		  SUNXI_FUNCTION(0x0, "gpio_in"),
++		  SUNXI_FUNCTION(0x1, "gpio_out"),
++		  SUNXI_FUNCTION(0x2, "lcd"),		/* D14 */
++		  SUNXI_FUNCTION(0x3, "i2s"),		/* IN */
++		  SUNXI_FUNCTION_IRQ_BANK(0x6, 0, 10)),
++	SUNXI_PIN(SUNXI_PINCTRL_PIN(D, 11),
++		  SUNXI_FUNCTION(0x0, "gpio_in"),
++		  SUNXI_FUNCTION(0x1, "gpio_out"),
++		  SUNXI_FUNCTION(0x2, "lcd"),		/* D15 */
++		  SUNXI_FUNCTION(0x3, "i2s"),		/* OUT */
++		  SUNXI_FUNCTION_IRQ_BANK(0x6, 0, 11)),
++	SUNXI_PIN(SUNXI_PINCTRL_PIN(D, 12),
++		  SUNXI_FUNCTION(0x0, "gpio_in"),
++		  SUNXI_FUNCTION(0x1, "gpio_out"),
++		  SUNXI_FUNCTION(0x2, "lcd"),		/* D18 */
++		  SUNXI_FUNCTION(0x3, "i2c0"),		/* SCK */
++		  SUNXI_FUNCTION(0x4, "rsb"),		/* SCK */
++		  SUNXI_FUNCTION_IRQ_BANK(0x6, 0, 12)),
++	SUNXI_PIN(SUNXI_PINCTRL_PIN(D, 13),
++		  SUNXI_FUNCTION(0x0, "gpio_in"),
++		  SUNXI_FUNCTION(0x1, "gpio_out"),
++		  SUNXI_FUNCTION(0x2, "lcd"),		/* D19 */
++		  SUNXI_FUNCTION(0x3, "uart2"),		/* TX */
++		  SUNXI_FUNCTION_IRQ_BANK(0x6, 0, 13)),
++	SUNXI_PIN(SUNXI_PINCTRL_PIN(D, 14),
++		  SUNXI_FUNCTION(0x0, "gpio_in"),
++		  SUNXI_FUNCTION(0x1, "gpio_out"),
++		  SUNXI_FUNCTION(0x2, "lcd"),		/* D20 */
++		  SUNXI_FUNCTION(0x3, "lvds1"),		/* RX */
++		  SUNXI_FUNCTION_IRQ_BANK(0x6, 0, 14)),
++	SUNXI_PIN(SUNXI_PINCTRL_PIN(D, 15),
++		  SUNXI_FUNCTION(0x0, "gpio_in"),
++		  SUNXI_FUNCTION(0x1, "gpio_out"),
++		  SUNXI_FUNCTION(0x2, "lcd"),		/* D21 */
++		  SUNXI_FUNCTION(0x3, "uart2"),		/* RTS */
++		  SUNXI_FUNCTION(0x4, "i2c2"),		/* SCK */
++		  SUNXI_FUNCTION_IRQ_BANK(0x6, 0, 15)),
++	SUNXI_PIN(SUNXI_PINCTRL_PIN(D, 16),
++		  SUNXI_FUNCTION(0x0, "gpio_in"),
++		  SUNXI_FUNCTION(0x1, "gpio_out"),
++		  SUNXI_FUNCTION(0x2, "lcd"),		/* D22 */
++		  SUNXI_FUNCTION(0x3, "uart2"),		/* CTS */
++		  SUNXI_FUNCTION(0x4, "i2c2"),		/* SDA */
++		  SUNXI_FUNCTION_IRQ_BANK(0x6, 0, 16)),
++	SUNXI_PIN(SUNXI_PINCTRL_PIN(D, 17),
++		  SUNXI_FUNCTION(0x0, "gpio_in"),
++		  SUNXI_FUNCTION(0x1, "gpio_out"),
++		  SUNXI_FUNCTION(0x2, "lcd"),		/* D23 */
++		  SUNXI_FUNCTION(0x3, "spdif"),		/* OUT */
++		  SUNXI_FUNCTION_IRQ_BANK(0x6, 0, 17)),
++	SUNXI_PIN(SUNXI_PINCTRL_PIN(D, 18),
++		  SUNXI_FUNCTION(0x0, "gpio_in"),
++		  SUNXI_FUNCTION(0x1, "gpio_out"),
++		  SUNXI_FUNCTION(0x2, "lcd"),		/* CLK */
++		  SUNXI_FUNCTION(0x3, "spi0"),		/* CS */
++		  SUNXI_FUNCTION_IRQ_BANK(0x6, 0, 18)),
++	SUNXI_PIN(SUNXI_PINCTRL_PIN(D, 19),
++		  SUNXI_FUNCTION(0x0, "gpio_in"),
++		  SUNXI_FUNCTION(0x1, "gpio_out"),
++		  SUNXI_FUNCTION(0x2, "lcd"),		/* DE */
++		  SUNXI_FUNCTION(0x3, "spi0"),		/* MOSI */
++		  SUNXI_FUNCTION_IRQ_BANK(0x6, 0, 19)),
++	SUNXI_PIN(SUNXI_PINCTRL_PIN(D, 20),
++		  SUNXI_FUNCTION(0x0, "gpio_in"),
++		  SUNXI_FUNCTION(0x1, "gpio_out"),
++		  SUNXI_FUNCTION(0x2, "lcd"),		/* HYSNC */
++		  SUNXI_FUNCTION(0x3, "spi0"),		/* CLK */
++		  SUNXI_FUNCTION_IRQ_BANK(0x6, 0, 20)),
++	SUNXI_PIN(SUNXI_PINCTRL_PIN(D, 21),
++		  SUNXI_FUNCTION(0x0, "gpio_in"),
++		  SUNXI_FUNCTION(0x1, "gpio_out"),
++		  SUNXI_FUNCTION(0x2, "lcd"),		/* VSYNC */
++		  SUNXI_FUNCTION(0x3, "spi0"),		/* MISO */
++		  SUNXI_FUNCTION_IRQ_BANK(0x6, 0, 21)),
++	/* Hole */
++	SUNXI_PIN(SUNXI_PINCTRL_PIN(E, 0),
++		  SUNXI_FUNCTION(0x0, "gpio_in"),
++		  SUNXI_FUNCTION(0x1, "gpio_out"),
++		  SUNXI_FUNCTION(0x2, "csi"),		/* HSYNC */
++		  SUNXI_FUNCTION(0x3, "lcd"),		/* D0 */
++		  SUNXI_FUNCTION(0x4, "i2c2"),		/* SCK */
++		  SUNXI_FUNCTION(0x5, "uart0"),		/* RX */
++		  SUNXI_FUNCTION_IRQ_BANK(0x6, 1, 0)),
++	SUNXI_PIN(SUNXI_PINCTRL_PIN(E, 1),
++		  SUNXI_FUNCTION(0x0, "gpio_in"),
++		  SUNXI_FUNCTION(0x1, "gpio_out"),
++		  SUNXI_FUNCTION(0x2, "csi"),		/* VSYNC */
++		  SUNXI_FUNCTION(0x3, "lcd"),		/* D1 */
++		  SUNXI_FUNCTION(0x4, "i2c2"),		/* SDA */
++		  SUNXI_FUNCTION(0x5, "uart0"),		/* TX */
++		  SUNXI_FUNCTION_IRQ_BANK(0x6, 1, 1)),
++	SUNXI_PIN(SUNXI_PINCTRL_PIN(E, 2),
++		  SUNXI_FUNCTION(0x0, "gpio_in"),
++		  SUNXI_FUNCTION(0x1, "gpio_out"),
++		  SUNXI_FUNCTION(0x2, "csi"),		/* PCLK */
++		  SUNXI_FUNCTION(0x3, "lcd"),		/* D8 */
++		  SUNXI_FUNCTION(0x4, "clk"),		/* OUT */
++		  SUNXI_FUNCTION_IRQ_BANK(0x6, 1, 2)),
++	SUNXI_PIN(SUNXI_PINCTRL_PIN(E, 3),
++		  SUNXI_FUNCTION(0x0, "gpio_in"),
++		  SUNXI_FUNCTION(0x1, "gpio_out"),
++		  SUNXI_FUNCTION(0x2, "csi"),		/* D0 */
++		  SUNXI_FUNCTION(0x3, "lcd"),		/* D9 */
++		  SUNXI_FUNCTION(0x4, "i2s"),		/* BCLK */
++		  SUNXI_FUNCTION(0x5, "rsb"),		/* SCK */
++		  SUNXI_FUNCTION_IRQ_BANK(0x6, 1, 3)),
++	SUNXI_PIN(SUNXI_PINCTRL_PIN(E, 4),
++		  SUNXI_FUNCTION(0x0, "gpio_in"),
++		  SUNXI_FUNCTION(0x1, "gpio_out"),
++		  SUNXI_FUNCTION(0x2, "csi"),		/* D1 */
++		  SUNXI_FUNCTION(0x3, "lcd"),		/* D16 */
++		  SUNXI_FUNCTION(0x4, "i2s"),		/* LRCK */
++		  SUNXI_FUNCTION(0x5, "rsb"),		/* SDA */
++		  SUNXI_FUNCTION_IRQ_BANK(0x6, 1, 4)),
++	SUNXI_PIN(SUNXI_PINCTRL_PIN(E, 5),
++		  SUNXI_FUNCTION(0x0, "gpio_in"),
++		  SUNXI_FUNCTION(0x1, "gpio_out"),
++		  SUNXI_FUNCTION(0x2, "csi"),		/* D2 */
++		  SUNXI_FUNCTION(0x3, "lcd"),		/* D17 */
++		  SUNXI_FUNCTION(0x4, "i2s"),		/* IN */
++		  SUNXI_FUNCTION_IRQ_BANK(0x6, 1, 5)),
++	SUNXI_PIN(SUNXI_PINCTRL_PIN(E, 6),
++		  SUNXI_FUNCTION(0x0, "gpio_in"),
++		  SUNXI_FUNCTION(0x1, "gpio_out"),
++		  SUNXI_FUNCTION(0x2, "csi"),		/* D3 */
++		  SUNXI_FUNCTION(0x3, "pwm1"),		/* PWM1 */
++		  SUNXI_FUNCTION(0x4, "i2s"),		/* OUT */
++		  SUNXI_FUNCTION(0x5, "spdif"),		/* OUT */
++		  SUNXI_FUNCTION_IRQ_BANK(0x6, 1, 6)),
++	SUNXI_PIN(SUNXI_PINCTRL_PIN(E, 7),
++		  SUNXI_FUNCTION(0x0, "gpio_in"),
++		  SUNXI_FUNCTION(0x1, "gpio_out"),
++		  SUNXI_FUNCTION(0x2, "csi"),		/* D4 */
++		  SUNXI_FUNCTION(0x3, "uart2"),		/* TX */
++		  SUNXI_FUNCTION(0x4, "spi1"),		/* CS */
++		  SUNXI_FUNCTION_IRQ_BANK(0x6, 1, 7)),
++	SUNXI_PIN(SUNXI_PINCTRL_PIN(E, 8),
++		  SUNXI_FUNCTION(0x0, "gpio_in"),
++		  SUNXI_FUNCTION(0x1, "gpio_out"),
++		  SUNXI_FUNCTION(0x2, "csi"),		/* D5 */
++		  SUNXI_FUNCTION(0x3, "uart2"),		/* RX */
++		  SUNXI_FUNCTION(0x4, "spi1"),		/* MOSI */
++		  SUNXI_FUNCTION_IRQ_BANK(0x6, 1, 8)),
++	SUNXI_PIN(SUNXI_PINCTRL_PIN(E, 9),
++		  SUNXI_FUNCTION(0x0, "gpio_in"),
++		  SUNXI_FUNCTION(0x1, "gpio_out"),
++		  SUNXI_FUNCTION(0x2, "csi"),		/* D6 */
++		  SUNXI_FUNCTION(0x3, "uart2"),		/* RTS */
++		  SUNXI_FUNCTION(0x4, "spi1"),		/* CLK */
++		  SUNXI_FUNCTION_IRQ_BANK(0x6, 1, 9)),
++	SUNXI_PIN(SUNXI_PINCTRL_PIN(E, 10),
++		  SUNXI_FUNCTION(0x0, "gpio_in"),
++		  SUNXI_FUNCTION(0x1, "gpio_out"),
++		  SUNXI_FUNCTION(0x2, "csi"),		/* D7 */
++		  SUNXI_FUNCTION(0x3, "uart2"),		/* CTS */
++		  SUNXI_FUNCTION(0x4, "spi1"),		/* MISO */
++		  SUNXI_FUNCTION_IRQ_BANK(0x6, 1, 10)),
++	SUNXI_PIN(SUNXI_PINCTRL_PIN(E, 11),
++		  SUNXI_FUNCTION(0x0, "gpio_in"),
++		  SUNXI_FUNCTION(0x1, "gpio_out"),
++		  SUNXI_FUNCTION(0x2, "clk0"),		/* OUT */
++		  SUNXI_FUNCTION(0x3, "i2c0"),		/* SCK */
++		  SUNXI_FUNCTION(0x4, "ir"),		/* RX */
++		  SUNXI_FUNCTION_IRQ_BANK(0x6, 1, 11)),
++	SUNXI_PIN(SUNXI_PINCTRL_PIN(E, 12),
++		  SUNXI_FUNCTION(0x0, "gpio_in"),
++		  SUNXI_FUNCTION(0x1, "gpio_out"),
++		  SUNXI_FUNCTION(0x2, "i2s"),		/* MCLK */
++		  SUNXI_FUNCTION(0x3, "i2c0"),		/* SDA */
++		  SUNXI_FUNCTION(0x4, "pwm0"),		/* PWM0 */
++		  SUNXI_FUNCTION_IRQ_BANK(0x6, 1, 12)),
++
++	/* Hole */
++	SUNXI_PIN(SUNXI_PINCTRL_PIN(F, 0),
++		  SUNXI_FUNCTION(0x0, "gpio_in"),
++		  SUNXI_FUNCTION(0x1, "gpio_out"),
++		  SUNXI_FUNCTION(0x2, "mmc0"),		/* D1 */
++		  SUNXI_FUNCTION(0x3, "jtag"),		/* MS */
++		  SUNXI_FUNCTION(0x4, "ir0"),		/* MS */
++		  SUNXI_FUNCTION_IRQ_BANK(0x6, 2, 0)),
++	SUNXI_PIN(SUNXI_PINCTRL_PIN(F, 1),
++		  SUNXI_FUNCTION(0x0, "gpio_in"),
++		  SUNXI_FUNCTION(0x1, "gpio_out"),
++		  SUNXI_FUNCTION(0x2, "mmc0"),		/* D0 */
++		  SUNXI_FUNCTION(0x3, "dgb0"),		/* DI */
++		  SUNXI_FUNCTION_IRQ_BANK(0x6, 2, 1)),
++	SUNXI_PIN(SUNXI_PINCTRL_PIN(F, 2),
++		  SUNXI_FUNCTION(0x0, "gpio_in"),
++		  SUNXI_FUNCTION(0x1, "gpio_out"),
++		  SUNXI_FUNCTION(0x2, "mmc0"),		/* CLK */
++		  SUNXI_FUNCTION(0x3, "uart0"),		/* TX */
++		  SUNXI_FUNCTION_IRQ_BANK(0x6, 2, 2)),
++	SUNXI_PIN(SUNXI_PINCTRL_PIN(F, 3),
++		  SUNXI_FUNCTION(0x0, "gpio_in"),
++		  SUNXI_FUNCTION(0x1, "gpio_out"),
++		  SUNXI_FUNCTION(0x2, "mmc0"),		/* CMD */
++		  SUNXI_FUNCTION(0x3, "jtag"),		/* DO */
++		  SUNXI_FUNCTION_IRQ_BANK(0x6, 2, 3)),
++	SUNXI_PIN(SUNXI_PINCTRL_PIN(F, 4),
++		  SUNXI_FUNCTION(0x0, "gpio_in"),
++		  SUNXI_FUNCTION(0x1, "gpio_out"),
++		  SUNXI_FUNCTION(0x2, "mmc0"),		/* D3 */
++		  SUNXI_FUNCTION(0x3, "uart0"),		/* TX */
++		  SUNXI_FUNCTION_IRQ_BANK(0x6, 2, 4)),
++	SUNXI_PIN(SUNXI_PINCTRL_PIN(F, 5),
++		  SUNXI_FUNCTION(0x0, "gpio_in"),
++		  SUNXI_FUNCTION(0x1, "gpio_out"),
++		  SUNXI_FUNCTION(0x2, "mmc0"),		/* D2 */
++		  SUNXI_FUNCTION(0x3, "jtag"),		/* CK */
++		  SUNXI_FUNCTION(0x4, "pwm1"),		/* PWM1 */
++		  SUNXI_FUNCTION_IRQ_BANK(0x6, 2, 5)),
++};
++
++static const struct sunxi_pinctrl_desc suniv_f1c100s_pinctrl_data = {
++	.pins = suniv_f1c100s_pins,
++	.npins = ARRAY_SIZE(suniv_f1c100s_pins),
++	.irq_banks = 3,
++	.disable_strict_mode = true,
++};
++
++static int suniv_pinctrl_probe(struct platform_device *pdev)
++{
++	return sunxi_pinctrl_init(pdev,
++				  &suniv_f1c100s_pinctrl_data);
++}
++
++static const struct of_device_id suniv_f1c100s_pinctrl_match[] = {
++	{ .compatible = "allwinner,suniv-f1c100s-pinctrl", },
++	{}
++};
++
++static struct platform_driver suniv_f1c100s_pinctrl_driver = {
++	.probe	= suniv_pinctrl_probe,
++	.driver	= {
++		.name		= "suniv-f1c100s-pinctrl",
++		.of_match_table	= suniv_f1c100s_pinctrl_match,
++	},
++};
++builtin_platform_driver(suniv_f1c100s_pinctrl_driver);
+-- 
+2.7.4

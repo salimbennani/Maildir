@@ -1,0 +1,185 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 20 Nov 2018 00:35:06 -0000
+Received: from icoremail.net (unknown [209.85.214.181])
+	by mail-app4 (Coremail) with SMTP id cS_KCgBXVZ3KE_Nb1RvaAQ--.35234S3;
+	Tue, 20 Nov 2018 03:49:31 +0800 (CST)
+Received: from mail-pl1-f181.google.com (unknown [209.85.214.181])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwAX_UjFE_Nb0vVZAA--.6952S3;
+	Tue, 20 Nov 2018 03:49:25 +0800 (CST)
+Received: by mail-pl1-f181.google.com with SMTP id z23so3830450plo.0
+        for <xuliker@zju.edu.cn>; Mon, 19 Nov 2018 11:49:25 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :date:from:to:cc:subject:references:mime-version:in-reply-to
+         :message-id:content-transfer-encoding:content-disposition:sender
+         :precedence:list-id;
+        bh=w+Xc/LPnbcW8jO8OsTvIPhT2D+KnjLZ8dbDBFsiKDBw=;
+        b=g7G8efIUY2sneQOoiOzb9tpSHp2kZx1VE50A5/EwSI8C/MXbI0sd070b72g/CkS7rX
+         u7vYRT2cHbHfuniT1ewXJTzh6+3zh1VvTgfJZnm7QxM57Kv52dcNCuF+QlVMx3zgl0+F
+         HQs+Va2BAxgBdJf46uioMynkcChF5o36R633Z9iPNywIFjgf/md1Bo10u/6i9UboNAGB
+         o6yELcW+/AMuqQ+faLWv/5puU1/q1f1Cg4UiyikGu4WudtUy1RSSJz22vZE5jHH/FqjA
+         xZJQqXztDUJut+8snaWpRd3s5kQzV1lW/dwYRqs+kg9+so77lBC5re1RyehNwJnaRYwD
+         c07g==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=ibm.com
+X-Gm-Message-State: AGRZ1gL3fA54uVWaPIWesUnVx/gshRPeH3N4Wnh+H2GqqIY82AvDZ+3x
+	Xl/7KFJf7Ad5xziTIH8EqrTWy2QiVRyvbIbR9SAmNMyMZ7mpHkc=
+X-Received: by 2002:a17:902:a9c4:: with SMTP id b4mr23708080plr.298.1542656965230;
+        Mon, 19 Nov 2018 11:49:25 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:d106:0:0:0:0 with SMTP id l6-v6csp3100168pju;
+        Mon, 19 Nov 2018 11:49:24 -0800 (PST)
+X-Google-Smtp-Source: AJdET5dMgoerkeNnb73Qai8lgPEXTt5IwqvlcgA1+PYm7UqPmN0Tx9KnfS82jQYBfnshjPCO3gFD
+X-Received: by 2002:a62:1b50:: with SMTP id b77mr24390254pfb.36.1542656964328;
+        Mon, 19 Nov 2018 11:49:24 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542656964; cv=none;
+        d=google.com; s=arc-20160816;
+        b=iSgNSzzyzkr1EBxDHUDOuj2O6NYZMIh++qQqxvOupJyjPizIDfwXd6FarYHbBgc5FR
+         9yUm/sac/6zBd0LEpw5UKNf4wz0AOT4+j1J8KAtCocjRqcYV85AaChURr/sX4m4Z4EiH
+         eeGysHGp5LAOUHA3fQhIFG1+JcXKAo6QOMmZQLKLlLr9LV3SVaC9iwYLBJmReKV57KcS
+         2nF45GbLwlbjZtbDL35H/WzX+bnn2nqHazzv1/AguYZ2DajFzVDRzqSpSgbQh6jQffX9
+         y8bNT6qA3YO7t0wXcOuiSPh8OcFC6XpfBzDoKLR+JuXnUhwq2lpYIfCiCRJvVCYbIskT
+         0FWg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:content-disposition
+         :content-transfer-encoding:message-id:in-reply-to:mime-version
+         :references:subject:cc:to:from:date;
+        bh=w+Xc/LPnbcW8jO8OsTvIPhT2D+KnjLZ8dbDBFsiKDBw=;
+        b=wHhPsUKLkBGAiOdHJVpMZmgwPmRoiEzccekp9L02XXkmxmyl6MrYf6V3pdFLp4f9fG
+         iY+MyMPb6fr1B/QlXrBSzghWjsWzs1Xlj1CoZdhDtUbcetgA7ZFjT/jp+f+8b4Ilrn6Q
+         kih6jNeyo+9+zik0Wf3W/TF0/yZvDKqw5uH4oe318nrqOhzg5SUMwiXDFauwyfS6k8Bw
+         2+k1EROtm0mWCEWJdI1utJsD5Nr3FSk3Juj1wQeBp2bId6NsBR/3oQGUcV+WVgPB/lpo
+         gUEmWIGr2vw2RGB8K0po/Y9jS+8ml0yY9XbbEE9pJG6kSh3p+AYLohSe2AEb6e8SO6a9
+         1T8Q==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=ibm.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id cc8-v6si46926332plb.377.2018.11.19.11.49.10;
+        Mon, 19 Nov 2018 11:49:24 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1730060AbeKTGMZ (ORCPT <rfc822;ww9210@gmail.com> + 99 others);
+        Tue, 20 Nov 2018 01:12:25 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:53862 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1729611AbeKTGMZ (ORCPT
+        <rfc822;kvm@vger.kernel.org>); Tue, 20 Nov 2018 01:12:25 -0500
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.22/8.16.0.22) with SMTP id wAJJhTCs125232
+        for <kvm@vger.kernel.org>; Mon, 19 Nov 2018 14:47:16 -0500
+Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2nv0qbqpev-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <kvm@vger.kernel.org>; Mon, 19 Nov 2018 14:47:16 -0500
+Received: from localhost
+        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <kvm@vger.kernel.org> from <heiko.carstens@de.ibm.com>;
+        Mon, 19 Nov 2018 19:47:14 -0000
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (9.149.109.194)
+        by e06smtp05.uk.ibm.com (192.168.101.135) with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted;
+        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256/256)
+        Mon, 19 Nov 2018 19:47:11 -0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id wAJJl9rP60948560
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
+        Mon, 19 Nov 2018 19:47:09 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 706884C046;
+        Mon, 19 Nov 2018 19:47:09 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 076124C050;
+        Mon, 19 Nov 2018 19:47:09 +0000 (GMT)
+Received: from osiris (unknown [9.145.73.167])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Mon, 19 Nov 2018 19:47:08 +0000 (GMT)
+Date: Mon, 19 Nov 2018 20:47:07 +0100
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Michael Mueller <mimu@linux.ibm.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        Martin Schwidefsky <schwidefsky@de.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Pierre Morel <pmorel@linux.ibm.com>
+Subject: Re: [PATCH v2 06/12] KVM: s390: add function unlink_gib_alert_list()
+References: <20181119172536.52649-1-mimu@linux.ibm.com>
+ <20181119172536.52649-7-mimu@linux.ibm.com>
+MIME-Version: 1.0
+In-Reply-To: <20181119172536.52649-7-mimu@linux.ibm.com>
+X-TM-AS-GCONF: 00
+x-cbid: 18111919-0020-0000-0000-000002EA6FE6
+X-IBM-AV-DETECTION: SAVI=unused REMOTE=unused XFE=unused
+x-cbparentid: 18111919-0021-0000-0000-000021399E2A
+Message-Id: <20181119194707.GB3793@osiris>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2018-11-19_08:,,
+ signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ malwarescore=0 suspectscore=1 phishscore=0 bulkscore=0 spamscore=0
+ clxscore=1015 lowpriorityscore=0 mlxscore=0 impostorscore=0
+ mlxlogscore=972 adultscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.0.1-1810050000 definitions=main-1811190176
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwAX_UjFE_Nb0vVZAA--.6952S3
+Authentication-Results: mail-app4; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvdXoWruF4rAF1rAryxtF4UJw4kXrb_yoW3ZFgEgr
+	WUWry2krsrZF4fK3yYkrsrA397uF1jvr15Xw1fX347Jw1qgrZ8Gan7G3sxX397Wr4Iqwsx
+	ur4aqF93W3W2kjkaLaAFLSUrUUUUUb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAU7a7-sFnT
+	9fnUUIcSsGvfJTRUUUb38YjsxI4VWxJwAYFVCjjxCrM7AC8VAFwI0_Jr0_Gr1l1IIY67AE
+	w4v_Jr0_Jr4l8cAvFVAK0II2c7xJM28CjxkF64kEwVA0rcxSw2x7M28EF7xvwVC0I7IYx2
+	IY67AKxVW5JVW7JwA2z4x0Y4vE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwA2z4x0Y4vEx4A2
+	jsIE14v26rxl6s0DM28EF7xvwVC2z280aVCY1x0267AKxVW0oVCq3wAS0I0E0xvYzxvE52
+	x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AKxVWUJVWU
+	GwAv7VC2z280aVAFwI0_Gr0_Cr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcVAKI48JMx
+	02cVCv0xWlc7CjxVAKzI0EY4vE52x082I5MxkI7II2jI8vz4vEwIxGrwCYIxAIcVC0I7IY
+	x2IY67AKxVW8JVW5JwCYIxAIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMxvI42IY6I8E87
+	Iv67AKxVW0oVCq3wCYIxAIcVC2z280aVCY1x0267AKxVW0oVCq3wCF04k20xvY0x0EwIxG
+	rwCF04k20xvEw4C26cxK6c8Ij28IcwCF72vE77IF4wCFx2IqxVCFs4IE7xkEbVWUJVW8Jw
+	C20s026c02F40E14v26r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAF
+	wI0_Jw0_GFylIxkGc2Ij64vIr41lIxAIcVCF04k26cxKx2IYs7xG6Fyj6rWUJbIYCTnIWI
+	evJa73UjIFyTuYvjxUTGQDUUUUU
+
+On Mon, Nov 19, 2018 at 06:25:30PM +0100, Michael Mueller wrote:
+> The function atomically returns the address of the first
+> GISA of this list and stores a zero address in the origin
+> list field of the GIB instead.
+> 
+> The GIB alert list contains all GISAs that have pending
+> adapter interruptions.
+> 
+> Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
+> Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
+...
+> +static struct kvm_s390_gisa __maybe_unused *unlink_gib_alert_list(void)
+> +{
+> +	u32 gisa;
+> +
+> +	if (!gib)
+> +		return NULL;
+> +
+
+...
+
+> +	do {
+> +		gisa = READ_ONCE(gib->alert_list_origin);
+> +	} while (cmpxchg(&gib->alert_list_origin, gisa, 0) != gisa);
+> +
+> +	return (void *)(u64) gisa;
+> +}
+
+Please make this shorter:
+
+	return (void *)(u64) xchg(&gib->alert_list_origin, gisa, 0);

@@ -1,0 +1,156 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (61.164.42.155:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 08 Nov 2018 10:27:01 -0000
+Received: from icoremail.net (unknown [209.85.214.176])
+	by mail-app2 (Coremail) with SMTP id by_KCgCHv+Q8h+NbMORbAQ--.27375S3;
+	Thu, 08 Nov 2018 08:45:50 +0800 (CST)
+Received: from mail-pl1-f176.google.com (unknown [209.85.214.176])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwB3W0c3h+NbN_gZAA--.2532S3;
+	Thu, 08 Nov 2018 08:45:44 +0800 (CST)
+Received: by mail-pl1-f176.google.com with SMTP id q19-v6so5663702pll.7
+        for <xuliker@zju.edu.cn>; Wed, 07 Nov 2018 16:45:43 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:delivered-to:dkim-signature:mime-version
+         :in-reply-to:references:from:date:message-id:subject:to:cc:sender
+         :precedence:list-id;
+        bh=Ldn52k84XGaZoACG015fDvpOnAUuWrTwILJhjX1jv+M=;
+        b=ajOWErRO/kurgDVwQ51pZAI3ezIWAiRZuZ3IjWdm/9DuSsjS5bmSBkNO8b3lGPebvY
+         Y1TY+H7GAbnw7ycERTmc9G6wQxdbJbHtCV7hZG4mhLBLaRvvMdPb0LzgZpWNdsoPAj/+
+         jIhixPpzEbJULnfc6SJaE53BhlrAG+W/CamDk0AyHk3PblKsYUh+hBgZC0rOJ7kYs1Y+
+         5hML9nCj7OaENYQMDiyn8NrIvA9hiDuNqNwmep7fPUb6SFh94asO0tNnXmpkcndoaPmt
+         J/kGjy63QjPNflbF1plduCLcbYh4UUDTW7INJxOUuMeE50rXTk1g+ek2RfqpPcdzQq4+
+         QT+g==
+X-Gm-Message-State: AGRZ1gIV9mdRSnNU9RbFTakUPXnvFVoMPEX7XaiWLuCkQxPWSVXjvgPt
+	YxlxwXHekWRfW9iPAnrLkcwjDDV/UA0jZPrhJ5MNxEIO14Brbl2V3w==
+X-Received: by 2002:a17:902:6b4b:: with SMTP id g11-v6mr2490319plt.213.1541637943593;
+        Wed, 07 Nov 2018 16:45:43 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp185639pjt;
+        Wed, 7 Nov 2018 16:45:42 -0800 (PST)
+X-Google-Smtp-Source: AJdET5fhHcfSeCbdqnaLaTXCa4YnTY9VLomFkVIIO5+DOyfhEMq9017KeSNqBkIYCuWbEAHV5f1o
+X-Received: by 2002:a17:902:a614:: with SMTP id u20-v6mr2494027plq.77.1541637942830;
+        Wed, 07 Nov 2018 16:45:42 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1541637942; cv=none;
+        d=google.com; s=arc-20160816;
+        b=v+1sCga/YRrfO5AuVLKP0PcZ7KvIb40sz5bVzckAN1oI864twr3TDHd2CoPpZ/rwvi
+         XWjB3dDO++MrzNgoywFPrBKfqoE62rK6RLJmO+uptMopwEDBVti5DaXHcsdxC55MN7Ab
+         dIV+BCDhn68+Ng1yu0EjERlDYkpXEE4utXcOesCdIDDzshfq+XKOhFI5uhnz9UPKGXtf
+         SN8F6IoEV4QR9UHnF7Fa6k2n+chUiBXNBLqNETM8BlMiicZ73OWNeIH/9lIOnOAxWAeV
+         4NOWL64NKQIbDxvjV8RjwQioQrEr5Cy/RMip8x/Lt+agTJHicaQXbKD5b19SBT2o9+v9
+         4Diw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:cc:to:subject:message-id:date:from
+         :references:in-reply-to:mime-version:dkim-signature;
+        bh=Ldn52k84XGaZoACG015fDvpOnAUuWrTwILJhjX1jv+M=;
+        b=UWIwM3T9rcTdKcpcMGjuM6c3LcQyjVU6dtga/ZSMzCV9oHzwMbBnKBpv3QQEay3jDy
+         52zzBZ7IlxwuZRaSeszETPi3W2L/0fX77E3173pKRhUCEfeH0Bu6cy1vEFpdzymyHE4g
+         utun7eAsowqS3SvvvfsnPWZ0tM2JrkE5Hmxcv8WHxPsRh6TcKcuR1rJIcHtXXndpmsMV
+         JRagQvGgEYekrhZuocqVu4mnE11VcD1PUPXIzBOUhaI/lFYD6SX/ZRmHp2n3JaOa8MIT
+         7IcflWB1JPqqCbagwHp3nZG+kVXCBaE5TKsAxvZL29loNLThrFl2s9Iu9R0xhlilQu49
+         fZ0A==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@google.com header.s=20161025 header.b="H5zGPrk/";
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;
+       dmarc=pass (p=REJECT sp=REJECT dis=NONE) header.from=google.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id i12-v6si2278115plt.9.2018.11.07.16.45.19;
+        Wed, 07 Nov 2018 16:45:42 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1728004AbeKHKSG (ORCPT <rfc822;fanshuming2011@gmail.com>
+        + 99 others); Thu, 8 Nov 2018 05:18:06 -0500
+Received: from mail-ot1-f67.google.com ([209.85.210.67]:45006 "EHLO
+        mail-ot1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727959AbeKHKSG (ORCPT <rfc822;kvm@vger.kernel.org>);
+        Thu, 8 Nov 2018 05:18:06 -0500
+Received: by mail-ot1-f67.google.com with SMTP id z33so16497438otz.11
+        for <kvm@vger.kernel.org>; Wed, 07 Nov 2018 16:45:13 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=mime-version:in-reply-to:references:from:date:message-id:subject:to
+         :cc;
+        bh=Ldn52k84XGaZoACG015fDvpOnAUuWrTwILJhjX1jv+M=;
+        b=H5zGPrk/QKGfJshMZlh3nV4mxvEH8tfGjlNMgI+QRu5yWKPsKY3xJLDQbOo6SrBmjZ
+         xLNBwfF88Z7gzWsknNfXk79K5ddgrWUd82JBl2PILBg0qr12tIAsW3Znq1uugwZgTj8H
+         PpOZqchiMXO3+DJJwJiLCGacfyBeVrdrtcN9QmLeJVLiLCYOOm6wCgG+6ZAUgPos6Yft
+         TNF4zHUNSC5sUBQEo/tmhhJDdwGkqlp2+/lh/4ZwXdwThUsrzIshO5Fhtk2UNdEdWfTt
+         AiXk5UlmaJpBqwCJEuxTN8kaCyiE1EVlnERpd8fiDbn+JyF26T/vIfOLSGl9x2k2mI1N
+         dxig==
+X-Received: by 2002:a9d:51c2:: with SMTP id d2mr1627554oth.0.1541637912494;
+ Wed, 07 Nov 2018 16:45:12 -0800 (PST)
+MIME-Version: 1.0
+Received: by 2002:ac9:31a7:0:0:0:0:0 with HTTP; Wed, 7 Nov 2018 16:45:11 -0800 (PST)
+In-Reply-To: <DF5EC0F1-BA8D-4B85-BB1A-B22234235FBA@oracle.com>
+References: <CALMp9eQ5zWxb2N9fyYz=WcQshwk0L6qQ4D6L6+p_dzMo4H=txA@mail.gmail.com>
+ <20181102034649.43559-1-liran.alon@oracle.com> <CALMp9eRk=a1FEyr78NRGBBZ2iFCo5s2n5N=bM4zR=YF56oob3A@mail.gmail.com>
+ <1C803EF0-9E1B-4E1B-A4DD-4BE788A7A1FF@oracle.com> <DF5EC0F1-BA8D-4B85-BB1A-B22234235FBA@oracle.com>
+From: Jim Mattson <jmattson@google.com>
+Date: Wed, 7 Nov 2018 16:45:11 -0800
+Message-ID: <CALMp9eQSptO+S1NZjQQUa=HQCXFOevHwTDS9i0KXHCGSfKzEkA@mail.gmail.com>
+Subject: Re: [Qemu-devel] [QEMU PATCH v2 0/2]: KVM: i386: Add support for save
+ and restore nested state
+To: Liran Alon <liran.alon@oracle.com>
+Cc: "Dr. David Alan Gilbert" <dgilbert@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Eduardo Habkost <ehabkost@redhat.com>,
+        kvm list <kvm@vger.kernel.org>, mtosatti@redhat.com,
+        rth@twiddle.net, qemu-devel@nongnu.org
+Content-Type: text/plain; charset="UTF-8"
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwB3W0c3h+NbN_gZAA--.2532S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW7Kw4DGw4UZr4UKr18XFyrWFg_yoW8Wry8pF
+	W2vrsxtFsxXwn3ur18uwn7GF1F9FWfJFW3JasxJ3WfAwn0gryIvr18tr4a9a1rAFZ7Wry3
+	XFs2y3y8Ja4fJFDanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUvab7Iv0xC_KF4lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1l84ACjcxK6I8E
+	87Iv67AKxVW0oVCq3wA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_GcCE3s1le2I262IYc4CY6c
+	8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_Jr0_
+	Jr4lYx0Ex4A2jsIE14v26r4j6F4UMcvjeVCFs4IE7xkEbVWUJVW8JwCjxxvEa2IrMxkF7I
+	0Ew4C26cxK6c8Ij28IcwCY0x0Ix7I2Y4AK64vIr41lcIIF0xvE2Ix0cI8IcVAFwI0_JFI_
+	Gr1lcIIF0xvE2Ix0cI8IcVCY1x0267AKxVWUJVW8JwCYIxAIcVC2z280aVAFwI0_Cr1j6r
+	xdMxvI42IY6I8E87Iv6xkF7I0E14v26F4UJVW0owCF04k20xvY0x0EwIxGrwCF04k20xvE
+	w4C26cxK6c8Ij28IcwCF72vE77IF4wCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F4
+	0E14v26r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_Jw0_GFyl
+	IxkGc2Ij64vIr41lIxAIcVCF04k26cxKx2IYs7xG6Fyj6rWUJbIYCTnIWIevJa73UjIFyT
+	uYvjxUfID7UUUUU
+
+On Wed, Nov 7, 2018 at 4:13 PM, Liran Alon <liran.alon@oracle.com> wrote:
+> Ping on my last reply.
+> I would like to reach to an agreement on how v3 should look like before just implementing what I think is right.
+>
+> Thanks,
+> -Liran
+
+I have no attachments to the current design. I had used a data[] blob,
+because I didn't think userspace would have any need to know what was
+in there. However, I am now seeing the error of my ways. For example,
+the userspace instruction emulator needs to know the contents of the
+vmcs12 to emulate instructions when in guest mode.
+
+I had been in favor of KVM_CAPs, because they are one way to ensure
+that the guest doesn't dynamically enter a state that isn't backwards
+compatible. But other gates are also possible. If you have to support
+destination kernels that don't know about the shadow vmcs12 component
+of the nested state, userspace can just clear bit 46 of L1's
+IA32_VMX_PROCBASED_CTLS2 MSR. For the VMX preemption timer, clear bit
+38 of L1's IA32_VMX_PINBASED_CTLS MSR. KVM_CAPs can be reserved for
+incompatible changes due to bug-fixes, like KVM_CAP_EXCEPTION_PAYLOAD,
+where there isn't another gate available. If, for example, we hadn't
+realized ahead of time that migration of the VMX preemption timer
+isn't yet supported, some userspace implementation may not have
+cleared bit 38 of L1's IA32_VMX_PINBASED_CTLS MSR, and then we would
+have to gate the new nested state component behind a KVM_CAP.
+
+As long as userspace can ensure that the kernel will only produce
+backwards compatible save-state when it has to, my basic requirements
+are met.

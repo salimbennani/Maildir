@@ -1,0 +1,365 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 20 Nov 2018 00:28:48 -0000
+Received: from icoremail.net (unknown [209.85.210.177])
+	by mail-app2 (Coremail) with SMTP id by_KCgDHH0J4a_Jb9Cq3AQ--.54189S3;
+	Mon, 19 Nov 2018 15:51:21 +0800 (CST)
+Received: from mail-pf1-f177.google.com (unknown [209.85.210.177])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwDnxkJ2a_JbRVZWAA--.5225S3;
+	Mon, 19 Nov 2018 15:51:18 +0800 (CST)
+Received: by mail-pf1-f177.google.com with SMTP id u3-v6so11760481pfm.4
+        for <xuliker@zju.edu.cn>; Sun, 18 Nov 2018 23:51:18 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent:sender:precedence
+         :list-id;
+        bh=g3z/FM8+EQ3T3qe8WAxD50T9rEfyHf5ZcQJVGmM8rnE=;
+        b=RGpD91va5lCeU3urWbYtlpYpofx57x2EMRlrMBij4fT8A50HGWKHXuZv19aXCItGFq
+         Wz3G1+PCXi+Npt46kT57NKv3J66r3LJAjq02P8B6aP6o2Fr7bNCRcpyjl5/jrnw6zzIE
+         dWzW6gc/FSEGz1e+zhy/wxMDhtJCPX8E7rbr53GovWnH6ypVuI/pRZskAAZ1PEak/spI
+         PZ8vhQJupkdOknXQHjT9ioj8MmKAyHuXgvQPuPJ3bHDCf/hNA2otssEnIhzmC8DyI644
+         fZ4Q9Uw5SSOz9T1VpitOktdxvQZbTta8GLp/tSKasGfCuKn0kGHwX5eHrLvm1Nzdk1yW
+         AKAw==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=redhat.com
+X-Gm-Message-State: AGRZ1gJtNT02qyk/AxeL/hPXDQeyLr+aUMs5ZwpqvPAlYq/vV5fhfpXV
+	dpyWlvfszMfLNlEL8hYfkbteuvH75dgukyzugGE3JBReJxpAi3Q=
+X-Received: by 2002:a63:2315:: with SMTP id j21mr19339610pgj.297.1542613878528;
+        Sun, 18 Nov 2018 23:51:18 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:d106:0:0:0:0 with SMTP id l6-v6csp2348075pju;
+        Sun, 18 Nov 2018 23:51:17 -0800 (PST)
+X-Google-Smtp-Source: AJdET5efYPt6VpjOcZpPmsmzbLu8eg59mnsNWLxZvoJqtVTZGo6WpdC3luB4J0/JgAJNJGk+3Nsl
+X-Received: by 2002:a17:902:a9:: with SMTP id a38-v6mr21452527pla.7.1542613877410;
+        Sun, 18 Nov 2018 23:51:17 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542613877; cv=none;
+        d=google.com; s=arc-20160816;
+        b=CKLL/a0rCRhorBVdtDqMcH+0CzFNrM86pswbcrJ35QxilcdNazc1vkXAzEX/Q3dJ8P
+         PCExfdBCwPx3vLDcyWdVkgZIT/9nK6GLyp+XY3/PAcU2P1jsktmy5OvYO1lP2GZ9vxfE
+         S7HeG6wXUMZUZX0AThN6BJoFRZ0LuEldW0eOkQf8JKD+BukcFO26Ka6X9o9NvSLgDeQx
+         NT+XSMFHjJGoCqiMf56g3Zz+UZVSeG2SjdS19L+br9GVMg3MEWhvzONT9FE8N8eZLHGg
+         SFjN2T8kxsomajn9SVzcNl1YieIDxKx8yOhaHXzAYv5TCuZVgAUzNu12iuxF/D4Kqjh6
+         a6Eg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:user-agent:in-reply-to
+         :content-disposition:mime-version:references:message-id:subject:cc
+         :to:from:date;
+        bh=g3z/FM8+EQ3T3qe8WAxD50T9rEfyHf5ZcQJVGmM8rnE=;
+        b=jFtn4A4t6DNVl0o+GKVNHzNBCO1TZtwGz9lYvfDOCzGSXJqMLwdYN54iZLPgr3Qud6
+         gxWU0s9dfP/bSWCycnTB0yMubhwn5QcqFjqaD3N6yupJJ5na3wv3zof8gzNoRSvElqO/
+         REG2z6MN737T5VP1wILfqv6eQYffrh1fD9qwOkfuOfqX9ny6lw4a+tlhEcwQG1m5HKfh
+         By09gRDroECGb7KbS5nUncH3IdnCwmIWAJ165MsFaFdtTik3zuz0yw6Gq7FnjGHP6IAv
+         beC1uXzk7+Ym/QRsE9G4SfY0b0kMSaoPxhQ9coyUglAGXSsabcdfl0DS2kX9sFs7zY1a
+         Xxmg==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=redhat.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id bh6-v6si39340554plb.66.2018.11.18.23.51.02;
+        Sun, 18 Nov 2018 23:51:17 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1726543AbeKSSNp (ORCPT <rfc822;nullbytes00@gmail.com>
+        + 99 others); Mon, 19 Nov 2018 13:13:45 -0500
+Received: from mx1.redhat.com ([209.132.183.28]:51456 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726348AbeKSSNp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+        Mon, 19 Nov 2018 13:13:45 -0500
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 0E3D13002061;
+        Mon, 19 Nov 2018 07:50:55 +0000 (UTC)
+Received: from ming.t460p (ovpn-8-26.pek2.redhat.com [10.72.8.26])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id C00CE608E7;
+        Mon, 19 Nov 2018 07:50:30 +0000 (UTC)
+Date: Mon, 19 Nov 2018 15:50:25 +0800
+From: Ming Lei <ming.lei@redhat.com>
+To: Omar Sandoval <osandov@osandov.com>
+Cc: Jens Axboe <axboe@kernel.dk>, linux-block@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        Dave Chinner <dchinner@redhat.com>,
+        Kent Overstreet <kent.overstreet@gmail.com>,
+        Mike Snitzer <snitzer@redhat.com>, dm-devel@redhat.com,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        linux-fsdevel@vger.kernel.org, Shaohua Li <shli@kernel.org>,
+        linux-raid@vger.kernel.org, linux-erofs@lists.ozlabs.org,
+        David Sterba <dsterba@suse.com>, linux-btrfs@vger.kernel.org,
+        "Darrick J . Wong" <darrick.wong@oracle.com>,
+        linux-xfs@vger.kernel.org, Gao Xiang <gaoxiang25@huawei.com>,
+        Christoph Hellwig <hch@lst.de>, Theodore Ts'o <tytso@mit.edu>,
+        linux-ext4@vger.kernel.org, Coly Li <colyli@suse.de>,
+        linux-bcache@vger.kernel.org, Boaz Harrosh <ooo@electrozaur.com>,
+        Bob Peterson <rpeterso@redhat.com>, cluster-devel@redhat.com
+Subject: Re: [PATCH V10 03/19] block: use bio_for_each_bvec() to compute
+ multi-page bvec count
+Message-ID: <20181119075024.GA16519@ming.t460p>
+References: <20181115085306.9910-1-ming.lei@redhat.com>
+ <20181115085306.9910-4-ming.lei@redhat.com>
+ <20181115202028.GC9348@vader>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20181115202028.GC9348@vader>
+User-Agent: Mutt/1.9.1 (2017-09-22)
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.47]); Mon, 19 Nov 2018 07:50:55 +0000 (UTC)
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwDnxkJ2a_JbRVZWAA--.5225S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW3WFyDWw4ktw48Xw4fXr4rAFb_yoWxur1fpr
+	1UCa1Fvryjqr1v9Fy7ta4jk34fK34xAry7Kry3tas5Ar95KFs3WF4xJrySgFWxurs8CF4k
+	Xr1DG3WfCrn5AFJanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUP2b7Iv0xC_Zr1lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Xr0_Ar1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1l84ACjcxK6I8E
+	87Iv67AKxVW0oVCq3wA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_GcCE3s1le2I262IYc4CY6c
+	8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_Jr0_
+	Jr4lYx0Ex4A2jsIE14v26r4j6F4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvEwIxGrw
+	CjxxvEa2IrMxkF7I0Ew4C26cxK6c8Ij28IcwCY1Ik26cxK6xAEc7vF6xCjj44lc2xSY4AK
+	6IIF6r4xMxkI7II2jI8vz4vEwIxGrwCYIxAIcVC0I7IYx2IY67AKxVWUJVWUCwCYIxAIcV
+	C0I7IYx2IY6xkF7I0E14v26r1j6r4UMxvI42IY6I8E87Iv67AKxVW8Jr0_Cr1UMxvI42IY
+	6I8E87Iv6xkF7I0E14v26r4UJVWxJr1l42xK82IYc2Ij64vIr41l42xK82IY64kExVAvwV
+	Aq07x20xyl4x8a6x804xWl4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWU
+	JVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r4a6rW5MIIYrxkI7V
+	AKI48JMIIF0xvE42xK8VAvwI8IcIk0rVW3JVWrJrUvcSsGvfC2KfnxnUUI43ZEXa7IU52X
+	dUUUUUU==
+
+On Thu, Nov 15, 2018 at 12:20:28PM -0800, Omar Sandoval wrote:
+> On Thu, Nov 15, 2018 at 04:52:50PM +0800, Ming Lei wrote:
+> > First it is more efficient to use bio_for_each_bvec() in both
+> > blk_bio_segment_split() and __blk_recalc_rq_segments() to compute how
+> > many multi-page bvecs there are in the bio.
+> > 
+> > Secondly once bio_for_each_bvec() is used, the bvec may need to be
+> > splitted because its length can be very longer than max segment size,
+> > so we have to split the big bvec into several segments.
+> > 
+> > Thirdly when splitting multi-page bvec into segments, the max segment
+> > limit may be reached, so the bio split need to be considered under
+> > this situation too.
+> > 
+> > Cc: Dave Chinner <dchinner@redhat.com>
+> > Cc: Kent Overstreet <kent.overstreet@gmail.com>
+> > Cc: Mike Snitzer <snitzer@redhat.com>
+> > Cc: dm-devel@redhat.com
+> > Cc: Alexander Viro <viro@zeniv.linux.org.uk>
+> > Cc: linux-fsdevel@vger.kernel.org
+> > Cc: Shaohua Li <shli@kernel.org>
+> > Cc: linux-raid@vger.kernel.org
+> > Cc: linux-erofs@lists.ozlabs.org
+> > Cc: David Sterba <dsterba@suse.com>
+> > Cc: linux-btrfs@vger.kernel.org
+> > Cc: Darrick J. Wong <darrick.wong@oracle.com>
+> > Cc: linux-xfs@vger.kernel.org
+> > Cc: Gao Xiang <gaoxiang25@huawei.com>
+> > Cc: Christoph Hellwig <hch@lst.de>
+> > Cc: Theodore Ts'o <tytso@mit.edu>
+> > Cc: linux-ext4@vger.kernel.org
+> > Cc: Coly Li <colyli@suse.de>
+> > Cc: linux-bcache@vger.kernel.org
+> > Cc: Boaz Harrosh <ooo@electrozaur.com>
+> > Cc: Bob Peterson <rpeterso@redhat.com>
+> > Cc: cluster-devel@redhat.com
+> > Signed-off-by: Ming Lei <ming.lei@redhat.com>
+> > ---
+> >  block/blk-merge.c | 90 ++++++++++++++++++++++++++++++++++++++++++++++---------
+> >  1 file changed, 76 insertions(+), 14 deletions(-)
+> > 
+> > diff --git a/block/blk-merge.c b/block/blk-merge.c
+> > index 91b2af332a84..6f7deb94a23f 100644
+> > --- a/block/blk-merge.c
+> > +++ b/block/blk-merge.c
+> > @@ -160,6 +160,62 @@ static inline unsigned get_max_io_size(struct request_queue *q,
+> >  	return sectors;
+> >  }
+> >  
+> > +/*
+> > + * Split the bvec @bv into segments, and update all kinds of
+> > + * variables.
+> > + */
+> > +static bool bvec_split_segs(struct request_queue *q, struct bio_vec *bv,
+> > +		unsigned *nsegs, unsigned *last_seg_size,
+> > +		unsigned *front_seg_size, unsigned *sectors)
+> > +{
+> > +	bool need_split = false;
+> > +	unsigned len = bv->bv_len;
+> > +	unsigned total_len = 0;
+> > +	unsigned new_nsegs = 0, seg_size = 0;
+> 
+> "unsigned int" here and everywhere else.
+> 
+> > +	if ((*nsegs >= queue_max_segments(q)) || !len)
+> > +		return need_split;
+> > +
+> > +	/*
+> > +	 * Multipage bvec may be too big to hold in one segment,
+> > +	 * so the current bvec has to be splitted as multiple
+> > +	 * segments.
+> > +	 */
+> > +	while (new_nsegs + *nsegs < queue_max_segments(q)) {
+> > +		seg_size = min(queue_max_segment_size(q), len);
+> > +
+> > +		new_nsegs++;
+> > +		total_len += seg_size;
+> > +		len -= seg_size;
+> > +
+> > +		if ((queue_virt_boundary(q) && ((bv->bv_offset +
+> > +		    total_len) & queue_virt_boundary(q))) || !len)
+> > +			break;
+> 
+> Checking queue_virt_boundary(q) != 0 is superfluous, and the len check
+> could just control the loop, i.e.,
+> 
+> 	while (len && new_nsegs + *nsegs < queue_max_segments(q)) {
+> 		seg_size = min(queue_max_segment_size(q), len);
+> 
+> 		new_nsegs++;
+> 		total_len += seg_size;
+> 		len -= seg_size;
+> 
+> 		if ((bv->bv_offset + total_len) & queue_virt_boundary(q))
+> 			break;
+> 	}
+> 
+> And if you rewrite it this way, I _think_ you can get rid of this
+> special case:
+> 
+> 	if ((*nsegs >= queue_max_segments(q)) || !len)
+> 		return need_split;
+> 
+> above.
+
+Good point, will do in next version.
+
+> 
+> > +	}
+> > +
+> > +	/* split in the middle of the bvec */
+> > +	if (len)
+> > +		need_split = true;
+> 
+> need_split is unnecessary, just return len != 0.
+
+OK.
+
+> 
+> > +
+> > +	/* update front segment size */
+> > +	if (!*nsegs) {
+> > +		unsigned first_seg_size = seg_size;
+> > +
+> > +		if (new_nsegs > 1)
+> > +			first_seg_size = queue_max_segment_size(q);
+> > +		if (*front_seg_size < first_seg_size)
+> > +			*front_seg_size = first_seg_size;
+> > +	}
+> > +
+> > +	/* update other varibles */
+> > +	*last_seg_size = seg_size;
+> > +	*nsegs += new_nsegs;
+> > +	if (sectors)
+> > +		*sectors += total_len >> 9;
+> > +
+> > +	return need_split;
+> > +}
+> > +
+> >  static struct bio *blk_bio_segment_split(struct request_queue *q,
+> >  					 struct bio *bio,
+> >  					 struct bio_set *bs,
+> > @@ -173,7 +229,7 @@ static struct bio *blk_bio_segment_split(struct request_queue *q,
+> >  	struct bio *new = NULL;
+> >  	const unsigned max_sectors = get_max_io_size(q, bio);
+> >  
+> > -	bio_for_each_segment(bv, bio, iter) {
+> > +	bio_for_each_bvec(bv, bio, iter) {
+> >  		/*
+> >  		 * If the queue doesn't support SG gaps and adding this
+> >  		 * offset would create a gap, disallow it.
+> > @@ -188,8 +244,12 @@ static struct bio *blk_bio_segment_split(struct request_queue *q,
+> >  			 */
+> >  			if (nsegs < queue_max_segments(q) &&
+> >  			    sectors < max_sectors) {
+> > -				nsegs++;
+> > -				sectors = max_sectors;
+> > +				/* split in the middle of bvec */
+> > +				bv.bv_len = (max_sectors - sectors) << 9;
+> > +				bvec_split_segs(q, &bv, &nsegs,
+> > +						&seg_size,
+> > +						&front_seg_size,
+> > +						&sectors);
+> >  			}
+> >  			goto split;
+> >  		}
+> > @@ -214,11 +274,12 @@ static struct bio *blk_bio_segment_split(struct request_queue *q,
+> >  		if (nsegs == 1 && seg_size > front_seg_size)
+> >  			front_seg_size = seg_size;
+> 
+> Hm, do we still need to check this here now that we're updating
+> front_seg_size inside of bvec_split_segs()?
+
+Right, the check & update can be removed.
+
+> 
+> >  
+> > -		nsegs++;
+> >  		bvprv = bv;
+> >  		bvprvp = &bvprv;
+> > -		seg_size = bv.bv_len;
+> > -		sectors += bv.bv_len >> 9;
+> > +
+> > +		if (bvec_split_segs(q, &bv, &nsegs, &seg_size,
+> > +					&front_seg_size, &sectors))
+> 
+> What happened to the indent alignment here?
+
+Will fix it in next version.
+
+> 
+> > +			goto split;
+> >  
+> >  	}
+> >  
+> > @@ -296,6 +357,7 @@ static unsigned int __blk_recalc_rq_segments(struct request_queue *q,
+> >  	struct bio_vec bv, bvprv = { NULL };
+> >  	int cluster, prev = 0;
+> >  	unsigned int seg_size, nr_phys_segs;
+> > +	unsigned front_seg_size = bio->bi_seg_front_size;
+> >  	struct bio *fbio, *bbio;
+> >  	struct bvec_iter iter;
+> >  
+> > @@ -316,7 +378,7 @@ static unsigned int __blk_recalc_rq_segments(struct request_queue *q,
+> >  	seg_size = 0;
+> >  	nr_phys_segs = 0;
+> >  	for_each_bio(bio) {
+> > -		bio_for_each_segment(bv, bio, iter) {
+> > +		bio_for_each_bvec(bv, bio, iter) {
+> >  			/*
+> >  			 * If SG merging is disabled, each bio vector is
+> >  			 * a segment
+> > @@ -336,20 +398,20 @@ static unsigned int __blk_recalc_rq_segments(struct request_queue *q,
+> >  				continue;
+> >  			}
+> >  new_segment:
+> > -			if (nr_phys_segs == 1 && seg_size >
+> > -			    fbio->bi_seg_front_size)
+> > -				fbio->bi_seg_front_size = seg_size;
+> > +			if (nr_phys_segs == 1 && seg_size > front_seg_size)
+> > +				front_seg_size = seg_size;
+> 
+> Same comment as in blk_bio_segment_split(), do we still need to check
+> this if we're updating front_seg_size in bvec_split_segs()?
+
+I think we can remove it too.
+
+
+Thanks,
+Ming

@@ -1,0 +1,465 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 12 Nov 2018 00:40:22 -0000
+Received: from icoremail.net (unknown [209.85.215.175])
+	by mail-app2 (Coremail) with SMTP id by_KCgDHH_r3huhbu6x3AQ--.36141S3;
+	Mon, 12 Nov 2018 03:46:00 +0800 (CST)
+Received: from mail-pg1-f175.google.com (unknown [209.85.215.175])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwCXf0v0huhbHTYuAA--.5407S3;
+	Mon, 12 Nov 2018 03:45:56 +0800 (CST)
+Received: by mail-pg1-f175.google.com with SMTP id z10so3046954pgp.7
+        for <xuliker@zju.edu.cn>; Sun, 11 Nov 2018 11:45:56 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :from:to:cc:subject:date:in-reply-to:references:message-id:sender
+         :precedence:list-id;
+        bh=SlHLTUCgZG1LiXmhZrevNOIarYUvko4xnFRHOrpzaY8=;
+        b=ojnKg37yrHROWDIV4KCIduFFHqHNiOVJt12soOHxXL21r7fBC9D/c/LcAyfbfepVqp
+         /X5GU+SXkhI8b2CDdNw2Xk8QuOoWw2y9vCp/fnWbL+SiDz1HnYwAbFqHCWiyFdmfAfGh
+         K4rj6MIE+uFZdOpgFF7nbpmqZ5i8JsHB7wk4ulBSqZQn+sRAchdRAjFep6TotK2IHw44
+         nZj9ljvoCs4D11Ai0CQ/Vi1hZ7NEZAE1l/0oRki6ScqOxkK9hKPj/NeLWeWAbqUoJr0S
+         JLP6YMnrTftYH3EjZCYaaC6guDnS866/L30lFPQOkRwcnOxt9h8sEWjgaXteotVmgXBF
+         cXDw==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=ibm.com
+X-Gm-Message-State: AGRZ1gJhf4HmHjR6VJCd0I8i8qgxC464QszButFdKtlBc9aarqGrrxBX
+	GRYBTl9+a1i6vygaPy+1k0ZziHdHhPyLPIWnd1fgLk0069ROPNY=
+X-Received: by 2002:a62:c184:: with SMTP id i126-v6mr17500578pfg.53.1541965556473;
+        Sun, 11 Nov 2018 11:45:56 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp2408651pjt;
+        Sun, 11 Nov 2018 11:45:55 -0800 (PST)
+X-Google-Smtp-Source: AJdET5fcoFXwJQk2bvD+vaLRUNldR0/2UYxdMo6ePG5h2h/T5CBzNOzmGUYe4lVU/EyqFOy7if/p
+X-Received: by 2002:a63:907:: with SMTP id 7-v6mr14824903pgj.121.1541965555629;
+        Sun, 11 Nov 2018 11:45:55 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1541965555; cv=none;
+        d=google.com; s=arc-20160816;
+        b=OocfIf2e//nHoGh5pQUlXxnHRBIeqLiGRnoxAASiTlHB4K8r88UsPKbR8cSAmjk8mB
+         8Iftt6D5OcPONHhUuSX6aIBBLDOM5anhKLiLUZWShj5XlhgiTv/eMcX5hgAl2xkud/WZ
+         mOY8/1mUL4rgMpIbQI729eLaTb5chgQvOSPAgSMO3KAa1t0upaPdHd3adD0kXFsZDt1n
+         bZ3g/1f0if7xMxrbAsw/3VW22Ne3Qw+Tvq7HOQLsU4yieRrUjc+QeWV/UAYjDhP8yaiE
+         iIDBduCcSvp3/DIzRGgVtv2Spsr0hvddkaKCMTVahXloR4PVcpXYw7/XngYR12hvyOYe
+         +leg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:message-id:references:in-reply-to:date
+         :subject:cc:to:from;
+        bh=SlHLTUCgZG1LiXmhZrevNOIarYUvko4xnFRHOrpzaY8=;
+        b=fIJhlmtPAxjUsy+E7k240COtGOFaLH/oodd74G8Ms1Pv8aRBSwvRnR/9qP/x3fDjMT
+         fcFJWAGvodnhGdh5XRiTSGD21Jpj6qZ3EkRSdfW6qJ3dr2tr9JrF+s/ANrsqYnTfcbfo
+         sgbNJuKmR0DgjPYFxkNVFlTZpeerGaraCQRwv3Aul2Dh79sKgubn2je+cXBhlQ+f2vx1
+         jjoD1BJoo4nBcDF1uihnuM3w1k1yOSmOt9/rFlFiZ55iPBQ46a8DslNWUKZViplqZIMk
+         tyjKY2mLz9EeIYoHyBms4oECDmk5vTB9QC+kXvR9OAhm3G66QLzkcMcUA36L6wGkztW0
+         ZXJQ==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=ibm.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id k25-v6si15801668pfe.36.2018.11.11.11.45.41;
+        Sun, 11 Nov 2018 11:45:55 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1729574AbeKLFdu (ORCPT <rfc822;berg.ding@gmail.com> + 99 others);
+        Mon, 12 Nov 2018 00:33:50 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:50372 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726971AbeKLFdq (ORCPT
+        <rfc822;linux-kernel@vger.kernel.org>);
+        Mon, 12 Nov 2018 00:33:46 -0500
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.22/8.16.0.22) with SMTP id wABJi8S3047957
+        for <linux-kernel@vger.kernel.org>; Sun, 11 Nov 2018 14:44:19 -0500
+Received: from e11.ny.us.ibm.com (e11.ny.us.ibm.com [129.33.205.201])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2npdvs8ph4-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-kernel@vger.kernel.org>; Sun, 11 Nov 2018 14:44:19 -0500
+Received: from localhost
+        by e11.ny.us.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-kernel@vger.kernel.org> from <paulmck@linux.vnet.ibm.com>;
+        Sun, 11 Nov 2018 19:44:18 -0000
+Received: from b01cxnp22033.gho.pok.ibm.com (9.57.198.23)
+        by e11.ny.us.ibm.com (146.89.104.198) with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted;
+        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256/256)
+        Sun, 11 Nov 2018 19:44:13 -0000
+Received: from b01ledav003.gho.pok.ibm.com (b01ledav003.gho.pok.ibm.com [9.57.199.108])
+        by b01cxnp22033.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id wABJiC7h40108112
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
+        Sun, 11 Nov 2018 19:44:12 GMT
+Received: from b01ledav003.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 72232B2066;
+        Sun, 11 Nov 2018 19:44:12 +0000 (GMT)
+Received: from b01ledav003.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 3A72BB205F;
+        Sun, 11 Nov 2018 19:44:12 +0000 (GMT)
+Received: from paulmck-ThinkPad-W541 (unknown [9.85.207.24])
+        by b01ledav003.gho.pok.ibm.com (Postfix) with ESMTP;
+        Sun, 11 Nov 2018 19:44:12 +0000 (GMT)
+Received: by paulmck-ThinkPad-W541 (Postfix, from userid 1000)
+        id D217F16C5DAA; Sun, 11 Nov 2018 11:44:12 -0800 (PST)
+From: "Paul E. McKenney" <paulmck@linux.ibm.com>
+To: linux-kernel@vger.kernel.org
+Cc: mingo@kernel.org, jiangshanlai@gmail.com, dipankar@in.ibm.com,
+        akpm@linux-foundation.org, mathieu.desnoyers@efficios.com,
+        josh@joshtriplett.org, tglx@linutronix.de, peterz@infradead.org,
+        rostedt@goodmis.org, dhowells@redhat.com, edumazet@google.com,
+        fweisbec@gmail.com, oleg@redhat.com, joel@joelfernandes.org,
+        "Paul E. McKenney" <paulmck@linux.ibm.com>,
+        Ingo Molnar <mingo@redhat.com>
+Subject: [PATCH tip/core/rcu 18/41] tracing: Replace synchronize_sched() and call_rcu_sched()
+Date: Sun, 11 Nov 2018 11:43:47 -0800
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20181111194104.GA4787@linux.ibm.com>
+References: <20181111194104.GA4787@linux.ibm.com>
+X-TM-AS-GCONF: 00
+x-cbid: 18111119-2213-0000-0000-00000315A7E4
+X-IBM-SpamModules-Scores: 
+X-IBM-SpamModules-Versions: BY=3.00010028; HX=3.00000242; KW=3.00000007;
+ PH=3.00000004; SC=3.00000270; SDB=6.01116019; UDB=6.00578733; IPR=6.00896120;
+ MB=3.00024114; MTD=3.00000008; XFM=3.00000015; UTC=2018-11-11 19:44:17
+X-IBM-AV-DETECTION: SAVI=unused REMOTE=unused XFE=unused
+x-cbparentid: 18111119-2214-0000-0000-00005C386BB6
+Message-Id: <20181111194410.6368-18-paulmck@linux.ibm.com>
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2018-11-11_13:,,
+ signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ malwarescore=0 suspectscore=3 phishscore=0 bulkscore=0 spamscore=0
+ clxscore=1015 lowpriorityscore=0 mlxscore=0 impostorscore=0
+ mlxlogscore=999 adultscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.0.1-1807170000 definitions=main-1811110188
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwCXf0v0huhbHTYuAA--.5407S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoWfJFykXw4UJrW5AFyUGFWfKrg_yoWkWw13pF
+	WYgrZrtr4DXF4jk395uF4fC34ft3s5X347GrZ5Cw1rZ3s8JryDur47XFy7ZFWYqrZ7Z34a
+	vr1j9r1UG3y7ZrJanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUU0bIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUPSb7Iv0xC_Kw4lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1l84ACjcxK6I8E
+	87Iv67AKxVWxJr0_GcWl84ACjcxK6I8E87Iv6xkF7I0E14v26F4UJVW0owAS0I0E0xvYzx
+	vE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AKxVWU
+	JVWUGwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcxkI7V
+	AKI48JMx02cVCv0xWlc7CjxVAKzI0EY4vE52x082I5MxkFs20EY4vE44CYbxCE4x80FwCY
+	02Avz4vEIxC_WwCY0x0Ix7I2Y4AK64vIr41lcIIF0xvE2Ix0cI8IcVAFwI0_Xr0_Ar1lcI
+	IF0xvE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwCYIxAIcVC2z280aVAFwI0_Gr1j6F4UJwCY
+	IxAIcVC2z280aVCY1x0267AKxVW8Jr0_Cr1UMxAIw28IcxkI7VAKI48JMxAIw28IcVAKzI
+	0EY4vE52x082I5MxCjnVCjjxCrMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAF
+	wI0_Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVW8ZVWrXwCIc4
+	0Y0x0EwIxGrwCI42IY6xAIw20EY4v20xvaj40_JFI_GrUvcSsGvfC2KfnxnUUI43ZEXa7I
+	Uob2-5UUUUU==
+
+Now that synchronize_rcu() waits for preempt-disable regions of code
+as well as RCU read-side critical sections, synchronize_sched() can
+be replaced by synchronize_rcu().  Similarly, call_rcu_sched() can be
+replaced by call_rcu().  This commit therefore makes these changes.
+
+Signed-off-by: Paul E. McKenney <paulmck@linux.ibm.com>
+Cc: Steven Rostedt <rostedt@goodmis.org>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: <linux-kernel@vger.kernel.org>
+---
+ include/linux/tracepoint.h         |  2 +-
+ kernel/trace/ftrace.c              | 24 ++++++++++++------------
+ kernel/trace/ring_buffer.c         | 12 ++++++------
+ kernel/trace/trace.c               | 10 +++++-----
+ kernel/trace/trace_events_filter.c |  4 ++--
+ kernel/trace/trace_kprobe.c        |  2 +-
+ kernel/tracepoint.c                |  4 ++--
+ 7 files changed, 29 insertions(+), 29 deletions(-)
+
+diff --git a/include/linux/tracepoint.h b/include/linux/tracepoint.h
+index 538ba1a58f5b..432080b59c26 100644
+--- a/include/linux/tracepoint.h
++++ b/include/linux/tracepoint.h
+@@ -82,7 +82,7 @@ int unregister_tracepoint_module_notifier(struct notifier_block *nb)
+ static inline void tracepoint_synchronize_unregister(void)
+ {
+ 	synchronize_srcu(&tracepoint_srcu);
+-	synchronize_sched();
++	synchronize_rcu();
+ }
+ #else
+ static inline void tracepoint_synchronize_unregister(void)
+diff --git a/kernel/trace/ftrace.c b/kernel/trace/ftrace.c
+index f536f601bd46..5b4f73e4fd56 100644
+--- a/kernel/trace/ftrace.c
++++ b/kernel/trace/ftrace.c
+@@ -173,7 +173,7 @@ static void ftrace_sync(struct work_struct *work)
+ {
+ 	/*
+ 	 * This function is just a stub to implement a hard force
+-	 * of synchronize_sched(). This requires synchronizing
++	 * of synchronize_rcu(). This requires synchronizing
+ 	 * tasks even in userspace and idle.
+ 	 *
+ 	 * Yes, function tracing is rude.
+@@ -934,7 +934,7 @@ ftrace_profile_write(struct file *filp, const char __user *ubuf,
+ 			ftrace_profile_enabled = 0;
+ 			/*
+ 			 * unregister_ftrace_profiler calls stop_machine
+-			 * so this acts like an synchronize_sched.
++			 * so this acts like an synchronize_rcu.
+ 			 */
+ 			unregister_ftrace_profiler();
+ 		}
+@@ -1086,7 +1086,7 @@ struct ftrace_ops *ftrace_ops_trampoline(unsigned long addr)
+ 
+ 	/*
+ 	 * Some of the ops may be dynamically allocated,
+-	 * they are freed after a synchronize_sched().
++	 * they are freed after a synchronize_rcu().
+ 	 */
+ 	preempt_disable_notrace();
+ 
+@@ -1286,7 +1286,7 @@ static void free_ftrace_hash_rcu(struct ftrace_hash *hash)
+ {
+ 	if (!hash || hash == EMPTY_HASH)
+ 		return;
+-	call_rcu_sched(&hash->rcu, __free_ftrace_hash_rcu);
++	call_rcu(&hash->rcu, __free_ftrace_hash_rcu);
+ }
+ 
+ void ftrace_free_filter(struct ftrace_ops *ops)
+@@ -1501,7 +1501,7 @@ static bool hash_contains_ip(unsigned long ip,
+  * the ip is not in the ops->notrace_hash.
+  *
+  * This needs to be called with preemption disabled as
+- * the hashes are freed with call_rcu_sched().
++ * the hashes are freed with call_rcu().
+  */
+ static int
+ ftrace_ops_test(struct ftrace_ops *ops, unsigned long ip, void *regs)
+@@ -4496,7 +4496,7 @@ unregister_ftrace_function_probe_func(char *glob, struct trace_array *tr,
+ 	if (ftrace_enabled && !ftrace_hash_empty(hash))
+ 		ftrace_run_modify_code(&probe->ops, FTRACE_UPDATE_CALLS,
+ 				       &old_hash_ops);
+-	synchronize_sched();
++	synchronize_rcu();
+ 
+ 	hlist_for_each_entry_safe(entry, tmp, &hhd, hlist) {
+ 		hlist_del(&entry->hlist);
+@@ -5314,7 +5314,7 @@ ftrace_graph_release(struct inode *inode, struct file *file)
+ 		mutex_unlock(&graph_lock);
+ 
+ 		/* Wait till all users are no longer using the old hash */
+-		synchronize_sched();
++		synchronize_rcu();
+ 
+ 		free_ftrace_hash(old_hash);
+ 	}
+@@ -5707,7 +5707,7 @@ void ftrace_release_mod(struct module *mod)
+ 	list_for_each_entry_safe(mod_map, n, &ftrace_mod_maps, list) {
+ 		if (mod_map->mod == mod) {
+ 			list_del_rcu(&mod_map->list);
+-			call_rcu_sched(&mod_map->rcu, ftrace_free_mod_map);
++			call_rcu(&mod_map->rcu, ftrace_free_mod_map);
+ 			break;
+ 		}
+ 	}
+@@ -5927,7 +5927,7 @@ ftrace_mod_address_lookup(unsigned long addr, unsigned long *size,
+ 	struct ftrace_mod_map *mod_map;
+ 	const char *ret = NULL;
+ 
+-	/* mod_map is freed via call_rcu_sched() */
++	/* mod_map is freed via call_rcu() */
+ 	preempt_disable();
+ 	list_for_each_entry_rcu(mod_map, &ftrace_mod_maps, list) {
+ 		ret = ftrace_func_address_lookup(mod_map, addr, size, off, sym);
+@@ -6262,7 +6262,7 @@ __ftrace_ops_list_func(unsigned long ip, unsigned long parent_ip,
+ 
+ 	/*
+ 	 * Some of the ops may be dynamically allocated,
+-	 * they must be freed after a synchronize_sched().
++	 * they must be freed after a synchronize_rcu().
+ 	 */
+ 	preempt_disable_notrace();
+ 
+@@ -6433,7 +6433,7 @@ static void clear_ftrace_pids(struct trace_array *tr)
+ 	rcu_assign_pointer(tr->function_pids, NULL);
+ 
+ 	/* Wait till all users are no longer using pid filtering */
+-	synchronize_sched();
++	synchronize_rcu();
+ 
+ 	trace_free_pid_list(pid_list);
+ }
+@@ -6580,7 +6580,7 @@ ftrace_pid_write(struct file *filp, const char __user *ubuf,
+ 	rcu_assign_pointer(tr->function_pids, pid_list);
+ 
+ 	if (filtered_pids) {
+-		synchronize_sched();
++		synchronize_rcu();
+ 		trace_free_pid_list(filtered_pids);
+ 	} else if (pid_list) {
+ 		/* Register a probe to set whether to ignore the tracing of a task */
+diff --git a/kernel/trace/ring_buffer.c b/kernel/trace/ring_buffer.c
+index 65bd4616220d..4f3247a53259 100644
+--- a/kernel/trace/ring_buffer.c
++++ b/kernel/trace/ring_buffer.c
+@@ -1834,7 +1834,7 @@ int ring_buffer_resize(struct ring_buffer *buffer, unsigned long size,
+ 		 * There could have been a race between checking
+ 		 * record_disable and incrementing it.
+ 		 */
+-		synchronize_sched();
++		synchronize_rcu();
+ 		for_each_buffer_cpu(buffer, cpu) {
+ 			cpu_buffer = buffer->buffers[cpu];
+ 			rb_check_pages(cpu_buffer);
+@@ -3151,7 +3151,7 @@ static bool rb_per_cpu_empty(struct ring_buffer_per_cpu *cpu_buffer)
+  * This prevents all writes to the buffer. Any attempt to write
+  * to the buffer after this will fail and return NULL.
+  *
+- * The caller should call synchronize_sched() after this.
++ * The caller should call synchronize_rcu() after this.
+  */
+ void ring_buffer_record_disable(struct ring_buffer *buffer)
+ {
+@@ -3253,7 +3253,7 @@ bool ring_buffer_record_is_set_on(struct ring_buffer *buffer)
+  * This prevents all writes to the buffer. Any attempt to write
+  * to the buffer after this will fail and return NULL.
+  *
+- * The caller should call synchronize_sched() after this.
++ * The caller should call synchronize_rcu() after this.
+  */
+ void ring_buffer_record_disable_cpu(struct ring_buffer *buffer, int cpu)
+ {
+@@ -4191,7 +4191,7 @@ EXPORT_SYMBOL_GPL(ring_buffer_read_prepare);
+ void
+ ring_buffer_read_prepare_sync(void)
+ {
+-	synchronize_sched();
++	synchronize_rcu();
+ }
+ EXPORT_SYMBOL_GPL(ring_buffer_read_prepare_sync);
+ 
+@@ -4363,7 +4363,7 @@ void ring_buffer_reset_cpu(struct ring_buffer *buffer, int cpu)
+ 	atomic_inc(&cpu_buffer->record_disabled);
+ 
+ 	/* Make sure all commits have finished */
+-	synchronize_sched();
++	synchronize_rcu();
+ 
+ 	raw_spin_lock_irqsave(&cpu_buffer->reader_lock, flags);
+ 
+@@ -4496,7 +4496,7 @@ int ring_buffer_swap_cpu(struct ring_buffer *buffer_a,
+ 		goto out;
+ 
+ 	/*
+-	 * We can't do a synchronize_sched here because this
++	 * We can't do a synchronize_rcu here because this
+ 	 * function can be called in atomic context.
+ 	 * Normally this will be called from the same CPU as cpu.
+ 	 * If not it's up to the caller to protect this.
+diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
+index ff1c4b20cd0a..51612b4a603f 100644
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -1681,7 +1681,7 @@ void tracing_reset(struct trace_buffer *buf, int cpu)
+ 	ring_buffer_record_disable(buffer);
+ 
+ 	/* Make sure all commits have finished */
+-	synchronize_sched();
++	synchronize_rcu();
+ 	ring_buffer_reset_cpu(buffer, cpu);
+ 
+ 	ring_buffer_record_enable(buffer);
+@@ -1698,7 +1698,7 @@ void tracing_reset_online_cpus(struct trace_buffer *buf)
+ 	ring_buffer_record_disable(buffer);
+ 
+ 	/* Make sure all commits have finished */
+-	synchronize_sched();
++	synchronize_rcu();
+ 
+ 	buf->time_start = buffer_ftrace_now(buf, buf->cpu);
+ 
+@@ -2250,7 +2250,7 @@ void trace_buffered_event_disable(void)
+ 	preempt_enable();
+ 
+ 	/* Wait for all current users to finish */
+-	synchronize_sched();
++	synchronize_rcu();
+ 
+ 	for_each_tracing_cpu(cpu) {
+ 		free_page((unsigned long)per_cpu(trace_buffered_event, cpu));
+@@ -5398,7 +5398,7 @@ static int tracing_set_tracer(struct trace_array *tr, const char *buf)
+ 	if (tr->current_trace->reset)
+ 		tr->current_trace->reset(tr);
+ 
+-	/* Current trace needs to be nop_trace before synchronize_sched */
++	/* Current trace needs to be nop_trace before synchronize_rcu */
+ 	tr->current_trace = &nop_trace;
+ 
+ #ifdef CONFIG_TRACER_MAX_TRACE
+@@ -5412,7 +5412,7 @@ static int tracing_set_tracer(struct trace_array *tr, const char *buf)
+ 		 * The update_max_tr is called from interrupts disabled
+ 		 * so a synchronized_sched() is sufficient.
+ 		 */
+-		synchronize_sched();
++		synchronize_rcu();
+ 		free_snapshot(tr);
+ 	}
+ #endif
+diff --git a/kernel/trace/trace_events_filter.c b/kernel/trace/trace_events_filter.c
+index 84a65173b1e9..35f3aa55be85 100644
+--- a/kernel/trace/trace_events_filter.c
++++ b/kernel/trace/trace_events_filter.c
+@@ -1614,7 +1614,7 @@ static int process_system_preds(struct trace_subsystem_dir *dir,
+ 
+ 	/*
+ 	 * The calls can still be using the old filters.
+-	 * Do a synchronize_sched() and to ensure all calls are
++	 * Do a synchronize_rcu() and to ensure all calls are
+ 	 * done with them before we free them.
+ 	 */
+ 	tracepoint_synchronize_unregister();
+@@ -1845,7 +1845,7 @@ int apply_subsystem_event_filter(struct trace_subsystem_dir *dir,
+ 	if (filter) {
+ 		/*
+ 		 * No event actually uses the system filter
+-		 * we can free it without synchronize_sched().
++		 * we can free it without synchronize_rcu().
+ 		 */
+ 		__free_filter(system->filter);
+ 		system->filter = filter;
+diff --git a/kernel/trace/trace_kprobe.c b/kernel/trace/trace_kprobe.c
+index fec67188c4d2..adc153ab51c0 100644
+--- a/kernel/trace/trace_kprobe.c
++++ b/kernel/trace/trace_kprobe.c
+@@ -333,7 +333,7 @@ disable_trace_kprobe(struct trace_kprobe *tk, struct trace_event_file *file)
+ 		 * event_call related objects, which will be accessed in
+ 		 * the kprobe_trace_func/kretprobe_trace_func.
+ 		 */
+-		synchronize_sched();
++		synchronize_rcu();
+ 		kfree(link);	/* Ignored if link == NULL */
+ 	}
+ 
+diff --git a/kernel/tracepoint.c b/kernel/tracepoint.c
+index a3be42304485..46f2ab1e08a9 100644
+--- a/kernel/tracepoint.c
++++ b/kernel/tracepoint.c
+@@ -92,7 +92,7 @@ static __init int release_early_probes(void)
+ 	while (early_probes) {
+ 		tmp = early_probes;
+ 		early_probes = tmp->next;
+-		call_rcu_sched(tmp, rcu_free_old_probes);
++		call_rcu(tmp, rcu_free_old_probes);
+ 	}
+ 
+ 	return 0;
+@@ -123,7 +123,7 @@ static inline void release_probes(struct tracepoint_func *old)
+ 		 * cover both cases. So let us chain the SRCU and sched RCU
+ 		 * callbacks to wait for both grace periods.
+ 		 */
+-		call_rcu_sched(&tp_probes->rcu, rcu_free_old_probes);
++		call_rcu(&tp_probes->rcu, rcu_free_old_probes);
+ 	}
+ }
+ 
+-- 
+2.17.1

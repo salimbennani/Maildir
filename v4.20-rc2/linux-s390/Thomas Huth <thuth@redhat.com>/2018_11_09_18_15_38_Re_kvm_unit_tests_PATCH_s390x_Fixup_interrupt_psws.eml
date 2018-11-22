@@ -1,0 +1,213 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (61.164.42.155:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 10 Nov 2018 00:51:40 -0000
+Received: from icoremail.net (unknown [209.85.215.175])
+	by mail-app2 (Coremail) with SMTP id by_KCgDHHyapXuVb+PdmAQ--.31748S3;
+	Fri, 09 Nov 2018 18:17:14 +0800 (CST)
+Received: from mail-pg1-f175.google.com (unknown [209.85.215.175])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwDXrzukXuVb_AEiAA--.1384S3;
+	Fri, 09 Nov 2018 18:17:08 +0800 (CST)
+Received: by mail-pg1-f175.google.com with SMTP id r9-v6so672785pgv.6
+        for <xuliker@zju.edu.cn>; Fri, 09 Nov 2018 02:17:08 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :subject:to:cc:references:from:openpgp:autocrypt:organization
+         :message-id:date:user-agent:mime-version:in-reply-to
+         :content-language:content-transfer-encoding:sender:precedence
+         :list-id;
+        bh=LxZfpBIFDmh4q8Wfi6v4B/ApVVsIltgkS8OHboRupaY=;
+        b=Z5N6a51Ys2m3RksMKYMxgQUT8PXQo2Hwv6vL/fQItL5Xge9fFxtDx99aJiSwiTje+U
+         COemcOi0cjVRru4HvVz29m/4VbPMAL9BkxyG8RYkfCiyXwQQjw062lt8wABe2xntpLKk
+         X/3+1X8Pmuci9Z7nB4hflt+pSmm0Gw2RKtGzlbOTClsOMSwMbbcV6oQcn0vP09X/4DYq
+         By5YPS55GWnKSTbQnHK1LklBKaf74M2r8YfAtqjAICGRWsramTPK8veYdB8Nd0IJnFkX
+         Krz0ZAnKqcJD2OZKn7L9ekF0iUOBQtWwrS8Psnqf4DP+V0y5JqUkV7rUE5xvyXlv9d0a
+         DcmQ==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=redhat.com
+X-Gm-Message-State: AGRZ1gIzYDY0qH+KBRjU2cD/40Um1zEgVVB8ShjNLBL1T5Ncmz21jTm4
+	P2+09FWzTAWpktjNW24NiC+Wgt9W4lon9A5wDTagotAybFN4oQkG1w==
+X-Received: by 2002:a63:460a:: with SMTP id t10-v6mr6970088pga.197.1541758627789;
+        Fri, 09 Nov 2018 02:17:07 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp22994pjt;
+        Fri, 9 Nov 2018 02:17:06 -0800 (PST)
+X-Google-Smtp-Source: AJdET5fkMYKQ6Ji/Z+Bh22b6H4F5M98r1b3qP+avJiaAmWjybL+3JNwu2NftX2tqDncev8epHgGI
+X-Received: by 2002:a17:902:a411:: with SMTP id p17-v6mr8480593plq.286.1541758626884;
+        Fri, 09 Nov 2018 02:17:06 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1541758626; cv=none;
+        d=google.com; s=arc-20160816;
+        b=R3QiV7E45XZBYb1JJhqgD2XUGBJM7YKrlxoSxKV/KiH6XOODtBamaPFboPveqvk+to
+         vSKDhVQfLaKDO/AE3RFdEqNe5+sOtRVviGBAlabnZLvPS+R30swSfGDEC8jE+V9dVycU
+         EPG8KFEYMBp/K9gSqR9KRd8hDscvifTT9I7kZLAW2qTr6UVlPQnbzx0EYfhqEsVWf8oZ
+         MazCWNidaCs0KEzwEyJcJzQgHbyzYb1RaFlX8zFdnxAzSHnqCva33AFjN3Gm9pqbQy4n
+         4qK0k4uNbiYVi9ra+MuGXd96VD1YwIespfgpAWyyt079TINuXH8ZRaEeak27qjnwziEz
+         D6wA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:content-transfer-encoding
+         :content-language:in-reply-to:mime-version:user-agent:date
+         :message-id:organization:autocrypt:openpgp:from:references:cc:to
+         :subject;
+        bh=LxZfpBIFDmh4q8Wfi6v4B/ApVVsIltgkS8OHboRupaY=;
+        b=NK+YBIz8HWz7HPeOJvhv32IXaXMaq0BDq/sOPB+9ZtRY964dGVA3psneB2dHcEghc0
+         gPZcLOUgqjYf4pHR0pVAWDOjwWn5A3KgK9c9C+ruNCUhMpEOtF/8GhTVkzjHOtVTsquJ
+         qns2JFgP1qI6xvCqxvCAovo67OQP6eXNWYxxesS/EXmAZO3ZmKAwahHFwypNOOefVPSI
+         yvyex94yrTF9u0t7d1u8ixcbm1RgVD1S0KJ+NAeTTXEvTd1tILqrHEOzXjfpOgoscBOQ
+         24uagB5+40Q8hc7p1SO8x+ino/d9a62axSPLLmzirpgNrr1d7w/niuwTA6WZ1WbS5xDK
+         9hFw==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=redhat.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id g11si2308321pgn.32.2018.11.09.02.16.20;
+        Fri, 09 Nov 2018 02:17:06 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1727816AbeKITzk (ORCPT <rfc822;fanshuming2011@gmail.com>
+        + 99 others); Fri, 9 Nov 2018 14:55:40 -0500
+Received: from mx1.redhat.com ([209.132.183.28]:47676 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727532AbeKITzj (ORCPT <rfc822;kvm@vger.kernel.org>);
+        Fri, 9 Nov 2018 14:55:39 -0500
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id D9C79307DAC9;
+        Fri,  9 Nov 2018 10:15:44 +0000 (UTC)
+Received: from thuth.remote.csb (ovpn-117-98.ams2.redhat.com [10.36.117.98])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 90A0019487;
+        Fri,  9 Nov 2018 10:15:39 +0000 (UTC)
+Subject: Re: [kvm-unit-tests PATCH] s390x: Fixup interrupt psws
+To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, david@redhat.com, cohuck@redhat.com,
+        =?UTF-8?B?UmFkaW0gS3LEjW3DocWZ?= <rkrcmar@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+References: <1541669224-29953-1-git-send-email-frankja@linux.ibm.com>
+ <1541671258-4294-1-git-send-email-frankja@linux.ibm.com>
+From: Thomas Huth <thuth@redhat.com>
+Openpgp: preference=signencrypt
+Autocrypt: addr=thuth@redhat.com; keydata=
+ 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
+Organization: Red Hat
+Message-ID: <88d03f25-4945-9277-8baa-463da33f0afd@redhat.com>
+Date: Fri, 9 Nov 2018 11:15:38 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:52.0) Gecko/20100101
+ Thunderbird/52.9.1
+MIME-Version: 1.0
+In-Reply-To: <1541671258-4294-1-git-send-email-frankja@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.42]); Fri, 09 Nov 2018 10:15:44 +0000 (UTC)
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwDXrzukXuVb_AEiAA--.1384S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW7Kr18Ar1kXr4kZF1fCry8Xwb_yoW8Xr4UpF
+	WUG3WkZr40qF1SyFZFqFyjvFWDXa13Wr15ua95Aw4UAry7tw1FvFy7Ary3Kw1Y934xXFWr
+	ZFWFv3Wq9a4fXFJanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUm2b7Iv0xC_Cr1lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1l84ACjcxK6I8E
+	87Iv67AKxVW0oVCq3wA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_GcCE3s1le2I262IYc4CY6c
+	8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_Jr0_
+	Jr4lYx0Ex4A2jsIE14v26r4j6F4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvEwIxGrw
+	CjxxvEa2IrMxk0xIA0c2IEe2xFo4CEbIxvr21lc7CjxVAKzI0EY4vE52x082I5MxkFs20E
+	Y4vE44CYbxCE4x80FwCY02Avz4vEIxC_Gw1lc2IjII80xcxEwVAKI48JMxvI42IY6xIIjx
+	v20xvE14v26ryj6F1UMxvI42IY6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1lcIIF0xvEx4A2
+	jsIE14v26rxl6s0DMxvI42IY6I8E87Iv6xkF7I0E14v26rxl6s0DMxAIw28IcxkI7VAKI4
+	8JMxAIw28IcVAKzI0EY4vE52x082I5MxCjnVCjjxCrMxC20s026xCaFVCjc4AY6r1j6r4U
+	MI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67
+	AKxVWUtVW8ZwCIc40Y0x0EwIxGrwCI42IY6xAIw20EY4v20xvaj40_Zr0_Wr1UYxBIdaVF
+	xhVjvjDU0xZFpf9x07b0ksgUUUUU=
+
+On 2018-11-08 11:00, Janosch Frank wrote:
+> Let's use the svc psw instead of the mccheck psw for svc interrupts
+> and name it supervisor call. Also we exchange the io int psw for the
+> right one.
+> 
+> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+> ---
+>  lib/s390x/interrupt.c | 2 +-
+>  s390x/cstart64.S      | 4 ++--
+>  2 files changed, 3 insertions(+), 3 deletions(-)
+> 
+> diff --git a/lib/s390x/interrupt.c b/lib/s390x/interrupt.c
+> index 6d0d4a3..4bcfdd6 100644
+> --- a/lib/s390x/interrupt.c
+> +++ b/lib/s390x/interrupt.c
+> @@ -137,6 +137,6 @@ void handle_io_int(void)
+>  
+>  void handle_svc_int(void)
+>  {
+> -	report_abort("Unexpected service call interrupt: at %#lx",
+> +	report_abort("Unexpected supervisor call interrupt: at %#lx",
+>  		     lc->svc_old_psw.addr);
+>  }
+> diff --git a/s390x/cstart64.S b/s390x/cstart64.S
+> index d6d40b7..dc7ddd6 100644
+> --- a/s390x/cstart64.S
+> +++ b/s390x/cstart64.S
+> @@ -33,10 +33,10 @@ init_psw_cont:
+>  	larl	%r1, mcck_int_psw
+>  	mvc	GEN_LC_MCCK_NEW_PSW(16), 0(%r1)
+>  	/* setup io interrupt handler */
+> -	larl	%r1, ext_int_psw
+> +	larl	%r1, io_int_psw
+>  	mvc	GEN_LC_IO_NEW_PSW(16), 0(%r1)
+>  	/* setup svc interrupt handler */
+> -	larl	%r1, mcck_int_psw
+> +	larl	%r1, svc_int_psw
+>  	mvc	GEN_LC_SVC_NEW_PSW(16), 0(%r1)
+>  	/* setup cr0, enabling e.g. AFP-register control */
+>  	larl	%r1, initial_cr0
+> 
+
+Reviewed-by: Thomas Huth <thuth@redhat.com>

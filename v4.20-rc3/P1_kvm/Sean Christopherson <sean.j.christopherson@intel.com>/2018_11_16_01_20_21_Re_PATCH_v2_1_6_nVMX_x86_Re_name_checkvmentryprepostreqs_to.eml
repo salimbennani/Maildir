@@ -1,0 +1,198 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 16 Nov 2018 00:29:17 -0000
+Received: from icoremail.net (unknown [209.85.215.173])
+	by mail-app2 (Coremail) with SMTP id by_KCgC3f9Huqu1baqWbAQ--.46167S3;
+	Fri, 16 Nov 2018 01:20:47 +0800 (CST)
+Received: from mail-pg1-f173.google.com (unknown [209.85.215.173])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwAX7zrpqu1bqfJEAA--.18335S3;
+	Fri, 16 Nov 2018 01:20:42 +0800 (CST)
+Received: by mail-pg1-f173.google.com with SMTP id w7so9282621pgp.13
+        for <xuliker@zju.edu.cn>; Thu, 15 Nov 2018 09:20:42 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent:sender:precedence
+         :list-id;
+        bh=IEwhL40AZJdIYkDv6yqb3G8o8oIoyt7XhILX7gIxaAQ=;
+        b=QYuEV8sDIAaa89fdvoNF0UHrp4HYKbeQMh6RQOAx2jaYQ95CyS9reu6dYZHhuIp49x
+         E8Vq6XCmRLCQU0PU9Cglrk8L2vYa6SUIY+Oc2l6p2Pr8RkhiGUWaNWu0UE/KWZp02kbn
+         6RNAdob6Iho3QfWy6xtkB9SRm3ypMaFiaAFW47eH5r3e8HHu+NCQlwD70GQ0Uj19uWay
+         tknRss9zKPW9zKbpAFgbTVDZ+2n7ZBwk2iwwWA3UmkZ+xD4UGdWGc1Z3eolVwlvv/Aeq
+         5XIQymBDXhOZlrKIoLAs0J5dgGkbh8xG/a6X2GltB4DQ9RilZba/DDeGuQKklgOue0N0
+         PuIg==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=intel.com
+X-Gm-Message-State: AGRZ1gJmoTdbSJ8ZNOX4av4IzS3QgYzyfm25MotA9yEJPj/b11oJsJ2o
+	hYv0Vf9Jm+BNlKCURkvxsGnJ73bHnDXo+sGpQJ+xlGb+DOipJRM+8g==
+X-Received: by 2002:aa7:8497:: with SMTP id u23mr2958358pfn.220.1542302441539;
+        Thu, 15 Nov 2018 09:20:41 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:d106:0:0:0:0 with SMTP id l6-v6csp835837pju;
+        Thu, 15 Nov 2018 09:20:40 -0800 (PST)
+X-Google-Smtp-Source: AJdET5doUTGId7OZPSGjJ/7/DkmA1cLiCAMAqXusYVg6oZuV4ar5/X5Il9jz789BD38KC0HbezjT
+X-Received: by 2002:a62:4641:: with SMTP id t62-v6mr7347044pfa.200.1542302440583;
+        Thu, 15 Nov 2018 09:20:40 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542302440; cv=none;
+        d=google.com; s=arc-20160816;
+        b=GpfdIL13BsfQhm6bHBcjXzLCzKsVYn4USCjKmSXHnoS3BNUhRPL0LIs+LnORL4FSsZ
+         JzW8YWl6rZYaIxP5WGuywBbOANqHlbg/uwGlntFrIYTkXtyECRFQmRk+sL1U2mCRE4bD
+         mii+5QQy0Up2h6yfnNn2NjhFRT7nMSYYfZVdidDnOzalBX1eSnEFEgBgh+md9hmLyyUQ
+         LH/7av/dOkFRY4xErOHne0iVLuxduEHW/euPCTzOszAELQkAcSiXcQ8l7o7lxWPEZK9F
+         Kb+ZFXBR5fSUVPnWvi398UZqGFnauENdzYY1g0UOGlNlBSU7a0gHDJ0V/mWh1m1kk1VT
+         I7tw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:user-agent:in-reply-to
+         :content-disposition:mime-version:references:message-id:subject:cc
+         :to:from:date;
+        bh=IEwhL40AZJdIYkDv6yqb3G8o8oIoyt7XhILX7gIxaAQ=;
+        b=auQj3Ncv/9cg4v79PaEj++2I0nnqluLRIHDjaXD8bLK9HPZqA9LNPNptPVHOcWqcId
+         jmeQ65CyIIdnlsiRBtpAJfcRXMgxtc/qPjHijPF4+KFArQaE7wYEpHAqEgQe5azjKBV3
+         WwIyKUKatGHKL48thCOIMCLcJ8E0HmXFiBlKOJ3N3O4jmOpj0SE15j0pZWcmtzAqRDcM
+         N+QFl+d9rQ0GaRFnYvJI0WgSpkzDwtnOlIzoLn58/TsLoQZ7U/6HFc1WvoUeKikkTWyk
+         CjDaLu1c6k6KBfvEz8eGTXjXKzyUV/3icmkk0Vvh1o4+GLOZgSREEPb49lEtLbnBmdVb
+         UZDQ==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=intel.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id e39-v6si30366199plb.369.2018.11.15.09.20.26;
+        Thu, 15 Nov 2018 09:20:40 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S2388630AbeKPD3E (ORCPT <rfc822;nodee764@gmail.com> + 99 others);
+        Thu, 15 Nov 2018 22:29:04 -0500
+Received: from mga04.intel.com ([192.55.52.120]:46883 "EHLO mga04.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2388088AbeKPD3E (ORCPT <rfc822;kvm@vger.kernel.org>);
+        Thu, 15 Nov 2018 22:29:04 -0500
+X-Amp-Result: UNKNOWN
+X-Amp-Original-Verdict: FILE UNKNOWN
+X-Amp-File-Uploaded: False
+Received: from orsmga006.jf.intel.com ([10.7.209.51])
+  by fmsmga104.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 15 Nov 2018 09:20:22 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.56,236,1539673200"; 
+   d="scan'208";a="91416915"
+Received: from sjchrist-coffee.jf.intel.com (HELO linux.intel.com) ([10.54.74.154])
+  by orsmga006.jf.intel.com with ESMTP; 15 Nov 2018 09:20:21 -0800
+Date: Thu, 15 Nov 2018 09:20:21 -0800
+From: Sean Christopherson <sean.j.christopherson@intel.com>
+To: Krish Sadhukhan <krish.sadhukhan@oracle.com>
+Cc: kvm@vger.kernel.org, pbonzini@redhat.com, jmattson@google.com,
+        rkrcmar@redhat.com
+Subject: Re: [PATCH v2 1/6] nVMX x86: Re-name check_vmentry_pre[post]reqs to
+ nested_check_vmentry_pre[post]reqs
+Message-ID: <20181115172021.GB7226@linux.intel.com>
+References: <20181115054554.4831-1-krish.sadhukhan@oracle.com>
+ <20181115054554.4831-2-krish.sadhukhan@oracle.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20181115054554.4831-2-krish.sadhukhan@oracle.com>
+User-Agent: Mutt/1.5.24 (2015-08-30)
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwAX7zrpqu1bqfJEAA--.18335S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoWxZFyfCF47Jr1xKryfCFWxJFb_yoW5XFyxpa
+	yxWws0vr40q342y34IgwsYyFWIv3y0vFW7CryfKa1YvF9IgFyxtr18trW5try8JrWrGa4f
+	ZF4Utw17uw13tFJanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUP2b7Iv0xC_Zr1lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1l84ACjcxK6I8E
+	87Iv67AKxVW8Jr0_Cr1UM28EF7xvwVC2z280aVCY1x0267AKxVW8Jr0_Cr1UM2AIxVAIcx
+	kEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v2
+	6r1j6r18McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IY64
+	vIr41l7I0Y6sxI4wCY1x0264kExVAvwVAq07x20xylc7Ca8VAvwVCFzxkY4VCF77xAMxkI
+	ecxEwVCI4VW8MxkI7II2jI8vz4vEwIxGrwCYIxAIcVC0I7IYx2IY67AKxVW8JVW5JwCYIx
+	AIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMxvI42IY6I8E87Iv67AKxVWxJVW8Jr1lcIIF
+	0xvEx4A2jsIEc7CjxVAFwI0_Gr0_Gr1UMxAIw28IcxkI7VAKI48JMxAIw28IcVAKzI0EY4
+	vE52x082I5MxCjnVCjjxCrMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_
+	Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWUAVWUtwCIc40Y0x
+	0EwIxGrwCI42IY6xAIw20EY4v20xvaj40_Gr0_ZrUvcSsGvfC2KfnxnUUI43ZEXa7IU54p
+	B3UUUUU==
+
+On Thu, Nov 15, 2018 at 12:45:49AM -0500, Krish Sadhukhan wrote:
+> Re-name the functions check_vmentry_pre[post]reqs to
+> nested_check_pre[post]reqs because these functions are used only in
+
+The usual method for describing multiple entities is {one,two,three},
+e.g. check_vmentry_{pre,post}reqs.
+
+There's also a lot of redundant information in the changelog, maybe:
+
+    KVM: nVMX: Prepend "nested_" to check_vmentry_{pre,post}reqs()
+
+    ... as they are only used in nested context.
+
+> nested context.
+> 
+> Signed-off-by: Krish Sadhukhan <krish.sadhukhan@oracle.com>
+> Reviewed-by: Liran Alon <liran.alon@oracle.com>
+> Reviewed-by: Mihai Carabas <mihai.carabas@oracle.com>
+> Reviewed-by: Mark Kanda <mark.kanda@oracle.com>
+> ---
+>  arch/x86/kvm/vmx.c | 12 ++++++------
+>  1 file changed, 6 insertions(+), 6 deletions(-)
+> 
+> diff --git a/arch/x86/kvm/vmx.c b/arch/x86/kvm/vmx.c
+> index e665aa7..411fcd2 100644
+> --- a/arch/x86/kvm/vmx.c
+> +++ b/arch/x86/kvm/vmx.c
+> @@ -12380,7 +12380,7 @@ static int nested_vmx_check_nmi_controls(struct vmcs12 *vmcs12)
+>  	return 0;
+>  }
+>  
+> -static int check_vmentry_prereqs(struct kvm_vcpu *vcpu, struct vmcs12 *vmcs12)
+> +static int nested_check_vmentry_prereqs(struct kvm_vcpu *vcpu, struct vmcs12 *vmcs12)
+>  {
+>  	struct vcpu_vmx *vmx = to_vmx(vcpu);
+>  
+> @@ -12542,7 +12542,7 @@ static int nested_vmx_check_vmcs_link_ptr(struct kvm_vcpu *vcpu,
+>  	return r;
+>  }
+>  
+> -static int check_vmentry_postreqs(struct kvm_vcpu *vcpu, struct vmcs12 *vmcs12,
+> +static int nested_check_vmentry_postreqs(struct kvm_vcpu *vcpu, struct vmcs12 *vmcs12,
+>  				  u32 *exit_qual)
+>  {
+>  	bool ia32e;
+> @@ -12746,7 +12746,7 @@ static int nested_vmx_run(struct kvm_vcpu *vcpu, bool launch)
+>  		goto out;
+>  	}
+>  
+> -	ret = check_vmentry_prereqs(vcpu, vmcs12);
+> +	ret = nested_check_vmentry_prereqs(vcpu, vmcs12);
+>  	if (ret) {
+>  		nested_vmx_failValid(vcpu, ret);
+>  		goto out;
+> @@ -12761,7 +12761,7 @@ static int nested_vmx_run(struct kvm_vcpu *vcpu, bool launch)
+>  	 */
+>  	skip_emulated_instruction(vcpu);
+>  
+> -	ret = check_vmentry_postreqs(vcpu, vmcs12, &exit_qual);
+> +	ret = nested_check_vmentry_postreqs(vcpu, vmcs12, &exit_qual);
+>  	if (ret) {
+>  		nested_vmx_entry_failure(vcpu, vmcs12,
+>  					 EXIT_REASON_INVALID_STATE, exit_qual);
+> @@ -14085,8 +14085,8 @@ static int vmx_set_nested_state(struct kvm_vcpu *vcpu,
+>  			return -EINVAL;
+>  	}
+>  
+> -	if (check_vmentry_prereqs(vcpu, vmcs12) ||
+> -	    check_vmentry_postreqs(vcpu, vmcs12, &exit_qual))
+> +	if (nested_check_vmentry_prereqs(vcpu, vmcs12) ||
+> +	    nested_check_vmentry_postreqs(vcpu, vmcs12, &exit_qual))
+>  		return -EINVAL;
+>  
+>  	vmx->nested.dirty_vmcs12 = true;
+> -- 
+> 2.9.5
+> 

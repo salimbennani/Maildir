@@ -1,0 +1,668 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 20 Nov 2018 00:34:05 -0000
+Received: from icoremail.net (unknown [209.85.215.177])
+	by mail-app2 (Coremail) with SMTP id by_KCgDHH+4j8_JbPLS6AQ--.55225S3;
+	Tue, 20 Nov 2018 01:30:22 +0800 (CST)
+Received: from mail-pg1-f177.google.com (unknown [209.85.215.177])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwBnTkoh8_JbDYVZAA--.2573S3;
+	Tue, 20 Nov 2018 01:30:09 +0800 (CST)
+Received: by mail-pg1-f177.google.com with SMTP id s198so963514pgs.2
+        for <xuliker@zju.edu.cn>; Mon, 19 Nov 2018 09:30:09 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:delivered-to:dkim-signature:from:to:cc:subject
+         :date:message-id:in-reply-to:references:mime-version
+         :content-transfer-encoding:sender:precedence:list-id;
+        bh=TKgQ9ZhuDJuekqCIiYoGtFV6Mq3lYEbLPXM5e4CNk7I=;
+        b=unaEnPCEmIz6+tr5g75oIRr7B8B801xk3psf5HJBeniZNDhBKJQjCaWXJknmIYIstU
+         SH+csy0ENFO79HPO9n4/22kcqiDLbXvigWgAgklPnP38xRvmEX9Nu21Io80zyy9HJsJB
+         7J6oJ+5xkhPXpOJ0JCXWJgfqeDefYNOSsBke52gROlEKcNhXrBkNew67EtKA1psW0pi5
+         Ri/6IZdFsoEWkNRG5O/GhMzo/16LDwYDQMz25od8ThqMvNzuLsI3wfH3e+PBPu5TW845
+         4sOTpmcGHfyuDE4ftt0/eQM03RRPP7eKq1CbSXf4l2Nq20wHinXkJbKA3tkEReEPmKUe
+         hV/Q==
+X-Gm-Message-State: AGRZ1gIPuTGf9Qn71oayFFjWKL2veXZerWO/XgyyPsXcdFYEN9poz2AR
+	9qfbEjl6VUYNecuUdChAhoRU2zZ5PnRS0dXQArKZTd7qijU8n2k=
+X-Received: by 2002:a62:4105:: with SMTP id o5-v6mr23375661pfa.85.1542648608560;
+        Mon, 19 Nov 2018 09:30:08 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:d106:0:0:0:0 with SMTP id l6-v6csp2950439pju;
+        Mon, 19 Nov 2018 09:30:07 -0800 (PST)
+X-Google-Smtp-Source: AJdET5cPlEj1gqsbjG++P7JcNCI8mT87b5GYvj8+n+b+XE6T2LvGxPcnpqCNMuZLKmEJiSZU2DwF
+X-Received: by 2002:a63:f515:: with SMTP id w21mr20767115pgh.220.1542648607143;
+        Mon, 19 Nov 2018 09:30:07 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542648607; cv=none;
+        d=google.com; s=arc-20160816;
+        b=aiYz3kXFi2KKP5suQaTp8BKYhGNkgCf2e7XLC0Re3F5B1Bu47GpMAwOXEJiEkbLowE
+         Eiggub3lq4/W8EUA7fzZ8TpOCqT+T0qPYMJ0djsWEA/yy9G9wq77hi2tRo53TCiM9Cp8
+         UXDBqY+yjRsJ9t5MVjRiLch+huYeLaZFMQGbnRUnUuGiH45EJodSfSveCokVNnVzC+DB
+         Qo1aHfZdZNLm8ph3uaGLPth+aRSFRADYcUKnAuPlk2LtBbpx5HzMiwRYgn+KquTFrd41
+         7TMsCf8BMqIMaUyugyUtJEep7z+dtPlI3qo9EwZtffEcLr2IF8pA7ca6CS5s2pzfQTcY
+         xAiw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:content-transfer-encoding:mime-version
+         :references:in-reply-to:message-id:date:subject:cc:to:from
+         :dkim-signature;
+        bh=TKgQ9ZhuDJuekqCIiYoGtFV6Mq3lYEbLPXM5e4CNk7I=;
+        b=AytMmpUjfp/QSd8m5yGk6W4P8s30hlfzKR0hLcq/Gxz7d/KsDrtj7F2SH7PQnMhk93
+         Y4xYdgaQLj1aPVP2ohqM3u4ZMKBn2ZmRRWlBP13io0QcS/EHOgWApit0t6FIWa9t0mQk
+         gLKzVVspoPgPVp3WfX0V+adEUXdKUdHsrY48Zru5nyDX2h8EC2x9MV9D6O3O0Mm3HgWn
+         0JiWpo2EZjHuQIvzo3sOGo8cmoOz5tI63HbcFNYfFoJLbt+GScqX13i+ApMcuGMUu+/l
+         lHNijzQMrcBYCbpepaJ7jkn1a2dvSZpWIqU2EfN4xm/+5NkcmdKjWLH0o84Jq3nlKP2T
+         M/hQ==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@google.com header.s=20161025 header.b=ggHJE6gS;
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;
+       dmarc=pass (p=REJECT sp=REJECT dis=NONE) header.from=google.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id z8si38035019pgf.577.2018.11.19.09.29.52;
+        Mon, 19 Nov 2018 09:30:07 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S2404607AbeKTDv1 (ORCPT <rfc822;nullbytes00@gmail.com>
+        + 99 others); Mon, 19 Nov 2018 22:51:27 -0500
+Received: from mail-wm1-f66.google.com ([209.85.128.66]:50232 "EHLO
+        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2404591AbeKTDv0 (ORCPT
+        <rfc822;linux-kernel@vger.kernel.org>);
+        Mon, 19 Nov 2018 22:51:26 -0500
+Received: by mail-wm1-f66.google.com with SMTP id 125so4150616wmh.0
+        for <linux-kernel@vger.kernel.org>; Mon, 19 Nov 2018 09:27:00 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=TKgQ9ZhuDJuekqCIiYoGtFV6Mq3lYEbLPXM5e4CNk7I=;
+        b=ggHJE6gSWaiWuqp9N+HKhZdM1Fsrkd6CiNCad0RNwvLJXvnVmgzoqL8XQlvHAutabd
+         oNuzfj2TyLVn6LqlCS6L+PvmBxBoWSIggcqqVlVtKntNzDNjMEf65oCX/S3b5FuFHLpV
+         j4zS/dBtPrImFP9mrzbU+3l4koLdhquxYa1E5Sqs7qA6Sz1vggXRScNeuLTyGfIf/udj
+         kOJackkB5SnCPgZsuWllFpTAv/z3tX5L5RPnpnBeDBzU0bppDWDeR2p9FqS4IXtTaptJ
+         aHfiXNcU72wdcuHF6Y4xN8IYstNZOLGbqcxMRJUdJIgXvo626HyMoGMl/PlbI6dAiuFV
+         ItAw==
+X-Received: by 2002:a7b:ca44:: with SMTP id m4mr7741040wml.76.1542648419232;
+        Mon, 19 Nov 2018 09:26:59 -0800 (PST)
+Received: from andreyknvl0.muc.corp.google.com ([2a00:79e0:15:10:3180:41f8:3010:ff61])
+        by smtp.gmail.com with ESMTPSA id l143-v6sm23685190wmb.23.2018.11.19.09.26.56
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 19 Nov 2018 09:26:57 -0800 (PST)
+From: Andrey Konovalov <andreyknvl@google.com>
+To: Andrey Ryabinin <aryabinin@virtuozzo.com>,
+        Alexander Potapenko <glider@google.com>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Christoph Lameter <cl@linux.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Marc Zyngier <marc.zyngier@arm.com>,
+        Dave Martin <dave.martin@arm.com>,
+        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
+        "Eric W . Biederman" <ebiederm@xmission.com>,
+        Ingo Molnar <mingo@kernel.org>,
+        Paul Lawrence <paullawrence@google.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Kate Stewart <kstewart@linuxfoundation.org>,
+        Mike Rapoport <rppt@linux.vnet.ibm.com>,
+        kasan-dev@googlegroups.com, linux-doc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-sparse@vger.kernel.org, linux-mm@kvack.org,
+        linux-kbuild@vger.kernel.org
+Cc: Kostya Serebryany <kcc@google.com>,
+        Evgeniy Stepanov <eugenis@google.com>,
+        Lee Smith <Lee.Smith@arm.com>,
+        Ramana Radhakrishnan <Ramana.Radhakrishnan@arm.com>,
+        Jacob Bramley <Jacob.Bramley@arm.com>,
+        Ruben Ayrapetyan <Ruben.Ayrapetyan@arm.com>,
+        Jann Horn <jannh@google.com>,
+        Mark Brand <markbrand@google.com>,
+        Chintan Pandya <cpandya@codeaurora.org>,
+        Vishwath Mohan <vishwath@google.com>,
+        Andrey Konovalov <andreyknvl@google.com>
+Subject: [PATCH v11 05/24] kasan: add CONFIG_KASAN_GENERIC and CONFIG_KASAN_SW_TAGS
+Date: Mon, 19 Nov 2018 18:26:21 +0100
+Message-Id: <356c34c9a2ae8348a6cbd1de53135a28187fa120.1542648335.git.andreyknvl@google.com>
+X-Mailer: git-send-email 2.19.1.1215.g8438c0b245-goog
+In-Reply-To: <cover.1542648335.git.andreyknvl@google.com>
+References: <cover.1542648335.git.andreyknvl@google.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwBnTkoh8_JbDYVZAA--.2573S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvAXoW3ur1rtFyxGF1DJF47uw47XFb_yoW8CFy8Zo
+	WfKF4rAF18G3WUJ3ySkF18JFW5Wr1v9r47Xrn8u398XF98Jw4DA34UtayFy34fJFWrCr93
+	ZasIkF4rJr4rtFn3n29KB7ZKAUJUUUUU529EdanIXcx71UUUUj7v73VFW2AGmfu7jjvjm3
+	AaLaJ3UjIYCTnIWjp_UUUYA7k0a2IF6w4kM7kC6x804xWl14x267AKxVWUJVW8JwAFIxvE
+	14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK021l84ACjcxK6xIIjx
+	v20xvE14v26w1j6s0DM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26r4UJVWxJr1l84ACjcxK
+	6I8E87Iv67AKxVW0oVCq3wA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_GcCE3s1le2I262IYc4
+	CY6c8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_
+	Jr0_Jr4lYx0Ex4A2jsIE14v26r4j6F4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvY0x
+	0EwIxGrwCjxxvEa2IrMxkF7I0Ew4C26cxK6c8Ij28IcwCY02Avz4vEIxC_GwCY0x0Ix7I2
+	Y4AK64vIr41lcIIF0xvE2Ix0cI8IcVAFwI0_tr0E3s1lcIIF0xvE2Ix0cI8IcVCY1x0267
+	AKxVWxJVW8Jr1lcIIF0xvEx4A2jsIE14v26F4UJVW0owCYIxAIcVC2z280aVCY1x0267AK
+	xVWxJr0_GcWl42xK82IYc2Ij64vIr41l42xK82IY64kExVAvwVAq07x20xyl4x8a6x804x
+	Wl4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x8GjcxK
+	67AKxVWUGVWUWwC2zVAF1VAY17CE14v26rWY6r4UJwCIc40Y0x0EwIxGrwCI42IY6xAIw2
+	0EY4v20xvaj40_Jr0_JF7vcSsGvfC2KfnxnUUI43ZEXa7IUOTWlPUUUUU==
+
+This commit splits the current CONFIG_KASAN config option into two:
+1. CONFIG_KASAN_GENERIC, that enables the generic KASAN mode (the one
+   that exists now);
+2. CONFIG_KASAN_SW_TAGS, that enables the software tag-based KASAN mode.
+
+The name CONFIG_KASAN_SW_TAGS is chosen as in the future we will have
+another hardware tag-based KASAN mode, that will rely on hardware memory
+tagging support in arm64.
+
+With CONFIG_KASAN_SW_TAGS enabled, compiler options are changed to
+instrument kernel files with -fsantize=kernel-hwaddress (except the ones
+for which KASAN_SANITIZE := n is set).
+
+Both CONFIG_KASAN_GENERIC and CONFIG_KASAN_SW_TAGS support both
+CONFIG_KASAN_INLINE and CONFIG_KASAN_OUTLINE instrumentation modes.
+
+This commit also adds empty placeholder (for now) implementation of
+tag-based KASAN specific hooks inserted by the compiler and adjusts
+common hooks implementation to compile correctly with each of the
+config options.
+
+Reviewed-by: Andrey Ryabinin <aryabinin@virtuozzo.com>
+Reviewed-by: Dmitry Vyukov <dvyukov@google.com>
+Signed-off-by: Andrey Konovalov <andreyknvl@google.com>
+---
+ arch/arm64/Kconfig                  |  1 +
+ include/linux/compiler-clang.h      |  5 +-
+ include/linux/compiler-gcc.h        |  6 ++
+ include/linux/compiler_attributes.h | 13 ----
+ include/linux/kasan.h               | 16 +++--
+ lib/Kconfig.kasan                   | 96 +++++++++++++++++++++++------
+ mm/kasan/Makefile                   |  6 +-
+ mm/kasan/generic.c                  |  2 +-
+ mm/kasan/kasan.h                    |  3 +-
+ mm/kasan/tags.c                     | 75 ++++++++++++++++++++++
+ mm/slub.c                           |  2 +-
+ scripts/Makefile.kasan              | 53 +++++++++-------
+ 12 files changed, 216 insertions(+), 62 deletions(-)
+ create mode 100644 mm/kasan/tags.c
+
+diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
+index 787d7850e064..8b331dcfb48e 100644
+--- a/arch/arm64/Kconfig
++++ b/arch/arm64/Kconfig
+@@ -111,6 +111,7 @@ config ARM64
+ 	select HAVE_ARCH_JUMP_LABEL
+ 	select HAVE_ARCH_JUMP_LABEL_RELATIVE
+ 	select HAVE_ARCH_KASAN if !(ARM64_16K_PAGES && ARM64_VA_BITS_48)
++	select HAVE_ARCH_KASAN_SW_TAGS if !(ARM64_16K_PAGES && ARM64_VA_BITS_48)
+ 	select HAVE_ARCH_KGDB
+ 	select HAVE_ARCH_MMAP_RND_BITS
+ 	select HAVE_ARCH_MMAP_RND_COMPAT_BITS if COMPAT
+diff --git a/include/linux/compiler-clang.h b/include/linux/compiler-clang.h
+index 3e7dafb3ea80..59db75f03218 100644
+--- a/include/linux/compiler-clang.h
++++ b/include/linux/compiler-clang.h
+@@ -16,9 +16,12 @@
+ /* all clang versions usable with the kernel support KASAN ABI version 5 */
+ #define KASAN_ABI_VERSION 5
+ 
++#if __has_feature(address_sanitizer) || __has_feature(hwaddress_sanitizer)
+ /* emulate gcc's __SANITIZE_ADDRESS__ flag */
+-#if __has_feature(address_sanitizer)
+ #define __SANITIZE_ADDRESS__
++#define __no_sanitize_address __attribute__((no_sanitize("address", "hwaddress")))
++#else
++#define __no_sanitize_address
+ #endif
+ 
+ /*
+diff --git a/include/linux/compiler-gcc.h b/include/linux/compiler-gcc.h
+index 2010493e1040..5776da43da97 100644
+--- a/include/linux/compiler-gcc.h
++++ b/include/linux/compiler-gcc.h
+@@ -143,6 +143,12 @@
+ #define KASAN_ABI_VERSION 3
+ #endif
+ 
++#if __has_attribute(__no_sanitize_address__)
++#define __no_sanitize_address __attribute__((no_sanitize_address))
++#else
++#define __no_sanitize_address
++#endif
++
+ #if GCC_VERSION >= 50100
+ #define COMPILER_HAS_GENERIC_BUILTIN_OVERFLOW 1
+ #endif
+diff --git a/include/linux/compiler_attributes.h b/include/linux/compiler_attributes.h
+index f8c400ba1929..7bceb9469197 100644
+--- a/include/linux/compiler_attributes.h
++++ b/include/linux/compiler_attributes.h
+@@ -206,19 +206,6 @@
+  */
+ #define __noreturn                      __attribute__((__noreturn__))
+ 
+-/*
+- * Optional: only supported since gcc >= 4.8
+- * Optional: not supported by icc
+- *
+- *   gcc: https://gcc.gnu.org/onlinedocs/gcc/Common-Function-Attributes.html#index-no_005fsanitize_005faddress-function-attribute
+- * clang: https://clang.llvm.org/docs/AttributeReference.html#no-sanitize-address-no-address-safety-analysis
+- */
+-#if __has_attribute(__no_sanitize_address__)
+-# define __no_sanitize_address          __attribute__((__no_sanitize_address__))
+-#else
+-# define __no_sanitize_address
+-#endif
+-
+ /*
+  *   gcc: https://gcc.gnu.org/onlinedocs/gcc/Common-Type-Attributes.html#index-packed-type-attribute
+  * clang: https://gcc.gnu.org/onlinedocs/gcc/Common-Variable-Attributes.html#index-packed-variable-attribute
+diff --git a/include/linux/kasan.h b/include/linux/kasan.h
+index 52c86a568a4e..b66fdf5ea7ab 100644
+--- a/include/linux/kasan.h
++++ b/include/linux/kasan.h
+@@ -45,8 +45,6 @@ void kasan_free_pages(struct page *page, unsigned int order);
+ 
+ void kasan_cache_create(struct kmem_cache *cache, unsigned int *size,
+ 			slab_flags_t *flags);
+-void kasan_cache_shrink(struct kmem_cache *cache);
+-void kasan_cache_shutdown(struct kmem_cache *cache);
+ 
+ void kasan_poison_slab(struct page *page);
+ void kasan_unpoison_object_data(struct kmem_cache *cache, void *object);
+@@ -97,8 +95,6 @@ static inline void kasan_free_pages(struct page *page, unsigned int order) {}
+ static inline void kasan_cache_create(struct kmem_cache *cache,
+ 				      unsigned int *size,
+ 				      slab_flags_t *flags) {}
+-static inline void kasan_cache_shrink(struct kmem_cache *cache) {}
+-static inline void kasan_cache_shutdown(struct kmem_cache *cache) {}
+ 
+ static inline void kasan_poison_slab(struct page *page) {}
+ static inline void kasan_unpoison_object_data(struct kmem_cache *cache,
+@@ -155,4 +151,16 @@ static inline size_t kasan_metadata_size(struct kmem_cache *cache) { return 0; }
+ 
+ #endif /* CONFIG_KASAN */
+ 
++#ifdef CONFIG_KASAN_GENERIC
++
++void kasan_cache_shrink(struct kmem_cache *cache);
++void kasan_cache_shutdown(struct kmem_cache *cache);
++
++#else /* CONFIG_KASAN_GENERIC */
++
++static inline void kasan_cache_shrink(struct kmem_cache *cache) {}
++static inline void kasan_cache_shutdown(struct kmem_cache *cache) {}
++
++#endif /* CONFIG_KASAN_GENERIC */
++
+ #endif /* LINUX_KASAN_H */
+diff --git a/lib/Kconfig.kasan b/lib/Kconfig.kasan
+index d0bad1bd9a2b..b5d0cbfce4a1 100644
+--- a/lib/Kconfig.kasan
++++ b/lib/Kconfig.kasan
+@@ -1,35 +1,95 @@
++# This config refers to the generic KASAN mode.
+ config HAVE_ARCH_KASAN
+ 	bool
+ 
++config HAVE_ARCH_KASAN_SW_TAGS
++	bool
++
++config CC_HAS_KASAN_GENERIC
++	def_bool $(cc-option, -fsanitize=kernel-address)
++
++config CC_HAS_KASAN_SW_TAGS
++	def_bool $(cc-option, -fsanitize=kernel-hwaddress)
++
+ if HAVE_ARCH_KASAN
+ 
+ config KASAN
+-	bool "KASan: runtime memory debugger"
++	bool "KASAN: runtime memory debugger"
++	help
++	  Enables KASAN (KernelAddressSANitizer) - runtime memory debugger,
++	  designed to find out-of-bounds accesses and use-after-free bugs.
++	  See Documentation/dev-tools/kasan.rst for details.
++
++choice
++	prompt "KASAN mode"
++	depends on KASAN
++	default KASAN_GENERIC
++	help
++	  KASAN has two modes: generic KASAN (similar to userspace ASan,
++	  x86_64/arm64/xtensa, enabled with CONFIG_KASAN_GENERIC) and
++	  software tag-based KASAN (a version based on software memory
++	  tagging, arm64 only, similar to userspace HWASan, enabled with
++	  CONFIG_KASAN_SW_TAGS).
++	  Both generic and tag-based KASAN are strictly debugging features.
++
++config KASAN_GENERIC
++	bool "Generic mode"
++	depends on CC_HAS_KASAN_GENERIC
+ 	depends on (SLUB && SYSFS) || (SLAB && !DEBUG_SLAB)
+ 	select SLUB_DEBUG if SLUB
+ 	select CONSTRUCTORS
+ 	select STACKDEPOT
+ 	help
+-	  Enables kernel address sanitizer - runtime memory debugger,
+-	  designed to find out-of-bounds accesses and use-after-free bugs.
+-	  This is strictly a debugging feature and it requires a gcc version
+-	  of 4.9.2 or later. Detection of out of bounds accesses to stack or
+-	  global variables requires gcc 5.0 or later.
+-	  This feature consumes about 1/8 of available memory and brings about
+-	  ~x3 performance slowdown.
++	  Enables generic KASAN mode.
++	  Supported in both GCC and Clang. With GCC it requires version 4.9.2
++	  or later for basic support and version 5.0 or later for detection of
++	  out-of-bounds accesses for stack and global variables and for inline
++	  instrumentation mode (CONFIG_KASAN_INLINE). With Clang it requires
++	  version 3.7.0 or later and it doesn't support detection of
++	  out-of-bounds accesses for global variables yet.
++	  This mode consumes about 1/8th of available memory at kernel start
++	  and introduces an overhead of ~x1.5 for the rest of the allocations.
++	  The performance slowdown is ~x3.
+ 	  For better error detection enable CONFIG_STACKTRACE.
+-	  Currently CONFIG_KASAN doesn't work with CONFIG_DEBUG_SLAB
++	  Currently CONFIG_KASAN_GENERIC doesn't work with CONFIG_DEBUG_SLAB
+ 	  (the resulting kernel does not boot).
+ 
++if HAVE_ARCH_KASAN_SW_TAGS
++
++config KASAN_SW_TAGS
++	bool "Software tag-based mode"
++	depends on CC_HAS_KASAN_SW_TAGS
++	depends on (SLUB && SYSFS) || (SLAB && !DEBUG_SLAB)
++	select SLUB_DEBUG if SLUB
++	select CONSTRUCTORS
++	select STACKDEPOT
++	help
++	  Enables software tag-based KASAN mode.
++	  This mode requires Top Byte Ignore support by the CPU and therefore
++	  is only supported for arm64.
++	  This mode requires Clang version 7.0.0 or later.
++	  This mode consumes about 1/16th of available memory at kernel start
++	  and introduces an overhead of ~20% for the rest of the allocations.
++	  This mode may potentially introduce problems relating to pointer
++	  casting and comparison, as it embeds tags into the top byte of each
++	  pointer.
++	  For better error detection enable CONFIG_STACKTRACE.
++	  Currently CONFIG_KASAN_SW_TAGS doesn't work with CONFIG_DEBUG_SLAB
++	  (the resulting kernel does not boot).
++
++endif
++
++endchoice
++
+ config KASAN_EXTRA
+-	bool "KAsan: extra checks"
+-	depends on KASAN && DEBUG_KERNEL && !COMPILE_TEST
++	bool "KASAN: extra checks"
++	depends on KASAN_GENERIC && DEBUG_KERNEL && !COMPILE_TEST
+ 	help
+-	  This enables further checks in the kernel address sanitizer, for now
+-	  it only includes the address-use-after-scope check that can lead
+-	  to excessive kernel stack usage, frame size warnings and longer
++	  This enables further checks in generic KASAN, for now it only
++	  includes the address-use-after-scope check that can lead to
++	  excessive kernel stack usage, frame size warnings and longer
+ 	  compile time.
+-	  https://gcc.gnu.org/bugzilla/show_bug.cgi?id=81715 has more
++	  See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=81715
+ 
+ 
+ choice
+@@ -53,7 +113,7 @@ config KASAN_INLINE
+ 	  memory accesses. This is faster than outline (in some workloads
+ 	  it gives about x2 boost over outline instrumentation), but
+ 	  make kernel's .text size much bigger.
+-	  This requires a gcc version of 5.0 or later.
++	  For CONFIG_KASAN_GENERIC this requires GCC 5.0 or later.
+ 
+ endchoice
+ 
+@@ -67,11 +127,11 @@ config KASAN_S390_4_LEVEL_PAGING
+ 	  4-level paging instead.
+ 
+ config TEST_KASAN
+-	tristate "Module for testing kasan for bug detection"
++	tristate "Module for testing KASAN for bug detection"
+ 	depends on m && KASAN
+ 	help
+ 	  This is a test module doing various nasty things like
+ 	  out of bounds accesses, use after free. It is useful for testing
+-	  kernel debugging features like kernel address sanitizer.
++	  kernel debugging features like KASAN.
+ 
+ endif
+diff --git a/mm/kasan/Makefile b/mm/kasan/Makefile
+index d643530b24aa..68ba1822f003 100644
+--- a/mm/kasan/Makefile
++++ b/mm/kasan/Makefile
+@@ -2,6 +2,7 @@
+ KASAN_SANITIZE := n
+ UBSAN_SANITIZE_common.o := n
+ UBSAN_SANITIZE_generic.o := n
++UBSAN_SANITIZE_tags.o := n
+ KCOV_INSTRUMENT := n
+ 
+ CFLAGS_REMOVE_generic.o = -pg
+@@ -10,5 +11,8 @@ CFLAGS_REMOVE_generic.o = -pg
+ 
+ CFLAGS_common.o := $(call cc-option, -fno-conserve-stack -fno-stack-protector)
+ CFLAGS_generic.o := $(call cc-option, -fno-conserve-stack -fno-stack-protector)
++CFLAGS_tags.o := $(call cc-option, -fno-conserve-stack -fno-stack-protector)
+ 
+-obj-y := common.o generic.o report.o init.o quarantine.o
++obj-$(CONFIG_KASAN) := common.o init.o report.o
++obj-$(CONFIG_KASAN_GENERIC) += generic.o quarantine.o
++obj-$(CONFIG_KASAN_SW_TAGS) += tags.o
+diff --git a/mm/kasan/generic.c b/mm/kasan/generic.c
+index 44ec228de0a2..b8de6d33c55c 100644
+--- a/mm/kasan/generic.c
++++ b/mm/kasan/generic.c
+@@ -1,5 +1,5 @@
+ /*
+- * This file contains core KASAN code.
++ * This file contains core generic KASAN code.
+  *
+  * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+  * Author: Andrey Ryabinin <ryabinin.a.a@gmail.com>
+diff --git a/mm/kasan/kasan.h b/mm/kasan/kasan.h
+index 659463800f10..19b950eaccff 100644
+--- a/mm/kasan/kasan.h
++++ b/mm/kasan/kasan.h
+@@ -114,7 +114,8 @@ void kasan_report(unsigned long addr, size_t size,
+ 		bool is_write, unsigned long ip);
+ void kasan_report_invalid_free(void *object, unsigned long ip);
+ 
+-#if defined(CONFIG_SLAB) || defined(CONFIG_SLUB)
++#if defined(CONFIG_KASAN_GENERIC) && \
++	(defined(CONFIG_SLAB) || defined(CONFIG_SLUB))
+ void quarantine_put(struct kasan_free_meta *info, struct kmem_cache *cache);
+ void quarantine_reduce(void);
+ void quarantine_remove_cache(struct kmem_cache *cache);
+diff --git a/mm/kasan/tags.c b/mm/kasan/tags.c
+new file mode 100644
+index 000000000000..04194923c543
+--- /dev/null
++++ b/mm/kasan/tags.c
+@@ -0,0 +1,75 @@
++/*
++ * This file contains core tag-based KASAN code.
++ *
++ * Copyright (c) 2018 Google, Inc.
++ * Author: Andrey Konovalov <andreyknvl@google.com>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ *
++ */
++
++#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
++#define DISABLE_BRANCH_PROFILING
++
++#include <linux/export.h>
++#include <linux/interrupt.h>
++#include <linux/init.h>
++#include <linux/kasan.h>
++#include <linux/kernel.h>
++#include <linux/kmemleak.h>
++#include <linux/linkage.h>
++#include <linux/memblock.h>
++#include <linux/memory.h>
++#include <linux/mm.h>
++#include <linux/module.h>
++#include <linux/printk.h>
++#include <linux/random.h>
++#include <linux/sched.h>
++#include <linux/sched/task_stack.h>
++#include <linux/slab.h>
++#include <linux/stacktrace.h>
++#include <linux/string.h>
++#include <linux/types.h>
++#include <linux/vmalloc.h>
++#include <linux/bug.h>
++
++#include "kasan.h"
++#include "../slab.h"
++
++void check_memory_region(unsigned long addr, size_t size, bool write,
++				unsigned long ret_ip)
++{
++}
++
++#define DEFINE_HWASAN_LOAD_STORE(size)					\
++	void __hwasan_load##size##_noabort(unsigned long addr)		\
++	{								\
++	}								\
++	EXPORT_SYMBOL(__hwasan_load##size##_noabort);			\
++	void __hwasan_store##size##_noabort(unsigned long addr)		\
++	{								\
++	}								\
++	EXPORT_SYMBOL(__hwasan_store##size##_noabort)
++
++DEFINE_HWASAN_LOAD_STORE(1);
++DEFINE_HWASAN_LOAD_STORE(2);
++DEFINE_HWASAN_LOAD_STORE(4);
++DEFINE_HWASAN_LOAD_STORE(8);
++DEFINE_HWASAN_LOAD_STORE(16);
++
++void __hwasan_loadN_noabort(unsigned long addr, unsigned long size)
++{
++}
++EXPORT_SYMBOL(__hwasan_loadN_noabort);
++
++void __hwasan_storeN_noabort(unsigned long addr, unsigned long size)
++{
++}
++EXPORT_SYMBOL(__hwasan_storeN_noabort);
++
++void __hwasan_tag_memory(unsigned long addr, u8 tag, unsigned long size)
++{
++}
++EXPORT_SYMBOL(__hwasan_tag_memory);
+diff --git a/mm/slub.c b/mm/slub.c
+index 8561a32910dd..e739d46600b9 100644
+--- a/mm/slub.c
++++ b/mm/slub.c
+@@ -2992,7 +2992,7 @@ static __always_inline void slab_free(struct kmem_cache *s, struct page *page,
+ 		do_slab_free(s, page, head, tail, cnt, addr);
+ }
+ 
+-#ifdef CONFIG_KASAN
++#ifdef CONFIG_KASAN_GENERIC
+ void ___cache_free(struct kmem_cache *cache, void *x, unsigned long addr)
+ {
+ 	do_slab_free(cache, virt_to_head_page(x), x, NULL, 1, addr);
+diff --git a/scripts/Makefile.kasan b/scripts/Makefile.kasan
+index 69552a39951d..25c259df8ffa 100644
+--- a/scripts/Makefile.kasan
++++ b/scripts/Makefile.kasan
+@@ -1,5 +1,6 @@
+ # SPDX-License-Identifier: GPL-2.0
+-ifdef CONFIG_KASAN
++ifdef CONFIG_KASAN_GENERIC
++
+ ifdef CONFIG_KASAN_INLINE
+ 	call_threshold := 10000
+ else
+@@ -12,36 +13,44 @@ CFLAGS_KASAN_MINIMAL := -fsanitize=kernel-address
+ 
+ cc-param = $(call cc-option, -mllvm -$(1), $(call cc-option, --param $(1)))
+ 
+-ifeq ($(call cc-option, $(CFLAGS_KASAN_MINIMAL) -Werror),)
+-   ifneq ($(CONFIG_COMPILE_TEST),y)
+-        $(warning Cannot use CONFIG_KASAN: \
+-            -fsanitize=kernel-address is not supported by compiler)
+-   endif
+-else
+-   # -fasan-shadow-offset fails without -fsanitize
+-   CFLAGS_KASAN_SHADOW := $(call cc-option, -fsanitize=kernel-address \
++# -fasan-shadow-offset fails without -fsanitize
++CFLAGS_KASAN_SHADOW := $(call cc-option, -fsanitize=kernel-address \
+ 			-fasan-shadow-offset=$(KASAN_SHADOW_OFFSET), \
+ 			$(call cc-option, -fsanitize=kernel-address \
+ 			-mllvm -asan-mapping-offset=$(KASAN_SHADOW_OFFSET)))
+ 
+-   ifeq ($(strip $(CFLAGS_KASAN_SHADOW)),)
+-      CFLAGS_KASAN := $(CFLAGS_KASAN_MINIMAL)
+-   else
+-      # Now add all the compiler specific options that are valid standalone
+-      CFLAGS_KASAN := $(CFLAGS_KASAN_SHADOW) \
+-	$(call cc-param,asan-globals=1) \
+-	$(call cc-param,asan-instrumentation-with-call-threshold=$(call_threshold)) \
+-	$(call cc-param,asan-stack=1) \
+-	$(call cc-param,asan-use-after-scope=1) \
+-	$(call cc-param,asan-instrument-allocas=1)
+-   endif
+-
++ifeq ($(strip $(CFLAGS_KASAN_SHADOW)),)
++	CFLAGS_KASAN := $(CFLAGS_KASAN_MINIMAL)
++else
++	# Now add all the compiler specific options that are valid standalone
++	CFLAGS_KASAN := $(CFLAGS_KASAN_SHADOW) \
++	 $(call cc-param,asan-globals=1) \
++	 $(call cc-param,asan-instrumentation-with-call-threshold=$(call_threshold)) \
++	 $(call cc-param,asan-stack=1) \
++	 $(call cc-param,asan-use-after-scope=1) \
++	 $(call cc-param,asan-instrument-allocas=1)
+ endif
+ 
+ ifdef CONFIG_KASAN_EXTRA
+ CFLAGS_KASAN += $(call cc-option, -fsanitize-address-use-after-scope)
+ endif
+ 
+-CFLAGS_KASAN_NOSANITIZE := -fno-builtin
++endif # CONFIG_KASAN_GENERIC
+ 
++ifdef CONFIG_KASAN_SW_TAGS
++
++ifdef CONFIG_KASAN_INLINE
++    instrumentation_flags := -mllvm -hwasan-mapping-offset=$(KASAN_SHADOW_OFFSET)
++else
++    instrumentation_flags := -mllvm -hwasan-instrument-with-calls=1
++endif
++
++CFLAGS_KASAN := -fsanitize=kernel-hwaddress \
++		-mllvm -hwasan-instrument-stack=0 \
++		$(instrumentation_flags)
++
++endif # CONFIG_KASAN_SW_TAGS
++
++ifdef CONFIG_KASAN
++CFLAGS_KASAN_NOSANITIZE := -fno-builtin
+ endif
+-- 
+2.19.1.1215.g8438c0b245-goog

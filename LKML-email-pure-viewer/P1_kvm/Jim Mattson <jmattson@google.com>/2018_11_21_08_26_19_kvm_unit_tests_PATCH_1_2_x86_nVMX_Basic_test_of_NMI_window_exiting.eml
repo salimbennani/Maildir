@@ -1,0 +1,321 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 21 Nov 2018 00:42:38 -0000
+Received: from icoremail.net (unknown [209.85.214.177])
+	by mail-app2 (Coremail) with SMTP id by_KCgCn31wHqPRbJDzDAQ--.56397S3;
+	Wed, 21 Nov 2018 08:34:16 +0800 (CST)
+Received: from mail-pl1-f177.google.com (unknown [209.85.214.177])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwB3XUkBqPRb0IJgAA--.9593S3;
+	Wed, 21 Nov 2018 08:34:10 +0800 (CST)
+Received: by mail-pl1-f177.google.com with SMTP id b22-v6so2758898pls.7
+        for <xuliker@zju.edu.cn>; Tue, 20 Nov 2018 16:34:10 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:delivered-to:dkim-signature:date:message-id
+         :mime-version:subject:from:to:cc:sender:precedence:list-id;
+        bh=3YkHIkVL969En66710y+6hTqPkXNV13niBCTCROHWPc=;
+        b=ju3N730G94N9m1GvLwwLCxVHcVoRrIIS8iMmAPnM+/xOysZutOOCHcKNDgLl7zOJ2c
+         41ejnJd/wURxeUCi33F22C7OhiwZzuwBJEAlqVErns53RYVMdy3H1EIwkrIY3qP+uMJD
+         mXOdA+BzNT9eZSaK/FZHnIElabn9d5RJD+j+c0YDtHIlY8ID+kj3ZNHvOsz8ubGk2TYu
+         NvVGgZXz+yae3UIMIaipbZ2FPq1Z/HFjBvurhZIi2f/E9X1+kIUjjzyOshCfNeK3m4G7
+         c6WMiXsiJww5CHRpEjTARTHZbU+1dvmKxWbEM8eDqRWr3qsY+K7FmEwz9EhLnGgCg5bs
+         FZqw==
+X-Gm-Message-State: AA+aEWZc3CtWZ0arvYapxTfX2OePRkPr4bK24qUUQX2pe53xz448yQkQ
+	6ta1HjVTi2wpOShBUqg13Ug07RjVOLhMlRMD30mCaS0Buw3X1dk=
+X-Received: by 2002:a63:3c44:: with SMTP id i4mr3890472pgn.286.1542760449719;
+        Tue, 20 Nov 2018 16:34:09 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:d106:0:0:0:0 with SMTP id l6-v6csp1300632pju;
+        Tue, 20 Nov 2018 16:34:06 -0800 (PST)
+X-Google-Smtp-Source: AFSGD/WA1kaQODay7bdwPGQOzdPSrTrjj5IuVzrpC7lVO3YVqBZfFJstpmJjuQ7n71ZAu3atBFtV
+X-Received: by 2002:a17:902:6801:: with SMTP id h1-v6mr4474055plk.177.1542760446055;
+        Tue, 20 Nov 2018 16:34:06 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542760446; cv=none;
+        d=google.com; s=arc-20160816;
+        b=Nt9eToTaZp4df52CDukj/gdcI7BazOI1QGqOT+p7F/ZAfKENsSPy9ERcFsmoqpdZYJ
+         H91Wr00dQieR10G78f1eBKHj2eLhRlbWQPj6n6lWc/e1+OhpooLco0LgWaIceOBPkf2T
+         I8OSx6pV2OAIIMzI3MyM2i0iyHeR3gyLMmZNXQbPPMUnwKLQ/m5dF/zHVRADQLusvpn1
+         DUJfAOU7NqhhRpFA8r5rAl2d6TwaN4xcvbfkzcBJ6s0/MU8rpoqBX0VyjWjKQ+C8O+l0
+         YB2CbR47vUE3I7Oe0uphLEycteSlN/OI5w4KdTqXDMMCZnMw/Z98Z+O1enV13KEc++FN
+         gL8w==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:cc:to:from:subject:mime-version
+         :message-id:date:dkim-signature;
+        bh=3YkHIkVL969En66710y+6hTqPkXNV13niBCTCROHWPc=;
+        b=rShMMsj86PL7RQaD2tse2uJvlmQaeKcH6NRe94mFiq5QMEtILFss6m7IqRBwm/okk3
+         70albaJ5GPXHXVVg91GJHeOI1GYNRE1hVz3LAoYbDwYNOGK4HzyXvIQLfcnD39NGwg4q
+         Sq58jwo1eoiWdjajvuyZb6otlu1JIYDrcG2/0HCeFwLrwo0duWJvwb0Dkpvacf90C9cg
+         E1O1Qe0CblKO6IissMA3uX7vsMmR5tGAr+ZwNf0d1LRHDMNJy35Y8CCQnIXwxShiy8Wi
+         6G3sclIDX5GAKnAA70zXs7/dh5fmOwCRnYtnD5PvST9GfEgTTsdveGwJbbLseMqQWZK5
+         TTDA==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@google.com header.s=20161025 header.b="tJ/b4SJ7";
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;
+       dmarc=pass (p=REJECT sp=REJECT dis=NONE) header.from=google.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id o22-v6si48153383pfk.50.2018.11.20.16.33.44;
+        Tue, 20 Nov 2018 16:34:06 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1725950AbeKUK61 (ORCPT <rfc822;alpcanarslan95@gmail.com>
+        + 99 others); Wed, 21 Nov 2018 05:58:27 -0500
+Received: from mail-ot1-f74.google.com ([209.85.210.74]:55856 "EHLO
+        mail-ot1-f74.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725913AbeKUK61 (ORCPT <rfc822;kvm@vger.kernel.org>);
+        Wed, 21 Nov 2018 05:58:27 -0500
+Received: by mail-ot1-f74.google.com with SMTP id e3so2123805otd.22
+        for <kvm@vger.kernel.org>; Tue, 20 Nov 2018 16:26:32 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=date:message-id:mime-version:subject:from:to:cc;
+        bh=3YkHIkVL969En66710y+6hTqPkXNV13niBCTCROHWPc=;
+        b=tJ/b4SJ7c78pEe7U6QLhqnTvzJReAsJl+X8vP58vuAKiZs+IEFHzKdnGanl7Ffl+qG
+         QVvtbpVpzBemfsZwa8CIf2Jg8TZ+WRYx6frQ3rUJxCobm5tAqlfJ0DLymDnvzTnqdqn7
+         C84+rlY0OUXelH4s4qMsEmr+13HahgtCuF66OhEzyRjWkN1rb+ckQs9qEt+x82cCB8qd
+         DtwWVK/fzJ12wF228nzcQ6hTdF2DRFURie+XxvLNxwPme4m9EV8ckrZmPeb9Lr9AVMqe
+         AvfJ+tFsGAgx0tOHSDIvjI8fl1bQm482GJhZhTq0MFTqMb/Rc9IzMdTRqGQOJG/qL4/Z
+         1u7w==
+X-Received: by 2002:a9d:2961:: with SMTP id d88mr2826694otb.44.1542759992401;
+ Tue, 20 Nov 2018 16:26:32 -0800 (PST)
+Date: Tue, 20 Nov 2018 16:26:19 -0800
+Message-Id: <20181121002620.240795-1-jmattson@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.19.1.1215.g8438c0b245-goog
+Subject: [kvm-unit-tests PATCH 1/2] x86: nVMX: Basic test of NMI-window exiting
+From: Jim Mattson <jmattson@google.com>
+To: kvm@vger.kernel.org
+Cc: Jim Mattson <jmattson@google.com>, Peter Shier <pshier@google.com>
+Content-Type: text/plain; charset="UTF-8"
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwB3XUkBqPRb0IJgAA--.9593S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW3JrWUXrW3uw43CF1rGFy5twb_yoWxXryDpF
+	yfWr98KF95Kas7XFs3KayUJ3WfAFy8ZF1xCrZrGr1rKw4aq3W2y3WrKas0qF45W3y0vF95
+	Za18tF97CayDJrDanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUU0bIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUPIb7Iv0xC_Kw4lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r106r15M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Xr0_Ar1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1l84ACjcxK6I8E
+	87Iv67AKxVW0oVCq3wA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_GcCE3s1le2I262IYc4CY6c
+	8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_JrI_
+	JrylYx0Ex4A2jsIE14v26r4j6F4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvY0x0EwI
+	xGrwCjxxvEa2IrMxkF7I0Ew4C26cxK6c8Ij28IcwCY1Ik26cxK6xAEc7vF6xCjj44lc2xS
+	Y4AK6IIF6w1lc2IjII80xcxEwVAKI48JMxvI42IY6xIIjxv20xvE14v26r1I6r4UMxvI42
+	IY6xIIjxv20xvEc7CjxVAFwI0_Jr0_Gr1lcIIF0xvEx4A2jsIE14v26r4UJVWxJr1lcIIF
+	0xvEx4A2jsIEc7CjxVAFwI0_Gr1j6F4UJwCF04k20xvY0x0EwIxGrwCF04k20xvEw4C26c
+	xK6c8Ij28IcwCF72vE77IF4wCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v2
+	6r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_JF0_Jw1lIxkGc2
+	Ij64vIr41lIxAIcVCF04k26cxKx2IYs7xG6r1j6r1xYxBIdaVFxhVjvjDU0xZFpf9x07bL
+	uWdUUUUU=
+
+Test various NMI-window exiting scenarios. In the active activity
+state, test without any blocking, with blocking by MOV-SS, no blocking
+with event injection, and with blocking by NMI. In the halted activity
+state, test without any blocking, with and without event injection.
+
+Signed-off-by: Jim Mattson <jmattson@google.com>
+Reviewed-by: Peter Shier <pshier@google.com>
+---
+ lib/x86/desc.h    |   9 +++
+ x86/unittests.cfg |   6 ++
+ x86/vmx_tests.c   | 137 ++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 152 insertions(+)
+
+diff --git a/lib/x86/desc.h b/lib/x86/desc.h
+index 977a233..7a7358a 100644
+--- a/lib/x86/desc.h
++++ b/lib/x86/desc.h
+@@ -224,4 +224,13 @@ void __set_exception_jmpbuf(jmp_buf *addr);
+ #define set_exception_jmpbuf(jmpbuf) \
+ 	(setjmp(jmpbuf) ? : (__set_exception_jmpbuf(&(jmpbuf)), 0))
+ 
++static inline void *get_idt_addr(idt_entry_t *entry)
++{
++	uintptr_t addr = entry->offset0 | ((u32)entry->offset1 << 16);
++#ifdef __x86_64__
++	addr |= (u64)entry->offset2 << 32;
++#endif
++	return (void *)addr;
++}
++
+ #endif
+diff --git a/x86/unittests.cfg b/x86/unittests.cfg
+index 3b21a85..04faa6e 100644
+--- a/x86/unittests.cfg
++++ b/x86/unittests.cfg
+@@ -578,6 +578,12 @@ extra_params = -cpu host,+vmx -m 2560 -append vmx_db_test
+ arch = x86_64
+ groups = vmx
+ 
++[vmx_nmi_window_test]
++file = vmx.flat
++extra_params = -cpu host,+vmx -m 2560 -append vmx_nmi_window_test
++arch = x86_64
++groups = vmx
++
+ [vmx_eoi_bitmap_ioapic_scan]
+ file = vmx.flat
+ smp = 2
+diff --git a/x86/vmx_tests.c b/x86/vmx_tests.c
+index b105b23..ec4f051 100644
+--- a/x86/vmx_tests.c
++++ b/x86/vmx_tests.c
+@@ -5031,6 +5031,142 @@ static void vmx_pending_event_hlt_test(void)
+ 	vmx_pending_event_test_core(true);
+ }
+ 
++static int vmx_window_test_ud_count;
++
++static void vmx_window_test_ud_handler(struct ex_regs *regs)
++{
++	vmx_window_test_ud_count++;
++}
++
++static void vmx_nmi_window_test_guest(void)
++{
++	handle_exception(UD_VECTOR, vmx_window_test_ud_handler);
++
++	asm volatile("vmcall\n\t"
++		     "nop\n\t");
++
++	handle_exception(UD_VECTOR, NULL);
++}
++
++static void verify_nmi_window_exit(u64 rip)
++{
++	u32 exit_reason = vmcs_read(EXI_REASON);
++
++	report("Exit reason (%d) is 'NMI window'",
++	       exit_reason == VMX_NMI_WINDOW, exit_reason);
++	report("RIP (%#lx) is %#lx", vmcs_read(GUEST_RIP) == rip,
++	       vmcs_read(GUEST_RIP), rip);
++	report("Activity state (%ld) is 'ACTIVE'",
++	       vmcs_read(GUEST_ACTV_STATE) == ACTV_ACTIVE,
++	       vmcs_read(GUEST_ACTV_STATE));
++}
++
++static void vmx_nmi_window_test(void)
++{
++	u64 nop_addr;
++	void *ud_fault_addr = get_idt_addr(&boot_idt[UD_VECTOR]);
++
++	if (!(ctrl_pin_rev.clr & PIN_VIRT_NMI)) {
++		report_skip("CPU does not support the \"Virtual NMIs\" VM-execution control.");
++		return;
++	}
++
++	if (!(ctrl_cpu_rev[0].clr & CPU_NMI_WINDOW)) {
++		report_skip("CPU does not support the \"NMI-window exiting\" VM-execution control.");
++		return;
++	}
++
++	vmx_window_test_ud_count = 0;
++
++	report_prefix_push("NMI-window");
++	test_set_guest(vmx_nmi_window_test_guest);
++	vmcs_set_bits(PIN_CONTROLS, PIN_VIRT_NMI);
++	enter_guest();
++	skip_exit_vmcall();
++	nop_addr = vmcs_read(GUEST_RIP);
++
++	/*
++	 * Ask for "NMI-window exiting," and expect an immediate VM-exit.
++	 * RIP will not advance.
++	 */
++	report_prefix_push("active, no blocking");
++	vmcs_set_bits(CPU_EXEC_CTRL0, CPU_NMI_WINDOW);
++	enter_guest();
++	verify_nmi_window_exit(nop_addr);
++	report_prefix_pop();
++
++	/*
++	 * Ask for "NMI-window exiting" in a MOV-SS shadow, and expect
++	 * a VM-exit on the next instruction after the nop. (The nop
++	 * is one byte.)
++	 */
++	report_prefix_push("active, blocking by MOV-SS");
++	vmcs_write(GUEST_INTR_STATE, GUEST_INTR_STATE_MOVSS);
++	enter_guest();
++	verify_nmi_window_exit(nop_addr + 1);
++	report_prefix_pop();
++
++	/*
++	 * Ask for "NMI-window exiting" (with event injection), and
++	 * expect a VM-exit after the event is injected. (RIP should
++	 * be at the address specified in the IDT entry for #UD.)
++	 */
++	report_prefix_push("active, no blocking, injecting #UD");
++	vmcs_write(ENT_INTR_INFO,
++		   INTR_INFO_VALID_MASK | INTR_TYPE_HARD_EXCEPTION | UD_VECTOR);
++	enter_guest();
++	verify_nmi_window_exit((u64)ud_fault_addr);
++	report_prefix_pop();
++
++	/*
++	 * Ask for "NMI-window exiting" with NMI blocking, and expect
++	 * a VM-exit after the next IRET (i.e. after the #UD handler
++	 * returns). So, RIP should be back at one byte past the nop.
++	 */
++	report_prefix_push("active, blocking by NMI");
++	vmcs_write(GUEST_INTR_STATE, GUEST_INTR_STATE_NMI);
++	enter_guest();
++	verify_nmi_window_exit(nop_addr + 1);
++	report("#UD handler executed once (actual %d times)",
++	       vmx_window_test_ud_count == 1,
++	       vmx_window_test_ud_count);
++	report_prefix_pop();
++
++	if (!(rdmsr(MSR_IA32_VMX_MISC) & (1 << 6))) {
++		report_skip("CPU does not support activity state HLT.");
++	} else {
++		/*
++		 * Ask for "NMI-window exiting" when entering activity
++		 * state HLT, and expect an immediate VM-exit. RIP is
++		 * still one byte past the nop.
++		 */
++		report_prefix_push("halted, no blocking");
++		vmcs_write(GUEST_ACTV_STATE, ACTV_HLT);
++		enter_guest();
++		verify_nmi_window_exit(nop_addr + 1);
++		report_prefix_pop();
++
++		/*
++		 * Ask for "NMI-window exiting" when entering activity
++		 * state HLT (with event injection), and expect a
++		 * VM-exit after the event is injected. (RIP should be
++		 * at the address specified in the IDT entry for #UD.)
++		 */
++		report_prefix_push("halted, no blocking, injecting #UD");
++		vmcs_write(GUEST_ACTV_STATE, ACTV_HLT);
++		vmcs_write(ENT_INTR_INFO,
++			   INTR_INFO_VALID_MASK | INTR_TYPE_HARD_EXCEPTION |
++			   UD_VECTOR);
++		enter_guest();
++		verify_nmi_window_exit((u64)ud_fault_addr);
++		report_prefix_pop();
++	}
++
++	vmcs_clear_bits(CPU_EXEC_CTRL0, CPU_NMI_WINDOW);
++	enter_guest();
++	report_prefix_pop();
++}
++
+ static void vmx_db_test_guest(void)
+ {
+ 	/*
+@@ -5833,6 +5969,7 @@ struct vmx_test vmx_tests[] = {
+ 	TEST(vmx_cr_load_test),
+ 	TEST(vmx_nm_test),
+ 	TEST(vmx_db_test),
++	TEST(vmx_nmi_window_test),
+ 	TEST(vmx_pending_event_test),
+ 	TEST(vmx_pending_event_hlt_test),
+ 	/* EPT access tests. */
+-- 
+2.19.1.1215.g8438c0b245-goog

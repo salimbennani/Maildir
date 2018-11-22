@@ -1,0 +1,197 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (61.164.42.155:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 13 Nov 2018 15:21:42 -0000
+Received: from icoremail.net (unknown [209.85.210.178])
+	by mail-app2 (Coremail) with SMTP id by_KCgDXv+4JcepbEcWDAQ--.39819S3;
+	Tue, 13 Nov 2018 14:36:58 +0800 (CST)
+Received: from mail-pf1-f178.google.com (unknown [209.85.210.178])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwCXf0sEcepb3Gs2AA--.3630S3;
+	Tue, 13 Nov 2018 14:36:52 +0800 (CST)
+Received: by mail-pf1-f178.google.com with SMTP id v68-v6so5547778pfk.0
+        for <xuliker@zju.edu.cn>; Mon, 12 Nov 2018 22:36:52 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:delivered-to:dkim-signature:from:to:cc:subject
+         :date:message-id:in-reply-to:references:sender:precedence:list-id;
+        bh=BIhmCxsAm9Szfkmc+RuGDN+Rg6o8kDJXGmo+jhdJQFU=;
+        b=O101A44bUGWwGtgRcTDThsQt0staF0KUeBaRd2O0J3CjcuM2d1Gl0zUHDi6Dfc8ppc
+         imF9rGdv1lz/z/96NFtCeZ8o1ApaV5QufMLLkS7JUFhGUYGbHtlcAw4kuklt8IjKsvdV
+         1TrBCOivcuFxsEB43mZw1i+UrAN+BSNHXuAjFfm19PmAo3k5KBjwskviJMXjplSZE7Rl
+         SxogH7YIlsplpJWmEiS+EeQckNZ+jWM1a8FcQGUeo470zy2FIN/q8eYjOPRN82TNo/c6
+         33G/LQ7yl+n9/fsNCP/lFTfHbN97gaCuPKgEi2L8kv3xR0nHdHCDmfj0LrZmfnlfy3UO
+         hxHA==
+X-Gm-Message-State: AGRZ1gLq2zdXQRfkPG665Qi5e9okSFMGJF59KmWgPe7DLe1usuO383K1
+	3sLra8kFahdzdmHRixodz4berw3FgpavOY0Px06vSEj5JTHq/DP2Zg==
+X-Received: by 2002:a63:460a:: with SMTP id t10-v6mr3670180pga.197.1542091012487;
+        Mon, 12 Nov 2018 22:36:52 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp4102307pjt;
+        Mon, 12 Nov 2018 22:36:51 -0800 (PST)
+X-Google-Smtp-Source: AJdET5fXbLTOg3zRSus9/dcOjBnqvclzLljlTOnhiM0Vt+kmEyxN6TIo37hcShnF7oMXow97veDD
+X-Received: by 2002:a63:2214:: with SMTP id i20mr3327587pgi.83.1542091011451;
+        Mon, 12 Nov 2018 22:36:51 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542091011; cv=none;
+        d=google.com; s=arc-20160816;
+        b=X4C2AIRBbGxdIE6SrrkmUx0qTOBYy3a1iCkMFFNOdgXvJ1szdGWHyRMK5VBsh5Mpbj
+         OAyZic0b+J8luy/Az8jB7IsmDMF3v+3UPeH8msiuRwb9KEcoBxDqBofr+nVdl98yJtmU
+         wk+OViq12cNCni/i0gzix28wEojVUaubafzhd4KBXRTdTDSUMhfebd2vkox/umdp3ECd
+         r771n62L/wuS/b7bSoqW7sMR+5ILnf7eaYqfYVyQjc666+7aswhgOqGkaW8s6rmbF4xa
+         AMvXV+fJSBDuPGLHVWQZx3szJ58jNChrm9eLY/Bzs2ZCIlBX/e+tT7CfeGS4nht0DuTK
+         1abA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:references:in-reply-to:message-id:date
+         :subject:cc:to:from:dkim-signature;
+        bh=BIhmCxsAm9Szfkmc+RuGDN+Rg6o8kDJXGmo+jhdJQFU=;
+        b=DsL9nGAW1xNJIVWsAIbdi6aCuS40S/T1kxGulR57pTE6cB+iGRmExzXMGVy2DDRyjo
+         nww3Y4VKqoLxaCjelxtUyb6l+cBCsN5mIOxSiXyikm+ngKJsapcpcumK8lRBXj9MKmT9
+         tR5Q6keVUavmd0eluIVQb3Iy1OZG7Za2VXzSrwSYw8Z3EgyFH2wOTzGn4kBS4IfhQQey
+         a98sWIMcz7eO5gIfUA9tm1Iw4VVNm/gMGNcz/08tNzpebXK2dTsdr5/xP1AhSv63+Gj8
+         Pu0lZXB4oJ4iRIwXiPQlLF1BKcR2wVHTrU8i+ltcDpFjriGegChWUV8tP3opY9QEF+bv
+         1oeA==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@oracle.com header.s=corp-2018-07-02 header.b=Dh72CQPf;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;
+       dmarc=pass (p=NONE sp=NONE dis=NONE) header.from=oracle.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id 189si18490690pgh.320.2018.11.12.22.36.26;
+        Mon, 12 Nov 2018 22:36:51 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1730995AbeKMQdB (ORCPT <rfc822;fanshuming2011@gmail.com>
+        + 99 others); Tue, 13 Nov 2018 11:33:01 -0500
+Received: from aserp2120.oracle.com ([141.146.126.78]:60774 "EHLO
+        aserp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730819AbeKMQdB (ORCPT <rfc822;kvm@vger.kernel.org>);
+        Tue, 13 Nov 2018 11:33:01 -0500
+Received: from pps.filterd (aserp2120.oracle.com [127.0.0.1])
+        by aserp2120.oracle.com (8.16.0.22/8.16.0.22) with SMTP id wAD6ZG43018291;
+        Tue, 13 Nov 2018 06:36:17 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
+ subject : date : message-id : in-reply-to : references; s=corp-2018-07-02;
+ bh=BIhmCxsAm9Szfkmc+RuGDN+Rg6o8kDJXGmo+jhdJQFU=;
+ b=Dh72CQPfFwcQ1ajvbkkVAU2EwQC7ImIyD6eNKVcTWO/g6wdza0+LjkUe5XCW4ECQQ5FI
+ Q1yjccE51f64skvs7WgWE+YBuR9X0qAgWGvJgxLQEd6NmlSvqMgnkFfam1nCc3BfEWIs
+ GJU1bguRUosoev7oB+SKNwAPuphbkDM2EfYDztHZJmzta1cTb/vkNuVW3PoHz4ML5vpL
+ 6i9AuTQxjbXGX6CZqwFhEyNVVrVgasK8RIIbiyFsAsYGwMjxV+Pq8xx6NT+Df7gpPE9Z
+ +l2vDHfigQFdwCCRB3LIgSaT1sEk5j4d01OHlnpEw4Ag7cvIlwENYLpjv6h6+YGQii6A 0g== 
+Received: from userv0022.oracle.com (userv0022.oracle.com [156.151.31.74])
+        by aserp2120.oracle.com with ESMTP id 2nnw6egjd4-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 13 Nov 2018 06:36:17 +0000
+Received: from aserv0122.oracle.com (aserv0122.oracle.com [141.146.126.236])
+        by userv0022.oracle.com (8.14.4/8.14.4) with ESMTP id wAD6aFFf032284
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 13 Nov 2018 06:36:16 GMT
+Received: from abhmp0005.oracle.com (abhmp0005.oracle.com [141.146.116.11])
+        by aserv0122.oracle.com (8.14.4/8.14.4) with ESMTP id wAD6aFIA004926;
+        Tue, 13 Nov 2018 06:36:15 GMT
+Received: from ban25x6uut29.us.oracle.com (/10.153.73.29)
+        by default (Oracle Beehive Gateway v4.0)
+        with ESMTP ; Mon, 12 Nov 2018 22:36:15 -0800
+From: Krish Sadhukhan <krish.sadhukhan@oracle.com>
+To: kvm@vger.kernel.org
+Cc: pbonzini@redhat.com, jmattson@google.com, rkrcmar@redhat.com
+Subject: [PATCH 1/6] nVMX x86: Re-name check_vmentry_pre[post]reqs to nested_check_vmentry_pre[post]
+Date: Tue, 13 Nov 2018 01:12:04 -0500
+Message-Id: <20181113061209.6843-2-krish.sadhukhan@oracle.com>
+X-Mailer: git-send-email 2.9.5
+In-Reply-To: <20181113061209.6843-1-krish.sadhukhan@oracle.com>
+References: <20181113061209.6843-1-krish.sadhukhan@oracle.com>
+X-Proofpoint-Virus-Version: vendor=nai engine=5900 definitions=9075 signatures=668683
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=1 malwarescore=0
+ phishscore=0 bulkscore=0 spamscore=0 mlxscore=0 mlxlogscore=699
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.0.1-1807170000 definitions=main-1811130062
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwCXf0sEcepb3Gs2AA--.3630S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW7Zr48XF1kCryfCw4UuF1DGFg_yoW8Kr4kpa
+	yIgrsY9rW0qry7A348twsYkaySv3y0vFW3Ary8Ka1YvasIga4xJr1rJrW5trW8JrZ5Ga4f
+	ZF4Utw17Zw15trJanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUP2b7Iv0xC_Zr1lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1l84ACjcxK6I8E
+	87Iv67AKxVW0oVCq3wA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_GcCE3s1le2I262IYc4CY6c
+	8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_Jr0_
+	Jr4lYx0Ex4A2jsIE14v26r4j6F4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvY0x0EwI
+	xGrwCjxxvEa2IrMxkF7I0Ew4C26cxK6c8Ij28IcwCY1Ik26cxK6xAEc7vF6xCjj44lc2xS
+	Y4AK6IIF6r47MxkI7II2jI8vz4vEwIxGrwCYIxAIcVC0I7IYx2IY67AKxVW8JVW5JwCYIx
+	AIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMxvI42IY6I8E87Iv67AKxVWxJr0_GcWlcIIF
+	0xvEx4A2jsIEc7CjxVAFwI0_Cr1j6rxdMxAIw28IcxkI7VAKI48JMxAIw28IcVAKzI0EY4
+	vE52x082I5MxCjnVCjjxCrMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_
+	Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWUAVWUtwCIc40Y0x
+	0EwIxGrwCI42IY6xAIw20EY4v20xvaj40_Jr0_JF7vcSsGvfC2KfnxnUUI43ZEXa7IU5fu
+	ctUUUUU==
+
+Re-name the functions check_vmentry_pre[post]reqs to
+nested_check_pre[post]reqs because these functions are used only in
+nested context.
+
+Signed-off-by: Krish Sadhukhan <krish.sadhukhan@oracle.com>
+Reviewed-by: Liran Alon <liran.alon@oracle.com>
+Reviewed-by: Mihai Carabas <mihai.carabas@oracle.com>
+Reviewed-by: Mark Kanda <mark.kanda@oracle.com>
+---
+ arch/x86/kvm/vmx.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/arch/x86/kvm/vmx.c b/arch/x86/kvm/vmx.c
+index 8dae47e..0f6c38f 100644
+--- a/arch/x86/kvm/vmx.c
++++ b/arch/x86/kvm/vmx.c
+@@ -12313,7 +12313,7 @@ static int nested_vmx_check_nmi_controls(struct vmcs12 *vmcs12)
+ 	return 0;
+ }
+ 
+-static int check_vmentry_prereqs(struct kvm_vcpu *vcpu, struct vmcs12 *vmcs12)
++static int nested_check_vmentry_prereqs(struct kvm_vcpu *vcpu, struct vmcs12 *vmcs12)
+ {
+ 	struct vcpu_vmx *vmx = to_vmx(vcpu);
+ 
+@@ -12472,7 +12472,7 @@ static int nested_vmx_check_vmcs_link_ptr(struct kvm_vcpu *vcpu,
+ 	return r;
+ }
+ 
+-static int check_vmentry_postreqs(struct kvm_vcpu *vcpu, struct vmcs12 *vmcs12,
++static int nested_check_vmentry_postreqs(struct kvm_vcpu *vcpu, struct vmcs12 *vmcs12,
+ 				  u32 *exit_qual)
+ {
+ 	bool ia32e;
+@@ -12650,7 +12650,7 @@ static int nested_vmx_run(struct kvm_vcpu *vcpu, bool launch)
+ 		goto out;
+ 	}
+ 
+-	ret = check_vmentry_prereqs(vcpu, vmcs12);
++	ret = nested_check_vmentry_prereqs(vcpu, vmcs12);
+ 	if (ret) {
+ 		nested_vmx_failValid(vcpu, ret);
+ 		goto out;
+@@ -12665,7 +12665,7 @@ static int nested_vmx_run(struct kvm_vcpu *vcpu, bool launch)
+ 	 */
+ 	skip_emulated_instruction(vcpu);
+ 
+-	ret = check_vmentry_postreqs(vcpu, vmcs12, &exit_qual);
++	ret = nested_check_vmentry_postreqs(vcpu, vmcs12, &exit_qual);
+ 	if (ret) {
+ 		nested_vmx_entry_failure(vcpu, vmcs12,
+ 					 EXIT_REASON_INVALID_STATE, exit_qual);
+@@ -13987,8 +13987,8 @@ static int vmx_set_nested_state(struct kvm_vcpu *vcpu,
+ 			return -EINVAL;
+ 	}
+ 
+-	if (check_vmentry_prereqs(vcpu, vmcs12) ||
+-	    check_vmentry_postreqs(vcpu, vmcs12, &exit_qual))
++	if (nested_check_vmentry_prereqs(vcpu, vmcs12) ||
++	    nested_check_vmentry_postreqs(vcpu, vmcs12, &exit_qual))
+ 		return -EINVAL;
+ 
+ 	if (kvm_state->flags & KVM_STATE_NESTED_RUN_PENDING)
+-- 
+2.9.5

@@ -1,0 +1,448 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 20 Nov 2018 00:29:02 -0000
+Received: from icoremail.net (unknown [209.85.215.169])
+	by mail-app2 (Coremail) with SMTP id by_KCgDXv9IUfPJb56S3AQ--.54662S3;
+	Mon, 19 Nov 2018 17:02:13 +0800 (CST)
+Received: from mail-pg1-f169.google.com (unknown [209.85.215.169])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwCHbkoQfPJbIOBWAA--.8846S3;
+	Mon, 19 Nov 2018 17:02:08 +0800 (CST)
+Received: by mail-pg1-f169.google.com with SMTP id y4so13537425pgc.12
+        for <xuliker@zju.edu.cn>; Mon, 19 Nov 2018 01:02:08 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:delivered-to:dkim-signature:mime-version
+         :references:in-reply-to:from:date:message-id:subject:to:cc:sender
+         :precedence:list-id;
+        bh=VdNiOxEw5mVS6/p6mWAr7pb26U9pPYwv123knc/L8GM=;
+        b=DQlqjeSWktmNuDbK1TGO674LdUb4c/mvF7BupNbAL6k/TdtkdEyDpNf+kYdEDDwmbJ
+         Dz8E2ax5tSasaAUTAqOuvUj3qU8z+94m6izdJJvhSBuKnScCOe0PI7ubsxdui4Dt9cMS
+         kAcMYyTSYKsrq1/WhXQ7vQVt43ZpWs16Y1+15HF92BjnwnJUmXLSaShMsyjjprf811UE
+         RFjAZV3VSJy95qZdnlXCb3kmAaEzb2w62k5KJ805/cAQRBjpdItLUYAph70cjASuUWPF
+         89rF/iJ2s/4nowlPOA2jOiFqt+UOW6l3JlnkQrrom6X1zN0mNmqsVLOBHB/URd3RoIam
+         OQtA==
+X-Gm-Message-State: AGRZ1gIYPUPxrLRUnZjSJ3u93eeNEWCVyq4TZPmb5Et5G9vbD8YYaCOV
+	gYagx28nQ59gB6nXmDq/QFroEgsRMVg9X7spGKe3+Db3/SeyvWY=
+X-Received: by 2002:a63:cd17:: with SMTP id i23mr19221508pgg.13.1542618127438;
+        Mon, 19 Nov 2018 01:02:07 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:d106:0:0:0:0 with SMTP id l6-v6csp2403959pju;
+        Mon, 19 Nov 2018 01:02:06 -0800 (PST)
+X-Google-Smtp-Source: AFSGD/U8o69HFxk8ZZLa5/1a5KWb9aXIVxpzKDTaamaMj0sInQkpcGQcPmehrxsn33QeRB0bC0Fm
+X-Received: by 2002:a17:902:b416:: with SMTP id x22mr6251482plr.276.1542618126333;
+        Mon, 19 Nov 2018 01:02:06 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542618126; cv=none;
+        d=google.com; s=arc-20160816;
+        b=UKgo3aRqpcD5NyX/sE8DVrthKCkDIDfyZjID5/O0qZoj7s5Q/P2chr0cQsPDxvUcdT
+         yOikAMU9tPg3a+FJEevvFykYmWNBJFpV0FyQs8oofeN+9SJ6sypHsYGixYob+VO2LKdF
+         8sRTyyvn7TGxdeZNqChrFxTcn0qz5EBCLYpPHv8B5KqhLNThAc2LY9dRJ+KZ1YCTz6Pk
+         ed35kSNr8sX8ShEctCGV8exYASbR7BIgRohSQgwdzoobLvy8kRTo/q4ZieHr1s/Hrc3S
+         N2eG2VldHTGcWpp4UWW7nbbJ8gqjvcIpej21DNNhZaBj87fbXVPgyoDX6hHp+um1m3Ff
+         EdAw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=VdNiOxEw5mVS6/p6mWAr7pb26U9pPYwv123knc/L8GM=;
+        b=cPpOR7T65reYnSMucU5s9z6EmKiKjcXtNBhFDqb3/lQ+wVGjA2egkI0iIiNQQFhZrd
+         Uli836YkvOKDnX9UdDhFeb6n7tv/xWO+bAtW+fLQE8OuUyF5tBxPri3JnTtVR10+5EtU
+         undY0fKbYVGppvLNdif+ehUO7HaHkc2dbWybx4fjPHDVvyzAsijVC79eRIFth3SiCy0T
+         LjkfNWL4jbnuD6PdCYev2yG9jjveKwhXprWLO6V52kv0gBBjEKNulosll/d6Ox5VUZg4
+         SouJwYarztijrGmn8rr0ml+le2/WPfMspl1MeovlEuV84ZFbERprqW+6bhhoTAntNeEW
+         gY8w==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@gmail.com header.s=20161025 header.b=FQxJVPtE;
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;
+       dmarc=pass (p=NONE sp=QUARANTINE dis=NONE) header.from=gmail.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id 205si27333865pfa.199.2018.11.19.01.01.51;
+        Mon, 19 Nov 2018 01:02:06 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1727278AbeKSTYd (ORCPT <rfc822;nullbytes00@gmail.com>
+        + 99 others); Mon, 19 Nov 2018 14:24:33 -0500
+Received: from mail-qk1-f194.google.com ([209.85.222.194]:42842 "EHLO
+        mail-qk1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726088AbeKSTYd (ORCPT
+        <rfc822;linux-kernel@vger.kernel.org>);
+        Mon, 19 Nov 2018 14:24:33 -0500
+Received: by mail-qk1-f194.google.com with SMTP id m5so47353347qka.9
+        for <linux-kernel@vger.kernel.org>; Mon, 19 Nov 2018 01:01:31 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=VdNiOxEw5mVS6/p6mWAr7pb26U9pPYwv123knc/L8GM=;
+        b=FQxJVPtEPhj6Lqfnviy/z/de72Y07on/Mn2mhvOjuXr8W34imKXU4HP8XuQUcxnVyU
+         l/DtcYPocoaiYWyee6wqkaodlHown8l515VMuPW3K1+HJBV91L00hha2WdOw85k8Y4S5
+         YNV1cmPGdFC2K4zWu7LeaLMVIBNnkXrd51ksoy/duTkodI4ySskgiRBB0EVdHJY/Iaiw
+         rtmv0V+sHISSnZPqJcYMm9uXc1SmW7VFu4IkJp3APSbYk3ciMy/kfNuyhNG5oyZE7IDi
+         hQkDbK2SygcXZiGhIbrhohm3rU4HSoGNxmOvdqWRGGnfb5Yc/bOBYnmjNbphEB6r1R48
+         tX6g==
+X-Received: by 2002:a0c:8542:: with SMTP id n60mr20592032qva.205.1542618091285;
+ Mon, 19 Nov 2018 01:01:31 -0800 (PST)
+MIME-Version: 1.0
+References: <20180928082722.26951-1-enric.balletbo@collabora.com> <CAAFQd5BXOmCmwL1i=aBCy5rZn37e-9pYg_WXkgrCG9emV+zKtA@mail.gmail.com>
+In-Reply-To: <CAAFQd5BXOmCmwL1i=aBCy5rZn37e-9pYg_WXkgrCG9emV+zKtA@mail.gmail.com>
+From: Enric Balletbo Serra <eballetbo@gmail.com>
+Date: Mon, 19 Nov 2018 10:01:19 +0100
+Message-ID: <CAFqH_53_p8C_K8hXPLFCX-GedaVQY4xXD5FGjYr=vCHe--2RnQ@mail.gmail.com>
+Subject: Re: [PATCH v2] drm/rockchip: update cursors asynchronously through atomic.
+To: Tomasz Figa <tfiga@chromium.org>
+Cc: Enric Balletbo i Serra <enric.balletbo@collabora.com>,
+        marcheu@google.com, Sean Paul <seanpaul@google.com>,
+        gustavo.padovan@collabora.com, David Airlie <airlied@linux.ie>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        dri-devel <dri-devel@lists.freedesktop.org>,
+        "open list:ARM/Rockchip SoC..." <linux-rockchip@lists.infradead.org>,
+        kernel@collabora.com,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        helen.koike@collabora.com
+Content-Type: text/plain; charset="UTF-8"
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwCHbkoQfPJbIOBWAA--.8846S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoWfJF4UtrW3tr4kCry7tr4UXFb_yoWkCF4xp3
+	9rAFWYgr48Kr4kXwnrJrnIvFWfKwnakay7Jryrt3W3Xa42kr90vwn3Wr9xur47JFW7WF1f
+	Ar1DJF98Wa12kFJanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUU0bIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUPIb7Iv0xC_Kw4lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2
+	z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s0DM2AIxVAIcxkEcV
+	Aq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1j
+	6r18McIj6I8E87Iv67AKxVW8JVWxJwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IY64vIr4
+	1l7I0Y6sxI4wCY1x0264kExVAvwVAq07x20xylc7Ca8VAvwVCFzxkY4VCF77xAMxkIecxE
+	wVCI4VW8uwCY0x0Ix7I2Y4AK64vIr41lcIIF0xvE2Ix0cI8IcVAFwI0_JFI_Gr1lcIIF0x
+	vE2Ix0cI8IcVCY1x0267AKxVWUJVW8JwCYIxAIcVC2z280aVAFwI0_Gr1j6F4UJwCYIxAI
+	cVC2z280aVCY1x0267AKxVW8Jr0_Cr1UMxAIw28IcxkI7VAKI48JMxAIw28IcVAKzI0EY4
+	vE52x082I5MxCjnVCjjxCrMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_
+	Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWUtVW8ZwCIc40Y0x
+	0EwIxGrwCI42IY6xAIw20EY4v20xvaj40_Zr0_Wr1UYxBIdaVFxhVjvjDU0xZFpf9x07bH
+	gA7UUUUU=
+
+Hi Tomasz,
+
+cc'ing Helen as she will continue the work.
+
+Missatge de Tomasz Figa <tfiga@chromium.org> del dia dc., 14 de nov.
+2018 a les 9:49:
+>
+> Hi Enric,
+>
+> On Fri, Sep 28, 2018 at 5:27 PM Enric Balletbo i Serra
+> <enric.balletbo@collabora.com> wrote:
+> >
+> > Add support to async updates of cursors by using the new atomic
+> > interface for that.
+> >
+> > Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+> > ---
+> > Hi,
+> >
+> > This is a second version of the patch to add async-plane update support
+> > to the Rockchip driver.
+> >
+>
+> I'm really sorry for the super late reply. I couldn't get cycles to
+> look at this earlier. :(
+>
+
+No problem, many thanks for looking at it.
+
+> > The patch was tested on a Samsung Chromebook Plus in two ways.
+> >
+> >  1. Running all igt kms_cursor_legacy and kms_atomic tests and see that
+> > there is no regression after the patch.
+> >     Note that before the patch, the following igt tests failed:
+> >     - basic-flip-before-cursor-legacy
+> >     - basic-flip-before-cursor-atomic
+> >     - cursor-vs-flip-legacy
+> >     - cursor-vs-flip-toggle
+> >     - flip-vs-cursor-atomic
+> >     - flip-vs-cursor-crc-atomic
+> >     - flip-vs-cursor-crc-legacy
+> >     - flip-vs-cursor-legacy
+> >     - flip-vs-cursor-crc-atomic
+> >     - flip-vs-cursor-crc-legacy
+>
+> Are the last 2 tests repeated?
+>
+Right, are repeated sorry.
+
+> >
+> >     With the patch applied only two tests don't fail (these two are
+> > expexted to not pass right now):
+> >     - flip-vs-cursor-crc-atomic
+> >     - flip-vs-cursor-crc-legac
+>
+> Did you mean "don't pass"?
+>
+
+Yes, the only two tests that don't pass are the cursor-crc ones.
+
+> >
+> >     You can check full IGT test report here:
+> >     - Before the patch:
+> >         https://people.collabora.com/~eballetbo/tests/igt/samsung-chromebook-plus/igt-1.23/4.19-rc5/index.html
+> >     - With the patch applied:
+> >         https://people.collabora.com/~eballetbo/tests/igt/samsung-chromebook-plus/igt-1.23/4.19-rc5-async-update/index.html
+> >
+> >  2. Running weston using the atomic API.
+> >
+> > Best regards,
+> >   Enric
+> >
+> > Changes in v2:
+> > - Change the framebuffer as well to cover jumpy cursor when hovering
+> >   text boxes or hyperlink. (Tomasz)
+> > - Use the PSR inhibit mechanism when accessing VOP hardware instead of
+> >   PSR flushing (Tomasz)
+> >
+> > Changes in v1:
+> > - Rebased on top of drm-misc
+> > - In async_check call drm_atomic_helper_check_plane_state to check that
+> >   the desired plane is valid and update various bits of derived state
+> >   (clipped coordinates etc.)
+> > - In async_check allow to configure new scaling in the fast path.
+> > - In async_update force to flush all registered PSR encoders.
+> > - In async_update call atomic_update directly.
+> > - In async_update call vop_cfg_done needed to set the vop registers and take effect.
+> >
+> >  drivers/gpu/drm/rockchip/rockchip_drm_fb.c  | 36 ------------
+> >  drivers/gpu/drm/rockchip/rockchip_drm_psr.c | 37 ++++++++++++
+> >  drivers/gpu/drm/rockchip/rockchip_drm_psr.h |  3 +
+> >  drivers/gpu/drm/rockchip/rockchip_drm_vop.c | 62 +++++++++++++++++++++
+> >  4 files changed, 102 insertions(+), 36 deletions(-)
+> >
+> > diff --git a/drivers/gpu/drm/rockchip/rockchip_drm_fb.c b/drivers/gpu/drm/rockchip/rockchip_drm_fb.c
+> > index 7b6f7227d476..aec9a997de13 100644
+> > --- a/drivers/gpu/drm/rockchip/rockchip_drm_fb.c
+> > +++ b/drivers/gpu/drm/rockchip/rockchip_drm_fb.c
+> > @@ -128,24 +128,6 @@ rockchip_user_fb_create(struct drm_device *dev, struct drm_file *file_priv,
+> >         return ERR_PTR(ret);
+> >  }
+> >
+> > -static void
+> > -rockchip_drm_psr_inhibit_get_state(struct drm_atomic_state *state)
+> > -{
+> > -       struct drm_crtc *crtc;
+> > -       struct drm_crtc_state *crtc_state;
+> > -       struct drm_encoder *encoder;
+> > -       u32 encoder_mask = 0;
+> > -       int i;
+> > -
+> > -       for_each_old_crtc_in_state(state, crtc, crtc_state, i) {
+> > -               encoder_mask |= crtc_state->encoder_mask;
+> > -               encoder_mask |= crtc->state->encoder_mask;
+> > -       }
+> > -
+> > -       drm_for_each_encoder_mask(encoder, state->dev, encoder_mask)
+> > -               rockchip_drm_psr_inhibit_get(encoder);
+> > -}
+> > -
+> >  uint32_t rockchip_drm_get_vblank_ns(struct drm_display_mode *mode)
+> >  {
+> >         uint64_t vblank_time = mode->vtotal - mode->vdisplay;
+> > @@ -156,24 +138,6 @@ uint32_t rockchip_drm_get_vblank_ns(struct drm_display_mode *mode)
+> >         return vblank_time;
+> >  }
+> >
+> > -static void
+> > -rockchip_drm_psr_inhibit_put_state(struct drm_atomic_state *state)
+> > -{
+> > -       struct drm_crtc *crtc;
+> > -       struct drm_crtc_state *crtc_state;
+> > -       struct drm_encoder *encoder;
+> > -       u32 encoder_mask = 0;
+> > -       int i;
+> > -
+> > -       for_each_old_crtc_in_state(state, crtc, crtc_state, i) {
+> > -               encoder_mask |= crtc_state->encoder_mask;
+> > -               encoder_mask |= crtc->state->encoder_mask;
+> > -       }
+> > -
+> > -       drm_for_each_encoder_mask(encoder, state->dev, encoder_mask)
+> > -               rockchip_drm_psr_inhibit_put(encoder);
+> > -}
+> > -
+> >  static void
+> >  rockchip_atomic_helper_commit_tail_rpm(struct drm_atomic_state *old_state)
+> >  {
+> > diff --git a/drivers/gpu/drm/rockchip/rockchip_drm_psr.c b/drivers/gpu/drm/rockchip/rockchip_drm_psr.c
+> > index 79d00d861a31..1635485955d3 100644
+> > --- a/drivers/gpu/drm/rockchip/rockchip_drm_psr.c
+> > +++ b/drivers/gpu/drm/rockchip/rockchip_drm_psr.c
+> > @@ -13,6 +13,7 @@
+> >   */
+> >
+> >  #include <drm/drmP.h>
+> > +#include <drm/drm_atomic.h>
+> >  #include <drm/drm_crtc_helper.h>
+> >
+> >  #include "rockchip_drm_drv.h"
+> > @@ -109,6 +110,42 @@ int rockchip_drm_psr_inhibit_put(struct drm_encoder *encoder)
+> >  }
+> >  EXPORT_SYMBOL(rockchip_drm_psr_inhibit_put);
+> >
+> > +void rockchip_drm_psr_inhibit_get_state(struct drm_atomic_state *state)
+> > +{
+> > +       struct drm_crtc *crtc;
+> > +       struct drm_crtc_state *crtc_state;
+> > +       struct drm_encoder *encoder;
+> > +       u32 encoder_mask = 0;
+> > +       int i;
+> > +
+> > +       for_each_old_crtc_in_state(state, crtc, crtc_state, i) {
+> > +               encoder_mask |= crtc_state->encoder_mask;
+> > +               encoder_mask |= crtc->state->encoder_mask;
+> > +       }
+> > +
+> > +       drm_for_each_encoder_mask(encoder, state->dev, encoder_mask)
+> > +               rockchip_drm_psr_inhibit_get(encoder);
+> > +}
+> > +EXPORT_SYMBOL(rockchip_drm_psr_inhibit_get_state);
+> > +
+> > +void rockchip_drm_psr_inhibit_put_state(struct drm_atomic_state *state)
+> > +{
+> > +       struct drm_crtc *crtc;
+> > +       struct drm_crtc_state *crtc_state;
+> > +       struct drm_encoder *encoder;
+> > +       u32 encoder_mask = 0;
+> > +       int i;
+> > +
+> > +       for_each_old_crtc_in_state(state, crtc, crtc_state, i) {
+> > +               encoder_mask |= crtc_state->encoder_mask;
+> > +               encoder_mask |= crtc->state->encoder_mask;
+> > +       }
+> > +
+> > +       drm_for_each_encoder_mask(encoder, state->dev, encoder_mask)
+> > +               rockchip_drm_psr_inhibit_put(encoder);
+> > +}
+> > +EXPORT_SYMBOL(rockchip_drm_psr_inhibit_put_state);
+> > +
+> >  /**
+> >   * rockchip_drm_psr_inhibit_get - acquire PSR inhibit on given encoder
+> >   * @encoder: encoder to obtain the PSR encoder
+> > diff --git a/drivers/gpu/drm/rockchip/rockchip_drm_psr.h b/drivers/gpu/drm/rockchip/rockchip_drm_psr.h
+> > index 860c62494496..25350ba3237b 100644
+> > --- a/drivers/gpu/drm/rockchip/rockchip_drm_psr.h
+> > +++ b/drivers/gpu/drm/rockchip/rockchip_drm_psr.h
+> > @@ -20,6 +20,9 @@ void rockchip_drm_psr_flush_all(struct drm_device *dev);
+> >  int rockchip_drm_psr_inhibit_put(struct drm_encoder *encoder);
+> >  int rockchip_drm_psr_inhibit_get(struct drm_encoder *encoder);
+> >
+> > +void rockchip_drm_psr_inhibit_get_state(struct drm_atomic_state *state);
+> > +void rockchip_drm_psr_inhibit_put_state(struct drm_atomic_state *state);
+> > +
+> >  int rockchip_drm_psr_register(struct drm_encoder *encoder,
+> >                         int (*psr_set)(struct drm_encoder *, bool enable));
+> >  void rockchip_drm_psr_unregister(struct drm_encoder *encoder);
+> > diff --git a/drivers/gpu/drm/rockchip/rockchip_drm_vop.c b/drivers/gpu/drm/rockchip/rockchip_drm_vop.c
+> > index 6642c2b9bb3c..682ce40166f7 100644
+> > --- a/drivers/gpu/drm/rockchip/rockchip_drm_vop.c
+> > +++ b/drivers/gpu/drm/rockchip/rockchip_drm_vop.c
+> > @@ -819,10 +819,72 @@ static void vop_plane_atomic_update(struct drm_plane *plane,
+> >         spin_unlock(&vop->reg_lock);
+> >  }
+> >
+> > +static int vop_plane_atomic_async_check(struct drm_plane *plane,
+> > +                                       struct drm_plane_state *state)
+> > +{
+> > +       struct vop_win *vop_win = to_vop_win(plane);
+> > +       const struct vop_win_data *win = vop_win->data;
+> > +       int min_scale = win->phy->scl ? FRAC_16_16(1, 8) :
+> > +                                       DRM_PLANE_HELPER_NO_SCALING;
+> > +       int max_scale = win->phy->scl ? FRAC_16_16(8, 1) :
+> > +                                       DRM_PLANE_HELPER_NO_SCALING;
+> > +       struct drm_crtc_state *crtc_state;
+> > +       int ret;
+> > +
+> > +       if (plane != state->crtc->cursor)
+> > +               return -EINVAL;
+> > +
+> > +       if (!plane->state)
+> > +               return -EINVAL;
+> > +
+> > +       if (!plane->state->fb)
+> > +               return -EINVAL;
+> > +
+> > +       if (state->state)
+> > +               crtc_state = drm_atomic_get_existing_crtc_state(state->state,
+> > +                                                               state->crtc);
+> > +       else /* Special case for asynchronous cursor updates. */
+> > +               crtc_state = plane->crtc->state;
+> > +
+> > +       ret = drm_atomic_helper_check_plane_state(plane->state,
+> > +                                                 crtc_state,
+> > +                                                 min_scale, max_scale,
+> > +                                                 true, true);
+> > +       return ret;
+> > +}
+> > +
+> > +static void vop_plane_atomic_async_update(struct drm_plane *plane,
+> > +                                         struct drm_plane_state *new_state)
+> > +{
+> > +       struct vop *vop = to_vop(plane->state->crtc);
+> > +
+> > +       plane->state->crtc_x = new_state->crtc_x;
+> > +       plane->state->crtc_y = new_state->crtc_y;
+> > +       plane->state->crtc_h = new_state->crtc_h;
+> > +       plane->state->crtc_w = new_state->crtc_w;
+> > +       plane->state->src_x = new_state->src_x;
+> > +       plane->state->src_y = new_state->src_y;
+> > +       plane->state->src_h = new_state->src_h;
+> > +       plane->state->src_w = new_state->src_w;
+> > +
+> > +       drm_atomic_set_fb_for_plane(plane->state, new_state->fb);
+>
+> Isn't this going to drop the old fb reference on the floor without
+> waiting for the hardware to actually stop scanning out from it?
+>
+
+Hmm, yes you've reason. Thanks for pointing it.
+
+> I believe we need to do something similar to what's already in
+> vop_crtc_commit_flush(), but not called on this async path
+> https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/tree/drivers/gpu/drm/rockchip/rockchip_drm_vop.c?h=next-20181114#n1045
+>
+> Perhaps it would be an option to call vop_crtc_commit_flush() from here?
+>
+
+We'll look at this for the third version, thanks!
+
+> Best regards,
+> Tomasz
+>
+> > +
+> > +       if (vop->is_enabled) {
+> > +               rockchip_drm_psr_inhibit_get_state(new_state->state);
+> > +               vop_plane_atomic_update(plane, plane->state);
+> > +               spin_lock(&vop->reg_lock);
+> > +               vop_cfg_done(vop);
+> > +               spin_unlock(&vop->reg_lock);
+> > +               rockchip_drm_psr_inhibit_put_state(new_state->state);
+> > +       }
+> > +}
+> > +
+> >  static const struct drm_plane_helper_funcs plane_helper_funcs = {
+> >         .atomic_check = vop_plane_atomic_check,
+> >         .atomic_update = vop_plane_atomic_update,
+> >         .atomic_disable = vop_plane_atomic_disable,
+> > +       .atomic_async_check = vop_plane_atomic_async_check,
+> > +       .atomic_async_update = vop_plane_atomic_async_update,
+> >  };
+> >
+> >  static const struct drm_plane_funcs vop_plane_funcs = {
+> > --
+> > 2.19.0
+> >
+> _______________________________________________
+> dri-devel mailing list
+> dri-devel@lists.freedesktop.org
+> https://lists.freedesktop.org/mailman/listinfo/dri-devel

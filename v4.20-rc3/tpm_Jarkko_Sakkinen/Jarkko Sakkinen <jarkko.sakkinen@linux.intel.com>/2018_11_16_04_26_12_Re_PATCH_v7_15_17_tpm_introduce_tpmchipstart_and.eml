@@ -1,0 +1,508 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 16 Nov 2018 00:29:57 -0000
+Received: from icoremail.net (unknown [209.85.210.180])
+	by mail-app2 (Coremail) with SMTP id by_KCgDHH+aH1u1bD86cAQ--.46271S3;
+	Fri, 16 Nov 2018 04:26:48 +0800 (CST)
+Received: from mail-pf1-f180.google.com (unknown [209.85.210.180])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwAX+0aE1u1btHxFAA--.613S3;
+	Fri, 16 Nov 2018 04:26:44 +0800 (CST)
+Received: by mail-pf1-f180.google.com with SMTP id 64so5760336pfr.9
+        for <xuliker@zju.edu.cn>; Thu, 15 Nov 2018 12:26:44 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:content-transfer-encoding:in-reply-to
+         :organization:user-agent:sender:precedence:list-id;
+        bh=DU7EfcGbMsconDCFhkD7fBkc/+e2DSzQdvLlPvvzkzc=;
+        b=KJrPrNq8XwPD31wmO7tMIRTawRcJmqkO6Pinxr2gRV/h2yAffLiyQLuIy16w6Y4FzB
+         JXWANKq1Q1uO+SeCtqNCur2VJ5DApHaHQoodTloCf5WlrjVUJ4vNmo2g+SPtCvLu6ugC
+         iP5P8OWX/pDWC++fJzxTVMndAnmir8NPQl/1yXVAy8TLYlgLA8aykv5HXsVwVYCccTrS
+         PhNnw2qXKriCWuJThCto/trpjokl9fpk4jjKsPDDZAfYHyUPVV/7lVM3uzRpo5xUHhwf
+         bjlwEb6c5U6i2MsaeLYcJNNZWBjfV1Ass9Mzx1cyPfJ/+JPAVn38vzYj/PckQh+L/k6g
+         w7ww==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=intel.com
+X-Gm-Message-State: AGRZ1gI4WkT3+6kMt4zy9eulUh8PZOiS6uKPfmrK4yfQyTg6X6+jcpz9
+	bx/AbXPcxJL8WZHgJq0ld4UpmcJa9nu7P3K6zHHjZQEFzJBaFj1NLQ==
+X-Received: by 2002:a62:ce85:: with SMTP id y127mr3092898pfg.201.1542313604000;
+        Thu, 15 Nov 2018 12:26:44 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:d106:0:0:0:0 with SMTP id l6-v6csp1033981pju;
+        Thu, 15 Nov 2018 12:26:42 -0800 (PST)
+X-Google-Smtp-Source: AJdET5cPJhCZqQ/KN3rIx/ouU6/baOLPq/ZeDxNyLxICluAVc/HkTYzALRkP+k61mnk7t6LBhq3+
+X-Received: by 2002:a17:902:5ac2:: with SMTP id g2mr7759220plm.313.1542313602582;
+        Thu, 15 Nov 2018 12:26:42 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542313602; cv=none;
+        d=google.com; s=arc-20160816;
+        b=wD/TR/G3xoamjdPoDplpxujm3KARzXKzGDDlo5rh65RJ3AfJAlfNdaQ5KCyXIdLJp0
+         iIkqs6jotpiw6uT7bbz65adxx1p6Pjkbmy4V9abh5deSTko1gG2Veg3TD5Ri88bMqnp3
+         uK0R1cp9y/9S1HxcHMi6v4sLoOMwT4kMpIN+PRCDIO97ctNfPZdJgfjY9KIr40jFHJFf
+         fRV3dcVy5RwNbH8V463Ef12u890O3n/ouFsQ9JpKpuPRX9FbUKtXYtYLcXkJ9VfL7pxE
+         EVy8bQbmUKKnSPFGERMd1VYk1laWfopGVjQo3NFqb/R5Mv58HR2Go0xdaLzw1YAXTkUN
+         9lXg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:user-agent:organization:in-reply-to
+         :content-transfer-encoding:content-disposition:mime-version
+         :references:message-id:subject:cc:to:from:date;
+        bh=DU7EfcGbMsconDCFhkD7fBkc/+e2DSzQdvLlPvvzkzc=;
+        b=uIAMsk36wcxpctdFp5ioDvSc9sXlGgMKHmHU/8IcEc8dvFVLwmrx44njDw00ng4Bxk
+         CWgQ9lSzLIy5LmBnjgQiNQxU15F9Qxpxaxkxgkf0+QdyZB6ihTORvf+jW73BOD2PV3JP
+         Qxv0Lp+CB6U6q2V1SuPmHTHdRzfVW8FveYtJCPN89zFe4PenqQxD5fcq9tv+a5bF+PAo
+         tic+aGC0zFxakyim7eeRd7gbGb67m7PXmOUus3bs2myKMLfM/8yx9ipSlItrjN1cPbbr
+         2z2u0fEU4bGTebLXXZXLgQqHwWfI0D0DMoh6Z12LKTTRbnuFCGvd6Mi7Hk4kdecAnpQE
+         WPiQ==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=intel.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id g8si474117pgb.128.2018.11.15.12.26.28;
+        Thu, 15 Nov 2018 12:26:42 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S2388977AbeKPGfi (ORCPT <rfc822;kristofer.rye@gmail.com>
+        + 99 others); Fri, 16 Nov 2018 01:35:38 -0500
+Received: from mga11.intel.com ([192.55.52.93]:9883 "EHLO mga11.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725856AbeKPGfi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+        Fri, 16 Nov 2018 01:35:38 -0500
+X-Amp-Result: UNKNOWN
+X-Amp-Original-Verdict: FILE UNKNOWN
+X-Amp-File-Uploaded: False
+Received: from fmsmga006.fm.intel.com ([10.253.24.20])
+  by fmsmga102.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 15 Nov 2018 12:26:19 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.56,237,1539673200"; 
+   d="scan'208";a="281456884"
+Received: from ncanderx-mobl.ger.corp.intel.com (HELO localhost) ([10.249.254.140])
+  by fmsmga006.fm.intel.com with ESMTP; 15 Nov 2018 12:26:12 -0800
+Date: Thu, 15 Nov 2018 22:26:12 +0200
+From: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+To: Stefan Berger <stefanb@linux.ibm.com>
+Cc: linux-integrity@vger.kernel.org,
+        linux-security-module@vger.kernel.org,
+        James Bottomley <James.Bottomley@HansenPartnership.com>,
+        Tomas Winkler <tomas.winkler@intel.com>,
+        Tadeusz Struk <tadeusz.struk@intel.com>,
+        Stefan Berger <stefanb@linux.vnet.ibm.com>,
+        Nayna Jain <nayna@linux.ibm.com>,
+        Peter Huewe <peterhuewe@gmx.de>,
+        Jason Gunthorpe <jgg@ziepe.ca>, Arnd Bergmann <arnd@arndb.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        open list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH v7 15/17] tpm: introduce tpm_chip_start() and
+ tpm_chip_stop()
+Message-ID: <20181115202612.GA26875@linux.intel.com>
+References: <20181113183620.27447-1-jarkko.sakkinen@linux.intel.com>
+ <20181113183620.27447-16-jarkko.sakkinen@linux.intel.com>
+ <f13401b7-e683-6b61-b0cf-7c4be87903cb@linux.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <f13401b7-e683-6b61-b0cf-7c4be87903cb@linux.ibm.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+User-Agent: Mutt/1.10.1 (2018-07-13)
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwAX+0aE1u1btHxFAA--.613S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvAXoWfGF15JF1fXFW7KFWUAw1rXrb_yoW8JF1DCo
+	WxGw43Za1Fgr18Kw18Aw10vr17Zw4kCF1fJr95uFs8KF1Dta17W3Z8Gw4rZFWaqr47Wr43
+	u3Z7Jw15AayUJ3Z3n29KB7ZKAUJUUUUU529EdanIXcx71UUUUj7v73VFW2AGmfu7jjvjm3
+	AaLaJ3UjIYCTnIWjp_UUUYv7k0a2IF6w4kM7kC6x804xWl14x267AKxVWUJVW8JwAFIxvE
+	14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK021l84ACjcxK6xIIjx
+	v20xvE14v26ryj6F1UM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26r4j6F4UM28EF7xvwVC2
+	z280aVAFwI0_Cr1j6rxdM28EF7xvwVC2z280aVCY1x0267AKxVWxJr0_GcWle2I262IYc4
+	CY6c8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_
+	Jr0_Jr4lYx0Ex4A2jsIE14v26r4j6F4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvEwI
+	xGrwCjxxvEa2IrMxkF7I0Ew4C26cxK6c8Ij28IcwCY0x0Ix7I2Y4AK64vIr41lcIIF0xvE
+	2Ix0cI8IcVAFwI0_Gr0_Xr1lcIIF0xvE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwCYIxAIcV
+	C2z280aVAFwI0_Gr1j6F4UJwCYIxAIcVC2z280aVCY1x0267AKxVW8Jr0_Cr1UMxAIw28I
+	cxkI7VAKI48JMxAIw28IcVAKzI0EY4vE52x082I5MxCjnVCjjxCrMxC20s026xCaFVCjc4
+	AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE
+	17CEb7AF67AKxVWUtVW8ZwCIc40Y0x0EwIxGrwCI42IY6xAIw20EY4v20xvaj40_Gr0_Zr
+	UvcSsGvfC2KfnxnUUI43ZEXa7IUYuVbPUUUUU==
+
+On Tue, Nov 13, 2018 at 05:34:54PM -0500, Stefan Berger wrote:
+> On 11/13/18 1:36 PM, Jarkko Sakkinen wrote:
+> > Encapsulate power gating and locality functionality to tpm_chip_start()
+> > and tpm_chip_stop() in order to clean up the branching mess in
+> > tpm_transmit().
+> 
+> 
+> I ran the vtpm proxy test suite on this series and got this error when
+> running it with 'make check-j5'
+> (https://github.com/stefanberger/linux-vtpm-tests).
+> 
+> It's was actually difficult to hit this bug since I ran it with -j1 , -j2
+> and so on before.
+> 
+> 
+> [ 3003.838138] BUG: unable to handle kernel NULL pointer dereference at
+> 0000000000000000
+> [ 3003.838806] PGD 0 P4D 0
+> [ 3003.838806] Oops: 0010 [#1] SMP PTI
+> [ 3003.840394] CPU: 3 PID: 111 Comm: kworker/3:1 Not tainted 4.20.0-rc2+ #6
+> [ 3003.840394] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
+> rel-1.11.0-50-g14221cd-dirty-20181018_164544-sbct-4.pok.ibm.com 04/01/2014
+> [ 3003.840394] Workqueue: tpm-vtpm vtpm_proxy_work
+> [ 3003.840394] RIP: 0010:          (null)
+> [ 3003.840394] Code: Bad RIP value.
+> [ 3003.840394] RSP: 0018:ffffa6e6816d7e10 EFLAGS: 00010246
+> [ 3003.840394] RAX: 00000000ffffffe0 RBX: ffff9698077ad000 RCX:
+> 0000000000000006
+> [ 3003.840394] RDX: 0000000000000000 RSI: 0000000000000000 RDI:
+> ffff9698077ad000
+> [ 3003.840394] RBP: ffff9698077ad000 R08: fffff59bc6172d08 R09:
+> 0000000000000000
+> [ 3003.840394] R10: 0000000000000000 R11: 0000000000000000 R12:
+> ffff9698b78f0700
+> [ 3003.840394] R13: ffff9698b78fbc00 R14: 0000000000000000 R15:
+> ffff9697f8ea10f8
+> [ 3003.840394] FS:  0000000000000000(0000) GS:ffff9698b78c0000(0000)
+> knlGS:0000000000000000
+> [ 3003.840394] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> [ 3003.840394] CR2: ffffffffffffffd6 CR3: 0000000190606000 CR4:
+> 00000000000006e0
+> [ 3003.840394] Call Trace:
+> [ 3003.840394]  ? tpm_chip_start+0xb8/0xe0
+> [ 3003.840394]  ? tpm_chip_register+0x15/0x240
+> [ 3003.840394]  ? vtpm_proxy_work+0x15/0x30
+> [ 3003.840394]  ? process_one_work+0x237/0x5c0
+> [ 3003.840394]  ? worker_thread+0x1d5/0x390
+> [ 3003.840394]  ? process_one_work+0x5c0/0x5c0
+> [ 3003.840394]  ? kthread+0x11e/0x140
+> [ 3003.840394]  ? kthread_park+0x90/0x90
+> [ 3003.840394]  ? ret_from_fork+0x3a/0x50
+> [ 3003.840394] Modules linked in: xt_CHECKSUM ipt_MASQUERADE tun
+> nf_conntrack_netbios_ns nf_conntrack_broadcast xt_CT ip6t_rpfilter
+> ip6t_REJECT nf_reject_ipv6 xt_conntrack ip_set nfnetlink ebtable_nat
+> ebtable_broute bridge stp llc ip6table_nat nf_nat_ipv6 ip6table_mangle
+> ip6table_raw ip6table_security iptable_nat nf_nat_ipv4 nf_nat nf_conntrack
+> nf_defrag_ipv6 nf_defrag_ipv4 libcrc32c iptable_mangle iptable_raw
+> iptable_security ebtable_filter ebtables ip6table_filter ip6_tables sunrpc
+> virtio_gpu ttm drm_kms_helper drm joydev syscopyarea sysfillrect sysimgblt
+> pcspkr virtio_balloon i2c_piix4 fb_sys_fops virtio_net net_failover
+> virtio_console failover virtio_blk crc32c_intel virtio_pci serio_raw
+> ata_generic virtio_ring virtio pata_acpi floppy qemu_fw_cfg
+> [ 3003.840394] CR2: 0000000000000000
+> [ 3003.840394] ---[ end trace 29e5990b605a7ccb ]---
+> [ 3003.840394] RIP: 0010:          (null)
+> [ 3003.840394] Code: Bad RIP value.
+> [ 3003.840394] RSP: 0018:ffffa6e6816d7e10 EFLAGS: 00010246
+> [ 3003.840394] RAX: 00000000ffffffe0 RBX: ffff9698077ad000 RCX:
+> 0000000000000006
+> [ 3003.840394] RDX: 0000000000000000 RSI: 0000000000000000 RDI:
+> ffff9698077ad000
+> [ 3003.840394] RBP: ffff9698077ad000 R08: fffff59bc6172d08 R09:
+> 0000000000000000
+> [ 3003.840394] R10: 0000000000000000 R11: 0000000000000000 R12:
+> ffff9698b78f0700
+> [ 3003.840394] R13: ffff9698b78fbc00 R14: 0000000000000000 R15:
+> ffff9697f8ea10f8
+> [ 3003.840394] FS:  0000000000000000(0000) GS:ffff9698b78c0000(0000)
+> knlGS:0000000000000000
+> [ 3003.840394] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> [ 3003.840394] CR2: ffffffffffffffd6 CR3: 0000000190606000 CR4:
+> 00000000000006e0
+> [ 3003.840394] BUG: sleeping function called from invalid context at
+> ./include/linux/percpu-rwsem.h:34
+> [ 3003.840394] in_atomic(): 0, irqs_disabled(): 1, pid: 111, name:
+> kworker/3:1
+> [ 3003.840394] INFO: lockdep is turned off.
+> [ 3003.840394] irq event stamp: 165206
+> [ 3003.840394] hardirqs last  enabled at (165205): [<ffffffff8b220113>]
+> free_unref_page+0xf3/0x1f0
+> [ 3003.840394] hardirqs last disabled at (165206): [<ffffffff8b0019ee>]
+> trace_hardirqs_off_thunk+0x1a/0x1c
+> [ 3003.840394] softirqs last  enabled at (165182): [<ffffffff8b785e01>]
+> peernet2id+0x41/0x50
+> [ 3003.840394] softirqs last disabled at (165180): [<ffffffff8b785de2>]
+> peernet2id+0x22/0x50
+> [ 3003.840394] CPU: 3 PID: 111 Comm: kworker/3:1 Tainted: G D          
+> 4.20.0-rc2+ #6
+> [ 3003.840394] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
+> rel-1.11.0-50-g14221cd-dirty-20181018_164544-sbct-4.pok.ibm.com 04/01/2014
+> [ 3003.840394] Workqueue: tpm-vtpm vtpm_proxy_work
+> [ 3003.840394] Call Trace:
+> [ 3003.840394]  dump_stack+0x67/0x9b
+> [ 3003.840394]  ___might_sleep+0x149/0x230
+> [ 3003.840394]  exit_signals+0x20/0x210
+> [ 3003.840394]  ? worker_thread+0x1d5/0x390
+> [ 3003.840394]  do_exit+0xa0/0xc70
+> [ 3003.840394]  ? process_one_work+0x5c0/0x5c0
+> [ 3003.840394]  ? kthread+0x11e/0x140
+> [ 3003.840394]  rewind_stack_do_exit+0x17/0x20
+> [ 3004.389582] tpm tpm1803: tpm_try_transmit: tpm_send: error -14
+> 
+> 
+> > 
+> > Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+> > ---
+> >   drivers/char/tpm/tpm-chip.c      | 110 +++++++++++++++++++++++++++++++
+> >   drivers/char/tpm/tpm-interface.c |  87 +-----------------------
+> >   drivers/char/tpm/tpm.h           |   2 +
+> >   3 files changed, 115 insertions(+), 84 deletions(-)
+> > 
+> > diff --git a/drivers/char/tpm/tpm-chip.c b/drivers/char/tpm/tpm-chip.c
+> > index 157505b0f755..65f1561eba81 100644
+> > --- a/drivers/char/tpm/tpm-chip.c
+> > +++ b/drivers/char/tpm/tpm-chip.c
+> > @@ -37,6 +37,116 @@ struct class *tpm_class;
+> >   struct class *tpmrm_class;
+> >   dev_t tpm_devt;
+> > 
+> > +static int tpm_request_locality(struct tpm_chip *chip, unsigned int flags)
+> > +{
+> > +	int rc;
+> > +
+> > +	if (flags & TPM_TRANSMIT_NESTED)
+> > +		return 0;
+> > +
+> > +	if (!chip->ops->request_locality)
+> > +		return 0;
+> > +
+> > +	rc = chip->ops->request_locality(chip, 0);
+> > +	if (rc < 0)
+> > +		return rc;
+> > +
+> > +	chip->locality = rc;
+> > +	return 0;
+> > +}
+> > +
+> > +static void tpm_relinquish_locality(struct tpm_chip *chip, unsigned int flags)
+> > +{
+> > +	int rc;
+> > +
+> > +	if (flags & TPM_TRANSMIT_NESTED)
+> > +		return;
+> > +
+> > +	if (!chip->ops->relinquish_locality)
+> > +		return;
+> > +
+> > +	rc = chip->ops->relinquish_locality(chip, chip->locality);
+> > +	if (rc)
+> > +		dev_err(&chip->dev, "%s: : error %d\n", __func__, rc);
+> > +
+> > +	chip->locality = -1;
+> > +}
+> > +
+> > +static int tpm_cmd_ready(struct tpm_chip *chip, unsigned int flags)
+> > +{
+> > +	if (flags & TPM_TRANSMIT_NESTED)
+> > +		return 0;
+> > +
+> > +	if (!chip->ops->cmd_ready)
+> > +		return 0;
+> > +
+> > +	return chip->ops->cmd_ready(chip);
+> > +}
+> > +
+> > +static int tpm_go_idle(struct tpm_chip *chip, unsigned int flags)
+> > +{
+> > +	if (flags & TPM_TRANSMIT_NESTED)
+> > +		return 0;
+> > +
+> > +	if (!chip->ops->go_idle)
+> > +		return 0;
+> > +
+> > +	return chip->ops->go_idle(chip);
+> > +}
+> > +
+> > +/**
+> > + * tpm_chip_start() - power on the TPM
+> > + * @chip:	a TPM chip to use
+> > + * @flags:	TPM transmit flags
+> > + *
+> > + * Return:
+> > + * * The response length	- OK
+> > + * * -errno			- A system error
+> > + */
+> > +int tpm_chip_start(struct tpm_chip *chip, unsigned int flags)
+> > +{
+> > +	int ret;
+> > +
+> > +	if (chip->ops->clk_enable)
+> > +		chip->ops->clk_enable(chip, true);
+> > +
+> > +	if (chip->locality == -1) {
+> > +		ret = tpm_request_locality(chip, flags);
+> > +		if (ret) {
+> > +			chip->ops->clk_enable(chip, false);
+> > +			return ret;
+> > +		}
+> > +	}
+> > +
+> > +	ret = tpm_cmd_ready(chip, flags);
+> > +	if (ret) {
+> > +		tpm_relinquish_locality(chip, flags);
+> > +		if (chip->ops->clk_enable)
+> > +			chip->ops->clk_enable(chip, false);
+> > +		return ret;
+> > +	}
+> > +
+> > +	return 0;
+> > +}
+> > +
+> > +/**
+> > + * tpm_chip_stop() - power off the TPM
+> > + * @chip:	a TPM chip to use
+> > + * @flags:	TPM transmit flags
+> > + *
+> > + * Return:
+> > + * * The response length	- OK
+> > + * * -errno			- A system error
+> > + */
+> > +void tpm_chip_stop(struct tpm_chip *chip, unsigned int flags)
+> > +{
+> > +	tpm_go_idle(chip, flags);
+> > +	tpm_relinquish_locality(chip, flags);
+> > +	if (chip->ops->clk_enable)
+> > +		chip->ops->clk_enable(chip, false);
+> > +}
+> > +
+> > +
+> >   /**
+> >    * tpm_try_get_ops() - Get a ref to the tpm_chip
+> >    * @chip: Chip to ref
+> > diff --git a/drivers/char/tpm/tpm-interface.c b/drivers/char/tpm/tpm-interface.c
+> > index 5865b9671d20..888c9923fca1 100644
+> > --- a/drivers/char/tpm/tpm-interface.c
+> > +++ b/drivers/char/tpm/tpm-interface.c
+> > @@ -62,64 +62,6 @@ unsigned long tpm_calc_ordinal_duration(struct tpm_chip *chip, u32 ordinal)
+> >   }
+> >   EXPORT_SYMBOL_GPL(tpm_calc_ordinal_duration);
+> > 
+> > -static int tpm_request_locality(struct tpm_chip *chip, unsigned int flags)
+> > -{
+> > -	int rc;
+> > -
+> > -	if (flags & TPM_TRANSMIT_NESTED)
+> > -		return 0;
+> > -
+> > -	if (!chip->ops->request_locality)
+> > -		return 0;
+> > -
+> > -	rc = chip->ops->request_locality(chip, 0);
+> > -	if (rc < 0)
+> > -		return rc;
+> > -
+> > -	chip->locality = rc;
+> > -
+> > -	return 0;
+> > -}
+> > -
+> > -static void tpm_relinquish_locality(struct tpm_chip *chip, unsigned int flags)
+> > -{
+> > -	int rc;
+> > -
+> > -	if (flags & TPM_TRANSMIT_NESTED)
+> > -		return;
+> > -
+> > -	if (!chip->ops->relinquish_locality)
+> > -		return;
+> > -
+> > -	rc = chip->ops->relinquish_locality(chip, chip->locality);
+> > -	if (rc)
+> > -		dev_err(&chip->dev, "%s: : error %d\n", __func__, rc);
+> > -
+> > -	chip->locality = -1;
+> > -}
+> > -
+> > -static int tpm_cmd_ready(struct tpm_chip *chip, unsigned int flags)
+> > -{
+> > -	if (flags & TPM_TRANSMIT_NESTED)
+> > -		return 0;
+> > -
+> > -	if (!chip->ops->cmd_ready)
+> > -		return 0;
+> > -
+> > -	return chip->ops->cmd_ready(chip);
+> > -}
+> > -
+> > -static int tpm_go_idle(struct tpm_chip *chip, unsigned int flags)
+> > -{
+> > -	if (flags & TPM_TRANSMIT_NESTED)
+> > -		return 0;
+> > -
+> > -	if (!chip->ops->go_idle)
+> > -		return 0;
+> > -
+> > -	return chip->ops->go_idle(chip);
+> > -}
+> > -
+> >   static ssize_t tpm_try_transmit(struct tpm_chip *chip, u8 *buf, size_t bufsiz,
+> >   				unsigned int flags)
+> >   {
+> > @@ -212,7 +154,6 @@ ssize_t tpm_transmit(struct tpm_chip *chip, u8 *buf, size_t bufsiz,
+> >   	/* space for header and handles */
+> >   	u8 save[TPM_HEADER_SIZE + 3*sizeof(u32)];
+> >   	unsigned int delay_msec = TPM2_DURATION_SHORT;
+> > -	bool has_locality = false;
+> >   	u32 rc = 0;
+> >   	ssize_t ret;
+> >   	const size_t save_size = min(sizeof(save), bufsiz);
+> > @@ -227,34 +168,12 @@ ssize_t tpm_transmit(struct tpm_chip *chip, u8 *buf, size_t bufsiz,
+> >   	memcpy(save, buf, save_size);
+> > 
+> >   	for (;;) {
+> > -		if (chip->ops->clk_enable != NULL)
+> > -			chip->ops->clk_enable(chip, true);
+> > -
+> > -		if (chip->locality == -1) {
+> > -			ret = tpm_request_locality(chip, flags);
+> > -			if (ret)
+> > -				goto out_locality;
+> > -			has_locality = true;
+> > -		}
+> > -
+> > -		ret = tpm_cmd_ready(chip, flags);
+> > +		ret = tpm_chip_start(chip, flags);
+> >   		if (ret)
+> > -			goto out_locality;
+> > -
+> > +			return ret;
+> >   		ret = tpm_try_transmit(chip, buf, bufsiz, flags);
+> > +		tpm_chip_stop(chip, flags);
+> > 
+> > -		/* This may fail but do not override ret. */
+> > -		tpm_go_idle(chip, flags);
+> > -
+> > -out_locality:
+> > -		if (has_locality)
+> > -			tpm_relinquish_locality(chip, flags);
+> > -
+> > -		if (chip->ops->clk_enable != NULL)
+> > -			chip->ops->clk_enable(chip, false);
+> > -
+> > -		if (ret < 0)
+> > -			break;
+> >   		rc = be32_to_cpu(header->return_code);
+> >   		if (rc != TPM2_RC_RETRY && rc != TPM2_RC_TESTING)
+> >   			break;
+> > diff --git a/drivers/char/tpm/tpm.h b/drivers/char/tpm/tpm.h
+> > index c7c06de651a0..c42a75710b70 100644
+> > --- a/drivers/char/tpm/tpm.h
+> > +++ b/drivers/char/tpm/tpm.h
+> > @@ -523,6 +523,8 @@ static inline void tpm_msleep(unsigned int delay_msec)
+> >   		     delay_msec * 1000);
+> >   };
+> > 
+> > +int tpm_chip_start(struct tpm_chip *chip, unsigned int flags);
+> > +void tpm_chip_stop(struct tpm_chip *chip, unsigned int flags);
+> >   struct tpm_chip *tpm_find_get_ops(struct tpm_chip *chip);
+> >   __must_check int tpm_try_get_ops(struct tpm_chip *chip);
+> >   void tpm_put_ops(struct tpm_chip *chip);
+> 
+> 
+
+Thank you for the feedback. I'll try to reproduce this myself.
+
+/Jarkko

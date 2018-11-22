@@ -1,0 +1,368 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 14 Nov 2018 00:36:17 -0000
+Received: from icoremail.net (unknown [209.85.215.174])
+	by mail-app2 (Coremail) with SMTP id by_KCgC3f+0lHOtbLDKIAQ--.40650S3;
+	Wed, 14 Nov 2018 02:47:02 +0800 (CST)
+Received: from mail-pg1-f174.google.com (unknown [209.85.215.174])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwDXt0NPGutb_cM5AA--.13879S3;
+	Wed, 14 Nov 2018 02:39:11 +0800 (CST)
+Received: by mail-pg1-f174.google.com with SMTP id z11so3461040pgu.0
+        for <xuliker@zju.edu.cn>; Tue, 13 Nov 2018 10:39:11 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding:sender:precedence:list-id;
+        bh=l601LkFCWweC+r1U8T5NmtcEPk1riYpjlM2mrif9uNI=;
+        b=TNkeQLDjeJyJPNQzOBXUD0JtbOdnFEYWH5k5Ngx5J13/2ogZuQd3m9wF+xaWviPQMh
+         FmXc8nq0ST0VmObMTc2TOZiG+GLi0o3bhBuEK8Mcxvr2GEJWrL4ivhLOOqlQpfFt4OxD
+         RMxqsQllVygpExBn4DMtT/RtAdCE05a/dGtv2IS+Axs4HqbotR7sMWY1K4i63HuGnObm
+         1BHrPnQ074E7Tf/U55klrlFEZdJhfjQskRDZaxUTKJisRCb86KwgIXZEJmtj63TenAiU
+         g3/6Yh06JwC+zQCi23pHfjBP+PuJCc7N+gXXlpq4NLTil/Gpe6xhtlvBw7PmrpTMKW0E
+         yTbA==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=intel.com
+X-Gm-Message-State: AGRZ1gKwFfz5nEWMH62PsK7X0KeUe+KskmTi43daRhxdn3cB6pqYJGCh
+	tOLr3z8T65KM0QCiw0RPjdVhY0M+cVa0HdGoqPcMLl7eRiLjsQ/0hA==
+X-Received: by 2002:a62:1f9d:: with SMTP id l29mr4295140pfj.14.1542134350782;
+        Tue, 13 Nov 2018 10:39:10 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp4837573pjt;
+        Tue, 13 Nov 2018 10:39:09 -0800 (PST)
+X-Google-Smtp-Source: AJdET5fhA661qwMu35RAcW85Vd/APueGTKS9gU1jUv83m990JLKFDU4ppYNV11wzGIGO/+Akvtkd
+X-Received: by 2002:a63:cc43:: with SMTP id q3mr5672525pgi.291.1542134349855;
+        Tue, 13 Nov 2018 10:39:09 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542134349; cv=none;
+        d=google.com; s=arc-20160816;
+        b=c1okfMrjeRQ4Mk68ISUTtR/mzRDwrqBUCWGfGdGJLbwz3zSreeD+bF96JEn4JFUeeu
+         rYUzXEnXki6t36fAWq0i1SJtSm+mb0gdSDJZn+fVNVAd8siTOI8F9puywzcw4TQXxF3N
+         FdCVTRK19aotRHEkIDCKo3RwGKkTpZGiztGqEWhTNQEP8imRE82b5gKpbsVBrUYDJKhV
+         V/G57OiOwVgw5uJmk+BJP+73OJ1d3HloMUPzmcgs/y64piAyVilYq96FcNdmcweqRkaJ
+         Tr5ugITE6gWUnv/NXK9LZgO3pI+apCenjMW3vLfC7ek6IFjpGRjEMOt8mVyL0BX1pJu3
+         r8Og==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:content-transfer-encoding:mime-version
+         :references:in-reply-to:message-id:date:subject:cc:to:from;
+        bh=l601LkFCWweC+r1U8T5NmtcEPk1riYpjlM2mrif9uNI=;
+        b=mqo12RmgKwJz6PCb06hQIaXl00c5TbOGYiMugkvnwJoGVZTNAp9C+daFZn2yiomFiJ
+         GpAnNO91iG/dmKP2v31UE8OX7hjKD7GOH1d+lAU6j3yoNuVYkbnSU6dbc9jJtSjdgEyf
+         FuLV7wE/4KFK0BzHyx+Q16KFyxy+smymyy4XDY77Yl6VCJU4xI7SThmiG744bHxPUNQW
+         WxabNsm0/qoSgUrOvPaB5Jzm/tKuA6aEmuVj/q6OHS5eWjAu4vUpvoDWAmmFEXYbiBnV
+         WXsUCgNJzHtY279R5ggNVawklvfuAZrNpLKUt7P7NCdyTJwEMc4fEo/HcM25oB+20pHH
+         /OoA==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=intel.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id cb2-v6si24079714plb.227.2018.11.13.10.38.53;
+        Tue, 13 Nov 2018 10:39:09 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1731680AbeKNEh0 (ORCPT <rfc822;ecarlos1024@gmail.com>
+        + 99 others); Tue, 13 Nov 2018 23:37:26 -0500
+Received: from mga17.intel.com ([192.55.52.151]:63547 "EHLO mga17.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726695AbeKNEh0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+        Tue, 13 Nov 2018 23:37:26 -0500
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga001.jf.intel.com ([10.7.209.18])
+  by fmsmga107.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 13 Nov 2018 10:38:05 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.56,229,1539673200"; 
+   d="scan'208";a="107949007"
+Received: from ibanaga-mobl1.ger.corp.intel.com (HELO localhost) ([10.249.254.77])
+  by orsmga001.jf.intel.com with ESMTP; 13 Nov 2018 10:37:59 -0800
+From: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+To: linux-integrity@vger.kernel.org
+Cc: linux-security-module@vger.kernel.org,
+        James Bottomley <James.Bottomley@HansenPartnership.com>,
+        Tomas Winkler <tomas.winkler@intel.com>,
+        Tadeusz Struk <tadeusz.struk@intel.com>,
+        Stefan Berger <stefanb@linux.vnet.ibm.com>,
+        Nayna Jain <nayna@linux.ibm.com>,
+        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+        Peter Huewe <peterhuewe@gmx.de>,
+        Jason Gunthorpe <jgg@ziepe.ca>, Arnd Bergmann <arnd@arndb.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org (open list)
+Subject: [PATCH v7 10/17] tpm: move tpm_validate_commmand() to tpm2-space.c
+Date: Tue, 13 Nov 2018 20:36:09 +0200
+Message-Id: <20181113183620.27447-11-jarkko.sakkinen@linux.intel.com>
+X-Mailer: git-send-email 2.19.1
+In-Reply-To: <20181113183620.27447-1-jarkko.sakkinen@linux.intel.com>
+References: <20181113183620.27447-1-jarkko.sakkinen@linux.intel.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwDXt0NPGutb_cM5AA--.13879S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW3Xr4rGFyDAw48tF1xGr1fXrb_yoWxKw47pF
+	y5C3s3Zws5Jr45JF92qr4DG3ZIkr1IqayUKrWfJasxZF1DKFs8G34jyFWYvry5Kr18CF1a
+	kr4xKayUAFy09w7anT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUPvb7Iv0xC_KF4lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_tr0E3s1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2
+	z280aVAFwI0_Cr1j6rxdM28EF7xvwVC2z280aVCY1x0267AKxVWxJr0_GcWle2I262IYc4
+	CY6c8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_
+	Jr0_Jr4lYx0Ex4A2jsIE14v26r1j6r4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvY0x
+	0EwIxGrwCjxxvEa2IrMxkF7I0Ew4C26cxK6c8Ij28IcwCY1Ik26cxK6xAEc7vF6xCjj44l
+	c2xSY4AK6IIF6rylc2IjII80xcxEwVAKI48JMxvI42IY6xIIjxv20xvE14v26ryj6F1UMx
+	vI42IY6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1lcIIF0xvEx4A2jsIE14v26r4UJVWxJr1l
+	cIIF0xvEx4A2jsIEc7CjxVAFwI0_Gr1j6F4UJwCF04k20xvY0x0EwIxGrwCF04k20xvEw4
+	C26cxK6c8Ij28IcwCF72vE77IF4wCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E
+	14v26r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_Jw0_GFylIx
+	kGc2Ij64vIr41lIxAIcVCF04k26cxKx2IYs7xG6Fyj6rWUJbIYCTnIWIevJa73UjIFyTuY
+	vjxUDN6pDUUUU
+
+Move tpm_validate_command() to tpm2-space.c and make it part of the
+tpm2_prepare_space() flow. Make cc resolution as part of the TPM space
+functionality in order to detach it from rest of the tpm_transmit()
+flow.
+
+Cc: James Bottomley <James.Bottomley@HansenPartnership.com>
+Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Reviewed-by: Stefan Berger <stefanb@linux.ibm.com>
+---
+ drivers/char/tpm/tpm-interface.c | 72 +++++++-------------------------
+ drivers/char/tpm/tpm.h           |  9 ++--
+ drivers/char/tpm/tpm2-space.c    | 54 +++++++++++++++++++++---
+ 3 files changed, 68 insertions(+), 67 deletions(-)
+
+diff --git a/drivers/char/tpm/tpm-interface.c b/drivers/char/tpm/tpm-interface.c
+index f2280bf15339..a6ffd0960ae5 100644
+--- a/drivers/char/tpm/tpm-interface.c
++++ b/drivers/char/tpm/tpm-interface.c
+@@ -62,47 +62,6 @@ unsigned long tpm_calc_ordinal_duration(struct tpm_chip *chip, u32 ordinal)
+ }
+ EXPORT_SYMBOL_GPL(tpm_calc_ordinal_duration);
+ 
+-static int tpm_validate_command(struct tpm_chip *chip,
+-				 struct tpm_space *space,
+-				 const u8 *cmd,
+-				 size_t len)
+-{
+-	const struct tpm_header *header = (const void *)cmd;
+-	int i;
+-	u32 cc;
+-	u32 attrs;
+-	unsigned int nr_handles;
+-
+-	if (len < TPM_HEADER_SIZE)
+-		return -EINVAL;
+-
+-	if (!space)
+-		return 0;
+-
+-	if (chip->flags & TPM_CHIP_FLAG_TPM2 && chip->nr_commands) {
+-		cc = be32_to_cpu(header->ordinal);
+-
+-		i = tpm2_find_cc(chip, cc);
+-		if (i < 0) {
+-			dev_dbg(&chip->dev, "0x%04X is an invalid command\n",
+-				cc);
+-			return -EOPNOTSUPP;
+-		}
+-
+-		attrs = chip->cc_attrs_tbl[i];
+-		nr_handles =
+-			4 * ((attrs >> TPM2_CC_ATTR_CHANDLES) & GENMASK(2, 0));
+-		if (len < TPM_HEADER_SIZE + 4 * nr_handles)
+-			goto err_len;
+-	}
+-
+-	return 0;
+-err_len:
+-	dev_dbg(&chip->dev,
+-		"%s: insufficient command length %zu", __func__, len);
+-	return -EINVAL;
+-}
+-
+ static int tpm_request_locality(struct tpm_chip *chip, unsigned int flags)
+ {
+ 	int rc;
+@@ -172,20 +131,8 @@ static ssize_t tpm_try_transmit(struct tpm_chip *chip,
+ 	u32 count, ordinal;
+ 	unsigned long stop;
+ 
+-	rc = tpm_validate_command(chip, space, buf, bufsiz);
+-	if (rc == -EINVAL)
+-		return rc;
+-	/*
+-	 * If the command is not implemented by the TPM, synthesize a
+-	 * response with a TPM2_RC_COMMAND_CODE return for user-space.
+-	 */
+-	if (rc == -EOPNOTSUPP) {
+-		header->length = cpu_to_be32(sizeof(*header));
+-		header->tag = cpu_to_be16(TPM2_ST_NO_SESSIONS);
+-		header->return_code = cpu_to_be32(TPM2_RC_COMMAND_CODE |
+-						  TSS2_RESMGR_TPM_RC_LAYER);
+-		return sizeof(*header);
+-	}
++	if (bufsiz < TPM_HEADER_SIZE)
++		return -EINVAL;
+ 
+ 	if (bufsiz > TPM_BUFSIZE)
+ 		bufsiz = TPM_BUFSIZE;
+@@ -200,7 +147,18 @@ static ssize_t tpm_try_transmit(struct tpm_chip *chip,
+ 		return -E2BIG;
+ 	}
+ 
+-	rc = tpm2_prepare_space(chip, space, ordinal, buf);
++	rc = tpm2_prepare_space(chip, space, buf, bufsiz);
++	/*
++	 * If the command is not implemented by the TPM, synthesize a
++	 * response with a TPM2_RC_COMMAND_CODE return for user-space.
++	 */
++	if (rc == -EOPNOTSUPP) {
++		header->length = cpu_to_be32(sizeof(*header));
++		header->tag = cpu_to_be16(TPM2_ST_NO_SESSIONS);
++		header->return_code = cpu_to_be32(TPM2_RC_COMMAND_CODE |
++						  TSS2_RESMGR_TPM_RC_LAYER);
++		return sizeof(*header);
++	}
+ 	if (rc)
+ 		return rc;
+ 
+@@ -249,7 +207,7 @@ static ssize_t tpm_try_transmit(struct tpm_chip *chip,
+ 	if (rc)
+ 		tpm2_flush_space(chip);
+ 	else
+-		rc = tpm2_commit_space(chip, space, ordinal, buf, &len);
++		rc = tpm2_commit_space(chip, space, buf, &len);
+ 
+ 	return rc ? rc : len;
+ }
+diff --git a/drivers/char/tpm/tpm.h b/drivers/char/tpm/tpm.h
+index 92638ec6ec97..68d78ebba032 100644
+--- a/drivers/char/tpm/tpm.h
++++ b/drivers/char/tpm/tpm.h
+@@ -264,6 +264,7 @@ struct tpm_chip {
+ #endif /* CONFIG_ACPI */
+ 
+ 	struct tpm_space work_space;
++	u32 last_cc;
+ 	u32 nr_commands;
+ 	u32 *cc_attrs_tbl;
+ 
+@@ -577,10 +578,10 @@ int tpm2_find_cc(struct tpm_chip *chip, u32 cc);
+ int tpm2_init_space(struct tpm_space *space);
+ void tpm2_del_space(struct tpm_chip *chip, struct tpm_space *space);
+ void tpm2_flush_space(struct tpm_chip *chip);
+-int tpm2_prepare_space(struct tpm_chip *chip, struct tpm_space *space, u32 cc,
+-		       u8 *cmd);
+-int tpm2_commit_space(struct tpm_chip *chip, struct tpm_space *space,
+-		      u32 cc, u8 *buf, size_t *bufsiz);
++int tpm2_prepare_space(struct tpm_chip *chip, struct tpm_space *space, u8 *cmd,
++		       size_t cmdsiz);
++int tpm2_commit_space(struct tpm_chip *chip, struct tpm_space *space, u8 *buf,
++		       size_t *bufsiz);
+ 
+ int tpm_bios_log_setup(struct tpm_chip *chip);
+ void tpm_bios_log_teardown(struct tpm_chip *chip);
+diff --git a/drivers/char/tpm/tpm2-space.c b/drivers/char/tpm/tpm2-space.c
+index 393d9aadadce..172c9f9d4c29 100644
+--- a/drivers/char/tpm/tpm2-space.c
++++ b/drivers/char/tpm/tpm2-space.c
+@@ -264,14 +264,55 @@ static int tpm2_map_command(struct tpm_chip *chip, u32 cc, u8 *cmd)
+ 	return 0;
+ }
+ 
+-int tpm2_prepare_space(struct tpm_chip *chip, struct tpm_space *space, u32 cc,
+-		       u8 *cmd)
++static int tpm_validate_command(struct tpm_chip *chip, struct tpm_space *space,
++				const u8 *cmd, size_t len)
++{
++	const struct tpm_header *header = (const void *)cmd;
++	int i;
++	u32 cc;
++	u32 attrs;
++	unsigned int nr_handles;
++
++	if (len < TPM_HEADER_SIZE)
++		return -EINVAL;
++
++	if (chip->nr_commands) {
++		cc = be32_to_cpu(header->ordinal);
++
++		i = tpm2_find_cc(chip, cc);
++		if (i < 0) {
++			dev_dbg(&chip->dev, "0x%04X is an invalid command\n",
++				cc);
++			return -EOPNOTSUPP;
++		}
++
++		attrs = chip->cc_attrs_tbl[i];
++		nr_handles =
++			4 * ((attrs >> TPM2_CC_ATTR_CHANDLES) & GENMASK(2, 0));
++		if (len < TPM_HEADER_SIZE + 4 * nr_handles)
++			goto err_len;
++	}
++
++	return 0;
++err_len:
++	dev_dbg(&chip->dev, "%s: insufficient command length %zu", __func__,
++		len);
++	return -EINVAL;
++}
++
++int tpm2_prepare_space(struct tpm_chip *chip, struct tpm_space *space, u8 *cmd,
++		       size_t cmdsiz)
+ {
+ 	int rc;
++	int cc;
+ 
+ 	if (!space)
+ 		return 0;
+ 
++	cc = tpm_validate_command(chip, space, cmd, cmdsiz);
++	if (cc < 0)
++		return cc;
++
+ 	memcpy(&chip->work_space.context_tbl, &space->context_tbl,
+ 	       sizeof(space->context_tbl));
+ 	memcpy(&chip->work_space.session_tbl, &space->session_tbl,
+@@ -291,6 +332,7 @@ int tpm2_prepare_space(struct tpm_chip *chip, struct tpm_space *space, u32 cc,
+ 		return rc;
+ 	}
+ 
++	chip->last_cc = cc;
+ 	return 0;
+ }
+ 
+@@ -489,8 +531,8 @@ static int tpm2_save_space(struct tpm_chip *chip)
+ 	return 0;
+ }
+ 
+-int tpm2_commit_space(struct tpm_chip *chip, struct tpm_space *space,
+-		      u32 cc, u8 *buf, size_t *bufsiz)
++int tpm2_commit_space(struct tpm_chip *chip, struct tpm_space *space, u8 *buf,
++		      size_t *bufsiz)
+ {
+ 	struct tpm_header *header = (void *)buf;
+ 	int rc;
+@@ -498,13 +540,13 @@ int tpm2_commit_space(struct tpm_chip *chip, struct tpm_space *space,
+ 	if (!space)
+ 		return 0;
+ 
+-	rc = tpm2_map_response_header(chip, cc, buf, *bufsiz);
++	rc = tpm2_map_response_header(chip, chip->last_cc, buf, *bufsiz);
+ 	if (rc) {
+ 		tpm2_flush_space(chip);
+ 		goto out;
+ 	}
+ 
+-	rc = tpm2_map_response_body(chip, cc, buf, *bufsiz);
++	rc = tpm2_map_response_body(chip, chip->last_cc, buf, *bufsiz);
+ 	if (rc) {
+ 		tpm2_flush_space(chip);
+ 		goto out;
+-- 
+2.19.1

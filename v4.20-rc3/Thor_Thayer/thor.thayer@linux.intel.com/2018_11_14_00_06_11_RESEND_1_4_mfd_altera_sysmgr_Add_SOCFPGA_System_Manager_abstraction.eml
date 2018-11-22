@@ -1,0 +1,632 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 14 Nov 2018 00:35:07 -0000
+Received: from icoremail.net (unknown [209.85.214.171])
+	by mail-app2 (Coremail) with SMTP id by_KCgD3_wuL9upbl0+HAQ--.40703S3;
+	Wed, 14 Nov 2018 00:06:40 +0800 (CST)
+Received: from mail-pl1-f171.google.com (unknown [209.85.214.171])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwBXNkKI9upb6zg5AA--.5416S3;
+	Wed, 14 Nov 2018 00:06:32 +0800 (CST)
+Received: by mail-pl1-f171.google.com with SMTP id p6-v6so6236765pll.4
+        for <xuliker@zju.edu.cn>; Tue, 13 Nov 2018 08:06:32 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :from:to:cc:subject:date:message-id:in-reply-to:references:sender
+         :precedence:list-id;
+        bh=/vKeEGx0eKuEVW66ytEllCPnNg9KsaBb7EaxWCoxthY=;
+        b=qQ3YMjZivQNhcGkmTGjzalxp2REzKf4Aev9rXH6oscFHxTLRbB29WgwB1GCoNgSh5n
+         9pCxcnn/LCQST4t3N7tYPxlqS5HRP4HlliWNzjf4oa0yXop3Y4c3FyZdQQ07nqqwNoc/
+         h/IZKN1/G9cOjiWVSSuJH43anitlPvCo/ETbEj9x5BTuQGNz2aoHd4hYY8R5E9R2Cs7N
+         DB891i/lvKOgr8EjqBXA4GfzvGU/IExl6xaRx84bQ3jETWXLO7/jpX1I5JqpCN+GWck7
+         ADdnr6gnEceZbYbE1rfdc55FGcwhw2Yz88ev9pPUYoK6KjILaiepPobrem7Rm5nV4eZg
+         oJgg==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=intel.com
+X-Gm-Message-State: AGRZ1gLWmfvBVMkRHm9POo6J5VhWzE7o2RJoic4zDPDsJdP+e6H/A2U+
+	mf+ti4F//5ULn9xfTcdE/ODryPk6dXbmnkUXvZ30m/aG4m2HFKukxQ==
+X-Received: by 2002:a17:902:7848:: with SMTP id e8-v6mr295062pln.188.1542125192429;
+        Tue, 13 Nov 2018 08:06:32 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp4652780pjt;
+        Tue, 13 Nov 2018 08:06:31 -0800 (PST)
+X-Google-Smtp-Source: AJdET5ctp7+PblM6qfgLm09W0vjv4d4lSlxTW2mVS6ky/trk+tcgq/PducqF6AnUNHcAJPE7WfGJ
+X-Received: by 2002:a17:902:4165:: with SMTP id e92-v6mr5731348pld.209.1542125191241;
+        Tue, 13 Nov 2018 08:06:31 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542125191; cv=none;
+        d=google.com; s=arc-20160816;
+        b=acy34RllaUx3GSSqaD4A6Cx4K+KxTJQaSgHyNZZnf8f2G658GzvrLECOJcfrup4by3
+         v76PP5olsVspaxe+9n+NVebf45ZSRLx19s7aX94Xlcp1yR0XFl6QIbJvG20sWCvHdeok
+         u8YhNMAezTArhdSs3k0fQ/vJ/yuNoC4Yfg/qSV0pJJPhBMVFzNCYkq5k/MPbtH7Lzotn
+         gxg5AjeKNdMId1YkznxX5WJatfv9qRuGippsapEF1+QJTe6X27fW57/3XRX7h4zuFWou
+         GbaK1JfAF8nYKDRTYXhu1dhPWoURKcOnWm9Ny15wfVA7FhewI+d31sD+NmKLTvKnoIiM
+         4lyQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:references:in-reply-to:message-id:date
+         :subject:cc:to:from;
+        bh=/vKeEGx0eKuEVW66ytEllCPnNg9KsaBb7EaxWCoxthY=;
+        b=EjAupTSCyTGXnpc14PNTcj/zunl+6ChiNYEjdK3kH1lQxQbsQsJxbyYjJabnuktByg
+         WDd9qBMc3u+ucntQ3Hgm0NlTRej6UomNXm5brRAunXuFwB6ET4xEdtZa6uhCoUSwxQGb
+         zLDZmkTjGutVbBaJVpDySZYEOIwW6cylyhIQHxgZkj0sJ1hnyPEtwgaPRPoAVJNDMCzP
+         Mlg7tBRq/oBDVdFCJ3SpZ+nS47WPAQD1V9U9vd6epqac7jD+ZLtGK3lWQ7o5jDJC7eG1
+         ue0bAyWDka3HHoUETxr44vvSleMy01pajE6TvH00M7iJdT0eT9znZ0lvmi2rVC6jRXUH
+         qvPQ==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=intel.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id o186-v6si23742554pfo.236.2018.11.13.08.06.04;
+        Tue, 13 Nov 2018 08:06:31 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S2388268AbeKNCDL (ORCPT <rfc822;lrx0014@gmail.com> + 99 others);
+        Tue, 13 Nov 2018 21:03:11 -0500
+Received: from mga01.intel.com ([192.55.52.88]:43530 "EHLO mga01.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1731439AbeKNCCu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+        Tue, 13 Nov 2018 21:02:50 -0500
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga006.fm.intel.com ([10.253.24.20])
+  by fmsmga101.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 13 Nov 2018 08:03:55 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.54,499,1534834800"; 
+   d="scan'208";a="280745434"
+Received: from tthayer-hp-z620.an.intel.com ([10.122.105.146])
+  by fmsmga006.fm.intel.com with ESMTP; 13 Nov 2018 08:03:53 -0800
+From: thor.thayer@linux.intel.com
+To: lee.jones@linaro.org, dinguyen@kernel.org, linux@armlinux.org.uk,
+        catalin.marinas@arm.com, will.deacon@arm.com,
+        peppe.cavallaro@st.com, alexandre.torgue@st.com,
+        joabreu@synopsys.com
+Cc: davem@davemloft.net, mcoquelin.stm32@gmail.com,
+        mchehab+samsung@kernel.org, arnd@arndb.de,
+        bjorn.andersson@linaro.org, olof@lixom.net,
+        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        netdev@vger.kernel.org, Thor Thayer <thor.thayer@linux.intel.com>
+Subject: [RESEND 1/4] mfd: altera-sysmgr: Add SOCFPGA System Manager abstraction
+Date: Tue, 13 Nov 2018 10:06:11 -0600
+Message-Id: <1542125174-8204-2-git-send-email-thor.thayer@linux.intel.com>
+X-Mailer: git-send-email 2.7.4
+In-Reply-To: <1542125174-8204-1-git-send-email-thor.thayer@linux.intel.com>
+References: <1542125174-8204-1-git-send-email-thor.thayer@linux.intel.com>
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwBXNkKI9upb6zg5AA--.5416S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvAXoW3uw48ur45ZFWrtw1UtrykAFb_yoW8Xr15Ko
+	WfXrsxXw18ArsxZFZ5Cw47WFn3Zw4kCFyrXa45XFZIqay2yw15WF18K3s3X3WYgr1Utrs3
+	ZFn5t3WrKF4ftF1kn29KB7ZKAUJUUUUU529EdanIXcx71UUUUU7v73VFW2AGmfu7jjvjm3
+	AaLaJ3UjIYCTnIWjp_UUUO77k0a2IF6w4xM7kC6x804xWl14x267AKxVWUJVW8JwAFIxvE
+	14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK021l84ACjcxK6xIIjx
+	v20xvE14v26F1j6w1UM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26F4j6r4UJwA2z4x0Y4vE
+	x4A2jsIE14v26r4j6F4UM28EF7xvwVC2z280aVCY1x0267AKxVW8JVW8Jr1le2I262IYc4
+	CY6c8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_
+	Jr0_Jr4lYx0Ex4A2jsIE14v26r1j6r4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvY0x
+	0EwIxGrwAKzVCY07xG64k0F24l7I0Y6sxI4wCY1x0264kExVAvwVAq07x20xylc7Ca8VAv
+	wVCFzxkY4VCF77xAMxkIecxEwVCI4VWUMxkI7II2jI8vz4vEwIxGrwCYIxAIcVC0I7IYx2
+	IY67AKxVW8JVW5JwCYIxAIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMxvI42IY6I8E87Iv
+	67AKxVWUJVW8JwCYIxAIcVC2z280aVCY1x0267AKxVWUJVW8JwCF04k20xvY0x0EwIxGrw
+	CF04k20xvEw4C26cxK6c8Ij28IcwCF72vE77IF4wCFx2IqxVCFs4IE7xkEbVWUJVW8JwC2
+	0s026c02F40E14v26r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI
+	0_GFv_WrylIxkGc2Ij64vIr41lIxAIcVCF04k26cxKx2IYs7xG6r4j6FyUYxBIdaVFxhVj
+	vjDU0xZFpf9x07b5ApnUUUUU=
+
+From: Thor Thayer <thor.thayer@linux.intel.com>
+
+The SOCFPGA System Manager register block aggregate different
+peripheral functions into one place.
+On 32 bit ARM parts, the syscon framework fits this problem well.
+On 64 bit ARM parts, the System Manager can only be accessed by
+EL3 secure mode. Since a SMC call to EL3 is required, a new
+driver using regmaps similar to syscon was created that handles
+the SMC call.
+Since regmaps abstract out the underlying register access, the
+changes to drivers using System Manager are minimal.
+
+Signed-off-by: Thor Thayer <thor.thayer@linux.intel.com>
+---
+Resend - update use_single_rw to use_single_read and
+         use_single_write which was added in 4.20.
+---
+ MAINTAINERS                       |   6 +
+ drivers/mfd/Kconfig               |   9 ++
+ drivers/mfd/Makefile              |   1 +
+ drivers/mfd/altera-sysmgr.c       | 311 ++++++++++++++++++++++++++++++++++++++
+ include/linux/mfd/altera-sysmgr.h | 113 ++++++++++++++
+ 5 files changed, 440 insertions(+)
+ create mode 100644 drivers/mfd/altera-sysmgr.c
+ create mode 100644 include/linux/mfd/altera-sysmgr.h
+
+diff --git a/MAINTAINERS b/MAINTAINERS
+index f4855974f325..a6e997f6ea9d 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -707,6 +707,12 @@ L:	linux-gpio@vger.kernel.org
+ S:	Maintained
+ F:	drivers/gpio/gpio-altera.c
+ 
++ALTERA SYSTEM MANAGER DRIVER
++M:	Thor Thayer <thor.thayer@linux.intel.com>
++S:	Maintained
++F:	drivers/mfd/altera-sysmgr.c
++F:	include/linux/mfd/altera-sysgmr.h
++
+ ALTERA SYSTEM RESOURCE DRIVER FOR ARRIA10 DEVKIT
+ M:	Thor Thayer <thor.thayer@linux.intel.com>
+ S:	Maintained
+diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
+index f461460a2aeb..e674d0bf3501 100644
+--- a/drivers/mfd/Kconfig
++++ b/drivers/mfd/Kconfig
+@@ -29,6 +29,15 @@ config MFD_ALTERA_A10SR
+ 	  accessing the external gpio extender (LEDs & buttons) and
+ 	  power supply alarms (hwmon).
+ 
++config MFD_ALTERA_SYSMGR
++	bool "Altera SOCFPGA System Manager"
++	depends on (ARCH_SOCFPGA || ARCH_STRATIX10) && OF
++	select MFD_SYSCON
++	help
++	  Select this to get System Manager support for all Altera branded
++	  SOCFPGAs. The SOCFPGA System Manager handles all SOCFPGAs by
++	  using syscon for ARM32 parts and SMC calls to EL3 for ARM64 parts.
++
+ config MFD_ACT8945A
+ 	tristate "Active-semi ACT8945A"
+ 	select MFD_CORE
+diff --git a/drivers/mfd/Makefile b/drivers/mfd/Makefile
+index 12980a4ad460..c649f6efed5f 100644
+--- a/drivers/mfd/Makefile
++++ b/drivers/mfd/Makefile
+@@ -233,6 +233,7 @@ obj-$(CONFIG_INTEL_SOC_PMIC_CHTDC_TI)	+= intel_soc_pmic_chtdc_ti.o
+ obj-$(CONFIG_MFD_MT6397)	+= mt6397-core.o
+ 
+ obj-$(CONFIG_MFD_ALTERA_A10SR)	+= altera-a10sr.o
++obj-$(CONFIG_MFD_ALTERA_SYSMGR) += altera-sysmgr.o
+ obj-$(CONFIG_MFD_SUN4I_GPADC)	+= sun4i-gpadc.o
+ 
+ obj-$(CONFIG_MFD_STM32_LPTIMER)	+= stm32-lptimer.o
+diff --git a/drivers/mfd/altera-sysmgr.c b/drivers/mfd/altera-sysmgr.c
+new file mode 100644
+index 000000000000..3f1a45b99e66
+--- /dev/null
++++ b/drivers/mfd/altera-sysmgr.c
+@@ -0,0 +1,311 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ *  Copyright (C) 2017-2018, Intel Corporation.
++ *  Copyright (C) 2012 Freescale Semiconductor, Inc.
++ *  Copyright (C) 2012 Linaro Ltd.
++ *
++ *  Based on syscon driver.
++ */
++
++#include <linux/arm-smccc.h>
++#include <linux/err.h>
++#include <linux/io.h>
++#include <linux/mfd/altera-sysmgr.h>
++#include <linux/mfd/syscon.h>
++#include <linux/module.h>
++#include <linux/of.h>
++#include <linux/of_address.h>
++#include <linux/of_platform.h>
++#include <linux/regmap.h>
++#include <linux/slab.h>
++
++static struct platform_driver sysmgr_driver;
++
++/**
++ * struct altr_sysmgr - Altera SOCFPGA System Manager
++ * @regmap: the regmap used for System Manager accesses.
++ * @base  : the base address for the System Manager
++ */
++struct altr_sysmgr {
++	struct regmap *regmap;
++	void __iomem  *base;
++};
++
++/**
++ * Only 1 instance of System Manager is needed but many
++ * consumers will want to access it with the matching
++ * functions below.
++ */
++static struct altr_sysmgr *p_sysmgr;
++
++/**
++ * s10_protected_reg_write
++ * Write to a protected SMC register.
++ * @base: Base address of System Manager
++ * @reg:  Address offset of register
++ * @val:  Value to write
++ * Return: INTEL_SIP_SMC_STATUS_OK (0) on success
++ *	   INTEL_SIP_SMC_REG_ERROR on error
++ *	   INTEL_SIP_SMC_RETURN_UNKNOWN_FUNCTION if not supported
++ */
++static int s10_protected_reg_write(void __iomem *base,
++				   unsigned int reg, unsigned int val)
++{
++	struct arm_smccc_res result;
++	unsigned long sysmgr_base = (unsigned long)base;
++
++	arm_smccc_smc(INTEL_SIP_SMC_REG_WRITE, sysmgr_base + reg,
++		      val, 0, 0, 0, 0, 0, &result);
++
++	return (int)result.a0;
++}
++
++/**
++ * s10_protected_reg_read
++ * Read the status of a protected SMC register
++ * @base: Base address of System Manager.
++ * @reg:  Address of register
++ * @val:  Value read.
++ * Return: INTEL_SIP_SMC_STATUS_OK (0) on success
++ *	   INTEL_SIP_SMC_REG_ERROR on error
++ *	   INTEL_SIP_SMC_RETURN_UNKNOWN_FUNCTION if not supported
++ */
++static int s10_protected_reg_read(void __iomem *base,
++				  unsigned int reg, unsigned int *val)
++{
++	struct arm_smccc_res result;
++	unsigned long sysmgr_base = (unsigned long)base;
++
++	arm_smccc_smc(INTEL_SIP_SMC_REG_READ, sysmgr_base + reg,
++		      0, 0, 0, 0, 0, 0, &result);
++
++	*val = (unsigned int)result.a1;
++
++	return (int)result.a0;
++}
++
++static const struct regmap_config s10_sysmgr_regmap_cfg = {
++	.name = "s10_sysmgr",
++	.reg_bits = 32,
++	.reg_stride = 4,
++	.val_bits = 32,
++	.reg_read = s10_protected_reg_read,
++	.reg_write = s10_protected_reg_write,
++	.fast_io = true,
++	.use_single_read = true,
++	.use_single_write = true,
++};
++
++/**
++ * socfpga_is_s10
++ * Determine if running on Stratix10 platform.
++ * Return: True if running Stratix10, otherwise false.
++ */
++static int socfpga_is_s10(void)
++{
++	return of_machine_is_compatible("altr,socfpga-stratix10");
++}
++
++/**
++ * of_sysmgr_register
++ * Create and register the Altera System Manager regmap.
++ * Return: Pointer to new sysmgr on success.
++ *         Pointer error on failure.
++ */
++static struct altr_sysmgr *of_sysmgr_register(struct device_node *np)
++{
++	struct altr_sysmgr *sysmgr;
++	struct regmap *regmap;
++	u32 reg_io_width;
++	int ret;
++	struct regmap_config sysmgr_config = s10_sysmgr_regmap_cfg;
++	struct resource res;
++
++	if (!of_device_is_compatible(np, "altr,sys-mgr"))
++		return ERR_PTR(-EINVAL);
++
++	sysmgr = kzalloc(sizeof(*sysmgr), GFP_KERNEL);
++	if (!sysmgr)
++		return ERR_PTR(-ENOMEM);
++
++	if (of_address_to_resource(np, 0, &res)) {
++		ret = -ENOMEM;
++		goto err_map;
++	}
++
++	/* Need physical address for SMCC call */
++	sysmgr->base = (void __iomem *)res.start;
++
++	/*
++	 * search for reg-io-width property in DT. If it is not provided,
++	 * default to 4 bytes. regmap_init will return an error if values
++	 * are invalid so there is no need to check them here.
++	 */
++	ret = of_property_read_u32(np, "reg-io-width", &reg_io_width);
++	if (ret)
++		reg_io_width = 4;
++
++	sysmgr_config.reg_stride = reg_io_width;
++	sysmgr_config.val_bits = reg_io_width * 8;
++	sysmgr_config.max_register = resource_size(&res) - reg_io_width;
++
++	regmap = regmap_init(NULL, NULL, sysmgr->base, &sysmgr_config);
++	if (IS_ERR(regmap)) {
++		pr_err("regmap init failed\n");
++		ret = PTR_ERR(regmap);
++		goto err_map;
++	}
++
++	sysmgr->regmap = regmap;
++
++	p_sysmgr = sysmgr;
++
++	return sysmgr;
++
++err_map:
++	kfree(sysmgr);
++	return ERR_PTR(ret);
++}
++
++struct regmap *altr_sysmgr_node_to_regmap(struct device_node *np)
++{
++	struct altr_sysmgr *sysmgr = NULL;
++
++	if (!socfpga_is_s10())
++		return syscon_node_to_regmap(np);
++
++	if (!p_sysmgr)
++		sysmgr = of_sysmgr_register(np);
++	else
++		sysmgr = p_sysmgr;
++
++	if (IS_ERR_OR_NULL(sysmgr))
++		return ERR_CAST(sysmgr);
++
++	return sysmgr->regmap;
++}
++EXPORT_SYMBOL_GPL(altr_sysmgr_node_to_regmap);
++
++struct regmap *altr_sysmgr_regmap_lookup_by_compatible(const char *s)
++{
++	struct device_node *sysmgr_np;
++	struct regmap *regmap;
++
++	if (!socfpga_is_s10())
++		return syscon_regmap_lookup_by_compatible(s);
++
++	sysmgr_np = of_find_compatible_node(NULL, NULL, s);
++	if (!sysmgr_np)
++		return ERR_PTR(-ENODEV);
++
++	regmap = altr_sysmgr_node_to_regmap(sysmgr_np);
++	of_node_put(sysmgr_np);
++
++	return regmap;
++}
++EXPORT_SYMBOL_GPL(altr_sysmgr_regmap_lookup_by_compatible);
++
++static int sysmgr_match_pdevname(struct device *dev, void *data)
++{
++	return !strcmp(dev_name(dev), (const char *)data);
++}
++
++struct regmap *altr_sysmgr_regmap_lookup_by_pdevname(const char *s)
++{
++	struct device *dev;
++	struct altr_sysmgr *sysmgr;
++
++	if (!socfpga_is_s10())
++		return syscon_regmap_lookup_by_pdevname(s);
++
++	dev = driver_find_device(&sysmgr_driver.driver, NULL, (void *)s,
++				 sysmgr_match_pdevname);
++	if (!dev)
++		return ERR_PTR(-EPROBE_DEFER);
++
++	sysmgr = dev_get_drvdata(dev);
++
++	return sysmgr->regmap;
++}
++EXPORT_SYMBOL_GPL(altr_sysmgr_regmap_lookup_by_pdevname);
++
++struct regmap *altr_sysmgr_regmap_lookup_by_phandle(struct device_node *np,
++						    const char *property)
++{
++	struct device_node *sysmgr_np;
++	struct regmap *regmap;
++
++	if (!socfpga_is_s10())
++		return syscon_regmap_lookup_by_phandle(np, property);
++
++	if (property)
++		sysmgr_np = of_parse_phandle(np, property, 0);
++	else
++		sysmgr_np = np;
++
++	if (!sysmgr_np)
++		return ERR_PTR(-ENODEV);
++
++	regmap = altr_sysmgr_node_to_regmap(sysmgr_np);
++	of_node_put(sysmgr_np);
++
++	return regmap;
++}
++EXPORT_SYMBOL_GPL(altr_sysmgr_regmap_lookup_by_phandle);
++
++static int sysmgr_probe(struct platform_device *pdev)
++{
++	struct device *dev = &pdev->dev;
++	struct altr_sysmgr *sysmgr;
++	struct resource *res;
++
++	if (!socfpga_is_s10())
++		return -ENODEV;
++
++	/* Skip Initialization if already created */
++	if (p_sysmgr)
++		goto finish;
++
++	sysmgr = of_sysmgr_register(pdev->dev.of_node);
++	if (IS_ERR_OR_NULL(sysmgr)) {
++		dev_err(dev, "regmap init failed\n");
++		return -ENODEV;
++	}
++
++finish:
++	platform_set_drvdata(pdev, p_sysmgr);
++
++	dev_dbg(dev, "regmap %pR registered\n", res);
++
++	return 0;
++}
++
++static const struct of_device_id altr_sysmgr_of_match[] = {
++	{ .compatible = "altr,sys-mgr" },
++	{},
++};
++MODULE_DEVICE_TABLE(of, altr_sysmgr_of_match);
++
++static struct platform_driver altr_sysmgr_driver = {
++	.probe =  sysmgr_probe,
++	.driver = {
++		.name = "altr,system_manager",
++		.of_match_table = altr_sysmgr_of_match,
++	},
++};
++
++static int __init altr_sysmgr_init(void)
++{
++	return platform_driver_register(&altr_sysmgr_driver);
++}
++core_initcall(altr_sysmgr_init);
++
++static void __exit altr_sysmgr_exit(void)
++{
++	platform_driver_unregister(&altr_sysmgr_driver);
++}
++module_exit(altr_sysmgr_exit);
++
++MODULE_AUTHOR("Thor Thayer <>");
++MODULE_DESCRIPTION("SOCFPGA System Manager driver");
++MODULE_LICENSE("GPL v2");
+diff --git a/include/linux/mfd/altera-sysmgr.h b/include/linux/mfd/altera-sysmgr.h
+new file mode 100644
+index 000000000000..b82116706319
+--- /dev/null
++++ b/include/linux/mfd/altera-sysmgr.h
+@@ -0,0 +1,113 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++/*
++ * Copyright (C) 2018 Intel Corporation
++ * Copyright (C) 2012 Freescale Semiconductor, Inc.
++ * Copyright (C) 2012 Linaro Ltd.
++ */
++
++#ifndef __LINUX_MFD_ALTERA_SYSMGR_H__
++#define __LINUX_MFD_ALTERA_SYSMGR_H__
++
++#include <linux/err.h>
++#include <linux/errno.h>
++
++struct device_node;
++
++#ifdef CONFIG_MFD_ALTERA_SYSMGR
++struct regmap *altr_sysmgr_node_to_regmap(struct device_node *np);
++struct regmap *altr_sysmgr_regmap_lookup_by_compatible(const char *s);
++struct regmap *altr_sysmgr_regmap_lookup_by_pdevname(const char *s);
++struct regmap *altr_sysmgr_regmap_lookup_by_phandle(struct device_node *np,
++						    const char *property);
++
++/*
++ * Functions specified by ARM SMC Calling convention:
++ *
++ * FAST call executes atomic operations, returns when the requested operation
++ * has completed.
++ * STD call starts a operation which can be preempted by a non-secure
++ * interrupt.
++ *
++ * a0..a7 is used as register names in the descriptions below, on arm32
++ * that translates to r0..r7 and on arm64 to w0..w7.
++ */
++
++#define INTEL_SIP_SMC_STD_CALL_VAL(func_num) \
++	ARM_SMCCC_CALL_VAL(ARM_SMCCC_STD_CALL, ARM_SMCCC_SMC_64, \
++	ARM_SMCCC_OWNER_SIP, (func_num))
++
++#define INTEL_SIP_SMC_FAST_CALL_VAL(func_num) \
++	ARM_SMCCC_CALL_VAL(ARM_SMCCC_FAST_CALL, ARM_SMCCC_SMC_64, \
++	ARM_SMCCC_OWNER_SIP, (func_num))
++
++#define INTEL_SIP_SMC_RETURN_UNKNOWN_FUNCTION		0xFFFFFFFF
++#define INTEL_SIP_SMC_STATUS_OK				0x0
++#define INTEL_SIP_SMC_REG_ERROR				0x5
++
++/*
++ * Request INTEL_SIP_SMC_REG_READ
++ *
++ * Read a protected register using SMCCC
++ *
++ * Call register usage:
++ * a0: INTEL_SIP_SMC_REG_READ.
++ * a1: register address.
++ * a2-7: not used.
++ *
++ * Return status:
++ * a0: INTEL_SIP_SMC_STATUS_OK, INTEL_SIP_SMC_REG_ERROR, or
++ *     INTEL_SIP_SMC_RETURN_UNKNOWN_FUNCTION
++ * a1: Value in the register
++ * a2-3: not used.
++ */
++#define INTEL_SIP_SMC_FUNCID_REG_READ 7
++#define INTEL_SIP_SMC_REG_READ \
++	INTEL_SIP_SMC_FAST_CALL_VAL(INTEL_SIP_SMC_FUNCID_REG_READ)
++
++/*
++ * Request INTEL_SIP_SMC_REG_WRITE
++ *
++ * Write a protected register using SMCCC
++ *
++ * Call register usage:
++ * a0: INTEL_SIP_SMC_REG_WRITE.
++ * a1: register address
++ * a2: value to program into register.
++ * a3-7: not used.
++ *
++ * Return status:
++ * a0: INTEL_SIP_SMC_STATUS_OK, INTEL_SIP_SMC_REG_ERROR, or
++ *     INTEL_SIP_SMC_RETURN_UNKNOWN_FUNCTION
++ * a1-3: not used.
++ */
++#define INTEL_SIP_SMC_FUNCID_REG_WRITE 8
++#define INTEL_SIP_SMC_REG_WRITE \
++	INTEL_SIP_SMC_FAST_CALL_VAL(INTEL_SIP_SMC_FUNCID_REG_WRITE)
++
++#else
++static inline struct regmap *altr_sysmgr_node_to_regmap(struct device_node *np)
++{
++	return ERR_PTR(-ENOTSUPP);
++}
++
++static inline struct regmap *
++altr_sysmgr_regmap_lookup_by_compatible(const char *s)
++{
++	return ERR_PTR(-ENOTSUPP);
++}
++
++static inline struct regmap *
++altr_sysmgr_regmap_lookup_by_pdevname(const char *s)
++{
++	return ERR_PTR(-ENOTSUPP);
++}
++
++static inline struct regmap *
++altr_sysmgr_regmap_lookup_by_phandle(struct device_node *np,
++				     const char *property)
++{
++	return ERR_PTR(-ENOTSUPP);
++}
++#endif
++
++#endif /* __LINUX_MFD_ALTERA_SYSMGR_H__ */
+-- 
+2.7.4

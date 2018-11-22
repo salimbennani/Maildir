@@ -1,0 +1,421 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (61.164.42.155:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 17 Nov 2018 03:14:01 -0000
+Received: from icoremail.net (unknown [209.85.210.180])
+	by mail-app2 (Coremail) with SMTP id by_KCgDHH3rPI+9beQKlAQ--.48850S3;
+	Sat, 17 Nov 2018 04:08:48 +0800 (CST)
+Received: from mail-pf1-f180.google.com (unknown [209.85.210.180])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwA3HkrNI+9btvlKAA--.2704S3;
+	Sat, 17 Nov 2018 04:08:45 +0800 (CST)
+Received: by mail-pf1-f180.google.com with SMTP id g62so8630814pfd.12
+        for <xuliker@zju.edu.cn>; Fri, 16 Nov 2018 12:08:45 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :from:to:cc:subject:date:message-id:sender:precedence:list-id;
+        bh=mLN9JtjsMIKW83ZZ30eOuaB/D8Bv4PV/ChIXKWkpi9A=;
+        b=XBgBIgoqeFp0O/ZWYiPb5O5+8a1gnpGbiNnRF9kU2yvKP/7y6NvQ0ga4hlJM8IGo2m
+         yTHYkhlXbU3aSOVQAJLUohDpMrQ43AbKUFqGH6q9vA9KG22C2qYe0kJ5gpSNhWoi8aGi
+         QaaNjDDKw8gySHhJcV/FNMJF6ONEUAgNjGDc0lr/UovvAdcXyGcLA1McwLBw9QlbUMNe
+         xXajKH/X4nBHJNYdY2V6OyP7UyDfqZcFvZfgTVxCh1O9Eegtmz0Ewhu7H5m3dkyYxedz
+         zxNeHnNmf6TDwGubWa1um7pijBRCJpnJt+/O/Gyhf/iV65U1ioviWAZlkZzKS2qVzey4
+         vEaw==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=ibm.com
+X-Gm-Message-State: AGRZ1gIhB/uC+D5LnFF8UgcAO8Dg/buTZlD/bU4CTn1UmSRPmiWPcmfa
+	uUfyGbHw7CpmjNO63+d1Z25lTMYR+Ek4Pw7BtvmY4fuSndSyea4=
+X-Received: by 2002:a63:460a:: with SMTP id t10-v6mr11350364pga.197.1542398925155;
+        Fri, 16 Nov 2018 12:08:45 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:d106:0:0:0:0 with SMTP id l6-v6csp860771pju;
+        Fri, 16 Nov 2018 12:08:44 -0800 (PST)
+X-Google-Smtp-Source: AJdET5dgSBc3NimEJtSUVkyf0OXC19MCni3yRfU2UL4i24KPMHDU7Q4Mo0y1uEoHmEaSU1AQcywO
+X-Received: by 2002:a65:4381:: with SMTP id m1mr10988550pgp.358.1542398924037;
+        Fri, 16 Nov 2018 12:08:44 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542398923; cv=none;
+        d=google.com; s=arc-20160816;
+        b=V/K7PL8gSNJgk3COojQG4IDndRb98OB44yF2lQ61cqirXcyUgGl4jNzwxhZt/4BEHl
+         uzFYD8iK7Pl/+KlYeUDE3qGTB/1J02WKEzEBX50+PB+DiOM7FffDTy4DoefKERYP4/mj
+         eolYMAFpNDK3k8CedLIymfzJ6zuQSQztYACJaCukWdISTAs8Smw1q0aEUy8luldby6tK
+         4rsOTchJn7uq4Ucbqo1cCI7jACs+grZ2vys7eveOvFCpMKwnsx4b3JRXoi1NBfATmfuF
+         +Tdsjlf7ygpFz2FrNNgyMobvjCOZ4rtcZ0yXAXAbbCrzmnZHs7ZO6dYpi46KmGJwnUz4
+         auXA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:message-id:date:subject:cc:to:from;
+        bh=mLN9JtjsMIKW83ZZ30eOuaB/D8Bv4PV/ChIXKWkpi9A=;
+        b=Z2j0//UXTU9fX0mSa1FnCQIBuJQ4kiqMnnv7DvHzvz0/OdUzIiv0pKy6e5yvu5RPlX
+         d40sNUAKIbbXiOck7C4/dJIXxL1YY8nFBkslwjtfPUlCvqPzzy7j7s0cyDHOvTuU5lrg
+         05vIx51q4M0HEDHNZJ5cQybN+uulI+LJS7CpF/rTNcroz4FaZgK7ykShO4Egsgj3dkgb
+         3ZdG4IduhA97iSLptJqvGtTlmGEtMjaJFYBSyoZUglyZIXXwOEv+6H/T8CevhVkSnlNC
+         v2wR/caUNI3YuvEGU7oAFFuvaNXs0BT1jPLIDIY3YaXXI7zOAAqRXiS+4omue+z7tPhA
+         iTHQ==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=ibm.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id e21si29706002pgg.571.2018.11.16.12.08.28;
+        Fri, 16 Nov 2018 12:08:43 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1726983AbeKQGWF (ORCPT <rfc822;xjxyklwx@gmail.com> + 99 others);
+        Sat, 17 Nov 2018 01:22:05 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:46678 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725977AbeKQGWF (ORCPT
+        <rfc822;linux-kernel@vger.kernel.org>);
+        Sat, 17 Nov 2018 01:22:05 -0500
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.22/8.16.0.22) with SMTP id wAGK4IJX125160
+        for <linux-kernel@vger.kernel.org>; Fri, 16 Nov 2018 15:08:17 -0500
+Received: from e14.ny.us.ibm.com (e14.ny.us.ibm.com [129.33.205.204])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2nt2nemr2t-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-kernel@vger.kernel.org>; Fri, 16 Nov 2018 15:08:17 -0500
+Received: from localhost
+        by e14.ny.us.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-kernel@vger.kernel.org> from <bauerman@linux.ibm.com>;
+        Fri, 16 Nov 2018 20:08:15 -0000
+Received: from b01cxnp23033.gho.pok.ibm.com (9.57.198.28)
+        by e14.ny.us.ibm.com (146.89.104.201) with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted;
+        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256/256)
+        Fri, 16 Nov 2018 20:08:09 -0000
+Received: from b01ledav006.gho.pok.ibm.com (b01ledav006.gho.pok.ibm.com [9.57.199.111])
+        by b01cxnp23033.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id wAGK88vX26149026
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
+        Fri, 16 Nov 2018 20:08:08 GMT
+Received: from b01ledav006.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 60A79AC065;
+        Fri, 16 Nov 2018 20:08:08 +0000 (GMT)
+Received: from b01ledav006.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id D1E38AC062;
+        Fri, 16 Nov 2018 20:08:03 +0000 (GMT)
+Received: from morokweng.localdomain.com (unknown [9.80.224.199])
+        by b01ledav006.gho.pok.ibm.com (Postfix) with ESMTP;
+        Fri, 16 Nov 2018 20:08:03 +0000 (GMT)
+From: Thiago Jung Bauermann <bauerman@linux.ibm.com>
+To: linux-integrity@vger.kernel.org
+Cc: linux-security-module@vger.kernel.org, keyrings@vger.kernel.org,
+        linux-crypto@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Mimi Zohar <zohar@linux.ibm.com>,
+        Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
+        James Morris <jmorris@namei.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        David Howells <dhowells@redhat.com>,
+        David Woodhouse <dwmw2@infradead.org>,
+        Jessica Yu <jeyu@kernel.org>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jonathan Corbet <corbet@lwn.net>,
+        "AKASHI, Takahiro" <takahiro.akashi@linaro.org>,
+        Thiago Jung Bauermann <bauerman@linux.ibm.com>
+Subject: [PATCH v8 00/14] Appended signatures support for IMA appraisal
+Date: Fri, 16 Nov 2018 18:06:58 -0200
+X-Mailer: git-send-email 2.17.2
+X-TM-AS-GCONF: 00
+x-cbid: 18111620-0052-0000-0000-000003576A17
+X-IBM-SpamModules-Scores: 
+X-IBM-SpamModules-Versions: BY=3.00010063; HX=3.00000242; KW=3.00000007;
+ PH=3.00000004; SC=3.00000270; SDB=6.01118417; UDB=6.00580177; IPR=6.00898525;
+ MB=3.00024196; MTD=3.00000008; XFM=3.00000015; UTC=2018-11-16 20:08:14
+X-IBM-AV-DETECTION: SAVI=unused REMOTE=unused XFE=unused
+x-cbparentid: 18111620-0053-0000-0000-00005EC9742D
+Message-Id: <20181116200712.14154-1-bauerman@linux.ibm.com>
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2018-11-16_11:,,
+ signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ malwarescore=0 suspectscore=1 phishscore=0 bulkscore=0 spamscore=0
+ clxscore=1011 lowpriorityscore=0 mlxscore=0 impostorscore=0
+ mlxlogscore=999 adultscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.0.1-1810050000 definitions=main-1811160178
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwA3HkrNI+9btvlKAA--.2704S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW3Zw47CFyxtFyrJw1kCFy3urg_yoWDKw43pa
+	n0kFn5GrWDJF97CF93A3Wfur4rCw48X3y5W3s8t340ya4ag3W2yrW8t3W5uF98Gw1rtr1k
+	JF1agw1ruwsYy37anT9S1TB71UUUUUUqnTZGkaVYY2UrUUUU0bIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUU9Sb7Iv0xC_Kw4lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1l84ACjcxK6I8E
+	87Iv67AKxVW0oVCq3wA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_GcCE3s1le2I262IYc4CY6c
+	8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_Jr0_
+	Jr4lYx0Ex4A2jsIE14v26r1j6r4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvY0x0EwI
+	xGrwCjxxvEa2IrMxkF7I0Ew4C26cxK6c8Ij28IcwCY0x0Ix7I2Y4AK64vIr41lcIIF0xvE
+	2Ix0cI8IcVAFwI0_Jr0_JF4lcIIF0xvE2Ix0cI8IcVCY1x0267AKxVWUJVW8JwCYIxAIcV
+	C2z280aVAFwI0_Gr1j6F4UJwCYIxAIcVC2z280aVCY1x0267AKxVW8Jr0_Cr1UMxAIw28I
+	cxkI7VAKI48JMxAIw28IcVAKzI0EY4vE52x082I5MxCjnVCjjxCrMxC20s026xCaFVCjc4
+	AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE
+	17CEb7AF67AKxVW8ZVWrXwCIc40Y0x0EwIxGrwCI42IY6xAIw20EY4v20xvaj40_Zr0_Wr
+	1UYxBIdaVFxhVjvjDU0xZFpf9x07bTjjgUUUUU=
+
+Hello,
+
+v8 is just a rebase on top of today's linux-integrity/next-integrity.
+There aren't any noteworthy changes since v7, which is why I'm keeping its
+description below:
+
+The main difference in v7 is the addition of the last patch, which ensures
+that there will always be a measurement entry containing the appended
+modsig if one was used to appraise the file. The patch description and
+comments in the code should explain in which circumstances the patch proved
+necessary.
+
+Apart from that, there was some small cleaning up of the code, and merging
+and splitting of patches. The changelog below has the details.
+
+Original cover letter:
+
+On the OpenPOWER platform, secure boot and trusted boot are being
+implemented using IMA for taking measurements and verifying signatures.
+Since the kernel image on Power servers is an ELF binary, kernels are
+signed using the scripts/sign-file tool and thus use the same signature
+format as signed kernel modules.
+
+This patch series adds support in IMA for verifying those signatures.
+It adds flexibility to OpenPOWER secure boot, because it allows it to boot
+kernels with the signature appended to them as well as kernels where the
+signature is stored in the IMA extended attribute.
+
+Changes since v7:
+- Patch "MODSIGN: Export module signature definitions"
+  - Added module name parameter to validate_module_sig() so that it can be
+    shown in error messages.
+
+- Patch "integrity: Introduce struct evm_xattr"
+  - Dropped use of struct evm_xattr in evm_update_evmxattr() and
+    evm_verify_hmac(). It's not needed there anymore because of changes
+    to support portable EVM signatures.
+
+Changes since v6:
+
+- Patch "PKCS#7: Introduce pkcs7_get_message_sig() and verify_pkcs7_message_sig()"
+  - Retitled to "PKCS#7: Refactor verify_pkcs7_signature() and
+    add pkcs7_get_message_sig()"
+  - Reworded description to clarify why the refactoring is needed.
+    The code is unchanged. (Suggested by Mimi Zohar)
+  - Added Mimi Zohar's Reviewed-by.
+
+- Patch "PKCS#7: Introduce pkcs7_get_digest()"
+  - Added Mimi Zohar's Reviewed-by.
+
+- Patch "integrity: Introduce integrity_keyring_from_id"
+  - Added Mimi Zohar's Signed-off-by.
+
+- Patch "integrity: Introduce asymmetric_sig_has_known_key()"
+  - Added Mimi Zohar's Signed-off-by.
+
+- Patch "integrity: Select CONFIG_KEYS instead of depending on it"
+  - Added Mimi Zohar's Signed-off-by.
+
+- Patch "ima: Introduce is_ima_sig()"
+  - Renamed function to is_signed() (suggested by Mimi Zohar).
+
+- Patch "ima: Add functions to read and verify a modsig signature"
+  - Changed stubs for the !CONFIG_IMA_APPRAISE_MODSIG to return -EOPNOTSUPP
+    instead of -ENOTSUPP, since the latter isn't defined in uapi headers.
+  - Moved functions to the patches which use them and dropped this patch
+    (suggested by Mimi Zohar).
+
+- Patch "ima: Implement support for module-style appended signatures"
+  - Prevent reading and writing of IMA_MODSIG xattr in ima_read_xattr()
+    and ima_inode_setxattr().
+  - Simplify code in process_measurement() which decides whether to try
+    reading a modsig (suggested by Mimi Zohar).
+  - Moved some functions from patch "ima: Add functions to read and verify
+    a modsig signature" into this patch.
+
+- Patch "ima: Add new "d-sig" template field"
+  - New patch containing code from patch "ima: Write modsig to the measurement list"
+    (Suggested by Mimi Zohar).
+
+- Patch "ima: Write modsig to the measurement list"
+  - Moved some functions from patch "ima: Add functions to read and verify
+    a modsig signature" into this patch.
+  - Moved code related to d-sig support to new patch.
+
+- Patch "ima: Store the measurement again when appraising a modsig"
+  - New patch.
+
+Changes since v5:
+- Patch "ima: Remove some superfluous parentheses"
+  - Dropped.
+
+- Patch "evm, ima: Remove superfluous parentheses"
+  - Dropped.
+
+- Patch "evm, ima: Remove more superfluous parentheses"
+  - Dropped.
+
+- Patch "ima: Don't pass xattr value to EVM xattr verification."
+  - Dropped.
+
+- Patch "ima: Store measurement after appraisal"
+  - Dropped.
+
+- Patch "MODSIGN: Export module signature definitions"
+  - Reduced changes to the code that was moved into validate_module_sig()
+    to the minimum necessary (suggested by Mimi Zohar).
+  - Added SPDX license identifier.
+
+- Patch "PKCS#7: Introduce pkcs7_get_message_sig() and verify_pkcs7_message_sig()"
+  - In the hypothetical case that there's more than one sinfo, changed
+    pkcs7_get_message_sig() to return NULL instead of the first sinfo's sig.
+  - Dropped Mimi's Reviewed-by because of the code change above.
+
+- Patch "PKCS#7: Introduce pkcs7_get_digest()"
+  - New patch.
+
+- Patch "integrity: Introduce integrity_keyring_from_id"
+  - Add stub in case CONFIG_INTEGRITY_SIGNATURE isn't set.
+
+- Patch "integrity: Introduce asymmetric_sig_has_known_key()"
+  - New patch.
+
+- Patch "ima: Introduce is_ima_sig"
+  - New patch, with code from "ima: Improvements in ima_appraise_measurement"
+
+- Patch "ima: Add modsig appraise_type option for module-style appended signatures"
+  - Changed appraise_type to accept "imasig|modsig" instead of
+    "modsig|imasig" to reflect the fact that now IMA only looks for
+    the modsig after failing to find a suitable imasig stored in the xattr.
+  - Added SPDX license identifier.
+
+- Patch "ima: Add functions to read and verify a modsig signature"
+  - Changed ima_read_modsig() to abort loading the modsig if it uses a key
+    which isn't known to IMA.
+  - Changed ima_get_modsig_hash() to use pkcs7_get_digest().
+
+- Patch "ima: Implement support for module-style appended signatures"
+  - Added ima_xattr_sig_known_key() auxiliary function.
+  - Call ima_read_modsig() directly from process_measurement() instead of
+    from ima_appraise_measurement(), and only if there's no xattr signature
+    or if the xattr signature uses a key which isn't known to IMA.
+  - hash_algo in process_measurement() is always obtained from the xattr
+    signature, never from the modsig.
+  - Changes to ima_appraise_measurement() are a lot simpler now, and don't
+    involve going back to the main switch statement a second time.
+  - Pass xattr_value to evm_verifyxattr() unless xattr_value is a modsig.
+
+- Patch "ima: Write modsig to the measurement list"
+  - Since now we determine whether we'll use an xattr sig or a modsig
+    at the time they are read, there's no need to store a measurement
+    again in the modsig case. Thus, this patch doesn't need to change
+    ima_store_measurement() nor process_measurement() anymore.
+  - Define new "d-sig" template field which holds the digest that is
+    expected to match the one contained in the modsig.
+  - Moved addition of ima_modsig_serialize_data() to patch "ima: Add
+    functions to read and verify a modsig signature".
+  - Increase MAX_TEMPLATE_NAME_LEN to 24.
+
+Changes since v4:
+- Patch "ima: Remove redundant conditional operator"
+  - New patch.
+
+- Patch "ima: Remove some superfluous parentheses"
+  - New patch.
+
+- Patch "evm, ima: Remove superfluous parentheses"
+  - New patch.
+
+- Patch "evm, ima: Remove more superfluous parentheses"
+  - New patch.
+
+- Patch "ima: Simplify ima_eventsig_init"
+  - New patch.
+
+- Patch "ima: Improvements in ima_appraise_measurement"
+  - New patch.
+
+- Patch "ima: Don't pass xattr value to EVM xattr verification."
+  - New patch.
+
+- Patch "ima: Export func_tokens"
+  - Split from patch "ima: Support module-style appended signatures for
+    appraisal".
+
+- Patch "ima: Add modsig appraise_type option for module-style appended
+         signatures"
+  - Split from patch "ima: Support module-style appended signatures for
+    appraisal".
+  - Mention modsig option in Documentation/ABI/testing/ima_policy
+    (suggested by Mimi Zohar).
+
+- Patch "ima: Add functions to read and verify a modsig signature"
+  - Split from patch "ima: Support module-style appended signatures for
+    appraisal".
+
+- Patch "ima: Implement support for module-style appended signatures"
+  - Split from patch "ima: Support module-style appended signatures for
+    appraisal".
+  - In ima_appraise_measurement, change the logic of dealing with xattr
+    errors in case the modsig verification fails. With this,
+    process_xattr_error isn't needed anymore.
+
+- Patch "ima: Write modsig to the measurement list"
+  - Split from patch "ima: Support module-style appended signatures for
+    appraisal".
+  - Added ima_current_template_has_sig function.
+  - Removed hdr parameter from ima_modsig_serialize_data.
+  - In ima_store_measurement, continue processing even if the given PCR
+    is already measured if it's for a modsig.
+  - In process_measurement, add exception to store measurement even if
+    IMA_MEASURE is not set when appraising a modsig (suggested by
+    Mimi Zohar).
+  - Call is_ima_sig in ima_eventsig_init.
+
+Thiago Jung Bauermann (14):
+  MODSIGN: Export module signature definitions
+  PKCS#7: Refactor verify_pkcs7_signature() and add
+    pkcs7_get_message_sig()
+  PKCS#7: Introduce pkcs7_get_digest()
+  integrity: Introduce struct evm_xattr
+  integrity: Introduce integrity_keyring_from_id()
+  integrity: Introduce asymmetric_sig_has_known_key()
+  integrity: Select CONFIG_KEYS instead of depending on it
+  ima: Introduce is_signed()
+  ima: Export func_tokens
+  ima: Add modsig appraise_type option for module-style appended
+    signatures
+  ima: Implement support for module-style appended signatures
+  ima: Add new "d-sig" template field
+  ima: Write modsig to the measurement list
+  ima: Store the measurement again when appraising a modsig
+
+ Documentation/ABI/testing/ima_policy      |   6 +-
+ Documentation/security/IMA-templates.rst  |   5 +
+ certs/system_keyring.c                    |  61 +++++--
+ crypto/asymmetric_keys/pkcs7_parser.c     |  16 ++
+ crypto/asymmetric_keys/pkcs7_verify.c     |  25 +++
+ include/crypto/pkcs7.h                    |   5 +
+ include/linux/module.h                    |   3 -
+ include/linux/module_signature.h          |  47 +++++
+ include/linux/verification.h              |  10 +
+ init/Kconfig                              |   6 +-
+ kernel/Makefile                           |   2 +-
+ kernel/module.c                           |   1 +
+ kernel/module_signing.c                   |  82 ++++-----
+ security/integrity/Kconfig                |   2 +-
+ security/integrity/digsig.c               |  28 ++-
+ security/integrity/digsig_asymmetric.c    |  44 +++--
+ security/integrity/evm/evm_main.c         |   8 +-
+ security/integrity/ima/Kconfig            |  13 ++
+ security/integrity/ima/Makefile           |   1 +
+ security/integrity/ima/ima.h              |  67 +++++++
+ security/integrity/ima/ima_api.c          |   8 +-
+ security/integrity/ima/ima_appraise.c     |  79 ++++++--
+ security/integrity/ima/ima_main.c         |  33 +++-
+ security/integrity/ima/ima_modsig.c       | 212 ++++++++++++++++++++++
+ security/integrity/ima/ima_policy.c       |  81 +++++++--
+ security/integrity/ima/ima_template.c     |  31 +++-
+ security/integrity/ima/ima_template_lib.c |  49 ++++-
+ security/integrity/ima/ima_template_lib.h |   2 +
+ security/integrity/integrity.h            |  30 ++-
+ 29 files changed, 829 insertions(+), 128 deletions(-)
+ create mode 100644 include/linux/module_signature.h
+ create mode 100644 security/integrity/ima/ima_modsig.c

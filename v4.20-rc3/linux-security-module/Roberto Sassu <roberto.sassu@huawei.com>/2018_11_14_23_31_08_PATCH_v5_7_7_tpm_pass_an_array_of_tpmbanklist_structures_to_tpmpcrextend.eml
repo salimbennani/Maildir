@@ -1,0 +1,411 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 15 Nov 2018 00:41:13 -0000
+Received: from icoremail.net (unknown [209.85.214.179])
+	by mail-app2 (Coremail) with SMTP id by_KCgC3f7V_QexbVziRAQ--.43311S3;
+	Wed, 14 Nov 2018 23:38:40 +0800 (CST)
+Received: from mail-pl1-f179.google.com (unknown [209.85.214.179])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwAXkEx+QexbKFI_AA--.6436S3;
+	Wed, 14 Nov 2018 23:38:38 +0800 (CST)
+Received: by mail-pl1-f179.google.com with SMTP id p4-v6so7960574plo.5
+        for <xuliker@zju.edu.cn>; Wed, 14 Nov 2018 07:38:38 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:sender:precedence:list-id;
+        bh=diJeJJWCH7dl+5eGsBm3b+/ihEhd/S/YGYe4+/tnQuU=;
+        b=jFSa5noYkaaVvPziLh4JHKkOgAl7OTRIOC+8Q4IpaHV2WLAaOucBd2ucYmqjxVVfzT
+         MXBTVzul5rVKWlM5g4pqNJfYwyn2l6Czim/WIzX9gkP/yD5O41jgvduybbfMKA+bqZIY
+         VFpwlcIZXyGG9ziZATFNefvs4q7ViveG8ojx2PRFU6j9LmNGeqnFBNUoe8pSYXVqzqjq
+         rsY/e3m7OCWSI+TTaQ4kMKeB3XHS1q+GWsZveklUYsiHaN73ArrZ432F48nbWpY28pCL
+         cRfwD3hHcFzd4wywvi8//K2rSkZu/0xAQjpOmFaStNzz04Zh1Xuzh3AYMBIjxJaKdTCa
+         ssrw==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org
+X-Gm-Message-State: AGRZ1gJUjNi8Ha+wDN1qXP4s7j4iOmFsgvC2uyfaj29mEKX4MoKMJnoR
+	BKT5b3CkvasD61KKlfNBuOnNcU6dzU6Mq8aQbNzmHhoYcXwHpQCxvg==
+X-Received: by 2002:a17:902:704c:: with SMTP id h12mr2445076plt.78.1542209917794;
+        Wed, 14 Nov 2018 07:38:37 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp5959369pjt;
+        Wed, 14 Nov 2018 07:38:36 -0800 (PST)
+X-Google-Smtp-Source: AJdET5fkwQOG7rm9irtpY/bVlsztEzWH4hp0pJmaoVM4xYXkcriuCL31Y0hghQvktPIMedUhJH5B
+X-Received: by 2002:a17:902:9681:: with SMTP id n1-v6mr2414097plp.126.1542209916399;
+        Wed, 14 Nov 2018 07:38:36 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542209916; cv=none;
+        d=google.com; s=arc-20160816;
+        b=HAI09mDURcjr6PfstZ9iUmS2jpZJEbpH1I6EotbyvFd43SiS89Kp/qg2LHxr/Y/OdB
+         Iw8pEANockT0jlmrKzeQ46Ehtb4DnvJ8UaKlJw5HsbogM0toaow8LbeVFzVdUeNxxMgh
+         2qE6Npbeo9hxyIZBNBkxDbNQJupZqgOxBCeZemG/CGX9XKMtcYDd6j9fA1Z0tbt5prmc
+         wypClxZsGzhhzLzYVFDOYRZxlO4t/kIai5vhMVAkf82jefPBOkTaWxoC3B/MTo9LLmYo
+         utL+UXTgk5XOr2EC5ij2nnv/XAtvmMzKnoe9/0lkYv82ZKyaWgmVGytxP1Py40n17nTS
+         X9rg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from;
+        bh=diJeJJWCH7dl+5eGsBm3b+/ihEhd/S/YGYe4+/tnQuU=;
+        b=Zr2IT5HdaXfKBjfkU+zhxq4kZ5pHRgLGO/cPKV7REfuail1cMHQH5Gu1X+JYknsL3+
+         xI86nlZmbwtIMSEb+mEsgb29v962gvkV1OLwhlVy9HzCaEYWOo9+Przb9VfkOSEJttxD
+         8lwl/d4yvq3+Nb0Z65xCLsNnGvJSM8r3/oFNEC1x+Zs3gwc92Ka1UTyw6ctBJwhVNF9U
+         4K+coJKaemzJhT4JowbfR/ptvwz4KkbqprRLfgSQIRuFPaapS7F6J7vB2UmRe8tcOH4x
+         VS4K7aK32lB+I/Q+8JS4IigX92Biyb+RoJ6q3SUU89rjBbNikldUxdQC6DwbT34qrbWj
+         1KUw==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id w6-v6si25588971pfn.212.2018.11.14.07.38.21;
+        Wed, 14 Nov 2018 07:38:36 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S2387646AbeKOBlB (ORCPT <rfc822;docz2a@gmail.com> + 99 others);
+        Wed, 14 Nov 2018 20:41:01 -0500
+Received: from lhrrgout.huawei.com ([185.176.76.210]:32771 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1727731AbeKOBlB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+        Wed, 14 Nov 2018 20:41:01 -0500
+Received: from LHREML714-CAH.china.huawei.com (unknown [172.18.7.107])
+        by Forcepoint Email with ESMTP id E513C1EAA5364;
+        Wed, 14 Nov 2018 15:37:13 +0000 (GMT)
+Received: from roberto-HP-EliteDesk-800-G2-DM-65W.huawei.com (10.204.65.153)
+ by smtpsuk.huawei.com (10.201.108.37) with Microsoft SMTP Server (TLS) id
+ 14.3.408.0; Wed, 14 Nov 2018 15:37:09 +0000
+From: Roberto Sassu <roberto.sassu@huawei.com>
+To: <jarkko.sakkinen@linux.intel.com>, <zohar@linux.ibm.com>,
+        <david.safford@ge.com>, <monty.wiseman@ge.com>
+CC: <linux-integrity@vger.kernel.org>,
+        <linux-security-module@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>, <silviu.vlasceanu@huawei.com>,
+        Roberto Sassu <roberto.sassu@huawei.com>
+Subject: [PATCH v5 7/7] tpm: pass an array of tpm_bank_list structures to tpm_pcr_extend()
+Date: Wed, 14 Nov 2018 16:31:08 +0100
+Message-ID: <20181114153108.12907-8-roberto.sassu@huawei.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20181114153108.12907-1-roberto.sassu@huawei.com>
+References: <20181114153108.12907-1-roberto.sassu@huawei.com>
+MIME-Version: 1.0
+Content-Type: text/plain
+X-Originating-IP: [10.204.65.153]
+X-CFilter-Loop: Reflected
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwAXkEx+QexbKFI_AA--.6436S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW3Kr4UWF4rJFWDtrW8JFWDArb_yoWDKF43pa
+	nxG34xZws5Ja13Gr9FyanrCr13K340q3yUG3y8K3say3Z8KFsxu3WjyrW5Zry5Gr4kGFy3
+	ArWIg34UAF4jkaUanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUPFb7Iv0xC_Cr1lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2
+	z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s0DM2AIxVAIcxkEcV
+	Aq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1Y
+	6r17McIj6I8E87Iv67AKxVW8JVWxJwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IYc2Ij64
+	vIr41l7I0Y6sxI4wCY1x0264kExVAvwVAq07x20xylc7Ca8VAvwVCFzxkY4VCF77xAMxkI
+	ecxEwVCI4VW5WwCY0x0Ix7I2Y4AK64vIr41lcIIF0xvE2Ix0cI8IcVAFwI0_Xr0_Ar1lcI
+	IF0xvE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwCYIxAIcVC2z280aVAFwI0_GcCE3s1lcIIF
+	0xvEx4A2jsIEc7CjxVAFwI0_GcCE3s1l42xK82IYc2Ij64vIr41l42xK82IY64kExVAvwV
+	Aq07x20xyl4x8a6x804xWl4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWU
+	JVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r1q6r43MIIYrxkI7V
+	AKI48JMIIF0xvE42xK8VAvwI8IcIk0rVW8JVW3JbIYCTnIWIevJa73UjIFyTuYvjxUg8uc
+	DUUUU
+
+Currently, tpm_pcr_extend() accepts as an input only a SHA1 digest.
+
+This patch modifies the definition of tpm_pcr_extend() to allow other
+kernel subsystems to pass a digest for each algorithm supported by the TPM.
+All digests are processed by the TPM in one operation.
+
+If a tpm_pcr_extend() caller provides a subset of the supported algorithms,
+the TPM driver extends the remaining PCR banks with the first digest
+passed as an argument to the function.
+
+The new tpm_bank_list structure has been preferred to the tpm_digest
+structure, to let the caller specify the size of the digest (which may be
+unknown to the TPM driver).
+
+Due to the API change, ima_pcr_extend() and pcrlock() have been modified.
+
+Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+---
+ drivers/char/tpm/tpm-interface.c   | 24 +++++---------------
+ drivers/char/tpm/tpm.h             |  6 ++---
+ drivers/char/tpm/tpm1-cmd.c        | 14 ++++++++----
+ drivers/char/tpm/tpm2-cmd.c        | 36 +++++++++++++++++++++---------
+ include/linux/tpm.h                | 13 ++++++++---
+ security/integrity/ima/ima_queue.c |  5 ++++-
+ security/keys/trusted.c            |  5 ++++-
+ 7 files changed, 63 insertions(+), 40 deletions(-)
+
+diff --git a/drivers/char/tpm/tpm-interface.c b/drivers/char/tpm/tpm-interface.c
+index f0e1456440d7..5495223d3f7b 100644
+--- a/drivers/char/tpm/tpm-interface.c
++++ b/drivers/char/tpm/tpm-interface.c
+@@ -478,42 +478,30 @@ EXPORT_SYMBOL_GPL(tpm_pcr_read);
+  * tpm_pcr_extend - extend a PCR value in SHA1 bank.
+  * @chip:	a &struct tpm_chip instance, %NULL for the default chip
+  * @pcr_idx:	the PCR to be retrieved
+- * @hash:	the hash value used to extend the PCR value
++ * @count:	number of tpm_bank_list structures
++ * @bank_list:	array of tpm_bank_list structures used to extend the PCR value
+  *
+  * Note: with TPM 2.0 extends also those banks for which no digest was
+  * specified in order to prevent malicious use of those PCR banks.
+  *
+  * Return: same as with tpm_transmit_cmd()
+  */
+-int tpm_pcr_extend(struct tpm_chip *chip, u32 pcr_idx, const u8 *hash)
++int tpm_pcr_extend(struct tpm_chip *chip, u32 pcr_idx, u32 count,
++		   const struct tpm_bank_list *bank_list)
+ {
+ 	int rc;
+-	struct tpm_digest *digest_list;
+-	int i;
+ 
+ 	chip = tpm_find_get_ops(chip);
+ 	if (!chip)
+ 		return -ENODEV;
+ 
+ 	if (chip->flags & TPM_CHIP_FLAG_TPM2) {
+-		digest_list = kcalloc(chip->nr_allocated_banks,
+-				      sizeof(*digest_list), GFP_KERNEL);
+-		if (!digest_list)
+-			return -ENOMEM;
+-
+-		for (i = 0; i < chip->nr_allocated_banks; i++) {
+-			digest_list[i].alg_id = chip->allocated_banks[i].alg_id;
+-			memcpy(digest_list[i].digest, hash, TPM_DIGEST_SIZE);
+-		}
+-
+-		rc = tpm2_pcr_extend(chip, pcr_idx, chip->nr_allocated_banks,
+-				     digest_list);
+-		kfree(digest_list);
++		rc = tpm2_pcr_extend(chip, pcr_idx, count, bank_list);
+ 		tpm_put_ops(chip);
+ 		return rc;
+ 	}
+ 
+-	rc = tpm1_pcr_extend(chip, pcr_idx, hash,
++	rc = tpm1_pcr_extend(chip, pcr_idx, count, bank_list,
+ 			     "attempting extend a PCR value");
+ 	tpm_put_ops(chip);
+ 	return rc;
+diff --git a/drivers/char/tpm/tpm.h b/drivers/char/tpm/tpm.h
+index 023ddf42038b..4296c720ebb4 100644
+--- a/drivers/char/tpm/tpm.h
++++ b/drivers/char/tpm/tpm.h
+@@ -504,8 +504,8 @@ int tpm1_auto_startup(struct tpm_chip *chip);
+ int tpm1_do_selftest(struct tpm_chip *chip);
+ int tpm1_get_timeouts(struct tpm_chip *chip);
+ unsigned long tpm1_calc_ordinal_duration(struct tpm_chip *chip, u32 ordinal);
+-int tpm1_pcr_extend(struct tpm_chip *chip, u32 pcr_idx, const u8 *hash,
+-		    const char *log_msg);
++int tpm1_pcr_extend(struct tpm_chip *chip, u32 pcr_idx, u32 count,
++		    const struct tpm_bank_list *bank_list, const char *log_msg);
+ int tpm1_pcr_read(struct tpm_chip *chip, u32 pcr_idx, u8 *res_buf);
+ ssize_t tpm1_getcap(struct tpm_chip *chip, u32 subcap_id, cap_t *cap,
+ 		    const char *desc, size_t min_cap_length);
+@@ -551,7 +551,7 @@ int tpm2_get_timeouts(struct tpm_chip *chip);
+ int tpm2_pcr_read(struct tpm_chip *chip, u32 pcr_idx,
+ 		  struct tpm_digest *digest_struct, u16 *digest_size_ptr);
+ int tpm2_pcr_extend(struct tpm_chip *chip, u32 pcr_idx, u32 count,
+-		    struct tpm_digest *digests);
++		    const struct tpm_bank_list *bank_list);
+ int tpm2_get_random(struct tpm_chip *chip, u8 *dest, size_t max);
+ void tpm2_flush_context_cmd(struct tpm_chip *chip, u32 handle,
+ 			    unsigned int flags);
+diff --git a/drivers/char/tpm/tpm1-cmd.c b/drivers/char/tpm/tpm1-cmd.c
+index 8b70a7f884a7..439ac749517c 100644
+--- a/drivers/char/tpm/tpm1-cmd.c
++++ b/drivers/char/tpm/tpm1-cmd.c
+@@ -449,12 +449,19 @@ int tpm1_get_timeouts(struct tpm_chip *chip)
+ }
+ 
+ #define TPM_ORD_PCR_EXTEND 20
+-int tpm1_pcr_extend(struct tpm_chip *chip, u32 pcr_idx, const u8 *hash,
+-		    const char *log_msg)
++int tpm1_pcr_extend(struct tpm_chip *chip, u32 pcr_idx, u32 count,
++		    const struct tpm_bank_list *bank_list, const char *log_msg)
+ {
+ 	struct tpm_buf buf;
++	u8 dummy_hash[TPM_DIGEST_SIZE] = { 0 };
++	const u8 *hash;
+ 	int rc;
+ 
++	hash = dummy_hash;
++	if (count)
++		memcpy(dummy_hash, bank_list[0].extend_array,
++		       min(bank_list[0].digest_size, (u16)sizeof(dummy_hash)));
++
+ 	rc = tpm_buf_init(&buf, TPM_TAG_RQU_COMMAND, TPM_ORD_PCR_EXTEND);
+ 	if (rc)
+ 		return rc;
+@@ -743,7 +750,6 @@ int tpm1_auto_startup(struct tpm_chip *chip)
+  */
+ int tpm1_pm_suspend(struct tpm_chip *chip, u32 tpm_suspend_pcr)
+ {
+-	u8 dummy_hash[TPM_DIGEST_SIZE] = { 0 };
+ 	struct tpm_buf buf;
+ 	unsigned int try;
+ 	int rc;
+@@ -751,7 +757,7 @@ int tpm1_pm_suspend(struct tpm_chip *chip, u32 tpm_suspend_pcr)
+ 
+ 	/* for buggy tpm, flush pcrs with extend to selected dummy */
+ 	if (tpm_suspend_pcr)
+-		rc = tpm1_pcr_extend(chip, tpm_suspend_pcr, dummy_hash,
++		rc = tpm1_pcr_extend(chip, tpm_suspend_pcr, 0, NULL,
+ 				     "extending dummy pcr before suspend");
+ 
+ 	rc = tpm_buf_init(&buf, TPM_TAG_RQU_COMMAND, TPM_ORD_SAVESTATE);
+diff --git a/drivers/char/tpm/tpm2-cmd.c b/drivers/char/tpm/tpm2-cmd.c
+index 974465f04b78..40eb1a044451 100644
+--- a/drivers/char/tpm/tpm2-cmd.c
++++ b/drivers/char/tpm/tpm2-cmd.c
+@@ -248,21 +248,22 @@ struct tpm2_null_auth_area {
+  *
+  * @chip:	TPM chip to use.
+  * @pcr_idx:	index of the PCR.
+- * @count:	number of digests passed.
+- * @digests:	list of pcr banks and corresponding digest values to extend.
++ * @count:	number of tpm_bank_list passed.
++ * @bank_list:	array of tpm_bank_list with digest values to extend.
+  *
+  * Return: Same as with tpm_transmit_cmd.
+  */
+ int tpm2_pcr_extend(struct tpm_chip *chip, u32 pcr_idx, u32 count,
+-		    struct tpm_digest *digests)
++		    const struct tpm_bank_list *bank_list)
+ {
+ 	struct tpm_buf buf;
+ 	struct tpm2_null_auth_area auth_area;
++	const struct tpm_bank_list *item;
++	u8 dummy_hash[SHA512_DIGEST_SIZE] = { 0 };
++	const u8 *hash;
+ 	int rc;
+ 	int i;
+-
+-	if (count > chip->nr_allocated_banks)
+-		return -EINVAL;
++	int j;
+ 
+ 	rc = tpm_buf_init(&buf, TPM2_ST_SESSIONS, TPM2_CC_PCR_EXTEND);
+ 	if (rc)
+@@ -278,11 +279,26 @@ int tpm2_pcr_extend(struct tpm_chip *chip, u32 pcr_idx, u32 count,
+ 	tpm_buf_append_u32(&buf, sizeof(struct tpm2_null_auth_area));
+ 	tpm_buf_append(&buf, (const unsigned char *)&auth_area,
+ 		       sizeof(auth_area));
+-	tpm_buf_append_u32(&buf, count);
++	tpm_buf_append_u32(&buf, chip->nr_allocated_banks);
++
++	if (count)
++		memcpy(dummy_hash, bank_list[0].extend_array,
++		       bank_list[0].digest_size);
++
++	for (i = 0; i < chip->nr_allocated_banks; i++) {
++		tpm_buf_append_u16(&buf, chip->allocated_banks[i].alg_id);
++
++		hash = dummy_hash;
++		for (j = 0; j < count; j++) {
++			item = bank_list + j;
++
++			if (item->alg_id == chip->allocated_banks[i].alg_id) {
++				hash = item->extend_array;
++				break;
++			}
++		}
+ 
+-	for (i = 0; i < count; i++) {
+-		tpm_buf_append_u16(&buf, digests[i].alg_id);
+-		tpm_buf_append(&buf, (const unsigned char *)&digests[i].digest,
++		tpm_buf_append(&buf, hash,
+ 			       chip->allocated_banks[i].digest_size);
+ 	}
+ 
+diff --git a/include/linux/tpm.h b/include/linux/tpm.h
+index fcdd33ae9969..16e5ff1f0294 100644
+--- a/include/linux/tpm.h
++++ b/include/linux/tpm.h
+@@ -52,6 +52,12 @@ struct tpm_bank_info {
+ 	u16 crypto_id;
+ };
+ 
++struct tpm_bank_list {
++	u8 alg_id;
++	u16 digest_size;
++	const u8 *extend_array;
++};
++
+ enum TPM_OPS_FLAGS {
+ 	TPM_OPS_AUTO_STARTUP = BIT(0),
+ };
+@@ -79,7 +85,8 @@ struct tpm_class_ops {
+ extern int tpm_is_tpm2(struct tpm_chip *chip);
+ extern int tpm_pcr_read(struct tpm_chip *chip, u32 pcr_idx,
+ 			struct tpm_digest *digest_struct);
+-extern int tpm_pcr_extend(struct tpm_chip *chip, u32 pcr_idx, const u8 *hash);
++extern int tpm_pcr_extend(struct tpm_chip *chip, u32 pcr_idx, u32 count,
++			  const struct tpm_bank_list *bank_list);
+ extern int tpm_send(struct tpm_chip *chip, void *cmd, size_t buflen);
+ extern int tpm_get_random(struct tpm_chip *chip, u8 *data, size_t max);
+ extern int tpm_seal_trusted(struct tpm_chip *chip,
+@@ -101,8 +108,8 @@ static inline int tpm_pcr_read(struct tpm_chip *chip, int pcr_idx,
+ 	return -ENODEV;
+ }
+ 
+-static inline int tpm_pcr_extend(struct tpm_chip *chip, u32 pcr_idx,
+-				 const u8 *hash)
++static inline int tpm_pcr_extend(struct tpm_chip *chip, u32 pcr_idx, u32 count,
++				 const struct tpm_bank_list *bank_list)
+ {
+ 	return -ENODEV;
+ }
+diff --git a/security/integrity/ima/ima_queue.c b/security/integrity/ima/ima_queue.c
+index b186819bd5aa..24024edef316 100644
+--- a/security/integrity/ima/ima_queue.c
++++ b/security/integrity/ima/ima_queue.c
+@@ -140,12 +140,15 @@ unsigned long ima_get_binary_runtime_size(void)
+ 
+ static int ima_pcr_extend(const u8 *hash, int pcr)
+ {
++	struct tpm_bank_list bank_item = { .alg_id = TPM_ALG_SHA1,
++					   .digest_size = TPM_DIGEST_SIZE,
++					   .extend_array = hash };
+ 	int result = 0;
+ 
+ 	if (!ima_tpm_chip)
+ 		return result;
+ 
+-	result = tpm_pcr_extend(ima_tpm_chip, pcr, hash);
++	result = tpm_pcr_extend(ima_tpm_chip, pcr, 1, &bank_item);
+ 	if (result != 0)
+ 		pr_err("Error Communicating to TPM chip, result: %d\n", result);
+ 	return result;
+diff --git a/security/keys/trusted.c b/security/keys/trusted.c
+index ff6789365a12..d2a3129a95f9 100644
+--- a/security/keys/trusted.c
++++ b/security/keys/trusted.c
+@@ -380,6 +380,9 @@ EXPORT_SYMBOL_GPL(trusted_tpm_send);
+ static int pcrlock(const int pcrnum)
+ {
+ 	unsigned char hash[SHA1_DIGEST_SIZE];
++	struct tpm_bank_list bank_item = { .alg_id = TPM_ALG_SHA1,
++					   .digest_size = sizeof(hash),
++					   .extend_array = hash }
+ 	int ret;
+ 
+ 	if (!capable(CAP_SYS_ADMIN))
+@@ -387,7 +390,7 @@ static int pcrlock(const int pcrnum)
+ 	ret = tpm_get_random(NULL, hash, SHA1_DIGEST_SIZE);
+ 	if (ret != SHA1_DIGEST_SIZE)
+ 		return ret;
+-	return tpm_pcr_extend(NULL, pcrnum, hash) ? -EINVAL : 0;
++	return tpm_pcr_extend(NULL, pcrnum, 1, &bank_item) ? -EINVAL : 0;
+ }
+ 
+ /*
+-- 
+2.17.1

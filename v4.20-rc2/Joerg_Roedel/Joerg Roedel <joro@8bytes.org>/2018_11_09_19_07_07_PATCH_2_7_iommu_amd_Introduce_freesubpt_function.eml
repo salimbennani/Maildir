@@ -1,0 +1,157 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (61.164.42.155:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 10 Nov 2018 00:52:07 -0000
+Received: from icoremail.net (unknown [209.85.215.175])
+	by mail-app2 (Coremail) with SMTP id by_KCgDHH0K8auVbKEVnAQ--.31505S3;
+	Fri, 09 Nov 2018 19:08:46 +0800 (CST)
+Received: from mail-pg1-f175.google.com (unknown [209.85.215.175])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwBHLEi4auVbZD8iAA--.2756S3;
+	Fri, 09 Nov 2018 19:08:40 +0800 (CST)
+Received: by mail-pg1-f175.google.com with SMTP id w3-v6so711610pgs.11
+        for <xuliker@zju.edu.cn>; Fri, 09 Nov 2018 03:08:40 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :from:to:cc:subject:date:message-id:in-reply-to:references:sender
+         :precedence:list-id;
+        bh=/pXx7RlK75XX4WNBe+LkjIyr/veFMEIXXGjS0Q8jHz8=;
+        b=P6sz4tomkV09kReOlPlCeffxznh5wprRtSM4z1VtaGAp5t6n2+ZLJINkFHUdDZF0bj
+         G8PMk6roB5Lr9IRlNUEAH7K0nHULBHCfx3cm2W0CocLv8CDnjCd+axvqjmY6y3C4tLHN
+         X4bhrYyGoBiIzcU7xgQn0mA6BoYtFzCG6WqsmT0rF+c455Rg7/PdMt1MTkAof+P1uWkT
+         xF21C7P3ol5Koex0gvch8cGdk39Zbow2vhMH6agi/8X5SJJ2K6YecbEYX/W2bVMA+wgZ
+         XODLT9QB8VjFgpSm8ktMsExxknnCELfASiKtocQnYhUM9unlkhawm4pOQ7t5pJfNsU8D
+         C5Ag==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=8bytes.org
+X-Gm-Message-State: AGRZ1gK3PVRThNvX1SazCk6PuGbDMx0uGeyIziYDHxv0BE+JjfshmrbU
+	/sfyQ0r2VxTEuFfUZXFNngemrA2GJauUdlZecc1wjfzyjxU8bveSRA==
+X-Received: by 2002:a63:3c44:: with SMTP id i4mr6992901pgn.286.1541761720174;
+        Fri, 09 Nov 2018 03:08:40 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp65333pjt;
+        Fri, 9 Nov 2018 03:08:39 -0800 (PST)
+X-Google-Smtp-Source: AJdET5dCFQ6VR+Sn6qw+NrqCHJVq09/fKetfub2WDvgBYhlsigaWXMdUBGY7mWpwP6PTsjROVnx9
+X-Received: by 2002:a62:cdc1:: with SMTP id o184-v6mr8821778pfg.181.1541761719276;
+        Fri, 09 Nov 2018 03:08:39 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1541761719; cv=none;
+        d=google.com; s=arc-20160816;
+        b=H3zX6fC/4FcIm9+Vs6Vc6jP3oE0zAy+H9Xnoj3huSwHsrdp32h08I9ZaNVI7//N4q9
+         br76C1xHAu8DO2HmkgklB2LcKkq+yzs5sUNE1e89egv7rl1QdpTPloB8+xyjMXLjuhTj
+         EmtGk4PSytnzeegWVl7f+gUOhbUV+7w/lVV9pyJJbS4FQGuV0Ozev2jqXu0qMwkYpUxB
+         cUze368RpYJ+v1oauxbeecIHct1R0LYHGT5QB3CXitu9TcgTMP7pWHOXrVKTPNXy9kps
+         u270I0k2suHI0+EU/gRMFPscu78KlsPMJ984uH7MTdW66E5BdfhOs7meeR976egCGpOa
+         0igw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:references:in-reply-to:message-id:date
+         :subject:cc:to:from;
+        bh=/pXx7RlK75XX4WNBe+LkjIyr/veFMEIXXGjS0Q8jHz8=;
+        b=LVbqhNPhoyBdYzXMvEEhsRmwQZ7KuR303GRt+0mgeDxABvnJyLN5wXcln2Mj8Gyosf
+         uJfnxhBAFARVMx/PjopDmPaaeUtRJeMDxs/9RxrUDyP9OfwDPZgEc/pzx/7j417vYZfN
+         fHI6OWMiu2ziSekP8l+olnULl9idRxngk1SQ1u5q3hQBKGmhBR3sg8tsRcVqeWxJE7jH
+         TOmWzjxaK5MThfAZzZS0k6M5rTYhUUwdpJaciaHjQF5ysKeeKBxGEPVu0zAYJjxFMLGa
+         VbVV0Kw5Etzm3b1RufIc1RYaNAX/EC03fgDba3Qp5p0bBh+AeZoz36lX29Xy57+GIXiu
+         aDzA==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=8bytes.org
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id c7-v6si8064197pfc.153.2018.11.09.03.08.24;
+        Fri, 09 Nov 2018 03:08:39 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1728351AbeKIUr2 (ORCPT <rfc822;fanshuming2011@gmail.com>
+        + 99 others); Fri, 9 Nov 2018 15:47:28 -0500
+Received: from 8bytes.org ([81.169.241.247]:48936 "EHLO theia.8bytes.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728249AbeKIUr1 (ORCPT <rfc822;kvm@vger.kernel.org>);
+        Fri, 9 Nov 2018 15:47:27 -0500
+Received: by theia.8bytes.org (Postfix, from userid 1000)
+        id 74A4748C; Fri,  9 Nov 2018 12:07:19 +0100 (CET)
+From: Joerg Roedel <joro@8bytes.org>
+To: Alex Williamson <alex.williamson@redhat.com>,
+        Joerg Roedel <joro@8bytes.org>
+Cc: iommu@lists.linux-foundation.org, kvm@vger.kernel.org,
+        linux-kernel@vger.kernel.org, jroedel@suse.de
+Subject: [PATCH 2/7] iommu/amd: Introduce free_sub_pt() function
+Date: Fri,  9 Nov 2018 12:07:07 +0100
+Message-Id: <20181109110712.12469-3-joro@8bytes.org>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20181109110712.12469-1-joro@8bytes.org>
+References: <20181109110712.12469-1-joro@8bytes.org>
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwBHLEi4auVbZD8iAA--.2756S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW7WFW5AF47GF4fWF1fZr1fJFb_yoW8GF1kpF
+	18G34a9rW7Ja45C3W3Ww48ZFyrJws7ta4I9rWfJw4qgw1IyFyqk3Zxu347WryrCrZ7Jr1a
+	yF43tr43Cr4FyFDanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUPFb7Iv0xC_Cr1lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2
+	z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s0DM2AIxVAIcxkEcV
+	Aq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1j
+	6r18McIj6I8E87Iv67AKxVW8JVWxJwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IYc2Ij64
+	vIr41l7I0Y6sxI4wCY1x0264kExVAvwVAq07x20xylc7Ca8VAvwVCFzxkY4VCF77xAMxkI
+	ecxEwVCI4VW8KwCY0x0Ix7I2Y4AK64vIr41lcIIF0xvE2Ix0cI8IcVAFwI0_Gr0_Xr1lcI
+	IF0xvE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwCYIxAIcVC2z280aVAFwI0_GcCE3s1lcIIF
+	0xvEx4A2jsIEc7CjxVAFwI0_GcCE3s1l42xK82IYc2Ij64vIr41l42xK82IY64kExVAvwV
+	Aq07x20xyl4x8a6x804xWl4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWU
+	JVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r126r1DMIIYrxkI7V
+	AKI48JMIIF0xvE42xK8VAvwI8IcIk0rVW8JVW3JbIYCTnIWIevJa73UjIFyTuYvjxUqQJ5
+	UUUUU
+
+From: Joerg Roedel <jroedel@suse.de>
+
+The function is a more generic version of free_pagetable()
+and will be used to free only specific sub-trees of a
+page-table.
+
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+---
+ drivers/iommu/amd_iommu.c | 18 +++++++++++++-----
+ 1 file changed, 13 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/iommu/amd_iommu.c b/drivers/iommu/amd_iommu.c
+index 2655bd91af93..1186571f77e1 100644
+--- a/drivers/iommu/amd_iommu.c
++++ b/drivers/iommu/amd_iommu.c
+@@ -1367,12 +1367,10 @@ DEFINE_FREE_PT_FN(l4, free_pt_l3)
+ DEFINE_FREE_PT_FN(l5, free_pt_l4)
+ DEFINE_FREE_PT_FN(l6, free_pt_l5)
+ 
+-static void free_pagetable(struct protection_domain *domain)
++static struct page *free_sub_pt(unsigned long root, int mode,
++				struct page *freelist)
+ {
+-	unsigned long root = (unsigned long)domain->pt_root;
+-	struct page *freelist = NULL;
+-
+-	switch (domain->mode) {
++	switch (mode) {
+ 	case PAGE_MODE_NONE:
+ 		break;
+ 	case PAGE_MODE_1_LEVEL:
+@@ -1397,6 +1395,16 @@ static void free_pagetable(struct protection_domain *domain)
+ 		BUG();
+ 	}
+ 
++	return freelist;
++}
++
++static void free_pagetable(struct protection_domain *domain)
++{
++	unsigned long root = (unsigned long)domain->pt_root;
++	struct page *freelist = NULL;
++
++	free_sub_pt(root, domain->mode, freelist);
++
+ 	free_page_list(freelist);
+ }
+ 
+-- 
+2.17.1

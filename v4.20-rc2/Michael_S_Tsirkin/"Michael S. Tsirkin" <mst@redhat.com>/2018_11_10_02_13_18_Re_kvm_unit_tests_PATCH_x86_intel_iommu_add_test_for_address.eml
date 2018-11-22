@@ -1,0 +1,263 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (61.164.42.155:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 10 Nov 2018 00:55:39 -0000
+Received: from icoremail.net (unknown [209.85.210.177])
+	by mail-app2 (Coremail) with SMTP id by_KCgDHH0JszuVbBJBpAQ--.32226S3;
+	Sat, 10 Nov 2018 02:14:05 +0800 (CST)
+Received: from mail-pf1-f177.google.com (unknown [209.85.210.177])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwBX0ExnzuVboKcjAA--.4858S3;
+	Sat, 10 Nov 2018 02:13:59 +0800 (CST)
+Received: by mail-pf1-f177.google.com with SMTP id b11-v6so1278628pfi.5
+        for <xuliker@zju.edu.cn>; Fri, 09 Nov 2018 10:13:59 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:sender:precedence:list-id;
+        bh=r7/cmqlBHTEk3hd0bYg2ZHpBio8Z/T78pak/7psbEeY=;
+        b=tKlE5iNUEXrIOn1guVqw2z2PLJrmcTUFtTZ1hOpZh61zJsHwJwf+PeP893Sk5lnK2D
+         9IuPtqzqkDfpOpuS2fOQmODwOdVzoNsctqChRGphgDBH3GioMrMEJhyR9F7bwJx5dwrf
+         zJIx9C1kiReA4GaLuBsYGdpaAkIcvxNW/BG23+OAI/YaNS8aBdQlyAf3+/Wq+YsgQtJW
+         DwVWU4g5HjZilOpsafLjxYjj04MucKqj5OBurDj9ZjnapoNm9fOBLV6EJqxso/NX4bSZ
+         Y3M96XyxBECzH0hQ1Vjih7+VDQDHneOcjcxptQL0Xqv7TOskc457CIks9BrgH4+rRYyi
+         7oEg==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=redhat.com
+X-Gm-Message-State: AGRZ1gKTStBmCd4XW55F3ks5m/XT6SdjSDyfBCwAYDCkY9Q8nBSCLX48
+	iLYXlaiXrutF3gh3+iMXAGlNbZNdGav4Q7eHnw2nPBD5qzcf7V8zbw==
+X-Received: by 2002:a63:460a:: with SMTP id t10-v6mr8416149pga.197.1541787238932;
+        Fri, 09 Nov 2018 10:13:58 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp214891pjt;
+        Fri, 9 Nov 2018 10:13:57 -0800 (PST)
+X-Google-Smtp-Source: AJdET5eS/ZL7WJUtWas/SsvSN6TQzuL93qtUkCtKyug5YUCi1tdV9yAnUvQ4QXnL3TbcLf6tRiW8
+X-Received: by 2002:a17:902:7595:: with SMTP id j21-v6mr8253067pll.191.1541787237641;
+        Fri, 09 Nov 2018 10:13:57 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1541787237; cv=none;
+        d=google.com; s=arc-20160816;
+        b=Np2LcQ/jhaSmEmUNtwWDX6CJF0jnY+siC4ryQBOSpz1cYUVxQg8iwmV/z4aRjWSrsZ
+         NBEuweonJs6lad11yqsLLrJP/aw+ljJqZkJ2eexbDCvqEGggvE4gTX/qK1PKmVcJ91+d
+         vgcmpIo8qw4nwRuQDv0RiD6sl6RNNwxBsK7csaOpy0ioj16ZUsOrMg57IYboJH9z1XVi
+         eR7q9cC3oa43VwgN/w1TwnpkJ4TQZtiwIsCuksTWkD6brRMCKQck4W5Gp0zgGewaC8fq
+         KaE0TTP6Cbox1UFNrTnV2nUk2oZR3KrFnAVwREnxs5lfLB/0xmxAFJF2Rd3NWemk3zPQ
+         U0HA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:in-reply-to:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date;
+        bh=r7/cmqlBHTEk3hd0bYg2ZHpBio8Z/T78pak/7psbEeY=;
+        b=tado032TalU81kHeN7j4CS9hZxeTKv0TME4xPRo2W6gzJg1sJcVmuKBeH1NNf3SZg2
+         fE8Ox5Cwmt0fMTnCbzJ1JN09N/O7tWH7MnOS9TLGH5X6EFkIA+C0QIiOaeb2wgBW7+0L
+         JS0qP1J5JDq17pRBfndLk8g7U3cmeoPOOl1YZQ6VZTj27RiMx1lVihhFLs8fqljdVFj0
+         eRqgBLTQAPk/JdFTnYF9eL/MQVvPCc9yws+CUb/B0OeOzsWPK9YLCIDcKTJ0kwQzn+LS
+         cOk3E8cd5LAM6G1lF+T8mcysapEBzds8mAi9wIX1wv1m8gFEoHI84F/nGZBW3J1iU6yc
+         eM8w==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=redhat.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id g10-v6si7586266pgc.232.2018.11.09.10.13.29;
+        Fri, 09 Nov 2018 10:13:57 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1728495AbeKJDzH (ORCPT <rfc822;fanshuming2011@gmail.com>
+        + 99 others); Fri, 9 Nov 2018 22:55:07 -0500
+Received: from mx1.redhat.com ([209.132.183.28]:53530 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728026AbeKJDzG (ORCPT <rfc822;kvm@vger.kernel.org>);
+        Fri, 9 Nov 2018 22:55:06 -0500
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 186E87F6C8;
+        Fri,  9 Nov 2018 18:13:24 +0000 (UTC)
+Received: from redhat.com (ovpn-120-200.rdu2.redhat.com [10.10.120.200])
+        by smtp.corp.redhat.com (Postfix) with SMTP id 77A015D968;
+        Fri,  9 Nov 2018 18:13:19 +0000 (UTC)
+Date: Fri, 9 Nov 2018 13:13:18 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Yu Zhang <yu.c.zhang@linux.intel.com>
+Cc: kvm@vger.kernel.org, peterx@redhat.com, pbonzini@redhat.com,
+        ehabkost@redhat.com
+Subject: Re: [kvm-unit-tests PATCH] x86/intel-iommu: add test for address
+ width 48 and 57.
+Message-ID: <20181109131312-mutt-send-email-mst@kernel.org>
+References: <1541764960-11322-1-git-send-email-yu.c.zhang@linux.intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1541764960-11322-1-git-send-email-yu.c.zhang@linux.intel.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.25]); Fri, 09 Nov 2018 18:13:24 +0000 (UTC)
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwBX0ExnzuVboKcjAA--.4858S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW3Gr1UXw1xtr47XFyfuF4DJwb_yoW7XrWxpr
+	W7GF93A395tr9a9r9Fgr45Zr4rArs3Ja4v9ryUGrW5KF15Xw17CF109a4Fy3WjgFs5JFW3
+	Xw10qwsa9ay7Jw7anT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUPab7Iv0xC_Cr1lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2
+	z280aVAFwI0_Cr1j6rxdM28EF7xvwVC2z280aVCY1x0267AKxVWxJr0_GcWle2I262IYc4
+	CY6c8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_
+	Jr0_Jr4lYx0Ex4A2jsIE14v26r1j6r4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvEwI
+	xGrwCjxxvEa2IrMxkF7I0Ew4C26cxK6c8Ij28IcwCY1Ik26cxK6xAEc7vF6xCjj44lc2xS
+	Y4AK6IIF6rylc2IjII80xcxEwVAKI48JMxvI42IY6xIIjxv20xvE14v26r4j6ryUMxvI42
+	IY6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1lcIIF0xvEx4A2jsIE14v26r4UJVWxJr1lcIIF
+	0xvEx4A2jsIEc7CjxVAFwI0_Gr1j6F4UJwCF04k20xvY0x0EwIxGrwCF04k20xvEw4C26c
+	xK6c8Ij28IcwCF72vE77IF4wCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v2
+	6r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_JF0_Jw1lIxkGc2
+	Ij64vIr41lIxAIcVCF04k26cxKx2IYs7xG6Fyj6rWUJbIYCTnIWIevJa73UjIFyTuYvjxU
+	DPkuUUUUU
+
+On Fri, Nov 09, 2018 at 08:02:40PM +0800, Yu Zhang wrote:
+> Current iommu test only covers 39-bit address width. This patch
+> extends the test case to based on the supported maximum guest
+> address width.
+> 
+> Signed-off-by: Yu Zhang <yu.c.zhang@linux.intel.com>
+
+
+Reviewed-by: Michael S. Tsirkin <mst@redhat.com>
+
+> ---
+>  lib/x86/intel-iommu.c | 14 ++++----------
+>  lib/x86/intel-iommu.h | 11 ++++++++++-
+>  x86/intel-iommu.c     | 21 ++++++++++++++++-----
+>  3 files changed, 30 insertions(+), 16 deletions(-)
+> 
+> diff --git a/lib/x86/intel-iommu.c b/lib/x86/intel-iommu.c
+> index 3f3f211..e1ea9d2 100644
+> --- a/lib/x86/intel-iommu.c
+> +++ b/lib/x86/intel-iommu.c
+> @@ -16,13 +16,6 @@
+>  #include "atomic.h"
+>  #include "alloc_page.h"
+>  
+> -/*
+> - * VT-d in QEMU currently only support 39 bits address width, which is
+> - * 3-level translation.
+> - */
+> -#define VTD_PAGE_LEVEL      3
+> -#define VTD_CE_AW_39BIT     0x1
+> -
+>  typedef uint64_t vtd_pte_t;
+>  
+>  struct vtd_root_entry {
+> @@ -75,6 +68,8 @@ typedef struct vtd_irte vtd_irte_t;
+>  #define VTD_IRTA_MASK (PAGE_MASK)
+>  
+>  void *vtd_reg_base;
+> +uint8_t max_gaw;
+> +uint8_t max_page_level;
+>  
+>  static uint64_t vtd_root_table(void)
+>  {
+> @@ -149,7 +144,7 @@ static void vtd_install_pte(vtd_pte_t *root, iova_t iova,
+>  	unsigned int offset;
+>  	void *page;
+>  
+> -	for (level = VTD_PAGE_LEVEL; level > level_target; level--) {
+> +	for (level = max_page_level; level > level_target; level--) {
+>  		offset = PGDIR_OFFSET(iova, level);
+>  		if (!(root[offset] & VTD_PTE_RW)) {
+>  			page = alloc_page();
+> @@ -213,8 +208,7 @@ void vtd_map_range(uint16_t sid, iova_t iova, phys_addr_t pa, size_t size)
+>  		memset(ce, 0, sizeof(*ce));
+>  		/* To make it simple, domain ID is the same as SID */
+>  		ce->domain_id = sid;
+> -		/* We only test 39 bits width case (3-level paging) */
+> -		ce->addr_width = VTD_CE_AW_39BIT;
+> +		ce->addr_width = max_page_level - 2;
+>  		ce->slptptr = virt_to_phys(slptptr) >> VTD_PAGE_SHIFT;
+>  		ce->trans_type = VTD_CONTEXT_TT_MULTI_LEVEL;
+>  		ce->present = 1;
+> diff --git a/lib/x86/intel-iommu.h b/lib/x86/intel-iommu.h
+> index 05b9744..7057417 100644
+> --- a/lib/x86/intel-iommu.h
+> +++ b/lib/x86/intel-iommu.h
+> @@ -26,6 +26,7 @@
+>  #define Q35_HOST_BRIDGE_IOMMU_ADDR  0xfed90000ULL
+>  #define VTD_PAGE_SHIFT              PAGE_SHIFT
+>  #define VTD_PAGE_SIZE               PAGE_SIZE
+> +#define VTD_PAGE_LEVEL_STRIDE       9
+>  
+>  /*
+>   * Intel IOMMU register specification
+> @@ -100,7 +101,13 @@
+>  #define VTD_CAP_SAGAW_39bit         (0x2ULL << VTD_CAP_SAGAW_SHIFT)
+>  /* 48-bit AGAW, 4-level page-table */
+>  #define VTD_CAP_SAGAW_48bit         (0x4ULL << VTD_CAP_SAGAW_SHIFT)
+> -#define VTD_CAP_SAGAW               VTD_CAP_SAGAW_39bit
+> +/* 57-bit AGAW, 5-level page-table */
+> +#define VTD_CAP_SAGAW_57bit         (0x8ULL << VTD_CAP_SAGAW_SHIFT)
+> +#define VTD_CAP_SAGAW(cap)          (((cap) >> VTD_CAP_SAGAW_SHIFT) & 0x1fULL)
+> +
+> +/* Maximum Guest Address Widths */
+> +#define VTD_CAP_MGAW_SHIFT    16
+> +#define VTD_CAP_MGAW(cap)     ((((cap) >> VTD_CAP_MGAW_SHIFT) & 0x3fULL) + 1)
+>  
+>  /* Both 1G/2M huge pages */
+>  #define VTD_CAP_SLLPS               ((1ULL << 34) | (1ULL << 35))
+> @@ -118,6 +125,8 @@
+>  extern void *vtd_reg_base;
+>  #define vtd_reg(reg) ({ assert(vtd_reg_base); \
+>  			(volatile void *)(vtd_reg_base + reg); })
+> +extern  uint8_t max_gaw;
+> +extern  uint8_t max_page_level;
+>  
+>  static inline void vtd_writel(unsigned int reg, uint32_t value)
+>  {
+> diff --git a/x86/intel-iommu.c b/x86/intel-iommu.c
+> index f24170d..9d2194d 100644
+> --- a/x86/intel-iommu.c
+> +++ b/x86/intel-iommu.c
+> @@ -132,25 +132,36 @@ static void vtd_test_ir(void)
+>  
+>  int main(int argc, char *argv[])
+>  {
+> +	uint64_t dmar_cap;
+> +	uint8_t sagaw;
+> +
+>  	setup_vm();
+>  	smp_init();
+> -
+>  	vtd_init();
+>  
+>  	report_prefix_push("vtd_init");
+> -
+>  	report("fault status check", vtd_readl(DMAR_FSTS_REG) == 0);
+>  	report("QI enablement", vtd_readl(DMAR_GSTS_REG) & VTD_GCMD_QI);
+>  	report("DMAR table setup", vtd_readl(DMAR_GSTS_REG) & VTD_GCMD_ROOT);
+>  	report("IR table setup", vtd_readl(DMAR_GSTS_REG) & VTD_GCMD_IR_TABLE);
+>  	report("DMAR enablement", vtd_readl(DMAR_GSTS_REG) & VTD_GCMD_DMAR);
+>  	report("IR enablement", vtd_readl(DMAR_GSTS_REG) & VTD_GCMD_IR);
+> -	report("DMAR support 39 bits address width",
+> -	       vtd_readq(DMAR_CAP_REG) & VTD_CAP_SAGAW);
+>  	report("DMAR support huge pages", vtd_readq(DMAR_CAP_REG) & VTD_CAP_SLLPS);
+> -
+>  	report_prefix_pop();
+>  
+> +	dmar_cap = vtd_readq(DMAR_CAP_REG);
+> +	max_gaw = VTD_CAP_MGAW(dmar_cap);
+> +	sagaw = VTD_CAP_SAGAW(dmar_cap);
+> +	max_page_level = (max_gaw - VTD_PAGE_SHIFT)/VTD_PAGE_LEVEL_STRIDE;
+> +
+> +	report("address width check", ((1 << (max_page_level - 2)) & sagaw));
+> +	if (dmar_cap & VTD_CAP_SAGAW_39bit)
+> +		printf("DMAR supports 39 bits address width.\n");
+> +	if (dmar_cap & VTD_CAP_SAGAW_48bit)
+> +		printf("DMAR supports 48 bits address width.\n");
+> +	if (dmar_cap & VTD_CAP_SAGAW_57bit)
+> +		printf("DMAR supports 57 bits address width.\n");
+> +
+>  	if (!edu_init(&edu_dev)) {
+>  		printf("Please specify \"-device edu\" to do "
+>  		       "further IOMMU tests.\n");
+> -- 
+> 1.9.1

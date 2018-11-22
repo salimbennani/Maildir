@@ -1,0 +1,220 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (61.164.42.155:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 10 Nov 2018 00:51:01 -0000
+Received: from icoremail.net (unknown [209.85.214.171])
+	by mail-app2 (Coremail) with SMTP id by_KCgDHH3rjT+VbIZlmAQ--.30917S3;
+	Fri, 09 Nov 2018 17:14:11 +0800 (CST)
+Received: from mail-pl1-f171.google.com (unknown [209.85.214.171])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwAH5UDeT+VbKrohAA--.7943S3;
+	Fri, 09 Nov 2018 17:14:06 +0800 (CST)
+Received: by mail-pl1-f171.google.com with SMTP id p4-v6so676892plo.5
+        for <xuliker@zju.edu.cn>; Fri, 09 Nov 2018 01:14:06 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :date:from:to:cc:subject:message-id:in-reply-to:references
+         :organization:mime-version:content-transfer-encoding:sender
+         :precedence:list-id;
+        bh=rM94SBDP7200vSEk/KfKXMCyJFOMZZLqBo0C46+tAjw=;
+        b=kUwrUy7nvh94OfbHalnmJeghNqSGImXJqxTGcCgAlHMIjjJ4auVlDe+XxGQo7ariK6
+         uaDGOT2GzZ0W40vBGv9IyRrNTaOosNvzbAhVy7lNNb5skey9M75DOUOeqCl0+Br4piOc
+         9XBU+jelQw+Q7cd/Jnmf+WIjsoY1Mfhl/tBgm71o6pEejvbVpUKOhrBX9rKuWWcZbSWH
+         0BTniSGFlQE6x8tElgXlwl03PwNV+9tm3CRH756gefKl0HJcxl/qlUlNGvojG3zim0sO
+         BsDAXMIPX2xecltSzif0jx49DcCNI/uiyqgCau4oY8GKFRtXt+ssS0m4NOXKCF/fJgra
+         HFLQ==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=redhat.com
+X-Gm-Message-State: AGRZ1gKN5QyIolGOyni7c3SJi0Moyo9WJ6cmZDZiiGQvj8MasY6TJL8d
+	ylMMvQMCMAb4nCxHrmgGUsqzKVlJb4hhqMTgMtzsGumX3ypKuukJnQ==
+X-Received: by 2002:a17:902:7882:: with SMTP id q2-v6mr8221158pll.188.1541754845967;
+        Fri, 09 Nov 2018 01:14:05 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp1278959pjt;
+        Fri, 9 Nov 2018 01:14:04 -0800 (PST)
+X-Google-Smtp-Source: AJdET5csUuFs3ODZHr6PzCnjzUfDCR6MyIYUPadr4VgrQe3R9O0aS3LPaixygS4Z81Y+OnovWAy2
+X-Received: by 2002:a62:4681:: with SMTP id o1-v6mr8257786pfi.172.1541754844963;
+        Fri, 09 Nov 2018 01:14:04 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1541754844; cv=none;
+        d=google.com; s=arc-20160816;
+        b=xW9zhFRnMjzEGAmZuhR98wp/jEGSn4zlSWRCpW/ZszQT0NA+vn8t8D9x2QhXXxcglW
+         jqiEIHPFlLquTCCc6Tali7uOEcKzVwAhPyZdIOdcmICHWmCaOVyVK6ajtlxvPB7OG74J
+         02dX6QtoGkPWHXZUSpRmVKEo2SnICzf1OGrrGYGl/ifpNhWqzUSq4MhMkTPGbeWcIebt
+         N4L0ps7jxSeQvC42oRsSSUQV+fkfiKMFsiQYYjh7gYJPEB+CglBR1lvFkoZd7NoTA7yZ
+         2lPnXi+iKUUcBXU3WTJWDhreGg2PGRBYrqMvXa2WWfEW2i+P0plkjqgVkiwQwsPSonaQ
+         h6Pg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:content-transfer-encoding:mime-version
+         :organization:references:in-reply-to:message-id:subject:cc:to:from
+         :date;
+        bh=rM94SBDP7200vSEk/KfKXMCyJFOMZZLqBo0C46+tAjw=;
+        b=ihdT0QLF0fRHNuA6ivfccCD8VoeQOhukUX/0yjjpfPg5KH39Wua4xJDSb1x1VVx+jK
+         OT6HfE/R+b1JCT52jNmgGuUZ49q/UjTcDjkiE3YfSU6dVijSvUXUn8LjO6z3rftS65uj
+         wdnNTyw1kL9RJg6QW6cGWP485uhQgNxexTGtl/UjwO3OBvGOxRGzDp8P9n4nmx5lJ+jn
+         zenuT4sBbPBX0syGUR8YN++vD3RHZuWjNMAcEVQAh3/Yik92itNbGIzT9lgpYsxLpKqL
+         a+a0Is4FuqhgUi2RSLVLF9uH7DjXpjO826l6mC1y38r1Fe1R+Ey3FSyez6xYpbKOLNb8
+         7D8Q==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=redhat.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id w8-v6si7429989plz.213.2018.11.09.01.13.42;
+        Fri, 09 Nov 2018 01:14:04 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1727953AbeKISxQ (ORCPT <rfc822;fanshuming2011@gmail.com>
+        + 99 others); Fri, 9 Nov 2018 13:53:16 -0500
+Received: from mx1.redhat.com ([209.132.183.28]:33124 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727666AbeKISxP (ORCPT <rfc822;kvm@vger.kernel.org>);
+        Fri, 9 Nov 2018 13:53:15 -0500
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 3DCF9C02E63C;
+        Fri,  9 Nov 2018 09:13:36 +0000 (UTC)
+Received: from gondolin (dhcp-192-213.str.redhat.com [10.33.192.213])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id D3B0B19936;
+        Fri,  9 Nov 2018 09:13:34 +0000 (UTC)
+Date: Fri, 9 Nov 2018 10:13:32 +0100
+From: Cornelia Huck <cohuck@redhat.com>
+To: Eric Farman <farman@linux.ibm.com>
+Cc: Pierre Morel <pmorel@linux.ibm.com>, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org, Halil Pasic <pasic@linux.ibm.com>,
+        Farhan Ali <alifm@linux.ibm.com>,
+        "Jason J . Herne" <jjherne@linux.ibm.com>
+Subject: Re: [RFC PATCH v1 00/10] vfio-ccw channel program rework
+Message-ID: <20181109101332.76e14e2c.cohuck@redhat.com>
+In-Reply-To: <20181109023937.96105-1-farman@linux.ibm.com>
+References: <20181109023937.96105-1-farman@linux.ibm.com>
+Organization: Red Hat GmbH
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.32]); Fri, 09 Nov 2018 09:13:36 +0000 (UTC)
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwAH5UDeT+VbKrohAA--.7943S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoWxZF4kWw43Gw1UGr15JrW8WFg_yoWrXFW8pF
+	W3KryYkw4DJFy2yrn3Jay8ur4rAayrJrW5GFnY9348Arn8Jr9avr98Ka1FvrZ3GryrX34a
+	qFW0v3Z5uFs8Aa7anT9S1TB71UUUUUUqnTZGkaVYY2UrUUUU0bIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUP0b7Iv0xC_Kw4lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2
+	z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s0DM2AIxVAIcxkEcV
+	Aq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r10
+	6r15McIj6I8E87Iv67AKxVW8JVWxJwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IY64vIr4
+	1l7I0Y6sxI4wCY1x0264kExVAvwVAq07x20xylc7Ca8VAvwVCFzxkY4VCF77xAMxkIecxE
+	wVCI4VW8uwCY0x0Ix7I2Y4AK64vIr41lcIIF0xvE2Ix0cI8IcVAFwI0_JFI_Gr1lcIIF0x
+	vE2Ix0cI8IcVCY1x0267AKxVWUJVW8JwCYIxAIcVC2z280aVAFwI0_GcCE3s1lcIIF0xvE
+	x4A2jsIEc7CjxVAFwI0_GcCE3s1l42xK82IYc2Ij64vIr41l42xK82IY64kExVAvwVAq07
+	x20xyl4x8a6x804xWl4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWU
+	GwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r1q6r43MIIYrxkI7VAKI4
+	8JMIIF0xvE42xK8VAvwI8IcIk0rVW3JVWrJrUvcSsGvfC2KfnxnUUI43ZEXa7IUOkfHUUU
+	UUU==
+
+On Fri,  9 Nov 2018 03:39:27 +0100
+Eric Farman <farman@linux.ibm.com> wrote:
+
+> Hi Connie, Pierre,
+> 
+> This is a first round of rework to vfio-ccw that I've been cooking to
+> make the channel program handler easier to understand.  My apologies
+> for the number of patches; as there are some intersections within them
+> I couldn't break them up without forcing them to be applied in a
+> particular order.  I imagine that since there will probably need to be
+> some discussion, an RFC tag makes sense and one giant series will be
+> fine for now.  I can break them up for later versions if desired.
+
+Ten patches isn't really excessive, I think :)
+
+> 
+> (Sidebar: I'm leaving next Thursday for an early start on the US
+> Thanksgiving holiday.  So if you are busy and can't get to this,
+> no problem!  Now where did I leave Pierre's rework patches...  :)
+> 
+> Patch summary:
+> 
+> 1-2:	Fixes for cleanup on error paths
+
+These look like candidates for 4.20.
+
+> 3:	Code simplication
+> 4-6:	Simplify the ccwchain processing
+> 7-10:	Simplify the pfn_array processing
+> 
+> The first few patches are very straightforward, if unlikely to occur.
+> They could even be considered candidates for 4.20, if so inclined.
+
+Yes, the first two are, I think.
+
+> 
+> The ccwchain patches are the result of two observations about how we
+> currently process a channel program and its component CCWs.  One is a
+> duplicate set of code for a Transfer In Channel (TIC) CCW versus any
+> other type, which provides an easy opportunity for simplification when
+> all it's trying to handle is a memory jump.  The other is a duplication
+> between a direct-addressed CCW and an Indirect Data Address (IDA) CCW.
+> There is currently the nuance that the direct CCW path creates:
+> 
+>   ch_pat->pfn_array_table[1]->pfn_array[#pages]
+> 
+> while an IDA CCW creates:
+> 
+>   ch_pat->pfn_array_table[#idaws]->pfn_array[1]
+> 
+> It might not be obvious, but #pages is calculated identically to #idaws,
+> as highlighted by patch 7.  By removing these duplications, we set the
+> stage for the next patches, which can eliminate an array entirely.
+> 
+> The pfn_array patches permit a non-contiguous array of addresses to be
+> passed to pfn_array_alloc(_pin), which in turn permits the removal of
+> struct pfn_array_table and a squashing of our arrays.  Thus, instead of
+> either of the two nested arrays described above, we have:
+> 
+>   ch_pa->pfn_array[#idaws]
+> 
+> (Doesn't that look nice?!)
+
+:)
+
+> 
+> The last two patches in this series should be squashed together; I just
+> left them apart in the RFC to make it easier to see how turn-key this
+> becomes after the complexities of the previous patches, and without the
+> noise of realigning the code afterward.  (Sorry, kbuild robot.)
+> 
+> While this series provides no functionality changes, I find that
+> sizeof(vfio_ccw.ko) decreases by about 7 percent according to the
+> bloat-o-meter, and we remove some of the malloc load for a given
+> channel program.  Hopefully there's also an increase in Readability,
+> Understandability, and Maintainability too!
+
+Sounds cool! The first two patches can probably be handled quickly;
+I'll see when I find time to look at the others.
+
+(And time to look at Pierre's patches. And posting mine. Sigh.)
+
+> 
+> Eric Farman (10):
+>   s390/cio: Fix cleanup of pfn_array alloc failure
+>   s390/cio: Fix cleanup when unsupported IDA format is used
+>   s390/cio: Squash cp_free and cp_unpin_free
+>   s390/cio: Breakout the processing of a channel program
+>   s390/cio: Use common channel program processor for TIC
+>   s390/cio: Combine ccwchain_fetch _idal and _direct
+>   s390/cio: Tell pfn_array_alloc_pin to pin pages, not bytes
+>   s390/cio: Split pfn_array_alloc_pin into pieces
+>   s390/cio: Eliminate the pfn_array_table struct
+>   s390/cio: Remove unused function/variables FIXUP
+> 
+>  drivers/s390/cio/vfio_ccw_cp.c | 416 +++++++++++++++--------------------------
+>  drivers/s390/cio/vfio_ccw_cp.h |   1 +
+>  2 files changed, 150 insertions(+), 267 deletions(-)
+> 

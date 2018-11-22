@@ -1,0 +1,160 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (61.164.42.155:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 16 Nov 2018 13:51:09 -0000
+Received: from icoremail.net (unknown [209.85.214.179])
+	by mail-app2 (Coremail) with SMTP id by_KCgDXv96wr+5bO3CiAQ--.48603S3;
+	Fri, 16 Nov 2018 19:53:21 +0800 (CST)
+Received: from mail-pl1-f179.google.com (unknown [209.85.214.179])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwCHb0usr+5blzVJAA--.1514S3;
+	Fri, 16 Nov 2018 19:53:16 +0800 (CST)
+Received: by mail-pl1-f179.google.com with SMTP id u6so191332plm.8
+        for <xuliker@zju.edu.cn>; Fri, 16 Nov 2018 03:53:16 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :from:to:cc:subject:date:message-id:in-reply-to:references:sender
+         :precedence:list-id;
+        bh=YOST6Ft/L0BPJA7sDLjOywUj5rsPxcpn2IJnw0sXi4U=;
+        b=hZkLHC8/Lip6hYy9imwmICXlKwrJlOlC4AaB7E4qYU5q3IsB1t/9V0s5lI8d3hlQbM
+         Zfltspbao/wo7BMkkzkM+1AbeagunZ/4A6i9JZcmkgPr4CAzycB2fEkWrB7SxCxcUuRd
+         tWI1tYqlW9OiX9BnNc6M99uO3l+ECsBtVsI8DXK7Hnce3tri47KbL1MW4w1TKjuXgF4D
+         VAigFFRd09J1hkex3S3H0lm1Fi07eeeTQFPwBkakEvkrrz2UaW5tqSYGGSYTRDdTFdgk
+         CMWI1epehcAHYaCKhYnyXaqqeZ34jT17DiAIFWZAwmt31X2mcpO7mihMMNVgB6jbg5FC
+         XMow==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=redhat.com
+X-Gm-Message-State: AGRZ1gKkT9r555tZgHtemD7z65axYTDyWGiWlcJGhU7rmWNYQTx7eV5p
+	y1iK0kvR3RovU48FYz771yIW29XcIGCGZ9fvshoO7ZDlcgyR7Xg=
+X-Received: by 2002:a17:902:6b4b:: with SMTP id g11-v6mr10480704plt.213.1542369196193;
+        Fri, 16 Nov 2018 03:53:16 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:d106:0:0:0:0 with SMTP id l6-v6csp313289pju;
+        Fri, 16 Nov 2018 03:53:15 -0800 (PST)
+X-Google-Smtp-Source: AJdET5fpHUMrBCSi/s38q023AJUXEgk2WehDgfbQyo8AoDdKsXphpm9j9qJCEc8EVtGYzK2ZjUBQ
+X-Received: by 2002:a63:d34a:: with SMTP id u10mr9817721pgi.301.1542369195138;
+        Fri, 16 Nov 2018 03:53:15 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542369195; cv=none;
+        d=google.com; s=arc-20160816;
+        b=LrcYBJ2NP9YAH7OFUUYDQEpol0jcOzdh29G8OAmQ67ztVGynEWNgb8cmP0BeWeYQ4e
+         hf2Ter4noLpq60ZPXg3HrtiIAlk4EV3djFcazx3umi56fB8B+V6+wzgSjWtO+y9A+I4J
+         OuiWLFfCTMMUdaPb5rGgBaAm2YUiOeUNJGVy44Jy3ejkMxfcKnWlYCQSvWA9e4zT+oRy
+         MG/+DDlLoH9PUpD1G3REXjl8J4xHBYRS0o71xI0m1tpA6hAt2VInUQKnlNhA/aHGGO+D
+         yavtIqECWDQRVBGBU4V70u2uroho+sCQVzfPJLf4N0HM9tbeCaKT8dtO8g7bq0wuXeJT
+         Nq1Q==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:references:in-reply-to:message-id:date
+         :subject:cc:to:from;
+        bh=YOST6Ft/L0BPJA7sDLjOywUj5rsPxcpn2IJnw0sXi4U=;
+        b=z6+FAdPEjqzr5goZKgo1NnCued8fmaBMKiwgiNNCtLt5KS9NyM4OWKLZPyKnLJY5wZ
+         joxae5EA7YfuFHpLYEnI0A5tSclY994yWwQDGoLg0GoZB1HU/z7+4Rtnzyor+NXzv3YL
+         wjsYkdM58c//2qDs0mKaMaSnKolSWT/UGQt9MBn5P9xtE+rqZ/CAmoPorRBgnJtH8hc1
+         fVA9LFQj18+AF+8gyh+GrmYFK3GBCSX9NPDxK33aufcMskcbntU/m6SnfXqqYGcdClPf
+         RI/zaNAfI9CH9VgKT5Zho82DOLPjNlR3BSXnD6bnGLutaDI7eG8EwHgq03Kw95Q33S0F
+         x+Tw==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=redhat.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id a19si23358227pgj.429.2018.11.16.03.52.59;
+        Fri, 16 Nov 2018 03:53:15 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S2389599AbeKPWEP (ORCPT <rfc822;nodee764@gmail.com> + 99 others);
+        Fri, 16 Nov 2018 17:04:15 -0500
+Received: from mx1.redhat.com ([209.132.183.28]:59330 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2389595AbeKPWEP (ORCPT <rfc822;kvm@vger.kernel.org>);
+        Fri, 16 Nov 2018 17:04:15 -0500
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id B3285FECB;
+        Fri, 16 Nov 2018 11:52:13 +0000 (UTC)
+Received: from thuth.com (ovpn-116-131.ams2.redhat.com [10.36.116.131])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 1F1A965335;
+        Fri, 16 Nov 2018 11:52:09 +0000 (UTC)
+From: Thomas Huth <thuth@redhat.com>
+To: Paolo Bonzini <pbonzini@redhat.com>,
+        =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>
+Cc: kvm@vger.kernel.org, David Hildenbrand <david@redhat.com>,
+        Janosch Frank <frankja@linux.ibm.com>
+Subject: [kvm-unit-tests PULL 1/1] s390x: Fixup interrupt psws
+Date: Fri, 16 Nov 2018 12:52:01 +0100
+Message-Id: <1542369121-8879-2-git-send-email-thuth@redhat.com>
+In-Reply-To: <1542369121-8879-1-git-send-email-thuth@redhat.com>
+References: <1542369121-8879-1-git-send-email-thuth@redhat.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.29]); Fri, 16 Nov 2018 11:52:13 +0000 (UTC)
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwCHb0usr+5blzVJAA--.1514S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW7CF1rGFW3uF47ZF1DAr1kZrb_yoW8XryfpF
+	WDG3WkZr48J3WFyF9rtF10vr4UG3W3Ww1rCayrAw4UCrW7tw1Fya47AFy3Kw1Y934xXFyr
+	ZFWFy3Wq9a4xXFJanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUP0b7Iv0xC_Cr1lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Xr0_Ar1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1l84ACjcxK6I8E
+	87Iv67AKxVW0oVCq3wA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_GcCE3s1le2I262IYc4CY6c
+	8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_Jr0_
+	Jr4lYx0Ex4A2jsIE14v26r4j6F4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvEwIxGrw
+	CjxxvEa2IrMxkF7I0Ew4C26cxK6c8Ij28IcwCY1Ik26cxK6xAEc7vF6xCjj44lc2xSY4AK
+	6IIF6r4kMxkI7II2jI8vz4vEwIxGrwCYIxAIcVC0I7IYx2IY67AKxVWUCVW8JwCYIxAIcV
+	C0I7IYx2IY6xkF7I0E14v26r1j6r4UMxvI42IY6I8E87Iv67AKxVWxJr0_GcWlcIIF0xvE
+	x4A2jsIEc7CjxVAFwI0_Cr1j6rxdMxAIw28IcxkI7VAKI48JMxAIw28IcVAKzI0EY4vE52
+	x082I5MxCjnVCjjxCrMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr0_
+	Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWUAVWUtwCIc40Y0x0EwI
+	xGrwCI42IY6xAIw20EY4v20xvaj40_Jr0_JF7vcSsGvfC2KfnxnUUI43ZEXa7IU5-dbUUU
+	UUU==
+
+From: Janosch Frank <frankja@linux.ibm.com>
+
+Let's use the svc psw instead of the mcck psw for svc interrupts
+and name it supervisor call. Also we exchange the io int psw for the
+right one.
+
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Signed-off-by: Thomas Huth <thuth@redhat.com>
+---
+ lib/s390x/interrupt.c | 2 +-
+ s390x/cstart64.S      | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/lib/s390x/interrupt.c b/lib/s390x/interrupt.c
+index 848d5f2..cf0a794 100644
+--- a/lib/s390x/interrupt.c
++++ b/lib/s390x/interrupt.c
+@@ -125,6 +125,6 @@ void handle_io_int(void)
+ 
+ void handle_svc_int(void)
+ {
+-	report_abort("Unexpected service call interrupt: at %#lx",
++	report_abort("Unexpected supervisor call interrupt: at %#lx",
+ 		     lc->svc_old_psw.addr);
+ }
+diff --git a/s390x/cstart64.S b/s390x/cstart64.S
+index d6d40b7..dc7ddd6 100644
+--- a/s390x/cstart64.S
++++ b/s390x/cstart64.S
+@@ -33,10 +33,10 @@ init_psw_cont:
+ 	larl	%r1, mcck_int_psw
+ 	mvc	GEN_LC_MCCK_NEW_PSW(16), 0(%r1)
+ 	/* setup io interrupt handler */
+-	larl	%r1, ext_int_psw
++	larl	%r1, io_int_psw
+ 	mvc	GEN_LC_IO_NEW_PSW(16), 0(%r1)
+ 	/* setup svc interrupt handler */
+-	larl	%r1, mcck_int_psw
++	larl	%r1, svc_int_psw
+ 	mvc	GEN_LC_SVC_NEW_PSW(16), 0(%r1)
+ 	/* setup cr0, enabling e.g. AFP-register control */
+ 	larl	%r1, initial_cr0
+-- 
+1.8.3.1

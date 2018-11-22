@@ -1,0 +1,396 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 14 Nov 2018 00:35:29 -0000
+Received: from icoremail.net (unknown [209.85.210.181])
+	by mail-app2 (Coremail) with SMTP id by_KCgDnX195B+tboLSHAQ--.41075S3;
+	Wed, 14 Nov 2018 01:18:49 +0800 (CST)
+Received: from mail-pf1-f181.google.com (unknown [209.85.210.181])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwAX_kl2B+tb03g5AA--.4040S3;
+	Wed, 14 Nov 2018 01:18:46 +0800 (CST)
+Received: by mail-pf1-f181.google.com with SMTP id v76-v6so3557899pfa.5
+        for <xuliker@zju.edu.cn>; Tue, 13 Nov 2018 09:18:46 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding:sender:precedence:list-id;
+        bh=GfJAnzEpzwVBn8BQRqnFFL1nsHRgSL/uRiABxpgIi8E=;
+        b=sc4pTXWh8gkb4ZWAa29aWiw1CIaR0OoNb9Nj32fUs6vT5nBJvLnNe7WrCKJMnyVcrj
+         5NvvCuHg4SgsN99KHyCCkgFqeucA/Nc3MxqKIO5sdjWI7QXItKRTZ24O0wuVN/9PjtCT
+         vjUAfWG2i5FkXiDn6rxRut0yvlPokn8uWdgKFpGgACIm9SixQQ8gxqaxqgSQk7aWNIVb
+         yuQjTjCpd8TUhnEPx4lOUxGQcqtQzY0gMhS432bUR7wZ1TG9GFahHu8+fR2PzdB/YGHK
+         Os02ONEW0LWWm63jhZCPBSrosVOTqy6gHRnZ6f5RX3EHqiRCHi3AMu/F/sv90bGHAseO
+         4wcQ==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=intel.com
+X-Gm-Message-State: AGRZ1gJUKyws8afg8AM/SEBNsmNYWLLH3rIib+e3jYW59KQkCbBNrX2g
+	J6Fo3smVXTHdUDopDpLnYTaMDQ+Oe1eQbRvMHs4mYvMp3PT92K1ZfA==
+X-Received: by 2002:a63:1d10:: with SMTP id d16-v6mr5346701pgd.228.1542129526164;
+        Tue, 13 Nov 2018 09:18:46 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp4741954pjt;
+        Tue, 13 Nov 2018 09:18:45 -0800 (PST)
+X-Google-Smtp-Source: AJdET5cICgag5Wxr5lfp/xkkkSY4ZfuwhU6XBY/9nb3j61wHlbTAcWscNMub2SGxbs+DbvcHZZAB
+X-Received: by 2002:a63:d70e:: with SMTP id d14mr5522016pgg.159.1542129525258;
+        Tue, 13 Nov 2018 09:18:45 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542129525; cv=none;
+        d=google.com; s=arc-20160816;
+        b=pEnKI7bCwZ3khZYBAqujOQaqrHURa0bJrOQsRVw3yv+I9JSHMQ0JIb908w+9FFCVB0
+         MEv+QYEMTBTqKIfvSwNoSvbP0kRdAwJH+bZ26k8qHT+7CAHV1Kd/RvpDmcqDHJg8yccM
+         xUeX1z1QD3Ho0OjK61k3ILvWDdxbl9PA+P6B49Q0J/J4IvoJkp8Y7EMeMzVATCyBFMeo
+         kXjrR0Lu372WXCG7OGEfvIor/+QlYTOs4dwAQ1qYyWEaeF/TNKt3lNYj2YoarqL84xls
+         mIvtUVGg38p6vcO29idjPoE6SOs3ca4RU33UKKNUcg/6hTMqb1oAmQeXLmZAW7Bzth5H
+         40og==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:content-transfer-encoding:mime-version
+         :references:in-reply-to:message-id:date:subject:cc:to:from;
+        bh=GfJAnzEpzwVBn8BQRqnFFL1nsHRgSL/uRiABxpgIi8E=;
+        b=AFeiQ99AN91vQXADt8SMkJgeViwp8TJlzXwKb2b0LeyjaEtzLQb67KQ2ptv/A+fJOy
+         VzfQaTJJuGKUJ+ceORy39mkr3z4UthrO5sLnumQHormWlQD9RerlV5/bO+iedX4iZxfn
+         tEwyPBxySMb3sF0NNG4mnrkuiApejc4scHgpn9Cb0Scb0+5puLkO/DuHSMbl/XhMWzoR
+         e35hd61oSTq00xllYhTZ3XLeprgoZ2NwaAQPDE3yP/MBiOS/dE7LBwpMyMnZtn85x2YT
+         WxsEATUh+Nw18QwRG/zOP+hooO+iHCLDjhEzbDcBuJTXLKwAMRCSb4U8G98MnXbFtCyd
+         UH6Q==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=intel.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id 1-v6si21910298plk.253.2018.11.13.09.18.28;
+        Tue, 13 Nov 2018 09:18:45 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1732430AbeKNDRF (ORCPT <rfc822;lrx0014@gmail.com> + 99 others);
+        Tue, 13 Nov 2018 22:17:05 -0500
+Received: from mga14.intel.com ([192.55.52.115]:10705 "EHLO mga14.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1732154AbeKNDQl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+        Tue, 13 Nov 2018 22:16:41 -0500
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga004.jf.intel.com ([10.7.209.38])
+  by fmsmga103.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 13 Nov 2018 09:17:41 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.56,228,1539673200"; 
+   d="scan'208";a="249393009"
+Received: from black.fi.intel.com ([10.237.72.28])
+  by orsmga004.jf.intel.com with ESMTP; 13 Nov 2018 09:17:31 -0800
+Received: by black.fi.intel.com (Postfix, from userid 1003)
+        id BD73CD2; Tue, 13 Nov 2018 19:17:30 +0200 (EET)
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        linux-rtc@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Joe Perches <joe@perches.com>,
+        Mark Salyzyn <salyzyn@android.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Guan Xuetao <gxt@mprc.pku.edu.cn>,
+        Ingo Molnar <mingo@kernel.org>,
+        Jason Wessel <jason.wessel@windriver.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        Thierry Reding <thierry.reding@gmail.com>
+Subject: [PATCH v3 01/20] lib/vsprintf: Print time and date in human readable format via %pt
+Date: Tue, 13 Nov 2018 19:17:10 +0200
+Message-Id: <20181113171729.19645-2-andriy.shevchenko@linux.intel.com>
+X-Mailer: git-send-email 2.19.1
+In-Reply-To: <20181113171729.19645-1-andriy.shevchenko@linux.intel.com>
+References: <20181113171729.19645-1-andriy.shevchenko@linux.intel.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwAX_kl2B+tb03g5AA--.4040S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoWxKr45Jr18tw4rGw1DKFy8Xwb_yoWxur17pa
+	13K343Kan7AFn3uwnrJ3WDC3WrW3s8WayDWrZ8Cw1fCr1fXr98XayrKrnYvr93GFyI9ryf
+	Xr4YqFZ8CayUXaDanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUPqb7Iv0xC_Cr1lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2
+	z280aVAFwI0_Gr1j6F4UJwA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_Gr1j6F4UJwAS0I0E0x
+	vYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AK
+	xVWUJVWUGwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48Icx
+	kI7VAKI48JMx02cVCv0xWlc7CjxVAKzI0EY4vE52x082I5MxkFs20EY4vE44CYbxCE4x80
+	FwCY02Avz4vEIxC_GwCY0x0Ix7I2Y4AK64vIr41lcIIF0xvE2Ix0cI8IcVAFwI0_Gr0_Xr
+	1lcIIF0xvE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwCYIxAIcVC2z280aVAFwI0_Cr0_Gr1U
+	MxvI42IY6I8E87Iv6xkF7I0E14v26r4j6r4UJwCF04k20xvY0x0EwIxGrwCF04k20xvEw4
+	C26cxK6c8Ij28IcwCF72vE77IF4wCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E
+	14v26r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_GFv_WrylIx
+	kGc2Ij64vIr41lIxAIcVCF04k26cxKx2IYs7xG6r1I6r4UYxBIdaVFxhVjvjDU0xZFpf9x
+	07bb_-PUUUUU=
+
+There are users which print time and date represented by content of
+struct rtc_time in human readable format.
+
+Instead of open coding that each time introduce %ptR[dt][rv] specifier.
+
+Note, users have to select PRINTK_PEXT_TIMEDATE option in a Kconfig.
+
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Guan Xuetao <gxt@mprc.pku.edu.cn>
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Jason Wessel <jason.wessel@windriver.com>
+Cc: Jonathan Corbet <corbet@lwn.net>
+Cc: Jonathan Hunter <jonathanh@nvidia.com>
+Cc: Krzysztof Kozlowski <krzk@kernel.org>
+Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Cc: Thierry Reding <thierry.reding@gmail.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+---
+ Documentation/core-api/printk-formats.rst |  20 ++++
+ lib/test_printf.c                         |   6 +
+ lib/vsprintf.c                            | 140 ++++++++++++++++++++++
+ 3 files changed, 166 insertions(+)
+
+diff --git a/Documentation/core-api/printk-formats.rst b/Documentation/core-api/printk-formats.rst
+index ff48b55040ef..8342a65eab0b 100644
+--- a/Documentation/core-api/printk-formats.rst
++++ b/Documentation/core-api/printk-formats.rst
+@@ -412,6 +412,26 @@ Examples::
+ 
+ Passed by reference.
+ 
++Time and date (struct rtc_time)
++-------------------------------
++
++::
++
++	%ptR		YYYY-mm-dd HH:MM:SS
++	%ptRd		YYYY-mm-dd
++	%ptRt		HH:MM:SS
++	%ptR[dt][rv]
++
++For printing date and time as represented by struct rtc_time structure in
++human readable format.
++
++By default year will be incremented by 1900 and month by 1. Use %ptRr (raw)
++to suppress this behaviour. On the other hand when %ptRv is applied
++validation mechanism will be in use, i.e. numbers out of range will be
++replaced by ** or ****.
++
++Passed by reference.
++
+ struct clk
+ ----------
+ 
+diff --git a/lib/test_printf.c b/lib/test_printf.c
+index 53527ea822b5..97b7d14961d6 100644
+--- a/lib/test_printf.c
++++ b/lib/test_printf.c
+@@ -418,6 +418,11 @@ struct_va_format(void)
+ {
+ }
+ 
++static void __init
++struct_rtc_time(void)
++{
++}
++
+ static void __init
+ struct_clk(void)
+ {
+@@ -529,6 +534,7 @@ test_pointer(void)
+ 	uuid();
+ 	dentry();
+ 	struct_va_format();
++	struct_rtc_time();
+ 	struct_clk();
+ 	bitmap();
+ 	netdev_features();
+diff --git a/lib/vsprintf.c b/lib/vsprintf.c
+index 37a54a6dd594..8455cbda8d6c 100644
+--- a/lib/vsprintf.c
++++ b/lib/vsprintf.c
+@@ -30,6 +30,7 @@
+ #include <linux/ioport.h>
+ #include <linux/dcache.h>
+ #include <linux/cred.h>
++#include <linux/rtc.h>
+ #include <linux/uuid.h>
+ #include <linux/of.h>
+ #include <net/addrconf.h>
+@@ -822,6 +823,20 @@ static const struct printf_spec default_dec_spec = {
+ 	.precision = -1,
+ };
+ 
++static const struct printf_spec default_dec02_spec = {
++	.base = 10,
++	.field_width = 2,
++	.precision = -1,
++	.flags = ZEROPAD,
++};
++
++static const struct printf_spec default_dec04_spec = {
++	.base = 10,
++	.field_width = 4,
++	.precision = -1,
++	.flags = ZEROPAD,
++};
++
+ static noinline_for_stack
+ char *resource_string(char *buf, char *end, struct resource *res,
+ 		      struct printf_spec spec, const char *fmt)
+@@ -1549,6 +1564,127 @@ char *address_val(char *buf, char *end, const void *addr, const char *fmt)
+ 	return special_hex_number(buf, end, num, size);
+ }
+ 
++static noinline_for_stack
++char *date_str(char *buf, char *end, const struct rtc_time *tm, bool v, bool r)
++{
++	int year = tm->tm_year + (r ? 0 : 1900);
++	int mon = tm->tm_mon + (r ? 0 : 1);
++
++	if (unlikely(v && (unsigned int)tm->tm_year > 200))
++		buf = string(buf, end, "****", default_str_spec);
++	else
++		buf = number(buf, end, year, default_dec04_spec);
++
++	if (buf < end)
++		*buf = '-';
++	buf++;
++
++	if (unlikely(v && (unsigned int)tm->tm_mon > 11))
++		buf = string(buf, end, "**", default_str_spec);
++	else
++		buf = number(buf, end, mon, default_dec02_spec);
++
++	if (buf < end)
++		*buf = '-';
++	buf++;
++
++	if (unlikely(v && (unsigned int)tm->tm_mday > 31))
++		buf = string(buf, end, "**", default_str_spec);
++	else
++		buf = number(buf, end, tm->tm_mday, default_dec02_spec);
++
++	return buf;
++}
++
++static noinline_for_stack
++char *time_str(char *buf, char *end, const struct rtc_time *tm, bool v, bool r)
++{
++	if (unlikely(v && (unsigned int)tm->tm_hour > 24))
++		buf = string(buf, end, "**", default_str_spec);
++	else
++		buf = number(buf, end, tm->tm_hour, default_dec02_spec);
++
++	if (buf < end)
++		*buf = ':';
++	buf++;
++
++	if (unlikely(v && (unsigned int)tm->tm_min > 59))
++		buf = string(buf, end, "**", default_str_spec);
++	else
++		buf = number(buf, end, tm->tm_min, default_dec02_spec);
++
++	if (buf < end)
++		*buf = ':';
++	buf++;
++
++	if (unlikely(v && (unsigned int)tm->tm_sec > 59))
++		buf = string(buf, end, "**", default_str_spec);
++	else
++		buf = number(buf, end, tm->tm_sec, default_dec02_spec);
++
++	return buf;
++}
++
++static noinline_for_stack
++char *rtc_str(char *buf, char *end, const struct rtc_time *tm, const char *fmt)
++{
++	bool have_t = true, have_d = true;
++	bool validate = false;
++	bool raw = false;
++	int count = 2;
++	bool found;
++
++	switch (fmt[count]) {
++	case 'd':
++		have_t = false;
++		count++;
++		break;
++	case 't':
++		have_d = false;
++		count++;
++		break;
++	}
++
++	found = true;
++	do {
++		switch (fmt[count++]) {
++		case 'r':
++			raw = true;
++			break;
++		case 'v':
++			validate = true;
++			break;
++		default:
++			found = false;
++			break;
++		}
++	} while (found);
++
++	if (have_d)
++		buf = date_str(buf, end, tm, validate, raw);
++	if (have_d && have_t) {
++		if (buf < end)
++			*buf = ' ';
++		buf++;
++	}
++	if (have_t)
++		buf = time_str(buf, end, tm, validate, raw);
++
++	return buf;
++}
++
++static noinline_for_stack
++char *timeanddate(char *buf, char *end, void *ptr, struct printf_spec spec,
++		  const char *fmt)
++{
++	switch (fmt[1]) {
++	case 'R':
++		return rtc_str(buf, end, (const struct rtc_time *)ptr, fmt);
++	default:
++		return ptr_to_id(buf, end, ptr, spec);
++	}
++}
++
+ static noinline_for_stack
+ char *clock(char *buf, char *end, struct clk *clk, struct printf_spec spec,
+ 	    const char *fmt)
+@@ -1828,6 +1964,8 @@ char *device_node_string(char *buf, char *end, struct device_node *dn,
+  * - 'd[234]' For a dentry name (optionally 2-4 last components)
+  * - 'D[234]' Same as 'd' but for a struct file
+  * - 'g' For block_device name (gendisk + partition number)
++ * - 't[R][dt][rv]' For time and date as represented:
++ *      R    struct rtc_time
+  * - 'C' For a clock, it prints the name (Common Clock Framework) or address
+  *       (legacy clock framework) of the clock
+  * - 'Cn' For a clock, it prints the name (Common Clock Framework) or address
+@@ -1952,6 +2090,8 @@ char *pointer(const char *fmt, char *buf, char *end, void *ptr,
+ 		return address_val(buf, end, ptr, fmt);
+ 	case 'd':
+ 		return dentry_name(buf, end, ptr, spec, fmt);
++	case 't':
++		return timeanddate(buf, end, ptr, spec, fmt);
+ 	case 'C':
+ 		return clock(buf, end, ptr, spec, fmt);
+ 	case 'D':
+-- 
+2.19.1

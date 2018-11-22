@@ -1,0 +1,214 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (61.164.42.155:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 10 Nov 2018 00:55:24 -0000
+Received: from icoremail.net (unknown [209.85.214.173])
+	by mail-app2 (Coremail) with SMTP id by_KCgCn35h1xeVbplppAQ--.31933S3;
+	Sat, 10 Nov 2018 01:35:50 +0800 (CST)
+Received: from mail-pl1-f173.google.com (unknown [209.85.214.173])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwAnDEhzxeVbDIcjAA--.1441S3;
+	Sat, 10 Nov 2018 01:35:47 +0800 (CST)
+Received: by mail-pl1-f173.google.com with SMTP id g59-v6so1229726plb.10
+        for <xuliker@zju.edu.cn>; Fri, 09 Nov 2018 09:35:47 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:content-transfer-encoding:in-reply-to
+         :user-agent:sender:precedence:list-id;
+        bh=0GIqITUbTAnB7CbJyjwDzfraWcQmxcmzj4SfbJSzBGM=;
+        b=iuWFek8+FCl2RfFQz4fCgsYe3xuILZzrPchb7iEqtXFscsXREAVn9rgXMs34czrjQb
+         AXN3fzEfxaZ9rej3ZjTYxjzflaQPK8TNWcMF0WFwcMNeeEPLN1YuEyoeEcvvKAAuv+bZ
+         hyjMYNLHZkvHxEWx4x2+6Nshkgb8cJzERnYSiGye++iRuTgHRKJct0DsSwc8v8FnSc7P
+         dilxQV94HslTvEmzYaLT0A2AhqSPWRRdiJxlYCEoAIx8FTpskdejU42Au0WeM0La8Emr
+         LJdhW4PVi/vvgZzNfr+UfQRORoO10gI8hp1KZ1UEeqesNKQmydBpNk9sqQBXwhQGOIpH
+         l42Q==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org
+X-Gm-Message-State: AGRZ1gLjELoMGaEemEmCsYaaABcsPt4qRuHOuEeeEjVxiIzqVeIvDQIg
+	3KKabDJ2A8V5qom4AjJTlddP9YPWSxPMeH6vM5GMYlAlhEBaE77vGA==
+X-Received: by 2002:a17:902:560f:: with SMTP id h15-v6mr6691328pli.160.1541784946866;
+        Fri, 09 Nov 2018 09:35:46 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp173477pjt;
+        Fri, 9 Nov 2018 09:35:45 -0800 (PST)
+X-Google-Smtp-Source: AJdET5eYLKtm9YFij9FU9L0VETn9AKwjmRcfoPwAapeVEgnnaAy/PRTnj/HnYoUK3ZGfwuMXVAty
+X-Received: by 2002:a62:42dc:: with SMTP id h89-v6mr10213282pfd.0.1541784945944;
+        Fri, 09 Nov 2018 09:35:45 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1541784945; cv=none;
+        d=google.com; s=arc-20160816;
+        b=xYeO1e0mBReS1qEAU5JWs+8TyTAhCpraA7xvwAQHMkT+ntF4cg/ef/tydgt4TcJyFV
+         3wiT0N5vr0N6aIEFq5AKx+uxyY+dfp9bTnOlvS9djEHNXr7Gz5/j3X76pIPsf9uBB8ek
+         yv6bJmu+vT0Uj+ikAGdXMtCfTm88kzBG3eS/VW+TfDVY2XvU59P6pRKiN2acHXkQso3v
+         tftnktksjh9A+y+Q9b6/StW2l10QkYN70XL17ueW9gFsN8v/KyYR5BkHnB0uorq/VeDd
+         72HXPmBc/z+eRM51yH9GlbbooY2uY9lSqAiNu+kWRgEABm5ex6RWpujtlhRyAOVCDRuK
+         7fww==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:user-agent:in-reply-to
+         :content-transfer-encoding:content-disposition:mime-version
+         :references:message-id:subject:cc:to:from:date;
+        bh=0GIqITUbTAnB7CbJyjwDzfraWcQmxcmzj4SfbJSzBGM=;
+        b=XtZ6+NllJcwG3hr8pqF0MjfISSe+tk1lnZ9v7IwEPutNQd9TMjEmti9FPbmPREMJbo
+         rrQ5XONx5M2lG0BU/NUdu56BoVAzZjd5ZDNpn30hkw8Oex3bS3vPpEwbut8jJDlcIPqh
+         ldUI6WGRZXDANgESkAr666uGBUAakRWgDURYrX7R7HS0QtNzFT2nuNrMErC0WVg588QF
+         kSdvrxOVeuQS0udmBLnv3z2hXhxVanajvRkmtrslyZex8FeSt1mGHfwTmgoUKtVkwLtx
+         iqZcs9DrNhxiScflWba3Vah8Zp6kxukEXhZl1Dp+/Um3J3HmG0iHNC7hclXQhAgwPnGG
+         0WDg==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id x2-v6si8294267pln.202.2018.11.09.09.35.31;
+        Fri, 09 Nov 2018 09:35:45 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1728162AbeKJDRA convert rfc822-to-8bit (ORCPT
+        <rfc822;fanshuming2011@gmail.com> + 99 others);
+        Fri, 9 Nov 2018 22:17:00 -0500
+Received: from Galois.linutronix.de ([146.0.238.70]:47494 "EHLO
+        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728430AbeKJDRA (ORCPT <rfc822;kvm@vger.kernel.org>);
+        Fri, 9 Nov 2018 22:17:00 -0500
+Received: from bigeasy by Galois.linutronix.de with local (Exim 4.80)
+        (envelope-from <bigeasy@linutronix.de>)
+        id 1gLAgj-00015V-DS; Fri, 09 Nov 2018 18:35:21 +0100
+Date: Fri, 9 Nov 2018 18:35:21 +0100
+From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+To: Borislav Petkov <bp@alien8.de>
+Cc: linux-kernel@vger.kernel.org, x86@kernel.org,
+        Andy Lutomirski <luto@kernel.org>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Radim =?utf-8?B?S3LEjW3DocWZ?= <rkrcmar@redhat.com>,
+        kvm@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Rik van Riel <riel@surriel.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>
+Subject: Re: [PATCH 02/23] x86/fpu: Remove fpu->initialized usage in
+ __fpu__restore_sig()
+Message-ID: <20181109173521.2m6iijp5wkncgi77@linutronix.de>
+References: <20181107194858.9380-1-bigeasy@linutronix.de>
+ <20181107194858.9380-3-bigeasy@linutronix.de>
+ <20181108145721.GC7543@zn.tnic>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8BIT
+In-Reply-To: <20181108145721.GC7543@zn.tnic>
+User-Agent: NeoMutt/20180716
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwAnDEhzxeVbDIcjAA--.1441S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoWxXFWrtw15uw4kJr17Jw1rXrb_yoW5CFyrpa
+	9Igwnakw1DJFWxA397Ar1xXF9Ykws3JF15Cry5WryxJFsY9r92vFs3ta90vFW5ZryIkF1r
+	trW8A34kCFZ8ArJanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUU0bIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUBvb7Iv0xC_Kw4lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2
+	z280aVAFwI0_Cr1j6rxdM28EF7xvwVC2z280aVCY1x0267AKxVWxJr0_GcWle2I262IYc4
+	CY6c8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_
+	Jr0_Jr4lYx0Ex4A2jsIE14v26r1j6r4UMcvjeVCFs4IE7xkEbVWUJVW8JwCjxxvEa2IrMx
+	kF7I0Ew4C26cxK6c8Ij28IcwCY1Ik26cxK6xAEc7vF6xCjj44lc2xSY4AK6IIF6r4lc2Ij
+	II80xcxEwVAKI48JMxvI42IY6xIIjxv20xvE14v26ryj6F1UMxvI42IY6xIIjxv20xvEc7
+	CjxVAFwI0_Gr0_Cr1lcIIF0xvEx4A2jsIE14v26r4UJVWxJr1lcIIF0xvEx4A2jsIEc7Cj
+	xVAFwI0_Gr1j6F4UJwCF04k20xvY0x0EwIxGrwCF04k20xvEw4C26cxK6c8Ij28IcwCF72
+	vE77IF4wCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v26r1j6r18MI8I3I0E
+	7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_Jw0_GFylIxkGc2Ij64vIr41lIxAIcV
+	CF04k26cxKx2IYs7xG6r1j6r1xYxBIdaVFxhVjvjDU0xZFpf9x07bmwZcUUUUU=
+
+On 2018-11-08 15:57:21 [+0100], Borislav Petkov wrote:
+> On Wed, Nov 07, 2018 at 08:48:37PM +0100, Sebastian Andrzej Siewior wrote:
+> > This is a preparation for the removal of the ->initialized member in the
+> > fpu struct.
+> > __fpu__restore_sig() is deactivating the FPU via fpu__drop() and then
+> > setting manually ->initialized followed by fpu__restore(). The result is
+> > that it is possible to manipulate fpu->state and the state of registers
+> > won't be saved/restore on a context switch which would overwrite state.
+> 
+> 		restored
+> 
+> > 
+> > Don't access the fpu->state while the content is read from user space
+> > and examined / sanitized. Use a temporary buffer kmalloc() buffer for
+> 
+> one "buffer" too many.
+
+corrected.
+
+> More importantly, what I'm missing here is more detailed explanation
+> about how that manipulation can happen. Especially since the comment
+> over fpu__drop() you're removing below is claiming the exact opposite.
+> AFAICT.
+
+fpu__drop() stets ->initialized to 0. As a result the context switch
+will not save current FPU registers and so _not_ write to fpu->state.
+This also means that CPU's FPU register will be random (inherited from
+the last context) after the context switch. This is also true for usage
+in softirq via kernel_fpu_begin().
+
+The "new" FPU state is prepared in fpu->state and once it is done, it
+gets loaded via
+  fpu->initialized = 1; // make sure fpu__initialize() in fpu__restore()
+                        // is a nop
+  fpu__restore();	// Load the registers.
+
+Since I plan to remove the ->initialized member, I don't have the luxury
+to play with fpu->state because the "new" content obtained by
+copy_from_user() will be overwritten with CPU's current FPU state during
+a context switch.
+Now with that information, what do you plan to alter? :)
+
+> Yeah, FPU code has always been nasty and tricky to follow so I think
+> we'd need to have this stuff explained in much more detail.
+
+Yeah, tell me about it. Now that you made me look into this again, I
+spotted this gem:
+
+| __fpu__restore_sig()
+…
+|        if (ia32_fxstate) {
+…
+|                 fpu__drop(fpu);
+…
+|	/* prepare new FPU state in fpu->state */
+| 
+|                 fpu->initialized = 1;
+
+*BOOM* context switch. ->initialized == 1 is seen so it stashes current
+CPU's FPU state into fpu->state and overwrites what has been prepared
+before.
+
+On the switch back to this task, the fpu__restore() becomes a "nop"
+because the saved registers are the same but not what was expected /
+prepared before.
+
+|                 preempt_disable();
+|                 fpu__restore(fpu);
+|                 preempt_enable();
+|
+
+So. The fix would be:
+@@ -344,10 +344,10 @@ static int __fpu__restore_sig(void __user *buf, void __user *buf_fx, int size)
+                        sanitize_restored_xstate(tsk, &env, xfeatures, fx_only);
+                }
+ 
++               local_bh_disable();
+                fpu->initialized = 1;
+-               preempt_disable();
+                fpu__restore(fpu);
+-               preempt_enable();
++               local_bh_enable();
+ 
+                return err;
+        } else {
+
+local_bh_disable() due to possible kernel_fpu_begin() usage in softirq.
+How much do we care here about a theoretical race on 32bit anyway? I
+don't think someone complained :) I would have to rebase my queue…
+otherwise…
+
+> Thx.
+
+Sebastian

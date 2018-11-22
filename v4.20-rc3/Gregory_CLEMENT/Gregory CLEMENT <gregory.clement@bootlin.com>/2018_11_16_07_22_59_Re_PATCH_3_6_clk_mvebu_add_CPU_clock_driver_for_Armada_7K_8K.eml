@@ -1,0 +1,501 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (61.164.42.155:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 17 Nov 2018 03:13:03 -0000
+Received: from icoremail.net (unknown [209.85.215.179])
+	by mail-app2 (Coremail) with SMTP id by_KCgDHH+Ym9e5bcBOkAQ--.48509S3;
+	Sat, 17 Nov 2018 00:49:43 +0800 (CST)
+Received: from mail-pg1-f179.google.com (unknown [209.85.215.179])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwBHK0cm9e5bu29KAA--.573S3;
+	Sat, 17 Nov 2018 00:49:42 +0800 (CST)
+Received: by mail-pg1-f179.google.com with SMTP id 17so10579404pgg.1
+        for <xuliker@zju.edu.cn>; Fri, 16 Nov 2018 08:49:42 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :from:to:cc:subject:date:references:message-id:user-agent
+         :mime-version:sender:precedence:list-id;
+        bh=y+8VAwtCjWx63jfFg0ef3UemMY1r9XUyZVKxxSblDew=;
+        b=mOMnkeSHJzHszLZpRDNgfEful/0juduqa8HHqBlS29CxXDuzinZYa/eOLGzBpwbBgS
+         iIxUTwLuGtwLIoNAEAfRO+pKeAHaNbyohn69iOb+ajo7iIJ1gYSj9wHKBUkZ8Xc33sgJ
+         +UYy2rDea65wEqFqDOL+ijWB8z4+t+KHdTICC6dn9FFhKoSlEotmEEg3Rc53hIpCnFcq
+         5hJZebuHtSAy90o5umCt0rRzw5J7VDRJFO0A27BzE7XxZ6VevwQDCyjtcNVlIfomwQIQ
+         niapyVro+7yC9Q+7wGmoWWkF4fsUK1whwVh58/+dc6uAxPIlx//BeuknB9Nsq+wAvbs4
+         MeYA==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org
+X-Gm-Message-State: AGRZ1gLCKQsfPSNaucqNbJQVQWDUZD3xUsbqP11EgPuV4dbyeX/ohSEP
+	/9+KMKuxsMJpDxnVjNUfMYTRXefQNH3Zeuyxgo5U/WqvjNctw+s=
+X-Received: by 2002:aa7:8497:: with SMTP id u23mr7486985pfn.220.1542386982042;
+        Fri, 16 Nov 2018 08:49:42 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:d106:0:0:0:0 with SMTP id l6-v6csp653587pju;
+        Fri, 16 Nov 2018 08:49:40 -0800 (PST)
+X-Google-Smtp-Source: AJdET5dXjJu70AihxlqD3OLz9/w9vXwn8t5ydLcYyh2tnC3yJB3KPOnWuRmgZFYqeB0Py2eMcKdb
+X-Received: by 2002:a17:902:9f91:: with SMTP id g17-v6mr11751649plq.27.1542386980745;
+        Fri, 16 Nov 2018 08:49:40 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542386980; cv=none;
+        d=google.com; s=arc-20160816;
+        b=b1ZLyF/2D9KG10lXwVwMW4M0lk8sTSO7ccy4DK/GGu0ChY8jHYtzktaPzZ1IKjMcIF
+         NO+6a4bqfpmCUaj7DIk6s0TnsffBqPPFmZAsT9zP2BlrHq4NNT1yjUI/OnDNONtc9fDa
+         5fHWeDpaWeUy664no3KkaKMFHjCDy8QYGELo0LFxEObs4q0WpQe5FJQPCAo2pHATurUs
+         dH4/Pj1Fqq2BJCT47yDS2jvHm9gQmCs2TOtMtvZMGFdEkWhLBpIyEQIyWaiBR0Gw+oPP
+         jaEtU2Svrt0vT5660AKtNS5Ic5tIE5Wd+hAgsSPwAdTCgiDfRd8YCMCCZwK4uuxvL8IO
+         t6Ig==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:mime-version:user-agent:message-id
+         :references:date:subject:cc:to:from;
+        bh=y+8VAwtCjWx63jfFg0ef3UemMY1r9XUyZVKxxSblDew=;
+        b=EwAuZkmleirjpySwBHcQTDkAmEZn8w8jw1TL26C5Ef5PlEvHVk+woq1gpT6D42kvrG
+         OF0uZZWBCwoujNrMPXABVQiYLBbFyFlavdPT9xMP+B7/p9pvVF71TQ6jB8ZiMDwHqNGn
+         SgKxJb5iRWHPyadmGqdJxxZhYUUuotBM1+VdQ2nZdFIRAB5QvuPxTjUJBdoUd54HAws1
+         9K656IIAbPAwH4qeU2yXs+oBqOYSkpLx1I970x+Mx5aFqhR+qoT0dUVeRihxHYd4ZrHY
+         8RacHpBocKSu8lRYf/kOJbJ/6SJhzL59Am0iGznCHQFsANJW6gVUDziLBalkRybXjNPI
+         cWcQ==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id u4si12895681pls.200.2018.11.16.08.49.25;
+        Fri, 16 Nov 2018 08:49:40 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1729306AbeKQDC0 (ORCPT <rfc822;jroi.martin@gmail.com>
+        + 99 others); Fri, 16 Nov 2018 22:02:26 -0500
+Received: from mail.bootlin.com ([62.4.15.54]:55764 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728175AbeKQDC0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+        Fri, 16 Nov 2018 22:02:26 -0500
+Received: by mail.bootlin.com (Postfix, from userid 110)
+        id 9CDD120791; Fri, 16 Nov 2018 17:49:15 +0100 (CET)
+X-Spam-Checker-Version: SpamAssassin 3.4.2 (2018-09-13) on mail.bootlin.com
+X-Spam-Level: 
+X-Spam-Status: No, score=-1.0 required=5.0 tests=ALL_TRUSTED,SHORTCIRCUIT,
+        URIBL_BLOCKED shortcircuit=ham autolearn=disabled version=3.4.2
+Received: from localhost (242.171.71.37.rev.sfr.net [37.71.171.242])
+        by mail.bootlin.com (Postfix) with ESMTPSA id 6745E207A8;
+        Fri, 16 Nov 2018 17:49:05 +0100 (CET)
+From: Gregory CLEMENT <gregory.clement@bootlin.com>
+To: Stephen Boyd <sboyd@kernel.org>
+Cc: Mike Turquette <mturquette@baylibre.com>,
+        Stephen Boyd <sboyd@codeaurora.org>, linux-clk@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
+        linux-arm-kernel@lists.infradead.org,
+        Jason Cooper <jason@lakedaemon.net>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
+        Antoine Tenart <antoine.tenart@bootlin.com>,
+        =?utf-8?Q?Miqu=C3=A8l?= Raynal <miquel.raynal@bootlin.com>,
+        Maxime Chevallier <maxime.chevallier@bootlin.com>
+Subject: Re: [PATCH 3/6] clk: mvebu: add CPU clock driver for Armada 7K/8K
+Date: Fri, 16 Nov 2018 00:22:59 +0100
+References: <20180922181709.13007-1-gregory.clement@bootlin.com>
+        <20180922181709.13007-4-gregory.clement@bootlin.com>
+        <153980089252.5275.819540708953283855@swboyd.mtv.corp.google.com>
+Message-ID: <87y39tufwe.fsf@bootlin.com>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/25.2 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwBHK0cm9e5bu29KAA--.573S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW3CFWUtry3ZrykCFWfWFykZrb_yoWkJw1xpF
+	y8KFs8tF4Dt34Du34jqFnxXF9a9r47WF4UCw4rta4IyFn0krn3GrsFkr9xCFZ5urW8ua1q
+	vFyUKanxuFn8tFJanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUU0bIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUmvb7Iv0xC_Kw4lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M280x2IEY4vE77IFxVW8XVW5AwA2ocxC64kIII0Yj41l84x0c7CEw4AK67
+	xGY2AK021l84ACjcxK6xIIjxv20xvE14v26F1j6w1UM28EF7xvwVC0I7IYx2IY6xkF7I0E
+	14v26F4j6r4UJwA2z4x0Y4vEx4A2jsIE14v26r4UJVWxJr1l84ACjcxK6I8E87Iv6xkF7I
+	0E14v26r4UJVWxJr1le2I262IYc4CY6c8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8C
+	rVC2j2WlYx0E2Ix0cI8IcVAFwI0_Jr0_Jr4lYx0Ex4A2jsIE14v26r1j6r4UMcvjeVCFs4
+	IE7xkEbVWUJVW8JwACjcxG0xvEwIxGrwCjxxvEa2IrMxkF7I0Ew4C26cxK6c8Ij28IcwCY
+	1Ik26cxK6xAEc7vF6xCjj44lc2xSY4AK6IIF6r1lc2IjII80xcxEwVAKI48JMxvI42IY6x
+	IIjxv20xvE14v26r4j6ryUMxvI42IY6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1lcIIF0xvE
+	x4A2jsIE14v26F4j6r4UJwCYIxAIcVC2z280aVCY1x0267AKxVW8JVW8Jr1l42xK82IYc2
+	Ij64vIr41l42xK82IY64kExVAvwVAq07x20xyl4x8a6x804xWl4I8I3I0E4IkC6x0Yz7v_
+	Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1V
+	AY17CE14v26r1q6r43MIIYrxkI7VAKI48JMIIF0xvE42xK8VAvwI8IcIk0rVW3JVWrJrUv
+	cSsGvfC2KfnxnUUI43ZEXa7IUOAku3UUUUU==
+
+Hi Stephen,
+ 
+ On mer., oct. 17 2018, Stephen Boyd <sboyd@kernel.org> wrote:
+
+> Quoting Gregory CLEMENT (2018-09-22 11:17:06)
+>> diff --git a/drivers/clk/mvebu/ap-cpu-clk.c b/drivers/clk/mvebu/ap-cpu-clk.c
+>> new file mode 100644
+>> index 000000000000..1b498cfe9191
+>> --- /dev/null
+>> +++ b/drivers/clk/mvebu/ap-cpu-clk.c
+>> @@ -0,0 +1,265 @@
+>> +// SPDX-License-Identifier: GPL-2.0+
+>> +/*
+>> + * Marvell Armada AP CPU Clock Controller
+>> + *
+>> + * Copyright (C) 2018 Marvell
+>> + *
+>> + * Omri Itach <omrii@marvell.com>
+>> + * Gregory Clement <gregory.clement@bootlin.com>
+>> + */
+>> +
+>> +#define pr_fmt(fmt) "ap-cpu-clk: " fmt
+>> +
+>> +#include "armada_ap_cp_helper.h"
+>
+> Does this include need to come first? Preferably local includes come
+> after any <linux> ones.
+
+OK
+
+>
+>> +#include <linux/clk-provider.h>
+>> +#include <linux/clk.h>
+>> +#include <linux/init.h>
+>
+> Is this used?
+
+During development but no more now, I remove it.
+
+>
+>> +#include <linux/mfd/syscon.h>
+>> +#include <linux/of.h>
+>> +#include <linux/of_address.h>
+>> +#include <linux/platform_device.h>
+>> +#include <linux/regmap.h>
+>> +
+>> +#define AP806_CPU_CLUSTER0             0
+>> +#define AP806_CPU_CLUSTER1             1
+>> +#define AP806_CPUS_PER_CLUSTER         2
+>> +#define APN806_CPU1_MASK               0x1
+>> +
+>> +#define APN806_CLUSTER_NUM_OFFSET      8
+>> +#define APN806_CLUSTER_NUM_MASK                (1 << APN806_CLUSTER_NUM_OFFSET)
+>> +
+>> +#define APN806_MAX_DIVIDER             32
+>> +
+>> +/* AP806 CPU DFS register mapping*/
+>> +#define AP806_CA72MP2_0_PLL_CR_0_REG_OFFSET            0x278
+>> +#define AP806_CA72MP2_0_PLL_CR_1_REG_OFFSET            0x280
+>> +#define AP806_CA72MP2_0_PLL_CR_2_REG_OFFSET            0x284
+>> +#define AP806_CA72MP2_0_PLL_SR_REG_OFFSET              0xC94
+>> +
+>> +#define AP806_CA72MP2_0_PLL_CR_CLUSTER_OFFSET          0x14
+>> +#define AP806_PLL_CR_0_CPU_CLK_DIV_RATIO_OFFSET                0
+>> +#define AP806_PLL_CR_0_CPU_CLK_DIV_RATIO_MASK \
+>> +                       (0x3f << AP806_PLL_CR_0_CPU_CLK_DIV_RATIO_OFFSET)
+>> +#define AP806_PLL_CR_0_CPU_CLK_RELOAD_FORCE_OFFSET     24
+>> +#define AP806_PLL_CR_0_CPU_CLK_RELOAD_FORCE_MASK \
+>> +                       (0x1 << AP806_PLL_CR_0_CPU_CLK_RELOAD_FORCE_OFFSET)
+>> +#define AP806_PLL_CR_0_CPU_CLK_RELOAD_RATIO_OFFSET     16
+>> +#define AP806_CA72MP2_0_PLL_RATIO_STATE                        11
+>> +
+>> +#define to_clk(hw) container_of(hw, struct ap_cpu_clk, hw)
+>> +
+>> +/*
+>> + * struct ap806_clk: CPU cluster clock controller instance
+>> + * @cluster: Cluster clock controller index
+>> + * @clk_name: Cluster clock controller name
+>> + * @dev : Cluster clock device
+>> + * @hw: HW specific structure of Cluster clock controller
+>> + * @pll_cr_base: CA72MP2 Register base (Device Sample at Reset register)
+>> + */
+>> +struct ap_cpu_clk {
+>> +       int cluster;
+>
+> unsigned?
+
+I don't expect to have so many clusters that a signed int would be too
+short :)
+
+Actually I used int to let the compiler choose what ever he wants.
+
+But if you really want I can use a unsigned int
+
+>
+>> +       const char *clk_name;
+>> +       struct device *dev;
+>> +       struct clk_hw hw;
+>> +       struct regmap *pll_cr_base;
+>> +};
+>> +
+>> +static struct clk **cluster_clks;
+>> +static struct clk_onecell_data clk_data;
+>
+> Can you give these some better names that are ap_cpu specific? Grepping
+> for clk_data will make lots of hits otherwise because they're so
+> generic.
+
+OK I will try to be more creative ;)
+
+>
+>> +
+>> +static unsigned long ap_cpu_clk_recalc_rate(struct clk_hw *hw,
+>> +                                           unsigned long parent_rate)
+>> +{
+>> +       struct ap_cpu_clk *clk = to_clk(hw);
+>> +       unsigned int cpu_clkdiv_reg = AP806_CA72MP2_0_PLL_CR_0_REG_OFFSET +
+>> +               (clk->cluster * AP806_CA72MP2_0_PLL_CR_CLUSTER_OFFSET);
+>
+> Nitpick: This is pretty unreadable. Can you just declare the variables
+> up here and then do the assignment later on in the function and avoid
+> splitting across many lines?
+
+OK
+
+>
+>> +       int cpu_clkdiv_ratio;
+>> +
+>> +       regmap_read(clk->pll_cr_base, cpu_clkdiv_reg, &cpu_clkdiv_ratio);
+>> +       cpu_clkdiv_ratio &= AP806_PLL_CR_0_CPU_CLK_DIV_RATIO_MASK;
+>> +       cpu_clkdiv_ratio >>= AP806_PLL_CR_0_CPU_CLK_DIV_RATIO_OFFSET;
+>> +
+>> +       return parent_rate / cpu_clkdiv_ratio;
+>> +}
+>> +
+>> +static int ap_cpu_clk_set_rate(struct clk_hw *hw, unsigned long rate,
+>> +                             unsigned long parent_rate)
+>> +{
+>> +       struct ap_cpu_clk *clk = to_clk(hw);
+>> +       int reg, divider = parent_rate / rate;
+>> +       unsigned int cpu_clkdiv_reg, cpu_force_reg, cpu_ratio_reg;
+>> +
+>> +       cpu_clkdiv_reg = AP806_CA72MP2_0_PLL_CR_0_REG_OFFSET +
+>> +               (clk->cluster * AP806_CA72MP2_0_PLL_CR_CLUSTER_OFFSET);
+>> +       cpu_force_reg = AP806_CA72MP2_0_PLL_CR_1_REG_OFFSET +
+>> +               (clk->cluster * AP806_CA72MP2_0_PLL_CR_CLUSTER_OFFSET);
+>> +       cpu_ratio_reg = AP806_CA72MP2_0_PLL_CR_2_REG_OFFSET +
+>> +               (clk->cluster * AP806_CA72MP2_0_PLL_CR_CLUSTER_OFFSET);
+>> +
+>> +       /* 1. Set CPU divider */
+>> +       regmap_update_bits(clk->pll_cr_base, cpu_clkdiv_reg,
+>> +                          AP806_PLL_CR_0_CPU_CLK_DIV_RATIO_MASK, divider);
+>> +
+>> +       /* 2. Set Reload force */
+>> +       regmap_update_bits(clk->pll_cr_base, cpu_force_reg,
+>> +                          AP806_PLL_CR_0_CPU_CLK_RELOAD_FORCE_MASK,
+>> +                          AP806_PLL_CR_0_CPU_CLK_RELOAD_FORCE_MASK);
+>> +
+>> +       /* 3. Set Reload ratio */
+>> +       regmap_update_bits(clk->pll_cr_base, cpu_ratio_reg,
+>> +                          BIT(AP806_PLL_CR_0_CPU_CLK_RELOAD_RATIO_OFFSET),
+>> +                          BIT(AP806_PLL_CR_0_CPU_CLK_RELOAD_RATIO_OFFSET));
+>> +
+>> +
+>> +       /* 4. Wait for stabilizing CPU Clock */
+>> +       do {
+>> +               regmap_read(clk->pll_cr_base,
+>> +                           AP806_CA72MP2_0_PLL_SR_REG_OFFSET,
+>> +                           &reg);
+>> +       } while (!(reg & BIT(clk->cluster * AP806_CA72MP2_0_PLL_RATIO_STATE)));
+>
+> Use regmap_read_poll_timeout() API here and give some large timeout
+> value so that we don't get stuck waiting here forever?
+
+Indeed regmap_read_poll_timeout() seems a nice improvement
+
+>
+>> +
+>> +       /* 5. Clear Reload ratio */
+>
+> I'm not sure we really need these comments. They're just saying what the
+> code is doing, so they don't add much value.
+
+Actually, these 5 steps directly come from the datasheet.
+
+>
+>> +       regmap_update_bits(clk->pll_cr_base, cpu_ratio_reg,
+>> +                          BIT(AP806_PLL_CR_0_CPU_CLK_RELOAD_RATIO_OFFSET), 0);
+>> +
+>> +       return 0;
+>> +}
+>> +
+>> +
+>> +static long ap_cpu_clk_round_rate(struct clk_hw *hw, unsigned long rate,
+>> +                                unsigned long *parent_rate)
+>> +{
+>> +       int divider = *parent_rate / rate;
+>> +
+>> +       if (divider > APN806_MAX_DIVIDER)
+>> +               divider = APN806_MAX_DIVIDER;
+>
+> 	divider = min(divider, APN806_MAX_DIVIDER);
+
+OK
+>
+>> +
+>> +       return *parent_rate / divider;
+>> +}
+>> +
+>> +static const struct clk_ops ap_cpu_clk_ops = {
+>> +       .recalc_rate    = ap_cpu_clk_recalc_rate,
+>> +       .round_rate     = ap_cpu_clk_round_rate,
+>> +       .set_rate       = ap_cpu_clk_set_rate,
+>> +};
+>> +
+>> +static int ap_cpu_clock_probe(struct platform_device *pdev)
+>> +{
+>> +       int ret, nclusters = 0, cluster_index = 0;
+>> +       struct device *dev = &pdev->dev;
+>> +       struct device_node *dn, *np = dev->of_node;
+>> +       struct ap_cpu_clk *ap_cpu_clk;
+>> +       struct regmap *regmap;
+>> +
+>> +       regmap = syscon_node_to_regmap(np->parent);
+>
+> Can we just call dev_get_remap() on pdev->dev.parent?
+
+we could do regmap = dev_get_regmap(pdev->dev.parent, NULL); instead of
+this line. But is it really better?
+
+>
+>> +       if (IS_ERR(regmap)) {
+>> +               pr_err("cannot get pll_cr_base regmap\n");
+>> +               return PTR_ERR(regmap);
+>> +       }
+>> +
+>> +       /*
+>> +        * AP806 has 4 cpus and DFS for AP806 is controlled per
+>> +        * cluster (2 CPUs per cluster), cpu0 and cpu1 are fixed to
+>> +        * cluster0 while cpu2 and cpu3 are fixed to cluster1 whether
+>> +        * they are enabled or not.  Since cpu0 is the boot cpu, then
+>> +        * cluster0 must exist.  If cpu2 or cpu3 is enabled, cluster1
+>> +        * will exist and the cluster number is 2; otherwise the
+>> +        * cluster number is 1.
+>> +        */
+>> +       nclusters = 1;
+>> +       for_each_node_by_type(dn, "cpu") {
+>
+> Isn't there some sort of for_each_cpu_node() API that can be used
+> here?
+
+Not when I wrote the code but since v4.20-rc1 we have
+for_each_of_cpu_node(). So I am going to use it now.
+
+>
+>> +               int cpu, err;
+>> +
+>> +               err = of_property_read_u32(dn, "reg", &cpu);
+>> +               if (WARN_ON(err))
+>> +                       return err;
+>> +
+>> +               /* If cpu2 or cpu3 is enabled */
+>> +               if ((cpu & APN806_CLUSTER_NUM_MASK)) {
+>> +                       nclusters = 2;
+>> +                       break;
+>> +               }
+>> +       }
+>> +       /*
+>> +        * DFS for AP806 is controlled per cluster (2 CPUs per cluster),
+>> +        * so allocate structs per cluster
+>> +        */
+>> +       ap_cpu_clk = devm_kcalloc(dev, nclusters, sizeof(*ap_cpu_clk),
+>> +                                 GFP_KERNEL);
+>> +       if (WARN_ON(!ap_cpu_clk))
+>> +               return -ENOMEM;
+>> +
+>> +       cluster_clks = devm_kcalloc(dev, nclusters, sizeof(*cluster_clks),
+>> +                                   GFP_KERNEL);
+>> +       if (WARN_ON(!cluster_clks))
+>
+> Drop the WARN_ON please. If allocation fails we'll already get a large
+> stack trace and messages.
+
+OK
+
+>
+>> +               return -ENOMEM;
+>> +
+>> +       for_each_node_by_type(dn, "cpu") {
+>> +               char *clk_name = "cpu-cluster-0";
+>> +               struct clk_init_data init;
+>> +               const char *parent_name;
+>> +               struct clk *clk, *parent;
+>> +               int cpu, err;
+>> +
+>> +               err = of_property_read_u32(dn, "reg", &cpu);
+>> +               if (WARN_ON(err))
+>> +                       return err;
+>> +
+>> +               cluster_index = (cpu & APN806_CLUSTER_NUM_MASK);
+>
+> Nitpick: Drop useless parenthesis please.
+
+OK
+>
+>> +               cluster_index >>= APN806_CLUSTER_NUM_OFFSET;
+>> +
+>> +               /* Initialize once for one cluster */
+>> +               if (cluster_clks[cluster_index])
+>> +                       continue;
+>> +
+>> +               parent = of_clk_get(np, cluster_index);
+>> +               if (IS_ERR(parent)) {
+>> +                       dev_err(dev, "Could not get the clock parent\n");
+>> +                       return -EINVAL;
+>> +               }
+>> +               parent_name =  __clk_get_name(parent);
+>> +               clk_name[12] += cluster_index;
+>> +               ap_cpu_clk[cluster_index].clk_name =
+>> +                       ap_cp_unique_name(dev, np->parent, clk_name);
+>> +               ap_cpu_clk[cluster_index].cluster = cluster_index;
+>> +               ap_cpu_clk[cluster_index].pll_cr_base = regmap;
+>> +               ap_cpu_clk[cluster_index].hw.init = &init;
+>> +               ap_cpu_clk[cluster_index].dev = dev;
+>> +
+>> +               init.name = ap_cpu_clk[cluster_index].clk_name;
+>> +               init.ops = &ap_cpu_clk_ops;
+>> +               init.num_parents = 1;
+>> +               init.parent_names = &parent_name;
+>> +               init.flags = CLK_GET_RATE_NOCACHE;
+>
+> Can you add a comment why we need NOCACHE here? It isn't clear why this
+> is important.
+
+I think there was the idea that the clock rate could be modified by
+something else that the clk driver, but now I am not sure it is the
+case. I will check it and either add a comment or just remove it.
+
+>
+>> +
+>> +               clk = devm_clk_register(dev, &ap_cpu_clk[cluster_index].hw);
+>
+> Please use the clk_hw based registration APIs.
+
+OK
+
+>
+>> +               if (IS_ERR(clk))
+>> +                       return PTR_ERR(clk);
+>> +
+>> +               cluster_clks[cluster_index] = clk;
+>> +       }
+>> +
+>> +       clk_data.clk_num = cluster_index + 1;
+>> +       clk_data.clks = cluster_clks;
+>> +
+>> +       ret = of_clk_add_provider(np, of_clk_src_onecell_get, &clk_data);
+>
+> And the clk_hw based provider APIs.
+
+OK
+>
+>> +       if (ret)
+>> +               dev_err(dev, "failed to register OF clock provider\n");
+>> +
+>> +       return ret;
+>> +}
+>> +
+
+Thanks,
+
+Gregory
+
+-- 
+Gregory Clement, Bootlin
+Embedded Linux and Kernel engineering
+http://bootlin.com

@@ -1,0 +1,185 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (61.164.42.155:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 08 Nov 2018 10:29:30 -0000
+Received: from icoremail.net (unknown [209.85.210.177])
+	by mail-app2 (Coremail) with SMTP id by_KCgDHH9KuB+RbDRZfAQ--.28759S3;
+	Thu, 08 Nov 2018 17:54:02 +0800 (CST)
+Received: from mail-pf1-f177.google.com (unknown [209.85.210.177])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwDXsDynB+Rb2h8cAA--.761S3;
+	Thu, 08 Nov 2018 17:53:43 +0800 (CST)
+Received: by mail-pf1-f177.google.com with SMTP id p17-v6so8706395pfj.12
+        for <xuliker@zju.edu.cn>; Thu, 08 Nov 2018 01:53:43 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:delivered-to:dkim-signature:from:to:cc:subject
+         :date:message-id:in-reply-to:references:sender:precedence:list-id;
+        bh=Q6iEnVy9RaLW8o5SZQ5BLUzQhWe9zWNQcEQCtkmOius=;
+        b=YeUc4EkzMIgexerZo80hL7ek8CUltiR2NTq1+pqAorJdiWyRsphKmViEoYf+RLuAjQ
+         dOrqFt62kl3QP4/BI8g6ZVGHGgcA4okRbYNCN0B5Wc3bsgUWDadRr6FyhFnlYw3MsEan
+         2VjrYWvzfaOjxpPBHcPnq1ogZ/6pX+YkwUx+FC4GAC16/+/GIlygRKvWO4EgRmqh5bp0
+         MXObdTQc9X4YPkFTwwFu79NeUTMiWFHqrr+xhD+YOiS7SLtPH2xGlyh2QrjEukgIFhk0
+         43jUeJ5HFijjLSJRf0v/lBip6aBbjBYncr5d26sH1984iPIW9bpi92hs7f0BqvFllKbT
+         DLIw==
+X-Gm-Message-State: AGRZ1gIiv+E8BKIg1YJ6K6fLUnXIpzV/8O6b5jSVyoD4a1+L0XB8dEcG
+	WibOyWtYOp6lFCKFaOXFAyXRJjH/f6Fhq5W8jbxoKJO3zf8GN4m2Iw==
+X-Received: by 2002:a62:35c2:: with SMTP id c185-v6mr3834881pfa.69.1541670822952;
+        Thu, 08 Nov 2018 01:53:42 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp306867pjt;
+        Thu, 8 Nov 2018 01:53:42 -0800 (PST)
+X-Google-Smtp-Source: AJdET5c+lJHzsLgFjHMEMRT+1wEvRB2n9wExyzMQIg92213+srMt204R6KKdKGLPrWzZ6BsVzKke
+X-Received: by 2002:a63:6906:: with SMTP id e6mr3192727pgc.144.1541670822209;
+        Thu, 08 Nov 2018 01:53:42 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1541670822; cv=none;
+        d=google.com; s=arc-20160816;
+        b=aNfHWAflV5fPJisD7xVzKbGv+u1wg9iaSgdx96WMrwhK5jAwJjRl4Rilzbqma2gpRQ
+         Uxa9rZq8W71fBNClsWmbiu1ur4uYheDmTNMoZX6yRo81eWSbixW8NgTFgL7i3eNaidD5
+         AHXUW8kv5y9LcoivIjmy+h7MwGfzcaDp+9U7hFMyVIDBtqtXs0qiHCxf6sBEXI6q16Uu
+         0mkE9jCYmjdUl1dTgYEeMkGS/6pubFicM6OzP2Oeho8lTx/N1W5lnqEH8ERkr54+RZrk
+         piT8AtjpTwDrw4q5WyWQGYaZ4kKwQxnTT0BixUgzMTE8Q4ucea0jJ/hUXTC4c5pKni3f
+         NpQg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:references:in-reply-to:message-id:date
+         :subject:cc:to:from:dkim-signature;
+        bh=Q6iEnVy9RaLW8o5SZQ5BLUzQhWe9zWNQcEQCtkmOius=;
+        b=HetEb/cAsjdptBfsPgKAIYB5kkniOiaDvFjpnBwatTo75BON1uKMl4iWsVuOc9q2aq
+         mELCYkQtZfTi9O8YAiG5eZbIQrROh4DNFIWVqlkCEEqE/jv1A3kbBPVQOPWCh9axJfUL
+         92hI5S2fbpucz3wdXd09fhyWuAjL9XdneGPmmvYdjZwoclWO6J6sAcvHZ0cDtrCQOEmO
+         TOdcPL6Fby+ySROWsGioKn8u87xDSQg+ghpdtU3KAvgDtGBO8sh+ejbK5jsiTdJtHxSt
+         qQiwwWgHP9LUmHHILNyEopD/fM8w9BWuSWof4UyEmquj9nW6ZIN+R4Ufapy9pUnJ+jVE
+         VRSA==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@oracle.com header.s=corp-2018-07-02 header.b=jy+HTbgK;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;
+       dmarc=pass (p=NONE sp=NONE dis=NONE) header.from=oracle.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id e11-v6si3392104pfb.98.2018.11.08.01.53.28;
+        Thu, 08 Nov 2018 01:53:42 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1727081AbeKHT05 (ORCPT <rfc822;fanshuming2011@gmail.com>
+        + 99 others); Thu, 8 Nov 2018 14:26:57 -0500
+Received: from userp2130.oracle.com ([156.151.31.86]:60328 "EHLO
+        userp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726517AbeKHT05 (ORCPT <rfc822;kvm@vger.kernel.org>);
+        Thu, 8 Nov 2018 14:26:57 -0500
+Received: from pps.filterd (userp2130.oracle.com [127.0.0.1])
+        by userp2130.oracle.com (8.16.0.22/8.16.0.22) with SMTP id wA89kdXe018055;
+        Thu, 8 Nov 2018 09:52:14 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
+ subject : date : message-id : in-reply-to : references; s=corp-2018-07-02;
+ bh=Q6iEnVy9RaLW8o5SZQ5BLUzQhWe9zWNQcEQCtkmOius=;
+ b=jy+HTbgKfApNl/BeBWRzXE+JejcNxvf2+i0Ms02hUR6Kzp38ta8P3N8DSL7AeZakLknn
+ 7OlROjxk+p5c+3a2o3mBpsC5EJ5Gv/awqKl6mLWoQgCS1TO7VoBjKAy0GyHSax+jS1H3
+ /u4yhrWuBUmdNJqCVO/MIVSeaTOOo5tDeg18+h4rDify0s52SQ5ARAflAH9X6lGFarQo
+ fkbb508p36akGJSlQEVok2HkEsJlSzLo9ZcT7BeSVDJkj0aAMqH+o4fxnc+KlVmBJFCF
+ 4H0UR8JZYqGCVv/6qVYmsNqxxNzIAZM8sOShmfsDfwSqYb6mrRWfdVkx0zDHYK15uEN4 Ag== 
+Received: from userv0022.oracle.com (userv0022.oracle.com [156.151.31.74])
+        by userp2130.oracle.com with ESMTP id 2nh33u8f50-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 08 Nov 2018 09:52:13 +0000
+Received: from userv0122.oracle.com (userv0122.oracle.com [156.151.31.75])
+        by userv0022.oracle.com (8.14.4/8.14.4) with ESMTP id wA89qDei023296
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 8 Nov 2018 09:52:13 GMT
+Received: from abhmp0020.oracle.com (abhmp0020.oracle.com [141.146.116.26])
+        by userv0122.oracle.com (8.14.4/8.14.4) with ESMTP id wA89qDIB008601;
+        Thu, 8 Nov 2018 09:52:13 GMT
+Received: from spark.ravello.local (/213.57.127.2)
+        by default (Oracle Beehive Gateway v4.0)
+        with ESMTP ; Thu, 08 Nov 2018 01:51:58 -0800
+From: Liran Alon <liran.alon@oracle.com>
+To: pbonzini@redhat.com, rkrcmar@redhat.com, kvm@vger.kernel.org
+Cc: idan.brown@oracle.com, Liran Alon <liran.alon@oracle.com>
+Subject: [PATCH v2 2/2] KVM: x86: Trace changes to active TSC offset regardless if vCPU in guest-mode
+Date: Thu,  8 Nov 2018 11:51:30 +0200
+Message-Id: <20181108095130.64904-2-liran.alon@oracle.com>
+X-Mailer: git-send-email 2.16.1
+In-Reply-To: <20181108095130.64904-1-liran.alon@oracle.com>
+References: <20181108095130.64904-1-liran.alon@oracle.com>
+X-Proofpoint-Virus-Version: vendor=nai engine=5900 definitions=9070 signatures=668683
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 malwarescore=0
+ phishscore=0 bulkscore=0 spamscore=0 mlxscore=0 mlxlogscore=794
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.0.1-1807170000 definitions=main-1811080085
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwDXsDynB+Rb2h8cAA--.761S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW7tFyDGF1rCFy3ZF1DJF1rCrg_yoW8Zr15pF
+	97Xr1kJr1ftr98XFWqqF4kWr4fWa9rGF9aqrWDCrnxXa4Utr1xta9F9w4kCw15G34kZFyf
+	Zw1Yq3yxW3WUJaUanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUPIb7Iv0xC_tr1lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2
+	z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s0DM2AIxVAIcxkEcV
+	Aq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1j
+	6r18McIj6I8E87Iv67AKxVW8JVWxJwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IYc2Ij64
+	vIr41l7I0Y6sxI4wCY1x0264kExVAvwVAq07x20xylc7Ca8VAvwVCFzxkY4VCF77xAMxkI
+	ecxEwVCI4VW8uwCY0x0Ix7I2Y4AK64vIr41lcIIF0xvE2Ix0cI8IcVAFwI0_Gr0_Xr1lcI
+	IF0xvE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwCYIxAIcVC2z280aVAFwI0_Cr1j6rxdMxvI
+	42IY6I8E87Iv6xkF7I0E14v26F4UJVW0owCF04k20xvY0x0EwIxGrwCF04k20xvEw4C26c
+	xK6c8Ij28IcwCF72vE77IF4wCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v2
+	6r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_JF0_Jw1lIxkGc2
+	Ij64vIr41lIxAIcVCF04k26cxKx2IYs7xG6r1j6r1xYxBIdaVFxhVjvjDU0xZFpf9x07bn
+	nmiUUUUU=
+
+From some unknown reasons, kvm_x86_ops->write_tsc_offset() skipped trace
+of change to active TSC offset in case vCPU is in guest-mode.
+
+This patch changes write_tsc_offset() behavior to trace any change
+to active TSC offset to aid debugging.
+
+Reviewed-by: Mihai Carabas <mihai.carabas@oracle.com>
+Signed-off-by: Liran Alon <liran.alon@oracle.com>
+---
+ arch/x86/kvm/svm.c | 8 ++++----
+ arch/x86/kvm/vmx.c | 5 ++---
+ 2 files changed, 6 insertions(+), 7 deletions(-)
+
+diff --git a/arch/x86/kvm/svm.c b/arch/x86/kvm/svm.c
+index 842d4bb053d1..bcf1433f0d85 100644
+--- a/arch/x86/kvm/svm.c
++++ b/arch/x86/kvm/svm.c
+@@ -1456,11 +1456,11 @@ static u64 svm_write_tsc_offset(struct kvm_vcpu *vcpu, u64 l1_offset)
+ 		g_tsc_offset = svm->vmcb->control.tsc_offset -
+ 			       svm->nested.hsave->control.tsc_offset;
+ 		svm->nested.hsave->control.tsc_offset = l1_offset;
+-	} else
+-		trace_kvm_write_tsc_offset(vcpu->vcpu_id,
+-					   svm->vmcb->control.tsc_offset,
+-					   l1_offset);
++	}
+ 
++	trace_kvm_write_tsc_offset(vcpu->vcpu_id,
++				   svm->vmcb->control.tsc_offset,
++				   l1_offset + g_tsc_offset);
+ 	svm->vmcb->control.tsc_offset = l1_offset + g_tsc_offset;
+ 
+ 	mark_dirty(svm->vmcb, VMCB_INTERCEPTS);
+diff --git a/arch/x86/kvm/vmx.c b/arch/x86/kvm/vmx.c
+index 20d90ebd6cc8..36456314bc0f 100644
+--- a/arch/x86/kvm/vmx.c
++++ b/arch/x86/kvm/vmx.c
+@@ -3465,11 +3465,10 @@ static u64 vmx_write_tsc_offset(struct kvm_vcpu *vcpu, u64 l1_offset)
+ 		struct vmcs12 *vmcs12 = get_vmcs12(vcpu);
+ 		if (nested_cpu_has(vmcs12, CPU_BASED_USE_TSC_OFFSETING))
+ 			active_offset += vmcs12->tsc_offset;
+-	} else {
+-		trace_kvm_write_tsc_offset(vcpu->vcpu_id,
+-					   vmcs_read64(TSC_OFFSET), l1_offset);
+ 	}
+ 
++	trace_kvm_write_tsc_offset(vcpu->vcpu_id,
++				   vmcs_read64(TSC_OFFSET), active_offset);
+ 	vmcs_write64(TSC_OFFSET, active_offset);
+ 	return active_offset;
+ }
+-- 
+2.16.1

@@ -1,0 +1,385 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 19 Nov 2018 00:47:02 -0000
+Received: from icoremail.net (unknown [209.85.214.171])
+	by mail-app2 (Coremail) with SMTP id by_KCgD3_5s8YPFbahixAQ--.51799S3;
+	Sun, 18 Nov 2018 20:51:09 +0800 (CST)
+Received: from mail-pl1-f171.google.com (unknown [209.85.214.171])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwBHHTk7YPFbT4hRAA--.14670S3;
+	Sun, 18 Nov 2018 20:51:07 +0800 (CST)
+Received: by mail-pl1-f171.google.com with SMTP id b5-v6so13278648pla.6
+        for <xuliker@zju.edu.cn>; Sun, 18 Nov 2018 04:51:07 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding:sender:precedence:list-id;
+        bh=2Fz4Rt8aYZRj2n2ZWv54FMhxSUJPYVzucybjXKE/sNM=;
+        b=n+nw0e2SpSmRBOAYnjmay7yaVyA38iGYynAlPgW+zOGSJ9qrL1YNRVWSftFEaVhhU5
+         fZdvKiYCjOr5Oz3kmwxk3Mfn4CxFRzkKAxPaRgpWrfC6Q0LMrAoQgl72lu/Fk03CGQwK
+         AQbFaiMOaZ4CCyoM+XeL4Pab5LeRzSMHXAs/K5O+g89EADapyfxk/O18NgCqN/Vxw9Vf
+         IOugYOqkfpCE2SSiOY1nhMmvje7QZV1/XNjdp6E8nsq278WJPLmSVr8gCMJrDoEI59Mg
+         4YFk7bssuj1Fm8aH0IVwYw1PSjWJa3FF2YxqEv+B1GWNOWU8fC8zWT4fKtFQ8Mgc5AnH
+         GYvQ==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=intel.com
+X-Gm-Message-State: AGRZ1gL9lABp9Eu7uRTPRfyADWqPER7+V58EuPqw2Y9Q5QGI0UoWRo8V
+	TjKe2mbuRqlhEY4i9nTcUrikNsSXTuiDByJbblobS1h9mvFGKns=
+X-Received: by 2002:a17:902:50e3:: with SMTP id c32-v6mr18220402plj.39.1542545467044;
+        Sun, 18 Nov 2018 04:51:07 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:d106:0:0:0:0 with SMTP id l6-v6csp1495806pju;
+        Sun, 18 Nov 2018 04:51:06 -0800 (PST)
+X-Google-Smtp-Source: AJdET5ebm+skTyw8S81MMkYi3/nM0Atc2fzzgXmPg+WXAYNlxSYt56g9ckbjXIH/w6VI/zc63wSO
+X-Received: by 2002:a62:f247:: with SMTP id y7mr9206624pfl.25.1542545466140;
+        Sun, 18 Nov 2018 04:51:06 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542545466; cv=none;
+        d=google.com; s=arc-20160816;
+        b=zKujzJ5gc0xVNVWxOK1TDa80HFpXF93WF8p+/LEMHVIpD+O4lowI+8kWQAnyHTRjSH
+         XXccTqMULBi77p97ac6d4uE+DSlL9Z3p97xmklUIN6giRsqeZlu/NRtkPCUMgzhNZe80
+         3mJ9Bdw++/VSWdRYmOjV050JYnDGu/VhQvrUK6EFWaaYvqkHZV0DB3inkMunlAIqoHXD
+         l8tpp1CHyh5B0iYuZDFddi3MsgeyCQ6Pw/WH7Rt9m0nsAM6jgCLPUHZzvMV4IfcKLQlB
+         GA8G1wmEOlF7nFSpuz/ngF5KZvfElqCQudc8Mibbz8BJMmLD5gpZsxFsYBFIWpJ1OKom
+         vniA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:content-transfer-encoding:mime-version
+         :references:in-reply-to:message-id:date:subject:cc:to:from;
+        bh=2Fz4Rt8aYZRj2n2ZWv54FMhxSUJPYVzucybjXKE/sNM=;
+        b=jp9+yM2NqQhnHuKWMbCJ+CCLlA9dHZyehdVsYP/Boa62H8gDEjoX6hwtSY7j4FF2R5
+         XRs9ng54kyiAxbIDZSnmcy/anWdQu6kHcXrrFzLNXYGEtE8j/M9A+a+2XhZw6pV6sTYC
+         l/bmYQDGAz2mWpxoi8jUrGjog9FkgzintMpBpAsDIC2nKvqCt+Hi+EYmWCqikqSqAGb/
+         7fwz6t1IplXe8lBxYK96uwhmd1KaeIRTUAjXpja9epj+TaDI6AIlRMxi4L4uZ+vCpFba
+         EOZeYNfZUEimQE5KSxCr7UIGgmLvvETmd6Zlb5soO9NoKH37S2lgZ/xoLWSPd/rKARn9
+         Z71g==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=intel.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id c132si24197567pga.597.2018.11.18.04.50.52;
+        Sun, 18 Nov 2018 04:51:06 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1727843AbeKRXK1 (ORCPT <rfc822;javier.barrio.mart@gmail.com>
+        + 99 others); Sun, 18 Nov 2018 18:10:27 -0500
+Received: from mga01.intel.com ([192.55.52.88]:25801 "EHLO mga01.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727188AbeKRXK0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+        Sun, 18 Nov 2018 18:10:26 -0500
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga004.fm.intel.com ([10.253.24.48])
+  by fmsmga101.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 18 Nov 2018 04:50:12 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.56,248,1539673200"; 
+   d="scan'208";a="107258698"
+Received: from tmuluk-mobl4.ger.corp.intel.com (HELO localhost) ([10.249.254.142])
+  by fmsmga004.fm.intel.com with ESMTP; 18 Nov 2018 04:50:06 -0800
+From: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+To: linux-integrity@vger.kernel.org
+Cc: linux-security-module@vger.kernel.org,
+        James Bottomley <James.Bottomley@HansenPartnership.com>,
+        Tomas Winkler <tomas.winkler@intel.com>,
+        Tadeusz Struk <tadeusz.struk@intel.com>,
+        Stefan Berger <stefanb@linux.vnet.ibm.com>,
+        Nayna Jain <nayna@linux.ibm.com>,
+        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+        Peter Huewe <peterhuewe@gmx.de>,
+        Jason Gunthorpe <jgg@ziepe.ca>, Arnd Bergmann <arnd@arndb.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org (open list)
+Subject: [PATCH v9 15/17] tpm: introduce tpm_chip_start() and tpm_chip_stop()
+Date: Sun, 18 Nov 2018 14:47:48 +0200
+Message-Id: <20181118124753.18613-16-jarkko.sakkinen@linux.intel.com>
+X-Mailer: git-send-email 2.19.1
+In-Reply-To: <20181118124753.18613-1-jarkko.sakkinen@linux.intel.com>
+References: <20181118124753.18613-1-jarkko.sakkinen@linux.intel.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwBHHTk7YPFbT4hRAA--.14670S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoWxKF1xtw1fCFWDZrWkAw15twb_yoWxWr15pa
+	1rGasa9rZ5Jw48Grs2yrn7JF1ag34xtFWUXrWxJ3s3ZwnrGr4rK34UKFW5ZFy5GF1rCFya
+	kFW3tFy5CF1UZaUanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUPab7Iv0xC_tr1lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Xr0_Ar1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1l84ACjcxK6I8E
+	87Iv67AKxVW0oVCq3wA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_GcCE3s1le2I262IYc4CY6c
+	8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_Jr0_
+	Jr4lYx0Ex4A2jsIE14v26r1j6r4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvY0x0EwI
+	xGrwCjxxvEa2IrMxkF7I0Ew4C26cxK6c8Ij28IcwCY1Ik26cxK6xAEc7vF6xCjj44lc2xS
+	Y4AK6IIF6ryUMxkI7II2jI8vz4vEwIxGrwCYIxAIcVC0I7IYx2IY67AKxVW8JVW5JwCYIx
+	AIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMxvI42IY6I8E87Iv67AKxVW8Jr0_Cr1UMxvI
+	42IY6I8E87Iv6xkF7I0E14v26r4UJVWxJr1l42xK82IYc2Ij64vIr41l42xK82IY64kExV
+	AvwVAq07x20xyl4x8a6x804xWl4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AK
+	xVWUJVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r1q6r43MIIYrx
+	kI7VAKI48JMIIF0xvE42xK8VAvwI8IcIk0rVWUCVW8JbIYCTnIWIevJa73UjIFyTuYvjxU
+	DTq2DUUUU
+
+Encapsulate power gating and locality functionality to tpm_chip_start()
+and tpm_chip_stop() in order to clean up the branching mess in
+tpm_transmit().
+
+Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Reviewed-by: Stefan Berger <stefanb@linux.ibm.com>
+---
+ drivers/char/tpm/tpm-chip.c      | 110 +++++++++++++++++++++++++++++++
+ drivers/char/tpm/tpm-interface.c |  86 +-----------------------
+ drivers/char/tpm/tpm.h           |   2 +
+ 3 files changed, 115 insertions(+), 83 deletions(-)
+
+diff --git a/drivers/char/tpm/tpm-chip.c b/drivers/char/tpm/tpm-chip.c
+index 157505b0f755..65f1561eba81 100644
+--- a/drivers/char/tpm/tpm-chip.c
++++ b/drivers/char/tpm/tpm-chip.c
+@@ -37,6 +37,116 @@ struct class *tpm_class;
+ struct class *tpmrm_class;
+ dev_t tpm_devt;
+ 
++static int tpm_request_locality(struct tpm_chip *chip, unsigned int flags)
++{
++	int rc;
++
++	if (flags & TPM_TRANSMIT_NESTED)
++		return 0;
++
++	if (!chip->ops->request_locality)
++		return 0;
++
++	rc = chip->ops->request_locality(chip, 0);
++	if (rc < 0)
++		return rc;
++
++	chip->locality = rc;
++	return 0;
++}
++
++static void tpm_relinquish_locality(struct tpm_chip *chip, unsigned int flags)
++{
++	int rc;
++
++	if (flags & TPM_TRANSMIT_NESTED)
++		return;
++
++	if (!chip->ops->relinquish_locality)
++		return;
++
++	rc = chip->ops->relinquish_locality(chip, chip->locality);
++	if (rc)
++		dev_err(&chip->dev, "%s: : error %d\n", __func__, rc);
++
++	chip->locality = -1;
++}
++
++static int tpm_cmd_ready(struct tpm_chip *chip, unsigned int flags)
++{
++	if (flags & TPM_TRANSMIT_NESTED)
++		return 0;
++
++	if (!chip->ops->cmd_ready)
++		return 0;
++
++	return chip->ops->cmd_ready(chip);
++}
++
++static int tpm_go_idle(struct tpm_chip *chip, unsigned int flags)
++{
++	if (flags & TPM_TRANSMIT_NESTED)
++		return 0;
++
++	if (!chip->ops->go_idle)
++		return 0;
++
++	return chip->ops->go_idle(chip);
++}
++
++/**
++ * tpm_chip_start() - power on the TPM
++ * @chip:	a TPM chip to use
++ * @flags:	TPM transmit flags
++ *
++ * Return:
++ * * The response length	- OK
++ * * -errno			- A system error
++ */
++int tpm_chip_start(struct tpm_chip *chip, unsigned int flags)
++{
++	int ret;
++
++	if (chip->ops->clk_enable)
++		chip->ops->clk_enable(chip, true);
++
++	if (chip->locality == -1) {
++		ret = tpm_request_locality(chip, flags);
++		if (ret) {
++			chip->ops->clk_enable(chip, false);
++			return ret;
++		}
++	}
++
++	ret = tpm_cmd_ready(chip, flags);
++	if (ret) {
++		tpm_relinquish_locality(chip, flags);
++		if (chip->ops->clk_enable)
++			chip->ops->clk_enable(chip, false);
++		return ret;
++	}
++
++	return 0;
++}
++
++/**
++ * tpm_chip_stop() - power off the TPM
++ * @chip:	a TPM chip to use
++ * @flags:	TPM transmit flags
++ *
++ * Return:
++ * * The response length	- OK
++ * * -errno			- A system error
++ */
++void tpm_chip_stop(struct tpm_chip *chip, unsigned int flags)
++{
++	tpm_go_idle(chip, flags);
++	tpm_relinquish_locality(chip, flags);
++	if (chip->ops->clk_enable)
++		chip->ops->clk_enable(chip, false);
++}
++
++
+ /**
+  * tpm_try_get_ops() - Get a ref to the tpm_chip
+  * @chip: Chip to ref
+diff --git a/drivers/char/tpm/tpm-interface.c b/drivers/char/tpm/tpm-interface.c
+index 5865b9671d20..2c79284ffd4e 100644
+--- a/drivers/char/tpm/tpm-interface.c
++++ b/drivers/char/tpm/tpm-interface.c
+@@ -62,64 +62,6 @@ unsigned long tpm_calc_ordinal_duration(struct tpm_chip *chip, u32 ordinal)
+ }
+ EXPORT_SYMBOL_GPL(tpm_calc_ordinal_duration);
+ 
+-static int tpm_request_locality(struct tpm_chip *chip, unsigned int flags)
+-{
+-	int rc;
+-
+-	if (flags & TPM_TRANSMIT_NESTED)
+-		return 0;
+-
+-	if (!chip->ops->request_locality)
+-		return 0;
+-
+-	rc = chip->ops->request_locality(chip, 0);
+-	if (rc < 0)
+-		return rc;
+-
+-	chip->locality = rc;
+-
+-	return 0;
+-}
+-
+-static void tpm_relinquish_locality(struct tpm_chip *chip, unsigned int flags)
+-{
+-	int rc;
+-
+-	if (flags & TPM_TRANSMIT_NESTED)
+-		return;
+-
+-	if (!chip->ops->relinquish_locality)
+-		return;
+-
+-	rc = chip->ops->relinquish_locality(chip, chip->locality);
+-	if (rc)
+-		dev_err(&chip->dev, "%s: : error %d\n", __func__, rc);
+-
+-	chip->locality = -1;
+-}
+-
+-static int tpm_cmd_ready(struct tpm_chip *chip, unsigned int flags)
+-{
+-	if (flags & TPM_TRANSMIT_NESTED)
+-		return 0;
+-
+-	if (!chip->ops->cmd_ready)
+-		return 0;
+-
+-	return chip->ops->cmd_ready(chip);
+-}
+-
+-static int tpm_go_idle(struct tpm_chip *chip, unsigned int flags)
+-{
+-	if (flags & TPM_TRANSMIT_NESTED)
+-		return 0;
+-
+-	if (!chip->ops->go_idle)
+-		return 0;
+-
+-	return chip->ops->go_idle(chip);
+-}
+-
+ static ssize_t tpm_try_transmit(struct tpm_chip *chip, u8 *buf, size_t bufsiz,
+ 				unsigned int flags)
+ {
+@@ -212,7 +154,6 @@ ssize_t tpm_transmit(struct tpm_chip *chip, u8 *buf, size_t bufsiz,
+ 	/* space for header and handles */
+ 	u8 save[TPM_HEADER_SIZE + 3*sizeof(u32)];
+ 	unsigned int delay_msec = TPM2_DURATION_SHORT;
+-	bool has_locality = false;
+ 	u32 rc = 0;
+ 	ssize_t ret;
+ 	const size_t save_size = min(sizeof(save), bufsiz);
+@@ -227,32 +168,11 @@ ssize_t tpm_transmit(struct tpm_chip *chip, u8 *buf, size_t bufsiz,
+ 	memcpy(save, buf, save_size);
+ 
+ 	for (;;) {
+-		if (chip->ops->clk_enable != NULL)
+-			chip->ops->clk_enable(chip, true);
+-
+-		if (chip->locality == -1) {
+-			ret = tpm_request_locality(chip, flags);
+-			if (ret)
+-				goto out_locality;
+-			has_locality = true;
+-		}
+-
+-		ret = tpm_cmd_ready(chip, flags);
++		ret = tpm_chip_start(chip, flags);
+ 		if (ret)
+-			goto out_locality;
+-
++			return ret;
+ 		ret = tpm_try_transmit(chip, buf, bufsiz, flags);
+-
+-		/* This may fail but do not override ret. */
+-		tpm_go_idle(chip, flags);
+-
+-out_locality:
+-		if (has_locality)
+-			tpm_relinquish_locality(chip, flags);
+-
+-		if (chip->ops->clk_enable != NULL)
+-			chip->ops->clk_enable(chip, false);
+-
++		tpm_chip_stop(chip, flags);
+ 		if (ret < 0)
+ 			break;
+ 		rc = be32_to_cpu(header->return_code);
+diff --git a/drivers/char/tpm/tpm.h b/drivers/char/tpm/tpm.h
+index c7c06de651a0..c42a75710b70 100644
+--- a/drivers/char/tpm/tpm.h
++++ b/drivers/char/tpm/tpm.h
+@@ -523,6 +523,8 @@ static inline void tpm_msleep(unsigned int delay_msec)
+ 		     delay_msec * 1000);
+ };
+ 
++int tpm_chip_start(struct tpm_chip *chip, unsigned int flags);
++void tpm_chip_stop(struct tpm_chip *chip, unsigned int flags);
+ struct tpm_chip *tpm_find_get_ops(struct tpm_chip *chip);
+ __must_check int tpm_try_get_ops(struct tpm_chip *chip);
+ void tpm_put_ops(struct tpm_chip *chip);
+-- 
+2.19.1

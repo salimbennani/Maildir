@@ -1,0 +1,442 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 21 Nov 2018 00:40:07 -0000
+Received: from icoremail.net (unknown [209.85.214.177])
+	by mail-app4 (Coremail) with SMTP id cS_KCgDnXzNrJvRbUobgAQ--.34151S3;
+	Tue, 20 Nov 2018 23:21:15 +0800 (CST)
+Received: from mail-pl1-f177.google.com (unknown [209.85.214.177])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwBXPUlpJvRbH89eAA--.114S3;
+	Tue, 20 Nov 2018 23:21:13 +0800 (CST)
+Received: by mail-pl1-f177.google.com with SMTP id b5-v6so1146526pla.6
+        for <xuliker@zju.edu.cn>; Tue, 20 Nov 2018 07:21:13 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding:sender:precedence:list-id;
+        bh=aENgBTRj9hRh/i8wQIB6whHnpe0wpMovV7TiAeqPR9U=;
+        b=O1aFeXnkDCbEUmyNh+1Vh/2rZesWYOAtrgqLUQ5G0U/V24PHDjrs58o7+0f8FgKn0y
+         m0P/W04ilW7VnyYyTO2sHidvvz61khUtsWhB+ME3YRn9jh0CvI7y/u+64wT1oXRbDY4S
+         2C0GB0VY6zFqf1HhHGTLaZok/UgkZchjhdl2n69NERB8v9xcScEpy2e6R8+LcQ5EJJxo
+         Is5urP20h7W9Sorxm9R+W9fpqNUIwmmkvIJ/JmziLVfAOxxZPYh1Y2QvmZjzCDgx0z5v
+         z2NIANx2Yh/QPK7Hp/BPcn9oWOdqjnB5bFTgJOUGWh04/5YPDRVD2Dp+EEF7Hh4exbj8
+         q9zg==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org
+X-Gm-Message-State: AA+aEWZWq9DbJOlHiWb2ZJKoHfrzQyZ1YYy+weO+uyxzhOlvWf5GnX0f
+	XBK1u1xBBHxgm4lPnUGTqar8NYpozENmSMk1sigKwd3o+UJqHjM=
+X-Received: by 2002:a17:902:6686:: with SMTP id e6-v6mr2603378plk.173.1542727273320;
+        Tue, 20 Nov 2018 07:21:13 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:d106:0:0:0:0 with SMTP id l6-v6csp732712pju;
+        Tue, 20 Nov 2018 07:21:12 -0800 (PST)
+X-Google-Smtp-Source: AFSGD/UrtQO+V/LRKVUe/Y+31FdH+r2M6rrIvVS/336XOTclatJyy2/0MG3OIHpdARYW1zFcF+8C
+X-Received: by 2002:a63:4187:: with SMTP id o129mr2128396pga.370.1542727272313;
+        Tue, 20 Nov 2018 07:21:12 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542727272; cv=none;
+        d=google.com; s=arc-20160816;
+        b=A7Sl6jEtetyoXrqe0rjJw/OGiSrxA6hlo+soCRhAZX04XVOhPfZTDFQoYcBicSwXed
+         uVfO3iukrdZnNpZM0s13PoKnoGCLEKPh8pIwxpZKXReSGp6KXYhAnO6rDcGt+mZUVTvX
+         hx5K033HeMLcjb+lcnGot2eV9SRxuQCfY+O9di6BQkEk/jJJueXbXGzd5cQraxoeUoD8
+         SnkSahqIYYtAmjVs1NY+nptPo6x/LLBk3G8sNipLIHifDo2oab+U6/I6OxS5IUgIzVVw
+         KJAgsMW1V1mTRLIVYmpkXrXB9VHbgMzJZyDesmFT5+YFJwBeHwpuVv8MF9nblmRldgI2
+         e+MA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:content-transfer-encoding:mime-version
+         :references:in-reply-to:message-id:date:subject:cc:to:from;
+        bh=aENgBTRj9hRh/i8wQIB6whHnpe0wpMovV7TiAeqPR9U=;
+        b=ii9GOTx7jVahNy7mF2vIOO7n3M/cHIudEBFutSN7vMfl0+ryqaEWop5HcFJ3Jw0Pao
+         ShQhaYJug0WMQdQ0wSHqRR9OMLLU4CtcUMWkQzfy9YvOu23CkYYXIFRUJ9QK2OvqkqW1
+         ugY+jDmyJnd7cL+X/ASWAcDiDi/pSDW49NqPf193PTXRQOVo1pfI6QMb1YeTBDtrxxSv
+         q18FlJ6N255WsjSbGpHwWxXe3OiPwOo33Gzm6JtSJkPt7u8dLs8JE5lGr1wSkd6IjYNs
+         Q/jUBmlFEXXomgpgyNoMI3fE7qnmvMLiCqbGVJFpZGFyyEwP4sU09puaI8YDIJns4nSb
+         9VtQ==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id w126-v6si45929980pfw.257.2018.11.20.07.20.57;
+        Tue, 20 Nov 2018 07:21:12 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1730041AbeKUBXv (ORCPT <rfc822;yv9200@gmail.com> + 99 others);
+        Tue, 20 Nov 2018 20:23:51 -0500
+Received: from mx2.suse.de ([195.135.220.15]:39284 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1730000AbeKUBXr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+        Tue, 20 Nov 2018 20:23:47 -0500
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx1.suse.de (Postfix) with ESMTP id 16798B0CD;
+        Tue, 20 Nov 2018 14:54:14 +0000 (UTC)
+From: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+To: stefan.wahren@i2se.com, eric@anholt.net,
+        dave.stevenson@raspberrypi.org
+Cc: linux-rpi-kernel@lists.infradead.org, gregkh@linuxfoundation.org,
+        linux-arm-kernel@lists.infradead.org, devel@driverdev.osuosl.org,
+        linux-kernel@vger.kernel.org,
+        Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+Subject: [PATCH 15/16] staging: vchiq_arm: fix open/release cdev functions
+Date: Tue, 20 Nov 2018 15:53:50 +0100
+Message-Id: <20181120145351.30390-16-nsaenzjulienne@suse.de>
+X-Mailer: git-send-email 2.19.1
+In-Reply-To: <20181120145351.30390-1-nsaenzjulienne@suse.de>
+References: <20181120145351.30390-1-nsaenzjulienne@suse.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwBXPUlpJvRbH89eAA--.114S3
+Authentication-Results: mail-app4; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW3ur4UXF1kJF48tF4fGr1Utrb_yoWDWr48pr
+	15WryxKr1rtrn5G34qqr4kZry5WrWDGas3Crn2qF17tr1Iv3sIqrsrtrW3KF48trWvqay3
+	Xr42qr15Zw4UJw7anT9S1TB71UUUUUUqnTZGkaVYY2UrUUUU0bIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUP2b7Iv0xC_Kw4lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2
+	z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s0DM2AIxVAIcxkEcV
+	Aq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1j
+	6r18McIj6I8E87Iv67AKxVWxJVW8Jr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcxkI7V
+	AKI48JMx02cVCv0xWlc7CjxVAKzI0EY4vE52x082I5MxkFs20EY4vE44CYbxCE4x80FwCY
+	02Avz4vEIxC_XrWlc2IjII80xcxEwVAKI48JMxvI42IY6xIIjxv20xvE14v26ryj6F1UMx
+	vI42IY6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1lcIIF0xvEx4A2jsIE14v26rxl6s0DMxvI
+	42IY6I8E87Iv6xkF7I0E14v26rxl6s0DMxAIw28IcxkI7VAKI48JMxAIw28IcVAKzI0EY4
+	vE52x082I5MxCjnVCjjxCrMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_
+	Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWUtVW8ZwCIc40Y0x
+	0EwIxGrwCI42IY6xAIw20EY4v20xvaj40_Gr0_ZrUvcSsGvfC2KfnxnUUI43ZEXa7IUOBT
+	5JUUUUU==
+
+Both functions checked the minor number of the cdev prior running the
+code. This was useless since the number of devices is already limited by
+alloc_chrdev_region.
+
+This removes the check and reindents the code where relevant.
+
+Signed-off-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+---
+ .../interface/vchiq_arm/vchiq_arm.c           | 247 +++++++-----------
+ 1 file changed, 100 insertions(+), 147 deletions(-)
+
+diff --git a/drivers/staging/vc04_services/interface/vchiq_arm/vchiq_arm.c b/drivers/staging/vc04_services/interface/vchiq_arm/vchiq_arm.c
+index 03cc6947c03c..0caee2d6946f 100644
+--- a/drivers/staging/vc04_services/interface/vchiq_arm/vchiq_arm.c
++++ b/drivers/staging/vc04_services/interface/vchiq_arm/vchiq_arm.c
+@@ -63,8 +63,6 @@
+ #undef MODULE_PARAM_PREFIX
+ #define MODULE_PARAM_PREFIX DEVICE_NAME "."
+ 
+-#define VCHIQ_MINOR 0
+-
+ /* Some per-instance constants */
+ #define MAX_COMPLETIONS 128
+ #define MAX_SERVICES 64
+@@ -1955,195 +1953,150 @@ vchiq_compat_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+ 
+ #endif
+ 
+-/****************************************************************************
+-*
+-*   vchiq_open
+-*
+-***************************************************************************/
+-
+-static int
+-vchiq_open(struct inode *inode, struct file *file)
++static int vchiq_open(struct inode *inode, struct file *file)
+ {
+-	int dev = iminor(inode) & 0x0f;
++	VCHIQ_STATE_T *state = vchiq_get_state();
++	VCHIQ_INSTANCE_T instance;
+ 
+ 	vchiq_log_info(vchiq_arm_log_level, "vchiq_open");
+-	switch (dev) {
+-	case VCHIQ_MINOR: {
+-		VCHIQ_STATE_T *state = vchiq_get_state();
+-		VCHIQ_INSTANCE_T instance;
+ 
+-		if (!state) {
+-			vchiq_log_error(vchiq_arm_log_level,
++	if (!state) {
++		vchiq_log_error(vchiq_arm_log_level,
+ 				"vchiq has no connection to VideoCore");
+-			return -ENOTCONN;
+-		}
+-
+-		instance = kzalloc(sizeof(*instance), GFP_KERNEL);
+-		if (!instance)
+-			return -ENOMEM;
++		return -ENOTCONN;
++	}
+ 
+-		instance->state = state;
+-		instance->pid = current->tgid;
++	instance = kzalloc(sizeof(*instance), GFP_KERNEL);
++	if (!instance)
++		return -ENOMEM;
+ 
+-		vchiq_debugfs_add_instance(instance);
++	instance->state = state;
++	instance->pid = current->tgid;
+ 
+-		init_completion(&instance->insert_event);
+-		init_completion(&instance->remove_event);
+-		mutex_init(&instance->completion_mutex);
+-		mutex_init(&instance->bulk_waiter_list_mutex);
+-		INIT_LIST_HEAD(&instance->bulk_waiter_list);
++	vchiq_debugfs_add_instance(instance);
+ 
+-		file->private_data = instance;
+-	} break;
++	init_completion(&instance->insert_event);
++	init_completion(&instance->remove_event);
++	mutex_init(&instance->completion_mutex);
++	mutex_init(&instance->bulk_waiter_list_mutex);
++	INIT_LIST_HEAD(&instance->bulk_waiter_list);
+ 
+-	default:
+-		vchiq_log_error(vchiq_arm_log_level,
+-			"Unknown minor device: %d", dev);
+-		return -ENXIO;
+-	}
++	file->private_data = instance;
+ 
+ 	return 0;
+ }
+ 
+-/****************************************************************************
+-*
+-*   vchiq_release
+-*
+-***************************************************************************/
+-
+-static int
+-vchiq_release(struct inode *inode, struct file *file)
++static int vchiq_release(struct inode *inode, struct file *file)
+ {
+-	int dev = iminor(inode) & 0x0f;
++	VCHIQ_INSTANCE_T instance = file->private_data;
++	VCHIQ_STATE_T *state = vchiq_get_state();
++	VCHIQ_SERVICE_T *service;
+ 	int ret = 0;
++	int i;
+ 
+-	switch (dev) {
+-	case VCHIQ_MINOR: {
+-		VCHIQ_INSTANCE_T instance = file->private_data;
+-		VCHIQ_STATE_T *state = vchiq_get_state();
+-		VCHIQ_SERVICE_T *service;
+-		int i;
++	vchiq_log_info(vchiq_arm_log_level, "%s: instance=%lx", __func__,
++		       (unsigned long)instance);
+ 
+-		vchiq_log_info(vchiq_arm_log_level,
+-			"%s: instance=%lx",
+-			__func__, (unsigned long)instance);
++	if (!state) {
++		ret = -EPERM;
++		goto out;
++	}
+ 
+-		if (!state) {
+-			ret = -EPERM;
+-			goto out;
+-		}
++	/* Ensure videocore is awake to allow termination. */
++	vchiq_use_internal(instance->state, NULL, USE_TYPE_VCHIQ);
+ 
+-		/* Ensure videocore is awake to allow termination. */
+-		vchiq_use_internal(instance->state, NULL,
+-				USE_TYPE_VCHIQ);
++	mutex_lock(&instance->completion_mutex);
+ 
+-		mutex_lock(&instance->completion_mutex);
++	/* Wake the completion thread and ask it to exit */
++	instance->closing = 1;
++	complete(&instance->insert_event);
+ 
+-		/* Wake the completion thread and ask it to exit */
+-		instance->closing = 1;
+-		complete(&instance->insert_event);
++	mutex_unlock(&instance->completion_mutex);
+ 
+-		mutex_unlock(&instance->completion_mutex);
++	/* Wake the slot handler if the completion queue is full. */
++	complete(&instance->remove_event);
+ 
+-		/* Wake the slot handler if the completion queue is full. */
+-		complete(&instance->remove_event);
++	/* Mark all services for termination... */
++	i = 0;
++	while ((service = next_service_by_instance(state, instance, &i))) {
++		USER_SERVICE_T *user_service = service->base.userdata;
+ 
+-		/* Mark all services for termination... */
+-		i = 0;
+-		while ((service = next_service_by_instance(state, instance,
+-			&i)) !=	NULL) {
+-			USER_SERVICE_T *user_service = service->base.userdata;
++		/* Wake the slot handler if the msg queue is full. */
++		complete(&user_service->remove_event);
+ 
+-			/* Wake the slot handler if the msg queue is full. */
+-			complete(&user_service->remove_event);
++		vchiq_terminate_service_internal(service);
++		unlock_service(service);
++	}
+ 
+-			vchiq_terminate_service_internal(service);
+-			unlock_service(service);
+-		}
++	/* ...and wait for them to die */
++	i = 0;
++	while ((service = next_service_by_instance(state, instance, &i))) {
++		USER_SERVICE_T *user_service = service->base.userdata;
+ 
+-		/* ...and wait for them to die */
+-		i = 0;
+-		while ((service = next_service_by_instance(state, instance, &i))
+-			!= NULL) {
+-			USER_SERVICE_T *user_service = service->base.userdata;
++		wait_for_completion(&service->remove_event);
++
++		BUG_ON(service->srvstate != VCHIQ_SRVSTATE_FREE);
+ 
+-			wait_for_completion(&service->remove_event);
++		spin_lock(&msg_queue_spinlock);
++
++		while (user_service->msg_remove != user_service->msg_insert) {
++			VCHIQ_HEADER_T *header;
++			int m = user_service->msg_remove & (MSG_QUEUE_SIZE - 1);
+ 
+-			BUG_ON(service->srvstate != VCHIQ_SRVSTATE_FREE);
++			header = user_service->msg_queue[m];
++			user_service->msg_remove++;
++			spin_unlock(&msg_queue_spinlock);
+ 
++			if (header)
++				vchiq_release_message(service->handle, header);
+ 			spin_lock(&msg_queue_spinlock);
++		}
+ 
+-			while (user_service->msg_remove !=
+-				user_service->msg_insert) {
+-				VCHIQ_HEADER_T *header;
+-				int m = user_service->msg_remove &
+-					(MSG_QUEUE_SIZE - 1);
++		spin_unlock(&msg_queue_spinlock);
+ 
+-				header = user_service->msg_queue[m];
+-				user_service->msg_remove++;
+-				spin_unlock(&msg_queue_spinlock);
++		unlock_service(service);
++	}
+ 
+-				if (header)
+-					vchiq_release_message(
+-						service->handle,
+-						header);
+-				spin_lock(&msg_queue_spinlock);
+-			}
++	/* Release any closed services */
++	while (instance->completion_remove !=
++		instance->completion_insert) {
++		VCHIQ_COMPLETION_DATA_T *completion;
++		VCHIQ_SERVICE_T *service;
+ 
+-			spin_unlock(&msg_queue_spinlock);
++		completion = &instance->completions[
++			instance->completion_remove & (MAX_COMPLETIONS - 1)];
++		service = completion->service_userdata;
++		if (completion->reason == VCHIQ_SERVICE_CLOSED) {
++			USER_SERVICE_T *user_service = service->base.userdata;
+ 
++			/* Wake any blocked user-thread */
++			if (instance->use_close_delivered)
++				complete(&user_service->close_event);
+ 			unlock_service(service);
+ 		}
++		instance->completion_remove++;
++	}
+ 
+-		/* Release any closed services */
+-		while (instance->completion_remove !=
+-			instance->completion_insert) {
+-			VCHIQ_COMPLETION_DATA_T *completion;
+-			VCHIQ_SERVICE_T *service;
+-
+-			completion = &instance->completions[
+-				instance->completion_remove &
+-				(MAX_COMPLETIONS - 1)];
+-			service = completion->service_userdata;
+-			if (completion->reason == VCHIQ_SERVICE_CLOSED) {
+-				USER_SERVICE_T *user_service =
+-					service->base.userdata;
+-
+-				/* Wake any blocked user-thread */
+-				if (instance->use_close_delivered)
+-					complete(&user_service->close_event);
+-				unlock_service(service);
+-			}
+-			instance->completion_remove++;
+-		}
+-
+-		/* Release the PEER service count. */
+-		vchiq_release_internal(instance->state, NULL);
++	/* Release the PEER service count. */
++	vchiq_release_internal(instance->state, NULL);
+ 
+-		{
+-			struct bulk_waiter_node *waiter, *next;
++	{
++		struct bulk_waiter_node *waiter, *next;
+ 
+-			list_for_each_entry_safe(waiter, next,
+-					&instance->bulk_waiter_list, list) {
+-				list_del(&waiter->list);
+-				vchiq_log_info(vchiq_arm_log_level,
+-					"bulk_waiter - cleaned up %pK for pid %d",
+-					waiter, waiter->pid);
+-				kfree(waiter);
+-			}
++		list_for_each_entry_safe(waiter, next,
++					 &instance->bulk_waiter_list, list) {
++			list_del(&waiter->list);
++			vchiq_log_info(vchiq_arm_log_level,
++				"bulk_waiter - cleaned up %pK for pid %d",
++				waiter, waiter->pid);
++			kfree(waiter);
+ 		}
++	}
+ 
+-		vchiq_debugfs_remove_instance(instance);
++	vchiq_debugfs_remove_instance(instance);
+ 
+-		kfree(instance);
+-		file->private_data = NULL;
+-	} break;
+-
+-	default:
+-		vchiq_log_error(vchiq_arm_log_level,
+-			"Unknown minor device: %d", dev);
+-		ret = -ENXIO;
+-	}
++	kfree(instance);
++	file->private_data = NULL;
+ 
+ out:
+ 	return ret;
+@@ -3618,7 +3571,7 @@ static int __init vchiq_driver_init(void)
+ 		return PTR_ERR(vchiq_class);
+ 	}
+ 
+-	ret = alloc_chrdev_region(&vchiq_devid, VCHIQ_MINOR, 1, DEVICE_NAME);
++	ret = alloc_chrdev_region(&vchiq_devid, 0, 1, DEVICE_NAME);
+ 	if (ret) {
+ 		pr_err("Failed to allocate vchiq's chrdev region\n");
+ 		goto class_destroy;
+-- 
+2.19.1

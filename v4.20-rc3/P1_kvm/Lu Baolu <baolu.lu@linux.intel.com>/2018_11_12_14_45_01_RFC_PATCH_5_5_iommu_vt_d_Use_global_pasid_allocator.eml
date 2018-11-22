@@ -1,0 +1,382 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 12 Nov 2018 07:37:38 -0000
+Received: from icoremail.net (unknown [209.85.210.182])
+	by mail-app2 (Coremail) with SMTP id by_KCgD3_ydMIulbx2F7AQ--.37329S3;
+	Mon, 12 Nov 2018 14:48:45 +0800 (CST)
+Received: from mail-pf1-f182.google.com (unknown [209.85.210.182])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwDXu0dKIulbXTUwAA--.279S3;
+	Mon, 12 Nov 2018 14:48:42 +0800 (CST)
+Received: by mail-pf1-f182.google.com with SMTP id g7-v6so3822533pfo.10
+        for <xuliker@zju.edu.cn>; Sun, 11 Nov 2018 22:48:42 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :from:to:cc:subject:date:message-id:in-reply-to:references:sender
+         :precedence:list-id;
+        bh=T5ecYRPwhoXKALah9P3bCfKc1xhtHrLGJ9GP2KyyRUk=;
+        b=MOosvY4RfK/S6s+mXECEXFo0q2KcnNETxrXnofzHeD4zqlm2GjeeljmLa1Nm3Ish0w
+         dtzG5fUPDByY31VoCjwF0iw6ldEqM14H5dDlzFYMZFxRJsNMc1iPNN6mBJkcgE0XW2Yg
+         3lHm1xMAP5NbaAd5dInuig5aI1yII5Z58ld8f/xGOby+Vl93MCb6/y9024u/mUt5GlRQ
+         vn3+HEVITNHEdEYkU8q2/90oL5mZjfN5slII5wR175MreTEc7qevWCxV2zkwgaDA8S1m
+         xJRWHJ5IsY80bR0RV3O9/CId6M/laF6FrYgbnFBIlvaUauhBt8/aWPzwevoKU6WuwnYd
+         p0KQ==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=intel.com
+X-Gm-Message-State: AGRZ1gJG3R9nUeovNGU8TdjKHAPCYZdEc9ynkbyCkX8FPuPiiFb1y16A
+	tqX/uiZiZGDyNzSYv1YHfbCKd/R7wz4Kz6dOZYbBe5uOMJYlmxqxKg==
+X-Received: by 2002:a63:3c44:: with SMTP id i4mr16223898pgn.286.1542005322282;
+        Sun, 11 Nov 2018 22:48:42 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp2848235pjt;
+        Sun, 11 Nov 2018 22:48:41 -0800 (PST)
+X-Google-Smtp-Source: AJdET5cqbPtB+iYWV5OQtQsynCEuz1Rr1XyI4wLOk2CXhw+ptZXGU7Ofs9FrUrE1RCGz2slOr7B8
+X-Received: by 2002:a63:f047:: with SMTP id s7mr16319921pgj.441.1542005321505;
+        Sun, 11 Nov 2018 22:48:41 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542005321; cv=none;
+        d=google.com; s=arc-20160816;
+        b=OWIimFsp6fDPyo/I1AHKwxGQ3Ao5z5FBZXjDleU7GUzPtyZ5NifRwiR8ZJHtL47n6j
+         qyeAyXdu1U0fSJUcYr5dFVZsb4fGfsVzd6/16yaop5NzjRYU/zNMQLvu2HiPzNl0jeDw
+         bVpBXEdefnQxGeBqunFuHvO7JGF4PJ0Jcsk9/C5m8nE0XQdHlqsevcCmBmDV5RPpGLt3
+         OoHN1uS2RaWc3UK34YLtrMYqFWFwHXHPrc4ogVo0pmqsGc1yJxPn1qykgE86/POzlNLG
+         uU0ZY0j+wt7zZAim95zY/KqJZ3I7EH+TPLXx6Qjh1CwrckkUqYRm0X5elta/HfkYnL+w
+         uFmg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:references:in-reply-to:message-id:date
+         :subject:cc:to:from;
+        bh=T5ecYRPwhoXKALah9P3bCfKc1xhtHrLGJ9GP2KyyRUk=;
+        b=n+GxApExu//GHub9QAusjhJdINsr/atz7Xr5XZMc7gXY7u7t0sm2z37Q0qm44wkQfI
+         qxsWAkQWbfMsfE1d0DBCgAZn2PBPA+RW9wK4DO9X7KUJazT9aVDE+NCDXA9upqudup/k
+         ukiK9AUC2dyepIAsH0QMi9Uq1lJcmgEXA6vgDHx/iFiW+LI+uHT57n9DUW9mCTQ9snnd
+         eArYbolE47IFDirZ+i5zt3YW6kh8WvZaTfTpjq9a9ySQ0dLH06log+qY/pTOzXYtuaWG
+         cYSTjOAsExFERS5vV8b/12EJGKIEacTa2V24TFUNzZJPdokbWjmT9ub1f4S3Sxs3WLwC
+         4K3w==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=intel.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id z16-v6si14509620pgu.525.2018.11.11.22.48.27;
+        Sun, 11 Nov 2018 22:48:41 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1732069AbeKLQkF (ORCPT <rfc822;tomnomnom1@gmail.com>
+        + 99 others); Mon, 12 Nov 2018 11:40:05 -0500
+Received: from mga17.intel.com ([192.55.52.151]:53355 "EHLO mga17.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1732030AbeKLQkE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+        Mon, 12 Nov 2018 11:40:04 -0500
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga007.jf.intel.com ([10.7.209.58])
+  by fmsmga107.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 11 Nov 2018 22:48:11 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.54,494,1534834800"; 
+   d="scan'208";a="88579722"
+Received: from allen-box.sh.intel.com ([10.239.161.122])
+  by orsmga007.jf.intel.com with ESMTP; 11 Nov 2018 22:48:07 -0800
+From: Lu Baolu <baolu.lu@linux.intel.com>
+To: Joerg Roedel <joro@8bytes.org>,
+        David Woodhouse <dwmw2@infradead.org>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Kirti Wankhede <kwankhede@nvidia.com>
+Cc: ashok.raj@intel.com, sanjay.k.kumar@intel.com,
+        jacob.jun.pan@intel.com, kevin.tian@intel.com,
+        Jean-Philippe Brucker <jean-philippe.brucker@arm.com>,
+        yi.l.liu@intel.com, yi.y.sun@intel.com, peterx@redhat.com,
+        tiwei.bie@intel.com, Zeng Xin <xin.zeng@intel.com>,
+        iommu@lists.linux-foundation.org, kvm@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Lu Baolu <baolu.lu@linux.intel.com>,
+        Jacob Pan <jacob.jun.pan@linux.intel.com>
+Subject: [RFC PATCH 5/5] iommu/vt-d: Use global pasid allocator
+Date: Mon, 12 Nov 2018 14:45:01 +0800
+Message-Id: <20181112064501.2290-6-baolu.lu@linux.intel.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20181112064501.2290-1-baolu.lu@linux.intel.com>
+References: <20181112064501.2290-1-baolu.lu@linux.intel.com>
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwDXu0dKIulbXTUwAA--.279S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoWxtry7Gr47JryUCw4DJFW7twb_yoWfJw4xpF
+	WUWFy5GFWrZr18WFnxGr1DZFy5tw4vv3WY9as8K398W3Z3AryDGFs5ZFWjkry5CrW8AF43
+	Zw4Ygr4UCr17XrJanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUU0bIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUBjb7Iv0xC_Kw4lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1l84ACjcxK6I8E
+	87Iv67AKxVW0oVCq3wA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_GcCE3s1le2I262IYc4CY6c
+	8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_Jrv_
+	JF1lYx0Ex4A2jsIE14v26F4j6r4UJwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IYc2Ij64
+	vIr41l7I0Y6sxI4wCY1x0264kExVAvwVAq07x20xylc2xSY4AK6IIF6r47MxkI7II2jI8v
+	z4vEwIxGrwCYIxAIcVC0I7IYx2IY67AKxVW8JVW5JwCYIxAIcVC0I7IYx2IY6xkF7I0E14
+	v26r4j6F4UMxvI42IY6I8E87Iv67AKxVW0oVCq3wCYIxAIcVC2z280aVCY1x0267AKxVW0
+	oVCq3wCF04k20xvY0x0EwIxGrwCF04k20xvEw4C26cxK6c8Ij28IcwCF72vE77IF4wCFx2
+	IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v26r1j6r18MI8I3I0E7480Y4vE14v2
+	6r106r1rMI8E67AF67kF1VAFwI0_GFv_WrylIxkGc2Ij64vIr41lIxAIcVCF04k26cxKx2
+	IYs7xG6r1j6r1xYxBIdaVFxhVjvjDU0xZFpf9x07bD7K3UUUUU=
+
+This uses global pasid allocator in the Intel iommu driver.
+
+Cc: Ashok Raj <ashok.raj@intel.com>
+Cc: Jacob Pan <jacob.jun.pan@linux.intel.com>
+Cc: Kevin Tian <kevin.tian@intel.com>
+Signed-off-by: Liu Yi L <yi.l.liu@intel.com>
+Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
+---
+ drivers/iommu/intel-iommu.c | 20 +++++++++++++++-----
+ drivers/iommu/intel-pasid.c | 36 ------------------------------------
+ drivers/iommu/intel-pasid.h |  3 ---
+ drivers/iommu/intel-svm.c   | 24 +++++++++++++-----------
+ include/linux/intel-iommu.h |  3 +++
+ 5 files changed, 31 insertions(+), 55 deletions(-)
+
+diff --git a/drivers/iommu/intel-iommu.c b/drivers/iommu/intel-iommu.c
+index 8dbd0c601dab..e15b81afcbbc 100644
+--- a/drivers/iommu/intel-iommu.c
++++ b/drivers/iommu/intel-iommu.c
+@@ -1698,7 +1698,11 @@ static void free_dmar_iommu(struct intel_iommu *iommu)
+ 		if (ecap_prs(iommu->ecap))
+ 			intel_svm_finish_prq(iommu);
+ 	}
++
++	iommu_pasid_exit(iommu->svm_pasid);
+ #endif
++
++	iommu_pasid_exit(iommu->aux_pasid);
+ }
+ 
+ static struct dmar_domain *alloc_domain(int flags)
+@@ -5050,7 +5054,7 @@ static void auxiliary_unlink_device(struct dmar_domain *domain,
+ 	domain->auxd_refcnt--;
+ 
+ 	if (!domain->auxd_refcnt && domain->default_pasid > 0)
+-		intel_pasid_free_id(domain->default_pasid);
++		iommu_pasid_free(info->iommu->aux_pasid, domain->default_pasid);
+ }
+ 
+ static int domain_add_dev_auxd(struct dmar_domain *domain,
+@@ -5067,9 +5071,10 @@ static int domain_add_dev_auxd(struct dmar_domain *domain,
+ 
+ 	spin_lock_irqsave(&device_domain_lock, flags);
+ 	if (domain->default_pasid <= 0) {
+-		domain->default_pasid = intel_pasid_alloc_id(domain, PASID_MIN,
+-				pci_max_pasids(to_pci_dev(dev)), GFP_ATOMIC);
+-		if (domain->default_pasid < 0) {
++		ret = iommu_pasid_alloc(iommu->aux_pasid, PASID_MIN,
++					pci_max_pasids(to_pci_dev(dev)),
++					domain, &domain->default_pasid);
++		if (ret) {
+ 			pr_err("Can't allocate default pasid\n");
+ 			ret = -ENODEV;
+ 			goto pasid_failed;
+@@ -5099,7 +5104,7 @@ static int domain_add_dev_auxd(struct dmar_domain *domain,
+ attach_failed:
+ 	spin_unlock(&iommu->lock);
+ 	if (!domain->auxd_refcnt && domain->default_pasid > 0)
+-		intel_pasid_free_id(domain->default_pasid);
++		iommu_pasid_free(iommu->aux_pasid, domain->default_pasid);
+ pasid_failed:
+ 	spin_unlock_irqrestore(&device_domain_lock, flags);
+ 
+@@ -5525,6 +5530,7 @@ static int intel_iommu_enable_auxd(struct device *dev)
+ {
+ 	struct device_domain_info *info;
+ 	struct dmar_domain *domain;
++	struct intel_iommu *iommu;
+ 	unsigned long flags;
+ 
+ 	if (!scalable_mode_support())
+@@ -5539,6 +5545,10 @@ static int intel_iommu_enable_auxd(struct device *dev)
+ 	info->auxd_enabled = 1;
+ 	spin_unlock_irqrestore(&device_domain_lock, flags);
+ 
++	iommu = info->iommu;
++	if (!iommu->aux_pasid)
++		iommu->aux_pasid = iommu_pasid_init(&pci_bus_type);
++
+ 	return 0;
+ }
+ 
+diff --git a/drivers/iommu/intel-pasid.c b/drivers/iommu/intel-pasid.c
+index fb42f0c2493e..68eaef3bd4fd 100644
+--- a/drivers/iommu/intel-pasid.c
++++ b/drivers/iommu/intel-pasid.c
+@@ -26,7 +26,6 @@
+  */
+ static DEFINE_SPINLOCK(pasid_lock);
+ u32 intel_pasid_max_id = PASID_MAX;
+-static DEFINE_IDR(pasid_idr);
+ 
+ int vcmd_alloc_pasid(struct intel_iommu *iommu, unsigned int *pasid)
+ {
+@@ -98,41 +97,6 @@ void vcmd_free_pasid(struct intel_iommu *iommu, unsigned int pasid)
+ 	}
+ }
+ 
+-int intel_pasid_alloc_id(void *ptr, int start, int end, gfp_t gfp)
+-{
+-	int ret, min, max;
+-
+-	min = max_t(int, start, PASID_MIN);
+-	max = min_t(int, end, intel_pasid_max_id);
+-
+-	WARN_ON(in_interrupt());
+-	idr_preload(gfp);
+-	spin_lock(&pasid_lock);
+-	ret = idr_alloc(&pasid_idr, ptr, min, max, GFP_ATOMIC);
+-	spin_unlock(&pasid_lock);
+-	idr_preload_end();
+-
+-	return ret;
+-}
+-
+-void intel_pasid_free_id(int pasid)
+-{
+-	spin_lock(&pasid_lock);
+-	idr_remove(&pasid_idr, pasid);
+-	spin_unlock(&pasid_lock);
+-}
+-
+-void *intel_pasid_lookup_id(int pasid)
+-{
+-	void *p;
+-
+-	spin_lock(&pasid_lock);
+-	p = idr_find(&pasid_idr, pasid);
+-	spin_unlock(&pasid_lock);
+-
+-	return p;
+-}
+-
+ /*
+  * Per device pasid table management:
+  */
+diff --git a/drivers/iommu/intel-pasid.h b/drivers/iommu/intel-pasid.h
+index c80787d02e2d..029f82ce9f4a 100644
+--- a/drivers/iommu/intel-pasid.h
++++ b/drivers/iommu/intel-pasid.h
+@@ -60,9 +60,6 @@ struct pasid_table {
+ };
+ 
+ extern u32 intel_pasid_max_id;
+-int intel_pasid_alloc_id(void *ptr, int start, int end, gfp_t gfp);
+-void intel_pasid_free_id(int pasid);
+-void *intel_pasid_lookup_id(int pasid);
+ int intel_pasid_alloc_table(struct device *dev);
+ void intel_pasid_free_table(struct device *dev);
+ struct pasid_table *intel_pasid_get_table(struct device *dev);
+diff --git a/drivers/iommu/intel-svm.c b/drivers/iommu/intel-svm.c
+index 27cf1963207d..bb57a024eae7 100644
+--- a/drivers/iommu/intel-svm.c
++++ b/drivers/iommu/intel-svm.c
+@@ -261,6 +261,9 @@ int intel_svm_bind_mm(struct device *dev, int *pasid, int flags, struct svm_dev_
+ 		BUG_ON(!mm);
+ 	}
+ 
++	if (!iommu->svm_pasid)
++		iommu->svm_pasid = iommu_pasid_init(&pci_bus_type);
++
+ 	mutex_lock(&pasid_mutex);
+ 	if (pasid && !(flags & SVM_FLAG_PRIVATE_PASID)) {
+ 		struct intel_svm *t;
+@@ -325,15 +328,14 @@ int intel_svm_bind_mm(struct device *dev, int *pasid, int flags, struct svm_dev_
+ 			pasid_max = intel_pasid_max_id;
+ 
+ 		/* Do not use PASID 0 in caching mode (virtualised IOMMU) */
+-		ret = intel_pasid_alloc_id(svm,
+-					   !!cap_caching_mode(iommu->cap),
+-					   pasid_max - 1, GFP_KERNEL);
+-		if (ret < 0) {
++		ret = iommu_pasid_alloc(iommu->svm_pasid,
++					!!cap_caching_mode(iommu->cap),
++					pasid_max - 1, svm, &svm->pasid);
++		if (ret) {
+ 			kfree(svm);
+ 			kfree(sdev);
+ 			goto out;
+ 		}
+-		svm->pasid = ret;
+ 		svm->notifier.ops = &intel_mmuops;
+ 		svm->mm = mm;
+ 		svm->flags = flags;
+@@ -343,7 +345,7 @@ int intel_svm_bind_mm(struct device *dev, int *pasid, int flags, struct svm_dev_
+ 		if (mm) {
+ 			ret = mmu_notifier_register(&svm->notifier, mm);
+ 			if (ret) {
+-				intel_pasid_free_id(svm->pasid);
++				iommu_pasid_free(iommu->svm_pasid, svm->pasid);
+ 				kfree(svm);
+ 				kfree(sdev);
+ 				goto out;
+@@ -356,7 +358,7 @@ int intel_svm_bind_mm(struct device *dev, int *pasid, int flags, struct svm_dev_
+ 		if (ret) {
+ 			if (mm)
+ 				mmu_notifier_unregister(&svm->notifier, mm);
+-			intel_pasid_free_id(svm->pasid);
++			iommu_pasid_free(iommu->svm_pasid, svm->pasid);
+ 			kfree(svm);
+ 			kfree(sdev);
+ 			goto out;
+@@ -389,7 +391,7 @@ int intel_svm_unbind_mm(struct device *dev, int pasid)
+ 	if (!iommu)
+ 		goto out;
+ 
+-	svm = intel_pasid_lookup_id(pasid);
++	svm = iommu_pasid_find(iommu->svm_pasid, pasid);
+ 	if (!svm)
+ 		goto out;
+ 
+@@ -411,7 +413,7 @@ int intel_svm_unbind_mm(struct device *dev, int pasid)
+ 				kfree_rcu(sdev, rcu);
+ 
+ 				if (list_empty(&svm->devs)) {
+-					intel_pasid_free_id(svm->pasid);
++					iommu_pasid_free(iommu->svm_pasid, svm->pasid);
+ 					if (svm->mm)
+ 						mmu_notifier_unregister(&svm->notifier, svm->mm);
+ 
+@@ -446,7 +448,7 @@ int intel_svm_is_pasid_valid(struct device *dev, int pasid)
+ 	if (!iommu)
+ 		goto out;
+ 
+-	svm = intel_pasid_lookup_id(pasid);
++	svm = iommu_pasid_find(iommu->svm_pasid, pasid);
+ 	if (!svm)
+ 		goto out;
+ 
+@@ -545,7 +547,7 @@ static irqreturn_t prq_event_thread(int irq, void *d)
+ 
+ 		if (!svm || svm->pasid != req->pasid) {
+ 			rcu_read_lock();
+-			svm = intel_pasid_lookup_id(req->pasid);
++			svm = iommu_pasid_find(iommu->svm_pasid, req->pasid);
+ 			/* It *can't* go away, because the driver is not permitted
+ 			 * to unbind the mm while any page faults are outstanding.
+ 			 * So we only need RCU to protect the internal idr code. */
+diff --git a/include/linux/intel-iommu.h b/include/linux/intel-iommu.h
+index 4605eef3686c..d79f99388293 100644
+--- a/include/linux/intel-iommu.h
++++ b/include/linux/intel-iommu.h
+@@ -552,6 +552,7 @@ struct intel_iommu {
+ #ifdef CONFIG_INTEL_IOMMU_SVM
+ 	struct page_req_dsc *prq;
+ 	unsigned char prq_name[16];    /* Name for PRQ interrupt */
++	struct iommu_pasid *svm_pasid;	/* SVM PASID consumer */
+ #endif
+ 	struct q_inval  *qi;            /* Queued invalidation info */
+ 	u32 *iommu_state; /* Store iommu states between suspend and resume.*/
+@@ -564,6 +565,8 @@ struct intel_iommu {
+ 	struct iommu_device iommu;  /* IOMMU core code handle */
+ 	int		node;
+ 	u32		flags;      /* Software defined flags */
++
++	struct iommu_pasid *aux_pasid; /* Aux-domain pasid consumer */
+ };
+ 
+ /* PCI domain-device relationship */
+-- 
+2.17.1

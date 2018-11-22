@@ -1,0 +1,402 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 09 Nov 2018 00:40:09 -0000
+Received: from icoremail.net (unknown [209.85.214.173])
+	by mail-app2 (Coremail) with SMTP id by_KCgDXv0K10uRb8oFjAQ--.29875S3;
+	Fri, 09 Nov 2018 08:20:06 +0800 (CST)
+Received: from mail-pl1-f173.google.com (unknown [209.85.214.173])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwAX7zqz0uRbaFQfAA--.9148S3;
+	Fri, 09 Nov 2018 08:20:03 +0800 (CST)
+Received: by mail-pl1-f173.google.com with SMTP id n4-v6so72020plp.2
+        for <xuliker@zju.edu.cn>; Thu, 08 Nov 2018 16:20:03 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-transfer-encoding:content-language
+         :sender:precedence:list-id;
+        bh=8RsIo5lSa/kEVGTWlY41R9dyk3ZF7GbHc2xcJOawkhk=;
+        b=tSKQtriBimP9788Vtwmm4iTJTjVsA4k23F2HbG9vpnGciTUq1Yyj6QXpk4TKQmTcAu
+         7Tb0dM2JVgx4qD/sG1ndCZfX0ImCuatlGzvUqdCggvIGN1Lw9UwAXO74gPORSliYlS4+
+         wuoQH5z5oQhbiZ076cwnoqir4wiqWSHEc0nbNNQXCnND+1acxlhIKNnkrGwCA++XIzwO
+         AxqDCVY5dw+m4OQaCl5XlaqQK9GAsWPDwRmGYXqNqUOwNMy1IedoCYihhmajVtp1OZAw
+         0bccCggF/9Fe/aGDH4LjSnbG0OdL2XDRRCx5juK/OFt7gkG2Fa5EK1K3CGvogbse8UJt
+         vymw==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=intel.com
+X-Gm-Message-State: AGRZ1gIcHDcgQCKlZ6OEfN7wayNQtbLwo8hSgzlcHZ9BNYtQmadzhZlr
+	/kASiGXXHI8tMsLl2v9RTd/xF2ng/IDBl7cU2HegAm5+fXufju3rGg==
+X-Received: by 2002:a17:902:166:: with SMTP id 93-v6mr6559631plb.68.1541722803171;
+        Thu, 08 Nov 2018 16:20:03 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp894936pjt;
+        Thu, 8 Nov 2018 16:20:01 -0800 (PST)
+X-Google-Smtp-Source: AJdET5eKCfsJnljrDl6Y8De5whsTqxhsejF9kvaVqwdVCiHnoQK15MLfySM8QjzL6gMLHiJGhSlv
+X-Received: by 2002:a63:c051:: with SMTP id z17mr5503929pgi.20.1541722801501;
+        Thu, 08 Nov 2018 16:20:01 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1541722801; cv=none;
+        d=google.com; s=arc-20160816;
+        b=Z98ZDNXgGlQEDbre0rvfT5YhkdAlmYFmKWVnAQ0qwzQ0cu8a/z0UDtivobYZlQ3JSm
+         fkKqMN9lW+9a4LHu54I9w+YtEtlRnSDiv2ySyeecFM7jO97UWWWxLZlBRlfymQpWlne6
+         jtwetRUQZnNPKdVWWjZ1znh48uZqvUb6g+A0CFMxpV979Nl0Gr0TiUJH2h8r+J9MoHSW
+         naIvXZXSbAhAc9UIGTM36W7QafrHf0cN6m2CvFoKtxiSRMSEnqDcbX2U3IRECvKUruCT
+         SAVp+ITistAgHgV4WmJUCuNluHAtIXBlUuLi6GgqyxED25RxmLjdjjoRobE+WKaKwRGn
+         4XnQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:content-language
+         :content-transfer-encoding:in-reply-to:mime-version:user-agent:date
+         :message-id:from:references:cc:to:subject;
+        bh=8RsIo5lSa/kEVGTWlY41R9dyk3ZF7GbHc2xcJOawkhk=;
+        b=YSIvLoUbmgaQfRRhIHBhCdsG2aGmoDHToXXAoSTx8Bcw9VBxWL1Mrf/ribGZAHKrCT
+         pjXpcF0TbsnzfYK8x9Hee9jYWmpvaTgLslkg0Grz+bpA0BRxLSDvvMyLc+UgX/Lm5bUg
+         pHIvp+lYnGYczj0drqcKev77hLI9/yMVRw5KKO3lCGA5C+4JZw8g8fd0YjjKIrutl6Rv
+         ISkn0x8XMKJYq1yFkBQW+8CvWhmyUm/NVkFUUfMr9CyZwiBxEW+VgRcnwQZJkttQucZz
+         gg8Qqn6JkkjXlism/xXGA8qbpRTsq3uUXgudL1eVGmrqCCTcZ4ihTsdcHdzi8F8LeD3T
+         Hw/Q==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=intel.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id a2si5245019pgm.154.2018.11.08.16.19.44;
+        Thu, 08 Nov 2018 16:20:01 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1727288AbeKIJ5n (ORCPT <rfc822;tu.k.phung@gmail.com>
+        + 99 others); Fri, 9 Nov 2018 04:57:43 -0500
+Received: from mga14.intel.com ([192.55.52.115]:59589 "EHLO mga14.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726926AbeKIJ5n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+        Fri, 9 Nov 2018 04:57:43 -0500
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga008.fm.intel.com ([10.253.24.58])
+  by fmsmga103.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 08 Nov 2018 16:19:40 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.54,481,1534834800"; 
+   d="scan'208";a="85073446"
+Received: from shao2-debian.sh.intel.com (HELO [10.239.13.6]) ([10.239.13.6])
+  by fmsmga008.fm.intel.com with ESMTP; 08 Nov 2018 16:19:38 -0800
+Subject: Re: [LKP] [bpf] fd978bf7fd: will-it-scale.per_process_ops -4.0%
+ regression
+To: Daniel Borkmann <daniel@iogearbox.net>,
+        Joe Stringer <joe@wand.net.nz>
+Cc: Alexei Starovoitov <ast@kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>, lkp@01.org
+References: <20181102021408.GJ24195@shao2-debian>
+ <a66d304e-43ec-5558-67dc-5edfd856b607@iogearbox.net>
+From: Rong Chen <rong.a.chen@intel.com>
+Message-ID: <9de53d57-b1be-2186-c90b-dbeda21ed717@intel.com>
+Date: Fri, 9 Nov 2018 08:19:54 +0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:52.0) Gecko/20100101
+ Thunderbird/52.4.0
+MIME-Version: 1.0
+In-Reply-To: <a66d304e-43ec-5558-67dc-5edfd856b607@iogearbox.net>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 8bit
+Content-Language: en-US
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwAX7zqz0uRbaFQfAA--.9148S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvAXoW3tw18KrWrtw17Kw4UCryxAFb_yoW8Xw1rZo
+	ZIvw13ur1UtFnYqa1DAa45tFW7Jw45Jr1ruryq93y5GFn0qF9rtryUCr1fKFWftFW5Ja18
+	Zr15Xrn8XrWxJF17n29KB7ZKAUJUUUU8529EdanIXcx71UUUUj7v73VFW2AGmfu7jjvjm3
+	AaLaJ3UjIYCTnIWjp_UUUOI7k0a2IF6w4kM7kC6x804xWl14x267AKxVWUJVW8JwAFIxvE
+	14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK021l84ACjcxK6xIIjx
+	v20xvE14v26ryj6F1UM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26r4j6F4UM28EF7xvwVC2
+	z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s0DM2AIxVAIcxkEcV
+	Aq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1j
+	6r18McIj6I8E87Iv67AKxVW8JVWxJwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IY64vIr4
+	1l7I0Y6sxI4wCYjI0SjxkI62AI1cAE67vIY487MxkF7I0Ew4C26cxK6c8Ij28IcwCY1Ik2
+	6cxK6xAEc7vF6xCjj44lc2xSY4AK6IIF6w1lc2IjII80xcxEwVAKI48JMxvI42IY6xIIjx
+	v20xvE14v26r1j6r1xMxvI42IY6xIIjxv20xvEc7CjxVAFwI0_Jr0_Gr1lcIIF0xvEx4A2
+	jsIE14v26rxl6s0DMxvI42IY6I8E87Iv6xkF7I0E14v26rxl6s0DMxAIw28IcxkI7VAKI4
+	8JMxAIw28IcVAKzI0EY4vE52x082I5MxCjnVCjjxCrMxC20s026xCaFVCjc4AY6r1j6r4U
+	MI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67
+	AKxVWUAVWUtwCIc40Y0x0EwIxGrwCI42IY6xAIw20EY4v20xvaj40_Wr1j6rW3JrUvcSsG
+	vfC2KfnxnUUI43ZEXa7IUOKD7DUUUUU==
+
+
+
+On 11/02/2018 04:36 PM, Daniel Borkmann wrote:
+> Hi Rong,
+>
+> On 11/02/2018 03:14 AM, kernel test robot wrote:
+>> Greeting,
+>>
+>> FYI, we noticed a -4.0% regression of will-it-scale.per_process_ops due to commit:
+>>
+>>
+>> commit: fd978bf7fd312581a7ca454a991f0ffb34c4204b ("bpf: Add reference tracking to verifier")
+>> https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git master
+>>
+>> in testcase: will-it-scale
+>> on test machine: 80 threads Skylake with 64G memory
+>> with following parameters:
+>>
+>> 	nr_task: 100%
+>> 	mode: process
+>> 	test: mmap1
+>> 	cpufreq_governor: performance
+> Hmm, so the test cases you are running are these ones:
+>
+>    https://github.com/antonblanchard/will-it-scale/blob/master/tests/mmap1.c
+>    https://github.com/antonblanchard/will-it-scale/blob/master/tests/mmap2.c
+>
+> The commit from Joe referenced above only adds a feature to the (eBPF) verifier. Looking
+> through will-it-scale test suite, looks like there's neither cBPF nor eBPF in use and if
+> it would have been the former (e.g. via seccomp BPF), then also this has no effect on it
+> since this doesn't load through bpf(2); meaning if so then something must use eBPF here,
+> but then it's also unclear right now how this would even remotely affect mmap() test
+> performance by -4%. Hm, are you certain it's not a false bisection? If so, what else is
+> loading eBPF on your machine in parallel when you run the tests?
+
+Please accept my apologies for taking your time, It's a false bisection.
+Something strange happened, we're trying to figure out the root cause.
+
+Best Regards,
+Rong Chen
+
+>
+> Thanks,
+> Daniel
+>
+>> test-description: Will It Scale takes a testcase and runs it from 1 through to n parallel copies to see if the testcase will scale. It builds both a process and threads based test in order to see any differences between the two.
+>> test-url: https://github.com/antonblanchard/will-it-scale
+>>
+>> In addition to that, the commit also has significant impact on the following tests:
+>>
+>> +------------------+---------------------------------------------------------------+
+>> | testcase: change | will-it-scale: will-it-scale.per_process_ops -3.8% regression |
+>> | test machine     | 80 threads Skylake with 64G memory                            |
+>> | test parameters  | cpufreq_governor=performance                                  |
+>> |                  | mode=process                                                  |
+>> |                  | nr_task=100%                                                  |
+>> |                  | test=mmap2                                                    |
+>> +------------------+---------------------------------------------------------------+
+>>
+>>
+>> Details are as below:
+>> -------------------------------------------------------------------------------------------------->
+>>
+>>
+>> To reproduce:
+>>
+>>          git clone https://github.com/intel/lkp-tests.git
+>>          cd lkp-tests
+>>          bin/lkp install job.yaml  # job file is attached in this email
+>>          bin/lkp run     job.yaml
+>>
+>> =========================================================================================
+>> compiler/cpufreq_governor/kconfig/mode/nr_task/rootfs/tbox_group/test/testcase:
+>>    gcc-7/performance/x86_64-rhel-7.2/process/100%/debian-x86_64-2018-04-03.cgz/lkp-skl-2sp2/mmap1/will-it-scale
+>>
+>> commit:
+>>    84dbf35073 ("bpf: Macrofy stack state copy")
+>>    fd978bf7fd ("bpf: Add reference tracking to verifier")
+>>
+>> 84dbf3507349696b fd978bf7fd312581a7ca454a99
+>> ---------------- --------------------------
+>>           %stddev     %change         %stddev
+>>               \          |                \
+>>       16811            -4.0%      16140        will-it-scale.per_process_ops
+>>     1344946            -4.0%    1291230        will-it-scale.workload
+>>      107.75 ± 38%    +252.4%     379.75 ± 93%  cpuidle.POLL.usage
+>>      121.70 ± 18%     +18.9%     144.70 ±  4%  sched_debug.cfs_rq:/.exec_clock.stddev
+>>        4933            +2.0%       5031        proc-vmstat.nr_inactive_anon
+>>        4933            +2.0%       5031        proc-vmstat.nr_zone_inactive_anon
+>>        9874            +9.0%      10765 ±  7%  slabinfo.proc_inode_cache.active_objs
+>>        9874            +9.0%      10765 ±  7%  slabinfo.proc_inode_cache.num_objs
+>>       12248 ± 50%     +52.2%      18640 ±  2%  numa-meminfo.node0.Inactive
+>>       33943 ±  8%     +16.2%      39453 ±  6%  numa-meminfo.node0.SReclaimable
+>>       91549 ±  9%      -9.9%      82530 ±  7%  numa-meminfo.node1.Slab
+>>       18091 ± 15%     +29.2%      23382 ± 17%  numa-vmstat.node0
+>>        3027 ± 52%     +52.6%       4620 ±  3%  numa-vmstat.node0.nr_inactive_anon
+>>        8485 ±  8%     +16.2%       9862 ±  6%  numa-vmstat.node0.nr_slab_reclaimable
+>>        3027 ± 52%     +52.6%       4620 ±  3%  numa-vmstat.node0.nr_zone_inactive_anon
+>>     1.4e+12            -2.5%  1.364e+12        perf-stat.branch-instructions
+>>       41.42            +0.7       42.15        perf-stat.cache-miss-rate%
+>>   2.166e+10            -2.1%   2.12e+10        perf-stat.cache-references
+>>       12.16            +2.7%      12.49        perf-stat.cpi
+>>   1.741e+12            -2.8%  1.692e+12        perf-stat.dTLB-loads
+>>        0.00 ±  3%      +0.0        0.00 ±  9%  perf-stat.dTLB-store-miss-rate%
+>>   5.713e+11            -3.9%   5.49e+11        perf-stat.dTLB-stores
+>>   6.103e+12            -2.6%  5.943e+12        perf-stat.instructions
+>>        0.08            -2.6%       0.08        perf-stat.ipc
+>>   1.954e+09            -1.8%  1.919e+09        perf-stat.node-load-misses
+>>     4538060            +1.4%    4602862        perf-stat.path-length
+>>       49.62            -0.5       49.14        perf-profile.calltrace.cycles-pp.do_munmap.vm_munmap.__x64_sys_munmap.do_syscall_64.entry_SYSCALL_64_after_hwframe
+>>       47.64            -0.5       47.17        perf-profile.calltrace.cycles-pp._raw_spin_lock_irqsave.percpu_counter_add_batch.do_munmap.vm_munmap.__x64_sys_munmap
+>>       47.49            -0.5       47.02        perf-profile.calltrace.cycles-pp.native_queued_spin_lock_slowpath._raw_spin_lock_irqsave.percpu_counter_add_batch.do_munmap.vm_munmap
+>>       49.99            -0.5       49.53        perf-profile.calltrace.cycles-pp.__x64_sys_munmap.do_syscall_64.entry_SYSCALL_64_after_hwframe
+>>       49.96            -0.5       49.51        perf-profile.calltrace.cycles-pp.vm_munmap.__x64_sys_munmap.do_syscall_64.entry_SYSCALL_64_after_hwframe
+>>       48.02            -0.4       47.58        perf-profile.calltrace.cycles-pp.percpu_counter_add_batch.do_munmap.vm_munmap.__x64_sys_munmap.do_syscall_64
+>>        1.41            -0.0        1.37        perf-profile.calltrace.cycles-pp.unmap_region.do_munmap.vm_munmap.__x64_sys_munmap.do_syscall_64
+>>       47.73            +0.4       48.11        perf-profile.calltrace.cycles-pp.native_queued_spin_lock_slowpath._raw_spin_lock_irqsave.percpu_counter_add_batch.__vm_enough_memory.mmap_region
+>>       47.85            +0.4       48.25        perf-profile.calltrace.cycles-pp._raw_spin_lock_irqsave.percpu_counter_add_batch.__vm_enough_memory.mmap_region.do_mmap
+>>       48.28            +0.4       48.68        perf-profile.calltrace.cycles-pp.__vm_enough_memory.mmap_region.do_mmap.vm_mmap_pgoff.ksys_mmap_pgoff
+>>       48.23            +0.4       48.63        perf-profile.calltrace.cycles-pp.percpu_counter_add_batch.__vm_enough_memory.mmap_region.do_mmap.vm_mmap_pgoff
+>>       48.96            +0.4       49.41        perf-profile.calltrace.cycles-pp.mmap_region.do_mmap.vm_mmap_pgoff.ksys_mmap_pgoff.do_syscall_64
+>>       49.11            +0.5       49.56        perf-profile.calltrace.cycles-pp.do_mmap.vm_mmap_pgoff.ksys_mmap_pgoff.do_syscall_64.entry_SYSCALL_64_after_hwframe
+>>       49.24            +0.5       49.70        perf-profile.calltrace.cycles-pp.vm_mmap_pgoff.ksys_mmap_pgoff.do_syscall_64.entry_SYSCALL_64_after_hwframe
+>>       49.25            +0.5       49.72        perf-profile.calltrace.cycles-pp.ksys_mmap_pgoff.do_syscall_64.entry_SYSCALL_64_after_hwframe
+>>       49.62            -0.5       49.15        perf-profile.children.cycles-pp.do_munmap
+>>       49.99            -0.5       49.53        perf-profile.children.cycles-pp.__x64_sys_munmap
+>>       49.97            -0.5       49.51        perf-profile.children.cycles-pp.vm_munmap
+>>        0.51 ±  2%      -0.0        0.46        perf-profile.children.cycles-pp.___might_sleep
+>>        1.16            -0.0        1.11        perf-profile.children.cycles-pp.unmap_vmas
+>>        1.15            -0.0        1.10        perf-profile.children.cycles-pp.unmap_page_range
+>>        1.41            -0.0        1.37        perf-profile.children.cycles-pp.unmap_region
+>>        0.32 ±  2%      +0.0        0.34 ±  2%  perf-profile.children.cycles-pp.up_write
+>>        0.32 ±  2%      +0.0        0.34        perf-profile.children.cycles-pp.vm_area_alloc
+>>        0.29            +0.0        0.32        perf-profile.children.cycles-pp.kmem_cache_alloc
+>>       48.28            +0.4       48.68        perf-profile.children.cycles-pp.__vm_enough_memory
+>>       48.96            +0.4       49.41        perf-profile.children.cycles-pp.mmap_region
+>>       49.11            +0.5       49.56        perf-profile.children.cycles-pp.do_mmap
+>>       49.25            +0.5       49.71        perf-profile.children.cycles-pp.vm_mmap_pgoff
+>>       49.25            +0.5       49.72        perf-profile.children.cycles-pp.ksys_mmap_pgoff
+>>        0.47 ±  3%      -0.0        0.43        perf-profile.self.cycles-pp.___might_sleep
+>>        0.32 ±  3%      +0.0        0.34 ±  2%  perf-profile.self.cycles-pp.up_write
+>>        0.27            +0.0        0.30        perf-profile.self.cycles-pp.kmem_cache_alloc
+>>        0.49            +0.0        0.53        perf-profile.self.cycles-pp.percpu_counter_add_batch
+>>
+>>
+>>                                                                                  
+>>                              will-it-scale.per_process_ops
+>>                                                                                  
+>>    18000 +-+-----------------------------------------------------------------+
+>>          |                                                                   |
+>>    17500 +-+   +.+                                                           |
+>>          |+.+++  :            +.++++.+++           ++++.++++.++              |
+>>          |        :++. +      :        :          :            :             |
+>>    17000 +-+      +   + ++.++:          :  ++.+++ :            ++.+ ++.   +. |
+>>          |                   +          +.+      +                 +   +++  +|
+>>    16500 +-+                                                                 |
+>>          |              O  OOOO OOOO O O                                     |
+>>    16000 +-+           O O            O O O                                  |
+>>          |                                                                   |
+>>          O     O  OOO O                                                      |
+>>    15500 +O+OOO  O                                                           |
+>>          |                                                                   |
+>>    15000 +-+-----------------------------------------------------------------+
+>>                                                                                  
+>>                                                                                                                                                                  
+>>                                  will-it-scale.workload
+>>                                                                                  
+>>    1.42e+06 +-+--------------------------------------------------------------+
+>>     1.4e+06 +-+   ++                                                         |
+>>             |++.++ :                 ++.                   +++.+             |
+>>    1.38e+06 +-+     :           +.+++   ++          ++++.++    :             |
+>>    1.36e+06 +-+     +.+++++.    :         :         :           :+           |
+>>             |               ++++          ++.+++++.+            + ++.+++++.++|
+>>    1.34e+06 +-+                                                              |
+>>    1.32e+06 +-+                                                              |
+>>     1.3e+06 +-+               O                                              |
+>>             |            OO OO OO OOOOO  OOO                                 |
+>>    1.28e+06 +-+                         O                                    |
+>>    1.26e+06 +-+       O                                                      |
+>>             O     O O  OO                                                    |
+>>    1.24e+06 +OO OO O                                                         |
+>>    1.22e+06 +-+--------------------------------------------------------------+
+>>                                                                                  
+>>                                                                                  
+>> [*] bisect-good sample
+>> [O] bisect-bad  sample
+>>
+>> ***************************************************************************************************
+>> lkp-skl-2sp2: 80 threads Skylake with 64G memory
+>> =========================================================================================
+>> compiler/cpufreq_governor/kconfig/mode/nr_task/rootfs/tbox_group/test/testcase:
+>>    gcc-7/performance/x86_64-rhel-7.2/process/100%/debian-x86_64-2018-04-03.cgz/lkp-skl-2sp2/mmap2/will-it-scale
+>>
+>> commit:
+>>    84dbf35073 ("bpf: Macrofy stack state copy")
+>>    fd978bf7fd ("bpf: Add reference tracking to verifier")
+>>
+>> 84dbf3507349696b fd978bf7fd312581a7ca454a99
+>> ---------------- --------------------------
+>>           %stddev     %change         %stddev
+>>               \          |                \
+>>       16832            -3.8%      16186        will-it-scale.per_process_ops
+>>     1346634            -3.8%    1294984        will-it-scale.workload
+>>      390809 ± 21%     +51.6%     592424 ± 27%  cpuidle.C1.time
+>>        6897            +2.7%       7085        proc-vmstat.nr_mapped
+>>      936.00 ±  7%     +15.6%       1082 ±  5%  slabinfo.Acpi-ParseExt.active_objs
+>>      936.00 ±  7%     +15.6%       1082 ±  5%  slabinfo.Acpi-ParseExt.num_objs
+>>      968.00 ±  9%     +27.5%       1233 ± 16%  slabinfo.pool_workqueue.active_objs
+>>      968.00 ±  9%     +29.7%       1255 ± 16%  slabinfo.pool_workqueue.num_objs
+>>        8430           -14.1%       7244 ±  2%  numa-meminfo.node0.KernelStack
+>>        4283 ± 14%     -22.4%       3325 ± 10%  numa-meminfo.node0.PageTables
+>>       73929 ±  3%     -10.6%      66061 ±  6%  numa-meminfo.node0.SUnreclaim
+>>        5569 ±  2%     +21.0%       6738 ±  3%  numa-meminfo.node1.KernelStack
+>>       55085 ±  5%     +17.5%      64739 ±  5%  numa-meminfo.node1.SUnreclaim
+>>       81155 ±  6%     +16.2%      94292 ±  7%  numa-meminfo.node1.Slab
+>>      230.00          -100.0%       0.00        numa-vmstat.node0.nr_active_file
+>>      100.25 ±  3%     -88.8%      11.25 ±173%  numa-vmstat.node0.nr_inactive_file
+>>        8431           -14.1%       7245 ±  2%  numa-vmstat.node0.nr_kernel_stack
+>>        1071 ± 14%     -22.4%     831.25 ± 10%  numa-vmstat.node0.nr_page_table_pages
+>>       18482 ±  3%     -10.6%      16515 ±  6%  numa-vmstat.node0.nr_slab_unreclaimable
+>>      230.00          -100.0%       0.00        numa-vmstat.node0.nr_zone_active_file
+>>      100.25 ±  3%     -88.8%      11.25 ±173%  numa-vmstat.node0.nr_zone_inactive_file
+>>        5569 ±  2%     +21.0%       6738 ±  3%  numa-vmstat.node1.nr_kernel_stack
+>>        2778 ±  3%     +28.4%       3567 ± 16%  numa-vmstat.node1.nr_mapped
+>>       13771 ±  5%     +17.5%      16184 ±  5%  numa-vmstat.node1.nr_slab_unreclaimable
+>>   1.506e+12            -2.5%  1.468e+12        perf-stat.branch-instructions
+>>       41.41            +0.8       42.20        perf-stat.cache-miss-rate%
+>>   2.165e+10            -1.7%  2.129e+10        perf-stat.cache-references
+>>       11.25            +2.8%      11.57        perf-stat.cpi
+>>   1.891e+12            -2.8%  1.838e+12        perf-stat.dTLB-loads
+>>   6.543e+11            -3.7%    6.3e+11        perf-stat.dTLB-stores
+>>   6.591e+12            -2.6%  6.419e+12        perf-stat.instructions
+>>        0.09            -2.7%       0.09        perf-stat.ipc
+>>   1.967e+09            -1.3%  1.941e+09        perf-stat.node-load-misses
+>>     4894750            +1.3%    4956596        perf-stat.path-length
+>>       40.37 ± 12%     -16.2%      33.81 ±  7%  sched_debug.cfs_rq:/.load_avg.stddev
+>>        0.05 ±  2%     +18.7%       0.06 ±  3%  sched_debug.cfs_rq:/.nr_running.stddev
+>>        6.37 ± 40%     -50.2%       3.17 ± 32%  sched_debug.cfs_rq:/.removed.load_avg.avg
+>>       31.64 ± 18%     -28.5%      22.63 ± 16%  sched_debug.cfs_rq:/.removed.load_avg.stddev
+>>      293.89 ± 40%     -50.1%     146.61 ± 32%  sched_debug.cfs_rq:/.removed.runnable_sum.avg
+>>        1459 ± 18%     -28.3%       1045 ± 16%  sched_debug.cfs_rq:/.removed.runnable_sum.stddev
+>>        2.46 ± 43%     -60.9%       0.96 ± 66%  sched_debug.cfs_rq:/.removed.util_avg.avg
+>>       12.42 ± 26%     -46.5%       6.64 ± 59%  sched_debug.cfs_rq:/.removed.util_avg.stddev
+>>      385.92 ±  6%     +12.8%     435.46 ±  2%  sched_debug.cpu.nr_switches.min
+>>      -14.21           -31.4%      -9.75        sched_debug.cpu.nr_uninterruptible.min
+>>       47.54            -0.2       47.31        perf-profile.calltrace.cycles-pp.native_queued_spin_lock_slowpath._raw_spin_lock_irqsave.percpu_counter_add_batch.do_munmap.vm_munmap
+>>       47.67            -0.2       47.45        perf-profile.calltrace.cycles-pp._raw_spin_lock_irqsave.percpu_counter_add_batch.do_munmap.vm_munmap.__x64_sys_munmap
+>>       48.04            -0.2       47.86        perf-profile.calltrace.cycles-pp.percpu_counter_add_batch.do_munmap.vm_munmap.__x64_sys_munmap.do_syscall_64
+>>       99.36            -0.0       99.34        perf-profile.calltrace.cycles-pp.entry_SYSCALL_64_after_hwframe
+>>        1.47            +0.0        1.51        perf-profile.calltrace.cycles-pp.unmap_region.do_munmap.vm_munmap.__x64_sys_munmap.do_syscall_64
+>>       94.77            -0.3       94.52        perf-profile.children.cycles-pp.native_queued_spin_lock_slowpath
+>>       95.04            -0.2       94.81        perf-profile.children.cycles-pp._raw_spin_lock_irqsave
+>>       95.77            -0.2       95.60        perf-profile.children.cycles-pp.percpu_counter_add_batch
+>>       49.72            -0.1       49.58        perf-profile.children.cycles-pp.do_munmap
+>>        0.53 ±  2%      -0.1        0.47        perf-profile.children.cycles-pp.___might_sleep
+>>        0.30 ±  2%      +0.0        0.33        perf-profile.children.cycles-pp.perf_event_mmap
+>>        0.30 ±  3%      +0.0        0.33 ±  2%  perf-profile.children.cycles-pp.vm_area_alloc
+>>        0.33 ±  2%      +0.0        0.36 ±  2%  perf-profile.children.cycles-pp.up_write
+>>        1.48            +0.0        1.51        perf-profile.children.cycles-pp.unmap_region
+>>       94.77            -0.3       94.52        perf-profile.self.cycles-pp.native_queued_spin_lock_slowpath
+>>        0.48 ±  2%      -0.0        0.44        perf-profile.self.cycles-pp.___might_sleep
+>>        0.33 ±  2%      +0.0        0.36 ±  2%  perf-profile.self.cycles-pp.up_write
+>>        0.53            +0.0        0.57        perf-profile.self.cycles-pp.unmap_page_range
+>>        0.47            +0.0        0.52 ±  2%  perf-profile.self.cycles-pp.percpu_counter_add_batch
+>>
+>>
+>>
+>>
+>>
+>> Disclaimer:
+>> Results have been estimated based on internal Intel analysis and are provided
+>> for informational purposes only. Any difference in system hardware or software
+>> design or configuration may affect actual performance.
+>>
+>>
+>> Thanks,
+>> Rong Chen
+>>

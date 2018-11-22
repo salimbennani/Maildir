@@ -1,0 +1,185 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (61.164.42.155:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 08 Nov 2018 10:29:35 -0000
+Received: from icoremail.net (unknown [209.85.210.178])
+	by mail-app2 (Coremail) with SMTP id by_KCgCn31zgCeRbMCRfAQ--.28921S3;
+	Thu, 08 Nov 2018 18:03:13 +0800 (CST)
+Received: from mail-pf1-f178.google.com (unknown [209.85.210.178])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwAH6EPcCeRbXSkcAA--.5465S3;
+	Thu, 08 Nov 2018 18:03:09 +0800 (CST)
+Received: by mail-pf1-f178.google.com with SMTP id s9-v6so1740359pfm.13
+        for <xuliker@zju.edu.cn>; Thu, 08 Nov 2018 02:03:09 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :from:to:cc:subject:date:in-reply-to:references:message-id:sender
+         :precedence:list-id;
+        bh=zViJP3VKb2tB67yk6NTx3GxxezO1XXEYFFVRwCkQtho=;
+        b=qLeenwnNIiRfjcLVoOvwPKDl/5PsPpQljuwJTn4ErSp+qPsCc36/0CG3JhFcRAo100
+         kvHAcPqoXC2FsQfBvYKeHkwHjRagl6qttJMqEjsOh7ERasfRCqBFo+sWyz4LvlWHLtsR
+         W3SGcs8BAFcQibyoG8nmgVX+gUElQiesrfYWIMYQceAhxHjlOtPeMdqO2yFfJdNm1WRi
+         kVs838Y5LQGhe4gBWIH4bgjJi1iHTu0VgAUYY4zsgrY/OiMWyZaqWvTnjp64ydf0C1Li
+         3X48I8ZtO64qvB5ZDdnjbPcAfPGOmGlP7zInt4lMfzzSP6G45BVghCEHfbVzlwxbsBgs
+         dubQ==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=ibm.com
+X-Gm-Message-State: AGRZ1gInChTLmeVkRhYuSITgq8k5IEVNvg7C6Qh56wwvY1olWFPkrN92
+	lmOFI7FPgOw3rIrdLC15j0mVZkxp8Q+G78sQYi9Zzq4slQXJBxWmAQ==
+X-Received: by 2002:a63:4044:: with SMTP id n65mr3198680pga.90.1541671388783;
+        Thu, 08 Nov 2018 02:03:08 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp314498pjt;
+        Thu, 8 Nov 2018 02:03:07 -0800 (PST)
+X-Google-Smtp-Source: AJdET5cRd2pGSfjRKNjj9chnONELJwqyHcV2Yu2Pk/T7vm2604QotfWl3kW/BQyNEY/mjPfPhsrt
+X-Received: by 2002:a02:9b46:: with SMTP id g6-v6mr3563301jal.60.1541671387829;
+        Thu, 08 Nov 2018 02:03:07 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1541671387; cv=none;
+        d=google.com; s=arc-20160816;
+        b=cpGVFSQoGIek27NYSUA9HLsLz9ehy5E4vyztPwAOHtjuplrbQ+IjQa+OCiwvkP7Ifv
+         mTFZIYTFzTw9EjOwHN6/MBJppXxgzad9JGZpmzCI9ed8bT3UAHqN4m8z9/filfMGQ2lq
+         CA+50OYpPoVl/kQPzbLH4GI3OJR4LZCIFHg6eftth9eK8j3XKtuDrs8meqGTh4NoCLAt
+         CPcKYA8/RoSXL3xE+p/RSROc1rVcLZIz8r9VpvvGKJs2SuHpc87tR0e3/lB2i8yWmoAf
+         PbJiDMqKJ7Kh0lfE3BcN1Y8Hrgpx105wsgbO8dulsXOx4Osek6TICyO0r6+puLg+z2hq
+         5Mfg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:message-id:references:in-reply-to:date
+         :subject:cc:to:from;
+        bh=zViJP3VKb2tB67yk6NTx3GxxezO1XXEYFFVRwCkQtho=;
+        b=oFw7F31S3Qp/pMu4YYudpiTVUMTlZoejcuMFdCYmtJ/9jb0okEVDlJVa31ARglLSWd
+         blCQK6sjxyZOis1g/31aqEpsInn6UvenwFzLxgSxaNHmsqRMoM3Z/0V/gC+8nnk8t4rf
+         AOZtxHIMhClRPYCcvUGjqlcyI3mI1wA6TDXhLVWh/Y84bjhT4C3x47NyjGR8LQ33SQQK
+         F6tO1ICoCenQ5Im2uKggar6HhL5PDhtxd+WwqxqSsXvWKA0bLZYPDmRug/ID4idkMDiz
+         oKEna5pPyfW4/gWB5Hgw2fTxIEwpPiEyxG3XZGivuWdQHv15ZG3Wk0FfRybPrOjpxmru
+         Qg+Q==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=ibm.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id r15-v6si2786976itb.4.2018.11.08.02.02.54;
+        Thu, 08 Nov 2018 02:03:07 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1726581AbeKHTf6 (ORCPT <rfc822;fanshuming2011@gmail.com>
+        + 99 others); Thu, 8 Nov 2018 14:35:58 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:57546 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726421AbeKHTf6 (ORCPT
+        <rfc822;kvm@vger.kernel.org>); Thu, 8 Nov 2018 14:35:58 -0500
+Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.22/8.16.0.22) with SMTP id wA89sF8V079062
+        for <kvm@vger.kernel.org>; Thu, 8 Nov 2018 05:01:15 -0500
+Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2nmhf2c5vp-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <kvm@vger.kernel.org>; Thu, 08 Nov 2018 05:01:15 -0500
+Received: from localhost
+        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <kvm@vger.kernel.org> from <frankja@linux.ibm.com>;
+        Thu, 8 Nov 2018 10:01:13 -0000
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (9.149.109.196)
+        by e06smtp02.uk.ibm.com (192.168.101.132) with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted;
+        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256/256)
+        Thu, 8 Nov 2018 10:01:10 -0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id wA8A19rI7340358
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
+        Thu, 8 Nov 2018 10:01:09 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 19542A4051;
+        Thu,  8 Nov 2018 10:01:09 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id B9567A4053;
+        Thu,  8 Nov 2018 10:01:08 +0000 (GMT)
+Received: from frankja-ThinkPad-W541.fritz.box (unknown [9.145.28.214])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu,  8 Nov 2018 10:01:08 +0000 (GMT)
+From: Janosch Frank <frankja@linux.ibm.com>
+To: kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, david@redhat.com, thuth@redhat.com,
+        cohuck@redhat.com
+Subject: [kvm-unit-tests PATCH] s390x: Fixup interrupt psws
+Date: Thu,  8 Nov 2018 11:00:58 +0100
+X-Mailer: git-send-email 2.7.4
+In-Reply-To: <1541669224-29953-1-git-send-email-frankja@linux.ibm.com>
+References: <1541669224-29953-1-git-send-email-frankja@linux.ibm.com>
+X-TM-AS-GCONF: 00
+x-cbid: 18110810-0008-0000-0000-0000028F08C4
+X-IBM-AV-DETECTION: SAVI=unused REMOTE=unused XFE=unused
+x-cbparentid: 18110810-0009-0000-0000-000021F94C10
+Message-Id: <1541671258-4294-1-git-send-email-frankja@linux.ibm.com>
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2018-11-08_06:,,
+ signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ malwarescore=0 suspectscore=1 phishscore=0 bulkscore=0 spamscore=0
+ clxscore=1015 lowpriorityscore=0 mlxscore=0 impostorscore=0
+ mlxlogscore=449 adultscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.0.1-1807170000 definitions=main-1811080087
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwAH6EPcCeRbXSkcAA--.5465S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW7Zw4fXFy8trWfXF1ruw4rKrg_yoW8Gr1UpF
+	WDG3WkZr48t3WSvFZFqFW0vr43G3W3Ww1rCayrAw4UArW7tw1FvFy7AFy3Kw1Yg34xXFyr
+	ZFWFy3Wq9a4xXFJanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUP2b7Iv0xC_Cr1lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1l84ACjcxK6I8E
+	87Iv67AKxVW0oVCq3wA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_GcCE3s1le2I262IYc4CY6c
+	8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_JrI_
+	JrylYx0Ex4A2jsIE14v26r4j6F4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvY0x0EwI
+	xGrwCjxxvEa2IrMxkF7I0Ew4C26cxK6c8Ij28IcwCY1Ik26cxK6xAEc7vF6xCjj44lc2xS
+	Y4AK6IIF6r4DMxkI7II2jI8vz4vEwIxGrwCYIxAIcVC0I7IYx2IY67AKxVW8JVW5JwCYIx
+	AIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMxvI42IY6I8E87Iv67AKxVWxJr0_GcWlcIIF
+	0xvEx4A2jsIEc7CjxVAFwI0_Cr1j6rxdMxAIw28IcxkI7VAKI48JMxAIw28IcVAKzI0EY4
+	vE52x082I5MxCjnVCjjxCrMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_
+	Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWUAVWUtwCIc40Y0x
+	0EwIxGrwCI42IY6xAIw20EY4v20xvaj40_Gr0_ZrUvcSsGvfC2KfnxnUUI43ZEXa7IU5rg
+	A7UUUUU==
+
+Let's use the svc psw instead of the mccheck psw for svc interrupts
+and name it supervisor call. Also we exchange the io int psw for the
+right one.
+
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+---
+ lib/s390x/interrupt.c | 2 +-
+ s390x/cstart64.S      | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/lib/s390x/interrupt.c b/lib/s390x/interrupt.c
+index 6d0d4a3..4bcfdd6 100644
+--- a/lib/s390x/interrupt.c
++++ b/lib/s390x/interrupt.c
+@@ -137,6 +137,6 @@ void handle_io_int(void)
+ 
+ void handle_svc_int(void)
+ {
+-	report_abort("Unexpected service call interrupt: at %#lx",
++	report_abort("Unexpected supervisor call interrupt: at %#lx",
+ 		     lc->svc_old_psw.addr);
+ }
+diff --git a/s390x/cstart64.S b/s390x/cstart64.S
+index d6d40b7..dc7ddd6 100644
+--- a/s390x/cstart64.S
++++ b/s390x/cstart64.S
+@@ -33,10 +33,10 @@ init_psw_cont:
+ 	larl	%r1, mcck_int_psw
+ 	mvc	GEN_LC_MCCK_NEW_PSW(16), 0(%r1)
+ 	/* setup io interrupt handler */
+-	larl	%r1, ext_int_psw
++	larl	%r1, io_int_psw
+ 	mvc	GEN_LC_IO_NEW_PSW(16), 0(%r1)
+ 	/* setup svc interrupt handler */
+-	larl	%r1, mcck_int_psw
++	larl	%r1, svc_int_psw
+ 	mvc	GEN_LC_SVC_NEW_PSW(16), 0(%r1)
+ 	/* setup cr0, enabling e.g. AFP-register control */
+ 	larl	%r1, initial_cr0
+-- 
+2.7.4

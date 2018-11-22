@@ -1,0 +1,134 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (61.164.42.155:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 16 Nov 2018 13:51:08 -0000
+Received: from icoremail.net (unknown [209.85.210.176])
+	by mail-app2 (Coremail) with SMTP id by_KCgDHH_qwr+5bOXCiAQ--.48362S3;
+	Fri, 16 Nov 2018 19:53:20 +0800 (CST)
+Received: from mail-pf1-f176.google.com (unknown [209.85.210.176])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwA3FECsr+5blDVJAA--.2958S3;
+	Fri, 16 Nov 2018 19:53:16 +0800 (CST)
+Received: by mail-pf1-f176.google.com with SMTP id g62so8049607pfd.12
+        for <xuliker@zju.edu.cn>; Fri, 16 Nov 2018 03:53:16 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :from:to:cc:subject:date:message-id:sender:precedence:list-id;
+        bh=0eVS5j1BEJweenWgnGJn7v7ja7I0HFB0afTULe3Yo7w=;
+        b=taxUSJXRt+CNULLj9EPTtt/zrPwgfZZmTt4S6I7nYUgkkiuh8gPOOJPlq3gulLZZuu
+         Xt2hBlpFZfBjdcnuZcAeqR1cFl9HIvp8ehjSEq2V7EkGb+SfMlOeDtACLAEzFLkK2gBe
+         TXvUjLvD3TEGljue9h88L/5qYWXO9aSWvICD8XkpBu50hbQ1GEC8KPh4Iyfn259y4QSt
+         LK2c59l1r1Kisey7xqtrLU7etxYEMAPd96jiKWkiz/edwCGpGIxVjaDURCw9d+AH5PUA
+         74lq5IhhOyq73Re0EiHAeq0wJPd2oGNIed6YMnhxjyYhWXlg2RK7BpWIHz10Y21opEHy
+         9TGw==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=redhat.com
+X-Gm-Message-State: AGRZ1gKSkVHtJsC/3MQ4f9GyW+C2rxeKlrQxoXcHuJx9CVs1KiWD1Vd7
+	g57HE86BW7FmYNvnVsyqB0q30wCTteib8NtfcF8siE9l2ddWUpk=
+X-Received: by 2002:a62:5e83:: with SMTP id s125-v6mr10627436pfb.232.1542369195818;
+        Fri, 16 Nov 2018 03:53:15 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:d106:0:0:0:0 with SMTP id l6-v6csp313287pju;
+        Fri, 16 Nov 2018 03:53:15 -0800 (PST)
+X-Google-Smtp-Source: AJdET5f8ZE/1yddO8QMrOK07RgtFMSOjcqdJ3IzcFvDfOFEclGwr+L1N7G1k0pgbIrCtztyxEoPf
+X-Received: by 2002:a63:e40c:: with SMTP id a12mr9739765pgi.28.1542369195095;
+        Fri, 16 Nov 2018 03:53:15 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542369195; cv=none;
+        d=google.com; s=arc-20160816;
+        b=NC+JX0g4IJJxraAiXWX5f1/KBvvj4+z2lLoyD1TuWPiJYdf4U5kZ98kgcarvoI4Dbe
+         6a7f/2RoY8sfIBc59iMFTOxNqmb8PMkrRYBEVBsfo6mZkFxC5oeI2tKZPDZhozxJiasA
+         8c67UjYhtoLl5CWZZYi1qVKIVkaC4aSePBZ9fcRnXq7AfS+K49+niEXVMI2+y3U4Y6Fo
+         6+H/QcljTJylyHvXxSmax/Npw//bd1RRXajLLSMZEdT7j4VU2ahp1s8nqj0kaNuXyb36
+         w/EMMz/xobmM0AYGMJXWn2+++OfL9DiH5YtBS7v/QYNpe1WJos+otsAr22oedDAn1ZGH
+         +/Fw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:message-id:date:subject:cc:to:from;
+        bh=0eVS5j1BEJweenWgnGJn7v7ja7I0HFB0afTULe3Yo7w=;
+        b=IcRBiai5qEfzNRnQb0rUCu2b9hNai5EUJjUtxO3VAghR+NnmVD8vljiWj1Kp8oDG1x
+         gVKPIQQqhXNbSxxBZDJyhOhZdAEE9zq+u+HGyeuCi2sXEkCKlnsediNVOAsEvKd4ZM4L
+         RvQfgw96pZscfct1CFkiRBFlGPii8Y3bacU3rfdRXxYKQTuZoadovVtlGOXHmFMqAhu0
+         tdYEw/sSzp8gK86Kos3YVK1tsrX/V3Q1nhsqrelZbOSXMKxvfa9JtZIAxEQTFmUj7OOU
+         moM4599iOMm6itT46VSDvZR5jg8SeSouYRbItCVLLryc8dJw7/D9yUB832l57iMDYcg1
+         1MIg==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=redhat.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id f16si29562161pgb.140.2018.11.16.03.52.52;
+        Fri, 16 Nov 2018 03:53:15 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1727963AbeKPWEK (ORCPT <rfc822;nodee764@gmail.com> + 99 others);
+        Fri, 16 Nov 2018 17:04:10 -0500
+Received: from mx1.redhat.com ([209.132.183.28]:43410 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727767AbeKPWEK (ORCPT <rfc822;kvm@vger.kernel.org>);
+        Fri, 16 Nov 2018 17:04:10 -0500
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id DB8A93082E52;
+        Fri, 16 Nov 2018 11:52:08 +0000 (UTC)
+Received: from thuth.com (ovpn-116-131.ams2.redhat.com [10.36.116.131])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 5BEF365337;
+        Fri, 16 Nov 2018 11:52:05 +0000 (UTC)
+From: Thomas Huth <thuth@redhat.com>
+To: Paolo Bonzini <pbonzini@redhat.com>,
+        =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>
+Cc: kvm@vger.kernel.org, David Hildenbrand <david@redhat.com>,
+        Janosch Frank <frankja@linux.ibm.com>
+Subject: [kvm-unit-tests PULL 0/1] Fix for s390x interrupt PSWs
+Date: Fri, 16 Nov 2018 12:52:00 +0100
+Message-Id: <1542369121-8879-1-git-send-email-thuth@redhat.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.46]); Fri, 16 Nov 2018 11:52:08 +0000 (UTC)
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwA3FECsr+5blDVJAA--.2958S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvdXoW7GF1UAF43KFyDJryUXFyfCrg_yoW3CFg_WF
+	y0yF18Jry8Ar12yw1UGr1UGw1UG3WUJr1UJr1UKr47Jr13Jr4DJr1UWr4UXFy8XF1UAr45
+	Zr4DtwnxAr1UKjkaLaAFLSUrUUUUUb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAU7a7-sFnT
+	9fnUUIcSsGvfJTRUUUbDxYjsxI4VWxJwAYFVCjjxCrM7AC8VAFwI0_Jr0_Gr1l1IIY67AE
+	w4v_Jr0_Jr4l8cAvFVAK0II2c7xJM28CjxkF64kEwVA0rcxSw2x7M28EF7xvwVC0I7IYx2
+	IY67AKxVW5JVW7JwA2z4x0Y4vE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwA2z4x0Y4vEx4A2
+	jsIE14v26rxl6s0DM28EF7xvwVC2z280aVCY1x0267AKxVW0oVCq3wAS0I0E0xvYzxvE52
+	x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AKxVWUGVWU
+	XwAv7VC2z280aVAFwI0_Gr0_Cr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcVAKI48JMx
+	02cVCv0xWlc7CjxVAKzI0EY4vE52x082I5MxkFs20EY4vE44CYbxCE4x80FwCY02Avz4vE
+	IxC_Gw4lc2IjII80xcxEwVAKI48JMxvI42IY6xIIjxv20xvE14v26r1I6r4UMxvI42IY6x
+	IIjxv20xvEc7CjxVAFwI0_Jr0_Gr1lcIIF0xvEx4A2jsIE14v26F4UJVW0owCYIxAIcVC2
+	z280aVCY1x0267AKxVWxJr0_GcWl42xK82IYc2Ij64vIr41l42xK82IY64kExVAvwVAq07
+	x20xyl4x8a6x804xWl4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWU
+	GwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r126r1DMIIYrxkI7VAKI4
+	8JMIIF0xvE42xK8VAvwI8IcIk0rVW8JVW3JbIYCTnIWIevJa73UjIFyTuYvjxUq1CJDUUU
+	U
+
+ Hi Radim & Paolo,
+
+the following changes since commit 47cc3d85c2fe6fe4618e513b39046abe73f2803c:
+
+  nVMX x86: Check PML and EPT on vmentry of L2 guests (2018-10-01 19:04:02 +0200)
+
+are available in the git repository at:
+
+  https://gitlab.com/huth/kvm-unit-tests.git tags/s390x-2018-11-16
+
+for you to fetch changes up to d57da8bd6035be718c1eb3ce1d135836afab5ce1:
+
+  s390x: Fixup interrupt psws (2018-11-16 12:36:51 +0100)
+
+----------------------------------------------------------------
+Fix for s390x interrupt program status words
+----------------------------------------------------------------
+
+Janosch Frank (1):
+      s390x: Fixup interrupt psws
+
+ lib/s390x/interrupt.c | 2 +-
+ s390x/cstart64.S      | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)

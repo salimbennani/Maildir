@@ -1,0 +1,182 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 14 Nov 2018 00:35:20 -0000
+Received: from icoremail.net (unknown [209.85.210.172])
+	by mail-app2 (Coremail) with SMTP id by_KCgC3f93m_+pbCYWHAQ--.41457S3;
+	Wed, 14 Nov 2018 00:46:31 +0800 (CST)
+Received: from mail-pf1-f172.google.com (unknown [209.85.210.172])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwD33kri_+pb0Fs5AA--.1432S3;
+	Wed, 14 Nov 2018 00:46:26 +0800 (CST)
+Received: by mail-pf1-f172.google.com with SMTP id g7-v6so6330341pfo.10
+        for <xuliker@zju.edu.cn>; Tue, 13 Nov 2018 08:46:26 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent:sender:precedence
+         :list-id;
+        bh=ons/cWQGerjV519z9mU0PEGOAXRCAD9LRSZwxrGkzaQ=;
+        b=ZgqBgkFACarbjLgIya455X4CmYhiFXI8CAhLgc5Yvyz9+WzVEbfrWIzmZok6eSlKsB
+         Lit/g9e39kv608ZPiPfA6mo2Avt7GQIOlhuNWDodp9dmQfUEp0KFl0rlimLO/G7hncSV
+         xrbpWOqtRqVGclHowf4c/MD0mIC0mqB7DfH0ciENodj+mpZ419RU+xHLDhkGtYZOxrkW
+         hhz9jkjUYqAqHcyQmn8aMNQwRcyqZkUYDlhVyFyqZv112mPzcn0ogtU1axm7BOd15nsV
+         4Mlu9j49VRPC0v1Z8EKuuU/GsgpE3nb0RVkvRQ+hPFPOVU8oOl/oWB4jMVOL7+q8TCfm
+         tQsw==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=intel.com
+X-Gm-Message-State: AGRZ1gLPzgJjnkY94aBWro0NPN2NuNhVIs1BVv90Zu1Gk1wDBmw1rviI
+	qGCjsmnYTyvufWanz0NeBiMYykAdxKaRwKD98IQA9PDJEYyOMd06mA==
+X-Received: by 2002:a63:3c44:: with SMTP id i4mr5349785pgn.286.1542127586024;
+        Tue, 13 Nov 2018 08:46:26 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp4702454pjt;
+        Tue, 13 Nov 2018 08:46:25 -0800 (PST)
+X-Google-Smtp-Source: AJdET5cRUG1lx9gjiW8c0w5P5Tf3QBXb0F57osQ0ZdG6UHRKtxxNhIIt0Lxtm79tpCnePdlprVtQ
+X-Received: by 2002:a62:1709:: with SMTP id 9mr4572356pfx.249.1542127585016;
+        Tue, 13 Nov 2018 08:46:25 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542127584; cv=none;
+        d=google.com; s=arc-20160816;
+        b=d/2yPvxR+tEpGq8kbNY7MROOop/GzmFLLf7EY5UTaF5wL69Uy5++TiMld5tmaDRdnD
+         fqGh7N6ng0PcozD30N5ywJ8sSydmX0nmS8WWSHbnIg9piZmm3dHK55sk/LCTxbgf4x20
+         3J5aoMSvAahvuHSzOfDnrMq5Aqbxklip5hFgHtVVyT9uIKWUN7bnZms/nrofUzWY5Uqv
+         Yn+7YXc8AlejJK5xV+psW4bv6J7GNYOQjPrQtOfGZSpqx7ZgtWCDb1E3FMLt79Ihlv/h
+         oDsMkyYYBLUzm3gTE4K0HQz76nhIBTq8uYoL+ZSDuG+APrfOalqNCUivVc/hCGiER3T1
+         pO3Q==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:user-agent:in-reply-to
+         :content-disposition:mime-version:references:message-id:subject:cc
+         :to:from:date;
+        bh=ons/cWQGerjV519z9mU0PEGOAXRCAD9LRSZwxrGkzaQ=;
+        b=VNksAFiGiVhkly/LNbTbz3qc1s9/9uVLIkgYGjaLR24iZYfdolV57U3o9llfH08WMx
+         2bpxHTi/Id5y4szzCzCtQ4FXQWyAgKmcbJIvhr5d3sIG3JgYDiSsr2aEsDMHMm11KtEd
+         JXzhN3fOvVeJMEysmAwK4rIiGFKJPa4K3d6r2EqODzxXWuV6VM9FiBXUCzv7UUHebnc8
+         c20wWkzYLPNn0+ofRt8d5EBaqKDSXMfV+vb0j3mIqiZ+c0Hn7stlEVPqAyMzPriSnwBa
+         yS9QawW1omSDVAgrWrFr15asYoMwiiEzNWHsVHpWP46LPirzSqhd0EY70aiD6G4ez/If
+         o5Gg==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=intel.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id v14-v6si20905616pgt.78.2018.11.13.08.46.09;
+        Tue, 13 Nov 2018 08:46:24 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1728431AbeKNCoo (ORCPT <rfc822;fanshuming2011@gmail.com>
+        + 99 others); Tue, 13 Nov 2018 21:44:44 -0500
+Received: from mga14.intel.com ([192.55.52.115]:7325 "EHLO mga14.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726517AbeKNCon (ORCPT <rfc822;kvm@vger.kernel.org>);
+        Tue, 13 Nov 2018 21:44:43 -0500
+X-Amp-Result: UNKNOWN
+X-Amp-Original-Verdict: FILE UNKNOWN
+X-Amp-File-Uploaded: False
+Received: from orsmga004.jf.intel.com ([10.7.209.38])
+  by fmsmga103.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 13 Nov 2018 08:45:50 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.56,228,1539673200"; 
+   d="scan'208";a="249384301"
+Received: from sjchrist-coffee.jf.intel.com (HELO linux.intel.com) ([10.54.74.154])
+  by orsmga004.jf.intel.com with ESMTP; 13 Nov 2018 08:45:50 -0800
+Date: Tue, 13 Nov 2018 08:45:50 -0800
+From: Sean Christopherson <sean.j.christopherson@intel.com>
+To: Krish Sadhukhan <krish.sadhukhan@oracle.com>
+Cc: kvm@vger.kernel.org, pbonzini@redhat.com, jmattson@google.com,
+        rkrcmar@redhat.com
+Subject: Re: [PATCH 3/6] nVMX x86: Re-organize the code in
+ nested_check_vmentry_prereqs(), that are related to Host State Area
+Message-ID: <20181113164550.GA4079@linux.intel.com>
+References: <20181113061209.6843-1-krish.sadhukhan@oracle.com>
+ <20181113061209.6843-4-krish.sadhukhan@oracle.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20181113061209.6843-4-krish.sadhukhan@oracle.com>
+User-Agent: Mutt/1.5.24 (2015-08-30)
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwD33kri_+pb0Fs5AA--.1432S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW7uFWkKFW5Jry8ZF4DKry3Jwb_yoW8tFWrpa
+	95Wr1qvrWUt347G3sIqrs5JFWS93sY9Fn3J3sYg3W5XFn2gF13JrWY9398try3JrWrW34f
+	u3WUtF4xuw1ayFJanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUPIb7Iv0xC_tr1lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2
+	z280aVAFwI0_Gr1j6F4UJwA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_Gr1j6F4UJwAS0I0E0x
+	vYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AK
+	xVWUJVWUGwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcV
+	AKI48JMx02cVCv0xWlc7CjxVAKzI0EY4vE52x082I5MxkFs20EY4vE44CYbxCE4x80FwCY
+	02Avz4vEIxC_JwCY0x0Ix7I2Y4AK64vIr41lcIIF0xvE2Ix0cI8IcVAFwI0_Gr0_Xr1lcI
+	IF0xvE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwCYIxAIcVC2z280aVAFwI0_Gr0_Cr1lcIIF
+	0xvEx4A2jsIEc7CjxVAFwI0_Gr0_Gr1UMxAIw28IcxkI7VAKI48JMxAIw28IcVAKzI0EY4
+	vE52x082I5MxCjnVCjjxCrMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_
+	Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWUAVWUtwCIc40Y0x
+	0EwIxGrwCI42IY6xAIw20EY4v20xvaj40_Zr0_Wr1UYxBIdaVFxhVjvjDU0xZFpf9x07be
+	l1kUUUUU=
+
+On Tue, Nov 13, 2018 at 01:12:06AM -0500, Krish Sadhukhan wrote:
+> Separate out the checks in nested_check_vmentry_prereqs(), that are related
+> to the Host State Area, to a separate function. The re-organized code
+> is easier for readability, enhancement and maintenance.
+> 
+> Signed-off-by: Krish Sadhukhan <krish.sadhukhan@oracle.com>
+> Reviewed-by: Mihai Carabas <mihai.carabas@oracle.com>
+> Reviewed-by: Mark Kanda <mark.kanda@oracle.com>
+> ---
+>  arch/x86/kvm/vmx.c | 21 +++++++++++++++------
+>  1 file changed, 15 insertions(+), 6 deletions(-)
+> 
+> diff --git a/arch/x86/kvm/vmx.c b/arch/x86/kvm/vmx.c
+> index d9f3bc7..735b634 100644
+> --- a/arch/x86/kvm/vmx.c
+> +++ b/arch/x86/kvm/vmx.c
+> @@ -12325,11 +12325,25 @@ static int nested_check_guest_state_area(struct vmcs12 *vmcs12)
+>  	return 0;
+>  }
+>  
+> +/*
+> + * Checks related to Host State Area
+> + */
+> +static int nested_check_host_state_area(struct vmcs12 *vmcs12)
+> +{
+> +	if (!nested_host_cr0_valid(vcpu, vmcs12->host_cr0) ||
+> +	    !nested_host_cr4_valid(vcpu, vmcs12->host_cr4) ||
+> +	    !nested_cr3_valid(vcpu, vmcs12->host_cr3))
+> +		return -EINVAL;
+> +
+> +	return 0;
+> +}
+> +
+>  static int nested_check_vmentry_prereqs(struct kvm_vcpu *vcpu, struct vmcs12 *vmcs12)
+>  {
+>  	struct vcpu_vmx *vmx = to_vmx(vcpu);
+>  
+> -	if (nested_check_guest_state_area(vmcs12))
+> +	if (nested_check_guest_state_area(vmcs12) ||
+> +	    nested_check_host_state_area(vmcs12))
+>  		return VMXERR_ENTRY_INVALID_CONTROL_FIELD;
+
+Host state checks cause VMXERR_ENTRY_INVALID_HOST_STATE_FIELD (look below).
+
+>  
+>  	if (nested_vmx_check_io_bitmap_controls(vcpu, vmcs12))
+> @@ -12392,11 +12406,6 @@ static int nested_check_vmentry_prereqs(struct kvm_vcpu *vcpu, struct vmcs12 *vm
+>  	if (vmcs12->cr3_target_count > nested_cpu_vmx_misc_cr3_count(vcpu))
+>  		return VMXERR_ENTRY_INVALID_CONTROL_FIELD;
+>  
+> -	if (!nested_host_cr0_valid(vcpu, vmcs12->host_cr0) ||
+> -	    !nested_host_cr4_valid(vcpu, vmcs12->host_cr4) ||
+> -	    !nested_cr3_valid(vcpu, vmcs12->host_cr3))
+> -		return VMXERR_ENTRY_INVALID_HOST_STATE_FIELD;
+> -
+>  	/*
+>  	 * From the Intel SDM, volume 3:
+>  	 * Fields relevant to VM-entry event injection must be set properly.
+> -- 
+> 2.9.5
+> 

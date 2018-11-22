@@ -1,0 +1,521 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (61.164.42.155:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 11 Nov 2018 15:02:55 -0000
+Received: from icoremail.net (unknown [209.85.214.173])
+	by mail-app2 (Coremail) with SMTP id by_KCgDnX9890uZbwd1uAQ--.33903S3;
+	Sat, 10 Nov 2018 20:42:38 +0800 (CST)
+Received: from mail-pl1-f173.google.com (unknown [209.85.214.173])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwB38Ew50uZb19kmAA--.9380S3;
+	Sat, 10 Nov 2018 20:42:33 +0800 (CST)
+Received: by mail-pl1-f173.google.com with SMTP id b5-v6so2165750pla.6
+        for <xuliker@zju.edu.cn>; Sat, 10 Nov 2018 04:42:33 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent:sender:precedence
+         :list-id;
+        bh=AI2HBz3sENoYIPVL38i1qUTVECzjGaJdNVSe+jw9Cbw=;
+        b=rQHHp1orOArNSGw7Nkj4XI/bTB931+A7vqAiqUjd0BNOQkMNUU8I/kPUb3jpm/9nBt
+         iT0ZhZ8I6GU4nfrzgfPfSkOaj1uUcC2kmthnJ21YTkorWIgJ9Q881c9a0DqCeGF404Vv
+         HVWcTu+xXrWcMb9vTyg/0wQ3tNfora8M3xchb0pmaJDCiAD0O7ioW8GJBIDY6aygRe2Y
+         +bpGmqYy9Cdtd8YTTiJr/3eUAR6Y+uZQwjETAfHZGKkBpuGmBYRwKUZwKLXpNgMm8Gou
+         Ql+m3Vk7r8wYQHBx4FUGgfC+/Cy+6eW83VtUqYmhBii9U1FFhz5MdQcBeTFb0wcwvvy4
+         nT7g==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org
+X-Gm-Message-State: AGRZ1gKo1uCf3NFWmgUYdPDbwbkhH6nGHy7YRvZ23parKetJPYqSrXqF
+	g+1bMGiLhFFk6FRvhIfQc0Z8mUWBGRCatNY/fPsGzwNY7eiC5QQ=
+X-Received: by 2002:a17:902:a9:: with SMTP id a38-v6mr12806409pla.7.1541853753238;
+        Sat, 10 Nov 2018 04:42:33 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp1062729pjt;
+        Sat, 10 Nov 2018 04:42:31 -0800 (PST)
+X-Google-Smtp-Source: AJdET5cZMQ9L1dAFdjvQVpeOJhP7uuCv3uUUnpLky5v4r+uzTb99yr+kKWYpuWJE0c0zd3sRaMed
+X-Received: by 2002:a65:6684:: with SMTP id b4mr10919928pgw.55.1541853751744;
+        Sat, 10 Nov 2018 04:42:31 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1541853751; cv=none;
+        d=google.com; s=arc-20160816;
+        b=RxmBwNYMaAPr9yrG/E5uJVNopRF7wkemNGaorbrZJKpxa/dshyCSEySr7kp+TPinds
+         vMOfD/iframyhSkulKEXDyc8iK0xQBo1fdSugpJ9dtSTy9q1z7l0dKfKa2kj2Alf5bSY
+         cg9f/g5pryYYy+zZIAkXcKnl7K2MAaGG9efPL9MPhLzf2BXCJo+S4DN0ExDb72nmndc3
+         4kgeo3BXAxy4+t12KPlNqLTnms6WaI16k0VEGc1T1vQLAbWfYxYX0y/JkKqSXMVBbxHv
+         0rnhL54Iqabp7CJ1NVRzzuFvW76xi7Nu1gUn7FJot8552eraCDKLuwmePMopyCAcCJk3
+         lO0A==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:user-agent:in-reply-to
+         :content-disposition:mime-version:references:message-id:subject:cc
+         :to:from:date;
+        bh=AI2HBz3sENoYIPVL38i1qUTVECzjGaJdNVSe+jw9Cbw=;
+        b=sQJz8UzsQSd9BairFm4vgVzjUJOLHtQnaoFxSR+chDE11BZifI1GAgYtFE9SH9FOxv
+         V4+VZ/gL75/HPHxdA2vkIKlZaZsGfn+QYH9++EOOuwsgEAURMXn632PWlrjY9LEzWVP1
+         ipX2cNRmbPvOVm2rW1/uoYLuT46CHFbzVkRQrIgAOCjmwmyXmJtEK97pJlAaAvc4sfWP
+         tkv+8i12kJ3yckATjSi6EFzsMfITy2tylTGQ1YnQhbpUpEZU1Z/EkvmkOpbKFqptfE2S
+         1l20bDVZEh8DS9ZhFlQt+gm96k5xY6q0ZJTrnfv1u0zWbFcez5dmCND7FapTV2SaRwoq
+         ID1g==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id gn6si10826592plb.321.2018.11.10.04.42.16;
+        Sat, 10 Nov 2018 04:42:31 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1729046AbeKJW1G (ORCPT <rfc822;tu.k.phung@gmail.com>
+        + 99 others); Sat, 10 Nov 2018 17:27:06 -0500
+Received: from mail.bootlin.com ([62.4.15.54]:33882 "EHLO mail.bootlin.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728974AbeKJW1G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+        Sat, 10 Nov 2018 17:27:06 -0500
+Received: by mail.bootlin.com (Postfix, from userid 110)
+        id 038CF20731; Sat, 10 Nov 2018 13:42:08 +0100 (CET)
+X-Spam-Checker-Version: SpamAssassin 3.4.2 (2018-09-13) on mail.bootlin.com
+X-Spam-Level: 
+X-Spam-Status: No, score=-1.0 required=5.0 tests=ALL_TRUSTED,SHORTCIRCUIT
+        shortcircuit=ham autolearn=disabled version=3.4.2
+Received: from localhost (unknown [88.191.26.124])
+        by mail.bootlin.com (Postfix) with ESMTPSA id C1EED206A7;
+        Sat, 10 Nov 2018 13:41:57 +0100 (CET)
+Date: Sat, 10 Nov 2018 13:41:58 +0100
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: zoro <long17.cool@163.com>
+Cc: a.zummo@towertech.it, robh+dt@kernel.org, mark.rutland@arm.com,
+        linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/3] rtc: sd3078: new driver.
+Message-ID: <20181110124158.GA9674@piout.net>
+References: <1541839433-28811-1-git-send-email-long17.cool@163.com>
+ <1541839433-28811-2-git-send-email-long17.cool@163.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1541839433-28811-2-git-send-email-long17.cool@163.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwB38Ew50uZb19kmAA--.9380S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW3ur4UAF4kKw1UZr4kJF18Xwb_yoWDArWUpa
+	13JFnxKFWqqF1agrZ5tFn5uF13Jw1UXwn7urs3Gr43uF1DJ3sxt3ZYgrW5AF47JrWkCrWS
+	gr1Y9ay3ZFWq9wUanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUU0bIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUPYb7Iv0xC_Kw4lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Xr0_Ar1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1l84ACjcxK6I8E
+	87Iv67AKxVW0oVCq3wA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_GcCE3s1le2I262IYc4CY6c
+	8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_Jr0_
+	Jr4lYx0Ex4A2jsIE14v26r4j6F4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvEwIxGrw
+	CjxxvEa2IrMxkF7I0Ew4C26cxK6c8Ij28IcwCY1Ik26cxK6xAEc7vF6xCjj44lc2xSY4AK
+	6IIF6ryUMxkI7II2jI8vz4vEwIxGrwCYIxAIcVC0I7IYx2IY67AKxVWUJVWUCwCYIxAIcV
+	C0I7IYx2IY6xkF7I0E14v26r1j6r4UMxvI42IY6I8E87Iv67AKxVWxJr0_GcWlcIIF0xvE
+	x4A2jsIEc7CjxVAFwI0_Cr1j6rxdMxAIw28IcxkI7VAKI48JMxAIw28IcVAKzI0EY4vE52
+	x082I5MxCjnVCjjxCrMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr0_
+	Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWUtVW8ZwCIc40Y0x0EwI
+	xGrwCI42IY6xAIw20EY4v20xvaj40_Zr0_Wr1UYxBIdaVFxhVjvjDU0xZFpf9x07bmiiDU
+	UUUU=
+
+Hello,
+
+On 10/11/2018 16:43:52+0800, zoro wrote:
+> diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
+> index 290c173..de9b670 100644
+> --- a/drivers/rtc/Makefile
+> +++ b/drivers/rtc/Makefile
+> @@ -176,3 +176,4 @@ obj-$(CONFIG_RTC_DRV_WM8350)	+= rtc-wm8350.o
+>  obj-$(CONFIG_RTC_DRV_X1205)	+= rtc-x1205.o
+>  obj-$(CONFIG_RTC_DRV_XGENE)	+= rtc-xgene.o
+>  obj-$(CONFIG_RTC_DRV_ZYNQMP)	+= rtc-zynqmp.o
+> +obj-$(CONFIG_RTC_DRV_SD3078)	+= rtc-sd3078.o
+
+This list is sorted alphabetically.
+
+> diff --git a/drivers/rtc/rtc-sd3078.c b/drivers/rtc/rtc-sd3078.c
+> new file mode 100644
+> index 0000000..bb24ba1
+> --- /dev/null
+> +++ b/drivers/rtc/rtc-sd3078.c
+> @@ -0,0 +1,300 @@
+> +// SPDX-License-Identifier: GPL-2.0
+> +/*
+> + * Real Time Clock (RTC) Driver for sd3078
+> + * Copyright (C) 2018 Zoro Li
+> + */
+> +
+> +#include <linux/module.h>
+> +#include <linux/i2c.h>
+> +#include <linux/bcd.h>
+> +#include <linux/rtc.h>
+> +#include <linux/slab.h>
+> +
+> +#define SD3078_REG_SC			0x00
+> +#define SD3078_REG_MN			0x01
+> +#define SD3078_REG_HR			0x02
+> +#define SD3078_REG_DW			0x03
+> +#define SD3078_REG_DM			0x04
+> +#define SD3078_REG_MO			0x05
+> +#define SD3078_REG_YR			0x06
+> +
+> +#define SD3078_REG_CTRL1		0x0f
+> +#define SD3078_REG_CTRL2		0x10
+> +#define SD3078_REG_CTRL3		0x11
+> +
+> +#define KEY_WRITE1		0x80
+> +#define KEY_WRITE2		0x04
+> +#define KEY_WRITE3		0x80
+> +
+> +struct sd3078 {
+> +	struct rtc_device *rtc;
+> +};
+> +
+
+This structure seems useless as it contains only one member and removing
+it allows to avoid the allocation in probe.
+
+> +struct i2c_driver sd3078_driver;
+> +
+
+This is unnecessary, see below...
+
+> +
+> +static int sd3078_i2c_read_regs(struct i2c_client *client,
+> +	unsigned char reg, unsigned char buf[], unsigned int len)
+> +{
+> +	struct i2c_adapter *adap = client->adapter;
+> +	unsigned char reg_buf = reg;
+> +	int ret;
+> +	struct i2c_msg msgs[] = {
+> +		{/* setup read ptr */
+> +			.addr = client->addr,
+> +			.len = 1,
+> +			.buf = &reg_buf
+> +		},
+> +		{/* read status + date */
+> +			.addr = client->addr,
+> +			.flags = I2C_M_RD,
+> +			.len = len,
+> +			.buf = buf
+> +		},
+> +	};
+> +
+> +	ret = i2c_transfer(adap, msgs, 2);
+> +	return (ret == 2) ? len : ret;
+> +}
+> +
+> +static int sd3078_i2c_write_reg(struct i2c_client *client,
+> +	unsigned char reg, unsigned char value)
+> +{
+> +	unsigned char data[2];
+> +	int ret;
+> +
+> +	data[0] = reg;
+> +	data[1] = value;
+> +	ret = i2c_master_send(client, data, 2);
+> +	return ret;
+> +}
+> +
+> +/*
+> + * In order to prevent arbitrary modification of the time register,
+> + * when modification of the register,
+> + * the "write" bit needs to be written in a certain order.
+> + * 1. set WRITE1 bit
+> + * 2. set WRITE2 bit
+> + * 1. set WRITE3 bit
+> + */
+> +static void sd3078_enable_reg_write(struct i2c_client *client)
+> +{
+> +	unsigned char reg1, reg2;
+> +
+> +	sd3078_i2c_read_regs(client, SD3078_REG_CTRL1, &reg1, 1);
+> +	sd3078_i2c_read_regs(client, SD3078_REG_CTRL2, &reg2, 1);
+> +
+> +	reg2 |= KEY_WRITE1;
+> +	sd3078_i2c_write_reg(client, SD3078_REG_CTRL2, reg2);
+
+You should probably use regmap instead of defining your own accessors.
+This way, you have access to regmap_update_bits which would be shorter.
+
+> +
+> +	reg1 |= KEY_WRITE2;
+> +	sd3078_i2c_write_reg(client, SD3078_REG_CTRL1, reg1);
+> +
+> +	reg1 |= KEY_WRITE3;
+> +	sd3078_i2c_write_reg(client, SD3078_REG_CTRL1, reg1);
+> +
+> +	sd3078_i2c_read_regs(client, SD3078_REG_CTRL1, &reg1, 1);
+> +	sd3078_i2c_read_regs(client, SD3078_REG_CTRL2, &reg2, 1);
+> +}
+> +
+> +/*
+> + * In order to prevent arbitrary modification of the time register,
+> + * we should disable the write function.
+> + * when disable write,
+> + * the "write" bit needs to be clear in a certain order.
+> + * 1. clear WRITE2 bit
+> + * 2. clear WRITE3 bit
+> + * 3. clear WRITE1 bit
+> + */
+> +static void sd3078_disable_reg_write(struct i2c_client *client)
+> +{
+> +	unsigned char reg1, reg2;
+> +
+> +	sd3078_i2c_read_regs(client, SD3078_REG_CTRL1, &reg1, 1);
+> +	sd3078_i2c_read_regs(client, SD3078_REG_CTRL2, &reg2, 1);
+> +
+> +	reg1 &= ~KEY_WRITE2;
+> +	sd3078_i2c_write_reg(client, SD3078_REG_CTRL1, reg1);
+> +
+> +	reg1 &= ~KEY_WRITE3;
+> +	sd3078_i2c_write_reg(client, SD3078_REG_CTRL1, reg1);
+> +
+> +	reg2 &= ~KEY_WRITE1;
+> +	sd3078_i2c_write_reg(client, SD3078_REG_CTRL2, reg2);
+> +
+> +	sd3078_i2c_read_regs(client, SD3078_REG_CTRL1, &reg1, 1);
+> +	sd3078_i2c_read_regs(client, SD3078_REG_CTRL2, &reg2, 1);
+> +}
+> +
+> +static int sd3078_get_datetime(struct i2c_client *client, struct rtc_time *tm)
+> +{
+> +	unsigned char buf[7] = {0};
+> +	unsigned char hour;
+> +
+> +	sd3078_i2c_read_regs(client, SD3078_REG_SC, buf, 7);
+> +
+> +	tm->tm_sec	= bcd2bin(buf[SD3078_REG_SC] & 0x7F);
+> +	tm->tm_min	= bcd2bin(buf[SD3078_REG_MN] & 0x7F);
+> +	hour = buf[SD3078_REG_HR];
+> +
+> +	if (hour & 0x80) /* 24H PM */
+> +		tm->tm_hour = bcd2bin(buf[SD3078_REG_HR] & 0x3F);
+> +	else if (hour & 0x20) /* 12H PM */
+> +		tm->tm_hour = bcd2bin(buf[SD3078_REG_HR] & 0x1F) + 12;
+> +	else /* 12H AM */
+> +		tm->tm_hour = bcd2bin(buf[SD3078_REG_HR] & 0x1F);
+> +
+
+Is it really useful to support 12H mode?
+
+> +	tm->tm_mday = bcd2bin(buf[SD3078_REG_DM] & 0x3F);
+> +	tm->tm_wday = buf[SD3078_REG_DW] & 0x07;
+> +	/* rtc mn 1-12 */
+> +	tm->tm_mon	= bcd2bin(buf[SD3078_REG_MO] & 0x1F) - 1;
+> +	tm->tm_year = bcd2bin(buf[SD3078_REG_YR])+100;
+
+spaces preferred around that '+'
+
+> +
+> +	if (rtc_valid_tm(tm) < 0)
+
+This rtc_valid_tm call is useless because this is the first thing the
+core is doing after calling the read_time callback.
+
+> +		dev_err(&client->dev, "retrieved date/time is not valid.\n");
+> +
+> +	return 0;
+> +}
+> +
+> +static int sd3078_set_datetime(struct i2c_client *client, struct rtc_time *tm)
+> +{
+> +	int i, err;
+> +	unsigned char buf[9];
+> +
+> +	dev_dbg(&client->dev,
+> +		"%s: secs=%d, mins=%d, hours=%d, mday=%d, mon=%d, year=%d, wday=%d\n",
+> +		__func__,
+> +		tm->tm_sec, tm->tm_min, tm->tm_hour,
+> +		tm->tm_mday, tm->tm_mon, tm->tm_year, tm->tm_wday);
+> +
+
+I don't find that debug to be useful as you already know what the core
+is passing to the set_time function.
+
+> +    /* hours, minutes and seconds */
+> +	buf[SD3078_REG_SC] = bin2bcd(tm->tm_sec);
+> +	buf[SD3078_REG_MN] = bin2bcd(tm->tm_min);
+> +	/* set 24H mode */
+> +	buf[SD3078_REG_HR] = bin2bcd(tm->tm_hour) | 0x80;
+> +
+> +	buf[SD3078_REG_DM] = bin2bcd(tm->tm_mday);
+> +
+> +    /* month, 1 - 12 */
+> +	buf[SD3078_REG_MO] = bin2bcd(tm->tm_mon) + 1;
+> +
+> +    /* year and century */
+> +	buf[SD3078_REG_YR] = bin2bcd(tm->tm_year % 100);
+
+please, don't use % 100, instead set the range of the RTC properly in
+probe.
+
+> +	buf[SD3078_REG_DW] = tm->tm_wday & 0x07;
+> +
+> +	sd3078_enable_reg_write(client);
+> +
+> +    /* write register's data */
+> +	for (i = 0; i < 7; i++) {
+> +		err = sd3078_i2c_write_reg(client,
+> +			SD3078_REG_SC + i, buf[SD3078_REG_SC + i]);
+
+Again, regmap would allow you to avoid this loop
+
+> +		if (err != 2)
+> +			return -EIO;
+> +	}
+> +
+> +	sd3078_disable_reg_write(client);
+
+I don't find it too useful to enable write protection. It is actually
+harmful when trying to precisely set the RTC as this adds more latency.
+But it is up to you to keep it.
+
+> +
+> +	return 0;
+> +}
+> +
+> +
+> +#ifdef CONFIG_RTC_INTF_DEV
+> +static int sd3078_rtc_ioctl(struct device *dev,
+> +		unsigned int cmd, unsigned long arg)
+> +{
+> +	switch (cmd) {
+> +	default:
+> +		return -ENOIOCTLCMD;
+> +	}
+> +}
+> +#else
+> +#define sd3078_rtc_ioctl NULL
+> +#endif
+> +
+
+This block is totally useless.
+
+> +static int sd3078_rtc_read_time(struct device *dev, struct rtc_time *tm)
+> +{
+> +	return sd3078_get_datetime(to_i2c_client(dev), tm);
+
+Please remove the useless indirection.
+
+> +}
+> +
+> +static int sd3078_rtc_set_time(struct device *dev, struct rtc_time *tm)
+> +{
+> +	return sd3078_set_datetime(to_i2c_client(dev), tm);
+
+Ditto.
+
+> +}
+> +
+> +static const struct rtc_class_ops sd3078_rtc_ops = {
+> +	.ioctl		= sd3078_rtc_ioctl,
+> +	.read_time	= sd3078_rtc_read_time,
+> +	.set_time	= sd3078_rtc_set_time,
+> +};
+> +
+> +static int sd3078_probe(struct i2c_client *client,
+> +		const struct i2c_device_id *id)
+> +{
+> +	struct sd3078 *sd3078;
+> +
+> +	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C))
+> +		return -ENODEV;
+> +
+> +	sd3078 = devm_kzalloc(&client->dev, sizeof(*sd3078), GFP_KERNEL);
+> +	if (!sd3078)
+> +		return -ENOMEM;
+> +
+> +	i2c_set_clientdata(client, sd3078);
+> +
+> +	sd3078->rtc = devm_rtc_device_register(&client->dev,
+> +			sd3078_driver.driver.name,
+> +			&sd3078_rtc_ops, THIS_MODULE);
+> +
+
+Please use devm_rtc_allocate_device and rtc_register_device. The name is
+not needed anymore.
+
+This also allow you to set the range. Probably something like:
+
+rtc->range_min = RTC_TIMESTAMP_BEGIN_2000;
+rtc->range_max = RTC_TIMESTAMP_END_2099;
+
+Maybe you can go up to 2199 if your RTC has a century bit and properly
+handle the leap day in 2100.
+
+> +	if (IS_ERR(sd3078->rtc))
+> +		return PTR_ERR(sd3078->rtc);
+> +
+> +	return 0;
+> +}
+> +
+> +static int sd3078_remove(struct i2c_client *client)
+> +{
+> +	return 0;
+> +}
+> +
+
+This function is useless.
+
+> +static const struct i2c_device_id sd3078_id[] = {
+> +	{"sd3078", 0},
+> +	{ }
+> +};
+> +MODULE_DEVICE_TABLE(i2c, sd3078_id);
+> +
+> +#ifdef CONFIG_OF
+> +static const struct of_device_id rtc_dt_ids[] = {
+> +	{ .compatible = "whwave,sd3078" },
+> +	{},
+> +};
+
+This is missing MODULE_DEVICE_TABLE(of, rtc_dt_ids);
+
+> +#endif
+> +
+> +struct i2c_driver sd3078_driver = {
+> +	.driver     = {
+> +		.name   = "sd3078",
+> +		.owner  = THIS_MODULE,
+> +#ifdef CONFIG_OF
+
+This ifdef is unecessary
+
+> +		.of_match_table = of_match_ptr(rtc_dt_ids),
+> +#endif
+> +	},
+> +	.probe      = sd3078_probe,
+> +	.remove     = sd3078_remove,
+> +	.id_table   = sd3078_id,
+> +};
+> +
+> +static int __init sd3078_init(void)
+> +{
+> +	return i2c_add_driver(&sd3078_driver);
+> +}
+> +
+> +static void __exit sd3078_exit(void)
+> +{
+> +	i2c_del_driver(&sd3078_driver);
+> +}
+> +
+> +module_init(sd3078_init);
+> +module_exit(sd3078_exit);
+
+Please use module_i2c_driver instead of open coding.
+
+> +
+> +MODULE_AUTHOR("Zoro Li <long17.cool@163.com>");
+> +MODULE_DESCRIPTION("SD3078 RTC driver");
+> +MODULE_LICENSE("GPL");
+
+Your SPDX identifier says GPL v2 while this is GPL v2+.
+
+> -- 
+> 1.7.9.5
+> 
+
+-- 
+Alexandre Belloni, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com

@@ -1,0 +1,502 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 20 Nov 2018 00:34:38 -0000
+Received: from icoremail.net (unknown [209.85.214.171])
+	by mail-app2 (Coremail) with SMTP id by_KCgD3_6ee_fJbsPK6AQ--.55488S3;
+	Tue, 20 Nov 2018 02:14:55 +0800 (CST)
+Received: from mail-pl1-f171.google.com (unknown [209.85.214.171])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwBXPEiX_fJbKadZAA--.6257S3;
+	Tue, 20 Nov 2018 02:14:47 +0800 (CST)
+Received: by mail-pl1-f171.google.com with SMTP id y6-v6so7388216plt.3
+        for <xuliker@zju.edu.cn>; Mon, 19 Nov 2018 10:14:47 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:delivered-to:dkim-signature:subject:to:cc
+         :references:from:message-id:date:user-agent:mime-version:in-reply-to
+         :content-transfer-encoding:content-language:sender:precedence
+         :list-id;
+        bh=DmGCtJd1rtdWCuAqQCTG+YtAV9HC7bS730+P5Im27To=;
+        b=pUFkIWtXNzzd/4It+gGWXN48lex7gPUKuvi+uHyaO1M7FYAVkyz1ujfVBrYu6QcxdF
+         XyQOtGrPU0nNKzECMoxlq6lr7gmo5bsM//Yo5DJo7jG5aW6ZLPBzdxHruijK4lwLCsIN
+         jinrOPKdlQsUj5hB7mJ1kSQdg4ehZr5dZ/WcP8HQy2vfj6ipChQiwsNflgwqPuuXceSn
+         WamcZrqeXjeHz27xjavUMLBj9/bggZRyEVpkMJQrwVb5rQkGG9aX1p1DWQ8xc6FQiamq
+         oocRdsC4szfedOBHp2mwwbNMuYkCo5ghpK0vi/HyllKYmjCVG3UcQg9AGQgSbzIoSD7S
+         PBaw==
+X-Gm-Message-State: AGRZ1gI7p/fNnzbR4UBOal/qh3vf5yp3Bq3+Yjg9EEsftlo8GW8h2YSv
+	SdSIyrdbmS3Yk1RcjPdfn8fOoN+9MLnWcytjDk0kQ1AAldu4sfA=
+X-Received: by 2002:a17:902:a9c4:: with SMTP id b4mr23412619plr.298.1542651287494;
+        Mon, 19 Nov 2018 10:14:47 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:d106:0:0:0:0 with SMTP id l6-v6csp3002774pju;
+        Mon, 19 Nov 2018 10:14:46 -0800 (PST)
+X-Google-Smtp-Source: AJdET5csSTLaR+ZQiBT5AMzox/hGfmvkE6fIe5KJE+fLTztXxknZMXSbs8/GMdjD7oQB41dBy5mS
+X-Received: by 2002:a63:a35c:: with SMTP id v28mr20924709pgn.205.1542651286351;
+        Mon, 19 Nov 2018 10:14:46 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542651286; cv=none;
+        d=google.com; s=arc-20160816;
+        b=CxymdM6kSQI2PjFpWm15pmfU4O0ilOUqSQWXB/6maM/aGwPiMcwU8puLMV5Ru7cOaA
+         ppEPK5nI2SrCCGDk7JQ9URN89l29XQcK4+CpfeBPfojGhFBbYXuuMrWwcbc21EFrz3yt
+         stI0Dqz+d13xwzgx8LaYTZPKPgWkFpFTDw7b6QykvoxRIHb9wc7TW7cC0DkmDSRLAxVh
+         Pas52FdQw9Af6dyJZzD4qR65WVLneg863eTAGTzlEVo9hBjT0k/+d5Srl/nw6UPBScoX
+         uxNmEvUd9hjo13yH0R+LADvzYznvdSWiShklZzG9pcfF3JFLQTofU14YgghTputnyqFS
+         hypA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:content-language
+         :content-transfer-encoding:in-reply-to:mime-version:user-agent:date
+         :message-id:from:references:cc:to:subject:dkim-signature;
+        bh=DmGCtJd1rtdWCuAqQCTG+YtAV9HC7bS730+P5Im27To=;
+        b=mEpxqTZ0eirkeYGHAtefYggdkAwXlz+Kfec4ZY0mqPIHBbQWeafoINQNhFhAfchsiG
+         A/rGIQxVYlHb5XmMORmbsE5WmneT3r2YKg8KC3h+EbnMzg0qB5W0v5GAoEGbcW/qtJK6
+         rBFtj/slNNMqhglGp6173w1Fr522YkcRmEjd4PNzwce4F1PMMcClLIM8qhdbPl5Rg3rw
+         gasxRsXCflaMoQP1DD8CSQpBQh6oehJE821EgS8xDDvhZbGafujiRBKeOJrrC03xa10u
+         KHIKA0aqNhk6xLiFqiRzcD/Lm1G/idszBtowWhaDsIuvJtNgQakz2OAuC0LOhjUHXjnX
+         RaaA==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@oracle.com header.s=corp-2018-07-02 header.b=kM9Jz8Ja;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;
+       dmarc=pass (p=NONE sp=NONE dis=NONE) header.from=oracle.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id ba9si2277752plb.109.2018.11.19.10.14.32;
+        Mon, 19 Nov 2018 10:14:46 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1730125AbeKTEiu (ORCPT <rfc822;ww9210@gmail.com> + 99 others);
+        Mon, 19 Nov 2018 23:38:50 -0500
+Received: from aserp2120.oracle.com ([141.146.126.78]:51734 "EHLO
+        aserp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729975AbeKTEit (ORCPT <rfc822;kvm@vger.kernel.org>);
+        Mon, 19 Nov 2018 23:38:49 -0500
+Received: from pps.filterd (aserp2120.oracle.com [127.0.0.1])
+        by aserp2120.oracle.com (8.16.0.22/8.16.0.22) with SMTP id wAJHxPkI017181;
+        Mon, 19 Nov 2018 18:14:06 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=corp-2018-07-02;
+ bh=DmGCtJd1rtdWCuAqQCTG+YtAV9HC7bS730+P5Im27To=;
+ b=kM9Jz8JaidXhxAAubkxBFZN0liob3f90kzGARZyV7ze3MSeC3uv5TNaOvu0qpxHvc9k8
+ /9tt3H449dKD8v3dHlO/nvWbRPCmD/MV3IWhEeZUa6oshhrXUtpCN0FBvB9JsY9dh7Ko
+ QreWvf0mptx1GKy3a51xRAQLrJqFL9qYohk5d9IQuwUitH9qQ3s4iuDxMmevIoLcMuSo
+ xk8gsRmDclHeRdfzXiJFXcDyadbx+8kBs/6FYWaYHKOonJwpekQalwrEyrckWiSeFP3v
+ 9Rg8X+KslORd641aywf4SaFLjvk2CmMd1Zi7veVRA+RWQLocsgTxu7zZv0ifQdD1Yd40 1w== 
+Received: from aserv0021.oracle.com (aserv0021.oracle.com [141.146.126.233])
+        by aserp2120.oracle.com with ESMTP id 2ntaxpynf3-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 19 Nov 2018 18:14:06 +0000
+Received: from userv0121.oracle.com (userv0121.oracle.com [156.151.31.72])
+        by aserv0021.oracle.com (8.14.4/8.14.4) with ESMTP id wAJIE5kU007963
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 19 Nov 2018 18:14:05 GMT
+Received: from abhmp0015.oracle.com (abhmp0015.oracle.com [141.146.116.21])
+        by userv0121.oracle.com (8.14.4/8.13.8) with ESMTP id wAJIE4pC027736;
+        Mon, 19 Nov 2018 18:14:04 GMT
+Received: from dhcp-10-159-224-151.vpn.oracle.com (/10.159.224.151)
+        by default (Oracle Beehive Gateway v4.0)
+        with ESMTP ; Mon, 19 Nov 2018 10:14:04 -0800
+Subject: Re: [PATCH] kvm: vmx: Rename vmx_instruction_info to
+ vm_exit_instruction_info
+To: Jim Mattson <jmattson@google.com>, kvm@vger.kernel.org
+Cc: Peter Shier <pshier@google.com>
+References: <20181119175052.155587-1-jmattson@google.com>
+From: Krish Sadhukhan <krish.sadhukhan@oracle.com>
+Message-ID: <0bb65a19-0d40-7dbd-bfbb-793e0ccf7d32@oracle.com>
+Date: Mon, 19 Nov 2018 10:14:03 -0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:52.0) Gecko/20100101
+ Thunderbird/52.4.0
+MIME-Version: 1.0
+In-Reply-To: <20181119175052.155587-1-jmattson@google.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-Proofpoint-Virus-Version: vendor=nai engine=5900 definitions=9082 signatures=668683
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=3 malwarescore=0
+ phishscore=0 bulkscore=0 spamscore=0 mlxscore=0 mlxlogscore=999
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.0.1-1810050000 definitions=main-1811190164
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwBXPEiX_fJbKadZAA--.6257S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvAXoW3Cr1fZFW7tF13Wry7JFy5urg_yoW8WF47uo
+	Z3ur4q93yfJw1YyFZ5Gr1fta1Uu3WxW3yfZr45ArWkuwn8A342v3ZrKw45X3W7Xw48KFWU
+	Ca4xGw1qyFZ7JFn5n29KB7ZKAUJUUUUU529EdanIXcx71UUUUj7v73VFW2AGmfu7jjvjm3
+	AaLaJ3UjIYCTnIWjp_UUUOI7k0a2IF6w4kM7kC6x804xWl14x267AKxVWUJVW8JwAFIxvE
+	14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK021l84ACjcxK6xIIjx
+	v20xvE14v26F1j6w1UM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26F4j6r4UJwA2z4x0Y4vE
+	x4A2jsIE14v26rxl6s0DM28EF7xvwVC2z280aVCY1x0267AKxVW0oVCq3wAS0I0E0xvYzx
+	vE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AKxVWU
+	XVWUAwAv7VC2z280aVAFwI0_Gr0_Cr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcVAKI4
+	8JMx02cVCv0xWlc7I2V7IY0VAS07AlzVAYIcxG8wCY1x0264kExVAvwVAq07x20xylc7Ca
+	8VAvwVCFzxkY4VCF77xAMxkIecxEwVCI4VW5MxkI7II2jI8vz4vEwIxGrwCYIxAIcVC0I7
+	IYx2IY67AKxVW5JVW7JwCYIxAIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMxvI42IY6I8E
+	87Iv67AKxVWxJr0_GcWlcIIF0xvEx4A2jsIEc7CjxVAFwI0_Cr1j6rxdMxAIw28IcxkI7V
+	AKI48JMxAIw28IcVAKzI0EY4vE52x082I5MxCjnVCjjxCrMxC20s026xCaFVCjc4AY6r1j
+	6r4UMI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7
+	AF67AKxVWUAVWUtwCIc40Y0x0EwIxGrwCI42IY6xAIw20EY4v20xvaj40_Gr0_ZrUvcSsG
+	vfC2KfnxnUUI43ZEXa7IUOHGQDUUUUU==
+
+
+
+On 11/19/2018 09:50 AM, Jim Mattson wrote:
+> I vaguely recall that at some time in the distant past, field 440EH of
+> the VMCS was referred to as the "VMX instruction-information field."
+> However, this field now provides instruction-information for string
+> PIO VM-exits, descriptor table VM-exits, RDRAND VM-exits, and RDSEED
+> VM-exits. The SDM now refers to it as the "VM-exit
+> instruction-information field." Since this field still is not yet
+> exposed as part of a userspace API, let's rename it to match the SDM.
+>
+> Signed-off-by: Jim Mattson <jmattson@google.com>
+> Reviewed-by: Peter Shier <pshier@google.com>
+> ---
+>   arch/x86/include/asm/hyperv-tlfs.h |  2 +-
+>   arch/x86/include/asm/vmx.h         |  2 +-
+>   arch/x86/kvm/vmx.c                 | 96 ++++++++++++++++--------------
+>   arch/x86/kvm/vmx_evmcs.h           |  2 +-
+>   4 files changed, 54 insertions(+), 48 deletions(-)
+>
+> diff --git a/arch/x86/include/asm/hyperv-tlfs.h b/arch/x86/include/asm/hyperv-tlfs.h
+> index 00e01d215f74..4211b9796e4f 100644
+> --- a/arch/x86/include/asm/hyperv-tlfs.h
+> +++ b/arch/x86/include/asm/hyperv-tlfs.h
+> @@ -658,7 +658,7 @@ struct hv_enlightened_vmcs {
+>   	u32 idt_vectoring_info_field;
+>   	u32 idt_vectoring_error_code;
+>   	u32 vm_exit_instruction_len;
+> -	u32 vmx_instruction_info;
+> +	u32 vm_exit_instruction_info;
+>   
+>   	u64 exit_qualification;
+>   	u64 exit_io_instruction_ecx;
+> diff --git a/arch/x86/include/asm/vmx.h b/arch/x86/include/asm/vmx.h
+> index ade0f153947d..678daa8d1c70 100644
+> --- a/arch/x86/include/asm/vmx.h
+> +++ b/arch/x86/include/asm/vmx.h
+> @@ -271,7 +271,7 @@ enum vmcs_field {
+>   	IDT_VECTORING_INFO_FIELD        = 0x00004408,
+>   	IDT_VECTORING_ERROR_CODE        = 0x0000440a,
+>   	VM_EXIT_INSTRUCTION_LEN         = 0x0000440c,
+> -	VMX_INSTRUCTION_INFO            = 0x0000440e,
+> +	VM_EXIT_INSTRUCTION_INFO        = 0x0000440e,
+>   	GUEST_ES_LIMIT                  = 0x00004800,
+>   	GUEST_CS_LIMIT                  = 0x00004802,
+>   	GUEST_SS_LIMIT                  = 0x00004804,
+> diff --git a/arch/x86/kvm/vmx.c b/arch/x86/kvm/vmx.c
+> index ccc6a01eb4f4..53d5bc08698e 100644
+> --- a/arch/x86/kvm/vmx.c
+> +++ b/arch/x86/kvm/vmx.c
+> @@ -553,7 +553,7 @@ struct __packed vmcs12 {
+>   	u32 idt_vectoring_info_field;
+>   	u32 idt_vectoring_error_code;
+>   	u32 vm_exit_instruction_len;
+> -	u32 vmx_instruction_info;
+> +	u32 vm_exit_instruction_info;
+>   	u32 guest_es_limit;
+>   	u32 guest_cs_limit;
+>   	u32 guest_ss_limit;
+> @@ -710,7 +710,7 @@ static inline void vmx_check_vmcs12_offsets(void) {
+>   	CHECK_OFFSET(idt_vectoring_info_field, 824);
+>   	CHECK_OFFSET(idt_vectoring_error_code, 828);
+>   	CHECK_OFFSET(vm_exit_instruction_len, 832);
+> -	CHECK_OFFSET(vmx_instruction_info, 836);
+> +	CHECK_OFFSET(vm_exit_instruction_info, 836);
+>   	CHECK_OFFSET(guest_es_limit, 840);
+>   	CHECK_OFFSET(guest_cs_limit, 844);
+>   	CHECK_OFFSET(guest_ss_limit, 848);
+> @@ -1192,7 +1192,7 @@ static const unsigned short vmcs_field_to_offset_table[] = {
+>   	FIELD(IDT_VECTORING_INFO_FIELD, idt_vectoring_info_field),
+>   	FIELD(IDT_VECTORING_ERROR_CODE, idt_vectoring_error_code),
+>   	FIELD(VM_EXIT_INSTRUCTION_LEN, vm_exit_instruction_len),
+> -	FIELD(VMX_INSTRUCTION_INFO, vmx_instruction_info),
+> +	FIELD(VM_EXIT_INSTRUCTION_INFO, vm_exit_instruction_info),
+>   	FIELD(GUEST_ES_LIMIT, guest_es_limit),
+>   	FIELD(GUEST_CS_LIMIT, guest_cs_limit),
+>   	FIELD(GUEST_SS_LIMIT, guest_ss_limit),
+> @@ -8157,8 +8157,9 @@ static enum hrtimer_restart vmx_preemption_timer_fn(struct hrtimer *timer)
+>    * #UD or #GP.
+>    */
+>   static int get_vmx_mem_address(struct kvm_vcpu *vcpu,
+> -				 unsigned long exit_qualification,
+> -				 u32 vmx_instruction_info, bool wr, gva_t *ret)
+> +			       unsigned long exit_qualification,
+> +			       u32 vm_exit_instruction_info, bool wr,
+> +			       gva_t *ret)
+>   {
+>   	gva_t off;
+>   	bool exn;
+> @@ -8166,20 +8167,20 @@ static int get_vmx_mem_address(struct kvm_vcpu *vcpu,
+>   
+>   	/*
+>   	 * According to Vol. 3B, "Information for VM Exits Due to Instruction
+> -	 * Execution", on an exit, vmx_instruction_info holds most of the
+> +	 * Execution", on an exit, vm_exit_instruction_info holds most of the
+>   	 * addressing components of the operand. Only the displacement part
+>   	 * is put in exit_qualification (see 3B, "Basic VM-Exit Information").
+>   	 * For how an actual address is calculated from all these components,
+>   	 * refer to Vol. 1, "Operand Addressing".
+>   	 */
+> -	int  scaling = vmx_instruction_info & 3;
+> -	int  addr_size = (vmx_instruction_info >> 7) & 7;
+> -	bool is_reg = vmx_instruction_info & (1u << 10);
+> -	int  seg_reg = (vmx_instruction_info >> 15) & 7;
+> -	int  index_reg = (vmx_instruction_info >> 18) & 0xf;
+> -	bool index_is_valid = !(vmx_instruction_info & (1u << 22));
+> -	int  base_reg       = (vmx_instruction_info >> 23) & 0xf;
+> -	bool base_is_valid  = !(vmx_instruction_info & (1u << 27));
+> +	int  scaling = vm_exit_instruction_info & 3;
+> +	int  addr_size = (vm_exit_instruction_info >> 7) & 7;
+> +	bool is_reg = vm_exit_instruction_info & (1u << 10);
+> +	int  seg_reg = (vm_exit_instruction_info >> 15) & 7;
+> +	int  index_reg = (vm_exit_instruction_info >> 18) & 0xf;
+> +	bool index_is_valid = !(vm_exit_instruction_info & (1u << 22));
+> +	int  base_reg       = (vm_exit_instruction_info >> 23) & 0xf;
+> +	bool base_is_valid  = !(vm_exit_instruction_info & (1u << 27));
+>   
+>   	if (is_reg) {
+>   		kvm_queue_exception(vcpu, UD_VECTOR);
+> @@ -8253,7 +8254,7 @@ static int nested_vmx_get_vmptr(struct kvm_vcpu *vcpu, gpa_t *vmpointer)
+>   	struct x86_exception e;
+>   
+>   	if (get_vmx_mem_address(vcpu, vmcs_readl(EXIT_QUALIFICATION),
+> -			vmcs_read32(VMX_INSTRUCTION_INFO), false, &gva))
+> +			vmcs_read32(VM_EXIT_INSTRUCTION_INFO), false, &gva))
+>   		return 1;
+>   
+>   	if (kvm_read_guest_virt(vcpu, gva, vmpointer, sizeof(*vmpointer), &e)) {
+> @@ -8863,7 +8864,7 @@ static int copy_enlightened_to_vmcs12(struct vcpu_vmx *vmx)
+>   	 * vmcs12->idt_vectoring_info_field = evmcs->idt_vectoring_info_field;
+>   	 * vmcs12->idt_vectoring_error_code = evmcs->idt_vectoring_error_code;
+>   	 * vmcs12->vm_exit_instruction_len = evmcs->vm_exit_instruction_len;
+> -	 * vmcs12->vmx_instruction_info = evmcs->vmx_instruction_info;
+> +	 * vmcs12->vm_exit_instruction_info = evmcs->vm_exit_instruction_info;
+>   	 * vmcs12->exit_qualification = evmcs->exit_qualification;
+>   	 * vmcs12->guest_linear_address = evmcs->guest_linear_address;
+>   	 *
+> @@ -9020,7 +9021,7 @@ static int copy_vmcs12_to_enlightened(struct vcpu_vmx *vmx)
+>   	evmcs->idt_vectoring_info_field = vmcs12->idt_vectoring_info_field;
+>   	evmcs->idt_vectoring_error_code = vmcs12->idt_vectoring_error_code;
+>   	evmcs->vm_exit_instruction_len = vmcs12->vm_exit_instruction_len;
+> -	evmcs->vmx_instruction_info = vmcs12->vmx_instruction_info;
+> +	evmcs->vm_exit_instruction_info = vmcs12->vm_exit_instruction_info;
+>   
+>   	evmcs->exit_qualification = vmcs12->exit_qualification;
+>   
+> @@ -9122,7 +9123,7 @@ static int handle_vmread(struct kvm_vcpu *vcpu)
+>   	unsigned long field;
+>   	u64 field_value;
+>   	unsigned long exit_qualification = vmcs_readl(EXIT_QUALIFICATION);
+> -	u32 vmx_instruction_info = vmcs_read32(VMX_INSTRUCTION_INFO);
+> +	u32 vm_exit_instruction_info = vmcs_read32(VM_EXIT_INSTRUCTION_INFO);
+>   	gva_t gva = 0;
+>   	struct vmcs12 *vmcs12;
+>   
+> @@ -9145,7 +9146,8 @@ static int handle_vmread(struct kvm_vcpu *vcpu)
+>   	}
+>   
+>   	/* Decode instruction info and find the field to read */
+> -	field = kvm_register_readl(vcpu, (((vmx_instruction_info) >> 28) & 0xf));
+> +	field = kvm_register_readl(vcpu,
+> +				   (((vm_exit_instruction_info) >> 28) & 0xf));
+>   	/* Read the field, zero-extended to a u64 field_value */
+>   	if (vmcs12_read_any(vmcs12, field, &field_value) < 0)
+>   		return nested_vmx_failValid(vcpu,
+> @@ -9156,12 +9158,13 @@ static int handle_vmread(struct kvm_vcpu *vcpu)
+>   	 * Note that the number of bits actually copied is 32 or 64 depending
+>   	 * on the guest's mode (32 or 64 bit), not on the given field's length.
+>   	 */
+> -	if (vmx_instruction_info & (1u << 10)) {
+> -		kvm_register_writel(vcpu, (((vmx_instruction_info) >> 3) & 0xf),
+> -			field_value);
+> +	if (vm_exit_instruction_info & (1u << 10)) {
+> +		kvm_register_writel(vcpu,
+> +				    (((vm_exit_instruction_info) >> 3) & 0xf),
+> +				    field_value);
+>   	} else {
+>   		if (get_vmx_mem_address(vcpu, exit_qualification,
+> -				vmx_instruction_info, true, &gva))
+> +				vm_exit_instruction_info, true, &gva))
+>   			return 1;
+>   		/* _system ok, nested_vmx_check_permission has verified cpl=0 */
+>   		kvm_write_guest_virt_system(vcpu, gva, &field_value,
+> @@ -9178,7 +9181,7 @@ static int handle_vmwrite(struct kvm_vcpu *vcpu)
+>   	gva_t gva;
+>   	struct vcpu_vmx *vmx = to_vmx(vcpu);
+>   	unsigned long exit_qualification = vmcs_readl(EXIT_QUALIFICATION);
+> -	u32 vmx_instruction_info = vmcs_read32(VMX_INSTRUCTION_INFO);
+> +	u32 vm_exit_instruction_info = vmcs_read32(VM_EXIT_INSTRUCTION_INFO);
+>   
+>   	/* The value to write might be 32 or 64 bits, depending on L1's long
+>   	 * mode, and eventually we need to write that into a field of several
+> @@ -9196,12 +9199,12 @@ static int handle_vmwrite(struct kvm_vcpu *vcpu)
+>   	if (vmx->nested.current_vmptr == -1ull)
+>   		return nested_vmx_failInvalid(vcpu);
+>   
+> -	if (vmx_instruction_info & (1u << 10))
+> +	if (vm_exit_instruction_info & (1u << 10))
+>   		field_value = kvm_register_readl(vcpu,
+> -			(((vmx_instruction_info) >> 3) & 0xf));
+> +			(((vm_exit_instruction_info) >> 3) & 0xf));
+>   	else {
+>   		if (get_vmx_mem_address(vcpu, exit_qualification,
+> -				vmx_instruction_info, false, &gva))
+> +				vm_exit_instruction_info, false, &gva))
+>   			return 1;
+>   		if (kvm_read_guest_virt(vcpu, gva, &field_value,
+>   					(is_64_bit_mode(vcpu) ? 8 : 4), &e)) {
+> @@ -9211,7 +9214,8 @@ static int handle_vmwrite(struct kvm_vcpu *vcpu)
+>   	}
+>   
+>   
+> -	field = kvm_register_readl(vcpu, (((vmx_instruction_info) >> 28) & 0xf));
+> +	field = kvm_register_readl(vcpu,
+> +				   (((vm_exit_instruction_info) >> 28) & 0xf));
+>   	/*
+>   	 * If the vCPU supports "VMWRITE to any supported field in the
+>   	 * VMCS," then the "read-only" fields are actually read/write.
+> @@ -9398,7 +9402,7 @@ static int nested_vmx_handle_enlightened_vmptrld(struct kvm_vcpu *vcpu,
+>   static int handle_vmptrst(struct kvm_vcpu *vcpu)
+>   {
+>   	unsigned long exit_qual = vmcs_readl(EXIT_QUALIFICATION);
+> -	u32 instr_info = vmcs_read32(VMX_INSTRUCTION_INFO);
+> +	u32 instr_info = vmcs_read32(VM_EXIT_INSTRUCTION_INFO);
+>   	gpa_t current_vmptr = to_vmx(vcpu)->nested.current_vmptr;
+>   	struct x86_exception e;
+>   	gva_t gva;
+> @@ -9424,7 +9428,7 @@ static int handle_vmptrst(struct kvm_vcpu *vcpu)
+>   static int handle_invept(struct kvm_vcpu *vcpu)
+>   {
+>   	struct vcpu_vmx *vmx = to_vmx(vcpu);
+> -	u32 vmx_instruction_info, types;
+> +	u32 vm_exit_instruction_info, types;
+>   	unsigned long type;
+>   	gva_t gva;
+>   	struct x86_exception e;
+> @@ -9442,8 +9446,8 @@ static int handle_invept(struct kvm_vcpu *vcpu)
+>   	if (!nested_vmx_check_permission(vcpu))
+>   		return 1;
+>   
+> -	vmx_instruction_info = vmcs_read32(VMX_INSTRUCTION_INFO);
+> -	type = kvm_register_readl(vcpu, (vmx_instruction_info >> 28) & 0xf);
+> +	vm_exit_instruction_info = vmcs_read32(VM_EXIT_INSTRUCTION_INFO);
+> +	type = kvm_register_readl(vcpu, (vm_exit_instruction_info >> 28) & 0xf);
+>   
+>   	types = (vmx->nested.msrs.ept_caps >> VMX_EPT_EXTENT_SHIFT) & 6;
+>   
+> @@ -9455,7 +9459,7 @@ static int handle_invept(struct kvm_vcpu *vcpu)
+>   	 * operand is read even if it isn't needed (e.g., for type==global)
+>   	 */
+>   	if (get_vmx_mem_address(vcpu, vmcs_readl(EXIT_QUALIFICATION),
+> -			vmx_instruction_info, false, &gva))
+> +			vm_exit_instruction_info, false, &gva))
+>   		return 1;
+>   	if (kvm_read_guest_virt(vcpu, gva, &operand, sizeof(operand), &e)) {
+>   		kvm_inject_page_fault(vcpu, &e);
+> @@ -9490,7 +9494,7 @@ static u16 nested_get_vpid02(struct kvm_vcpu *vcpu)
+>   static int handle_invvpid(struct kvm_vcpu *vcpu)
+>   {
+>   	struct vcpu_vmx *vmx = to_vmx(vcpu);
+> -	u32 vmx_instruction_info;
+> +	u32 vm_exit_instruction_info;
+>   	unsigned long type, types;
+>   	gva_t gva;
+>   	struct x86_exception e;
+> @@ -9510,8 +9514,8 @@ static int handle_invvpid(struct kvm_vcpu *vcpu)
+>   	if (!nested_vmx_check_permission(vcpu))
+>   		return 1;
+>   
+> -	vmx_instruction_info = vmcs_read32(VMX_INSTRUCTION_INFO);
+> -	type = kvm_register_readl(vcpu, (vmx_instruction_info >> 28) & 0xf);
+> +	vm_exit_instruction_info = vmcs_read32(VM_EXIT_INSTRUCTION_INFO);
+> +	type = kvm_register_readl(vcpu, (vm_exit_instruction_info >> 28) & 0xf);
+>   
+>   	types = (vmx->nested.msrs.vpid_caps &
+>   			VMX_VPID_EXTENT_SUPPORTED_MASK) >> 8;
+> @@ -9524,7 +9528,7 @@ static int handle_invvpid(struct kvm_vcpu *vcpu)
+>   	 * operand is read even if it isn't needed (e.g., for type==global)
+>   	 */
+>   	if (get_vmx_mem_address(vcpu, vmcs_readl(EXIT_QUALIFICATION),
+> -			vmx_instruction_info, false, &gva))
+> +			vm_exit_instruction_info, false, &gva))
+>   		return 1;
+>   	if (kvm_read_guest_virt(vcpu, gva, &operand, sizeof(operand), &e)) {
+>   		kvm_inject_page_fault(vcpu, &e);
+> @@ -9567,7 +9571,7 @@ static int handle_invvpid(struct kvm_vcpu *vcpu)
+>   
+>   static int handle_invpcid(struct kvm_vcpu *vcpu)
+>   {
+> -	u32 vmx_instruction_info;
+> +	u32 vm_exit_instruction_info;
+>   	unsigned long type;
+>   	bool pcid_enabled;
+>   	gva_t gva;
+> @@ -9584,8 +9588,8 @@ static int handle_invpcid(struct kvm_vcpu *vcpu)
+>   		return 1;
+>   	}
+>   
+> -	vmx_instruction_info = vmcs_read32(VMX_INSTRUCTION_INFO);
+> -	type = kvm_register_readl(vcpu, (vmx_instruction_info >> 28) & 0xf);
+> +	vm_exit_instruction_info = vmcs_read32(VM_EXIT_INSTRUCTION_INFO);
+> +	type = kvm_register_readl(vcpu, (vm_exit_instruction_info >> 28) & 0xf);
+>   
+>   	if (type > 3) {
+>   		kvm_inject_gp(vcpu, 0);
+> @@ -9596,7 +9600,7 @@ static int handle_invpcid(struct kvm_vcpu *vcpu)
+>   	 * is read even if it isn't needed (e.g., for type==all)
+>   	 */
+>   	if (get_vmx_mem_address(vcpu, vmcs_readl(EXIT_QUALIFICATION),
+> -				vmx_instruction_info, false, &gva))
+> +				vm_exit_instruction_info, false, &gva))
+>   		return 1;
+>   
+>   	if (kvm_read_guest_virt(vcpu, gva, &operand, sizeof(operand), &e)) {
+> @@ -10056,7 +10060,7 @@ static bool nested_vmx_exit_handled_cr(struct kvm_vcpu *vcpu,
+>   static bool nested_vmx_exit_handled_vmcs_access(struct kvm_vcpu *vcpu,
+>   	struct vmcs12 *vmcs12, gpa_t bitmap)
+>   {
+> -	u32 vmx_instruction_info;
+> +	u32 vm_exit_instruction_info;
+>   	unsigned long field;
+>   	u8 b;
+>   
+> @@ -10064,8 +10068,9 @@ static bool nested_vmx_exit_handled_vmcs_access(struct kvm_vcpu *vcpu,
+>   		return true;
+>   
+>   	/* Decode instruction info and find the field to access */
+> -	vmx_instruction_info = vmcs_read32(VMX_INSTRUCTION_INFO);
+> -	field = kvm_register_read(vcpu, (((vmx_instruction_info) >> 28) & 0xf));
+> +	vm_exit_instruction_info = vmcs_read32(VM_EXIT_INSTRUCTION_INFO);
+> +	field = kvm_register_read(vcpu,
+> +				  (((vm_exit_instruction_info) >> 28) & 0xf));
+>   
+>   	/* Out-of-range fields always cause a VM exit from L2 to L1 */
+>   	if (field >> 15)
+> @@ -13809,7 +13814,8 @@ static void prepare_vmcs12(struct kvm_vcpu *vcpu, struct vmcs12 *vmcs12,
+>   
+>   	vmcs12->idt_vectoring_info_field = 0;
+>   	vmcs12->vm_exit_instruction_len = vmcs_read32(VM_EXIT_INSTRUCTION_LEN);
+> -	vmcs12->vmx_instruction_info = vmcs_read32(VMX_INSTRUCTION_INFO);
+> +	vmcs12->vm_exit_instruction_info =
+> +		vmcs_read32(VM_EXIT_INSTRUCTION_INFO);
+>   
+>   	if (!(vmcs12->vm_exit_reason & VMX_EXIT_REASONS_FAILED_VMENTRY)) {
+>   		vmcs12->launch_state = 1;
+> diff --git a/arch/x86/kvm/vmx_evmcs.h b/arch/x86/kvm/vmx_evmcs.h
+> index 210a884090ad..cf5d8cb22df4 100644
+> --- a/arch/x86/kvm/vmx_evmcs.h
+> +++ b/arch/x86/kvm/vmx_evmcs.h
+> @@ -247,7 +247,7 @@ static const struct evmcs_field vmcs_field_to_evmcs_1[] = {
+>   		     HV_VMX_ENLIGHTENED_CLEAN_FIELD_NONE),
+>   	EVMCS1_FIELD(VM_EXIT_INSTRUCTION_LEN, vm_exit_instruction_len,
+>   		     HV_VMX_ENLIGHTENED_CLEAN_FIELD_NONE),
+> -	EVMCS1_FIELD(VMX_INSTRUCTION_INFO, vmx_instruction_info,
+> +	EVMCS1_FIELD(VM_EXIT_INSTRUCTION_INFO, vm_exit_instruction_info,
+>   		     HV_VMX_ENLIGHTENED_CLEAN_FIELD_NONE),
+>   
+>   	/* No mask defined in the spec (not used) */
+
+Reviewed-by: Krish Sadhukhan <krish.sadhukhan@oracle.com>

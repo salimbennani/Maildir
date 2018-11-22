@@ -1,0 +1,463 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 12 Nov 2018 00:41:39 -0000
+Received: from icoremail.net (unknown [209.85.214.171])
+	by mail-app2 (Coremail) with SMTP id by_KCgDHH_pjj+hb2tV3AQ--.36186S3;
+	Mon, 12 Nov 2018 04:21:55 +0800 (CST)
+Received: from mail-pl1-f171.google.com (unknown [209.85.214.171])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwBXNkJfj+hbd0suAA--.130S3;
+	Mon, 12 Nov 2018 04:21:51 +0800 (CST)
+Received: by mail-pl1-f171.google.com with SMTP id w22-v6so3276471plk.0
+        for <xuliker@zju.edu.cn>; Sun, 11 Nov 2018 12:21:51 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :from:to:cc:subject:date:in-reply-to:references:message-id:sender
+         :precedence:list-id;
+        bh=G2UuCvyADdYP0CQpR5GV6Vd5AK3Vnb1cFY+KzBM38jk=;
+        b=nS6wSQuS+iK/9+YKTs1alDHZHJg9bwxsMr905TLAiRPv9FtwhTbDBWz+au6qbO+Stj
+         BdZc98+CeCifHhfMG+nziD/o8KLMp6MlyY1NZvsSP7mhb7NitUntFiLo+wR0ubu2YUF5
+         EPKLQb/PziRUQQAGoM1Vxrn/Nda5F+GIET4+IEnlyyNJ4oehYTqj7bJRK0fsYfHQLhSF
+         buGdxRGlgo/GrqKdKFW44QHGXrcjMLVInWCX0UjtMBmoX8evi87Z1S3C75XHm4KlyxsR
+         QBJgq+aZ8dY5rLEwZBMFBCp+EX4jZaU4pqX94rVsV6L6ib/MH77GpR2Ft9oeVTFv8G0y
+         8xow==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=ibm.com
+X-Gm-Message-State: AGRZ1gJuphiZo9AoUPaYjgbOro0D1E/WfGY0+WOP76t3OutufQU+JV35
+	HjaAEOeqQkjv57+84jLc0jbp0n0c9eHMvfkoYFKXdwninDD4BgQ=
+X-Received: by 2002:a17:902:a5cc:: with SMTP id t12-v6mr17337731plq.298.1541967710869;
+        Sun, 11 Nov 2018 12:21:50 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp2436659pjt;
+        Sun, 11 Nov 2018 12:21:49 -0800 (PST)
+X-Google-Smtp-Source: AJdET5f2BVn12mNDKWGnqpAgiSAFfotLNhQvnRyqSB3B1eNclTa6lySmd5IsPlnTHh2EBoYRXeN5
+X-Received: by 2002:a17:902:6e08:: with SMTP id u8-v6mr17217984plk.64.1541967709958;
+        Sun, 11 Nov 2018 12:21:49 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1541967709; cv=none;
+        d=google.com; s=arc-20160816;
+        b=GCtafiefQuT7Twd0u7j3NvYy7Wvxol+toSb3jYiWvdYXO8diOQ6Q/5R5jET3PzD5er
+         wgZwYk37SKkanEx1MfO8uzg1tmJllEOxuQYndAh/Dtd8vMijrb1eWyI9yLjahF0pqpuk
+         46r72NlaNSuozGf5xIwp2uIohSSQgLcyPRDb9dN624yv7OGtRcAPeanuqqjSR71VSWYU
+         o38yI5cQTnrA2U03gCvW2n9w4jppEK8qC2GxuIbFKAZP67s/4rewZmc5KbGUSOW6S+Xg
+         Oj2gWVO8HBsKnodIlWlBKuCDhGhF5HZ/5lRFSrRre58KUtSnAPUunTiRbkhVp5MtIgWX
+         B3Pg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:message-id:references:in-reply-to:date
+         :subject:cc:to:from;
+        bh=G2UuCvyADdYP0CQpR5GV6Vd5AK3Vnb1cFY+KzBM38jk=;
+        b=dtsECGW2wHjQ+POBZzQGSY6czG+z+cQ8lQ20Bew3srb42rECZjg73gyTUQfA0xvkUv
+         BF8Aht4iUgHTZgKQZnW9XxULy+kBKTPF6z887II0mFm0ui368VHzF70XDOCWEUdNprcG
+         JpalibMk/OIWdcR3wI3E7Scbr2Wh9kWI1juDlHTgKSRMqgbpZPWE4WmjiCECQaFO2mwk
+         KXQP2K3mZ1puC2wwuWHqdM/NnPAA9zO/scfndhXehsYlF79caBNRo0jyx1EteUISt/Zy
+         ciUL9RCKi6tB5/HXutqyzyv+wWyvp6Ddv5ew9D5C2UaQjSTCcGDs32MeeJCZhyZakUgy
+         Qz1w==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=ibm.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id a61-v6si16932984pla.430.2018.11.11.12.21.35;
+        Sun, 11 Nov 2018 12:21:49 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1731957AbeKLGKI (ORCPT <rfc822;berg.ding@gmail.com> + 99 others);
+        Mon, 12 Nov 2018 01:10:08 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:39112 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727357AbeKLGKF (ORCPT
+        <rfc822;linux-kernel@vger.kernel.org>);
+        Mon, 12 Nov 2018 01:10:05 -0500
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.22/8.16.0.22) with SMTP id wABKJ8uS128657
+        for <linux-kernel@vger.kernel.org>; Sun, 11 Nov 2018 15:20:35 -0500
+Received: from e12.ny.us.ibm.com (e12.ny.us.ibm.com [129.33.205.202])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2npdn2j9un-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-kernel@vger.kernel.org>; Sun, 11 Nov 2018 15:20:35 -0500
+Received: from localhost
+        by e12.ny.us.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-kernel@vger.kernel.org> from <paulmck@linux.vnet.ibm.com>;
+        Sun, 11 Nov 2018 20:20:34 -0000
+Received: from b01cxnp22036.gho.pok.ibm.com (9.57.198.26)
+        by e12.ny.us.ibm.com (146.89.104.199) with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted;
+        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256/256)
+        Sun, 11 Nov 2018 20:20:28 -0000
+Received: from b01ledav003.gho.pok.ibm.com (b01ledav003.gho.pok.ibm.com [9.57.199.108])
+        by b01cxnp22036.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id wABKKRo437879916
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
+        Sun, 11 Nov 2018 20:20:27 GMT
+Received: from b01ledav003.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id AB77EB2068;
+        Sun, 11 Nov 2018 20:20:27 +0000 (GMT)
+Received: from b01ledav003.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 71A1BB2066;
+        Sun, 11 Nov 2018 20:20:27 +0000 (GMT)
+Received: from paulmck-ThinkPad-W541 (unknown [9.85.207.24])
+        by b01ledav003.gho.pok.ibm.com (Postfix) with ESMTP;
+        Sun, 11 Nov 2018 20:20:27 +0000 (GMT)
+Received: by paulmck-ThinkPad-W541 (Postfix, from userid 1000)
+        id A936116C5D70; Sun, 11 Nov 2018 12:20:28 -0800 (PST)
+From: "Paul E. McKenney" <paulmck@linux.ibm.com>
+To: linux-kernel@vger.kernel.org
+Cc: mingo@kernel.org, jiangshanlai@gmail.com, dipankar@in.ibm.com,
+        akpm@linux-foundation.org, mathieu.desnoyers@efficios.com,
+        josh@joshtriplett.org, tglx@linutronix.de, peterz@infradead.org,
+        rostedt@goodmis.org, dhowells@redhat.com, edumazet@google.com,
+        fweisbec@gmail.com, oleg@redhat.com, joel@joelfernandes.org,
+        "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
+Subject: [PATCH tip/core/rcu 04/17] rcutorture: Break up too-long rcu_torture_fwd_prog() function
+Date: Sun, 11 Nov 2018 12:20:14 -0800
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20181111201956.GA11935@linux.ibm.com>
+References: <20181111201956.GA11935@linux.ibm.com>
+X-TM-AS-GCONF: 00
+x-cbid: 18111120-0060-0000-0000-000002D0FE59
+X-IBM-SpamModules-Scores: 
+X-IBM-SpamModules-Versions: BY=3.00010028; HX=3.00000242; KW=3.00000007;
+ PH=3.00000004; SC=3.00000270; SDB=6.01116031; UDB=6.00578740; IPR=6.00896132;
+ MB=3.00024115; MTD=3.00000008; XFM=3.00000015; UTC=2018-11-11 20:20:32
+X-IBM-AV-DETECTION: SAVI=unused REMOTE=unused XFE=unused
+x-cbparentid: 18111120-0061-0000-0000-0000472A1414
+Message-Id: <20181111202027.13585-4-paulmck@linux.ibm.com>
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2018-11-11_13:,,
+ signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ malwarescore=0 suspectscore=1 phishscore=0 bulkscore=0 spamscore=0
+ clxscore=1015 lowpriorityscore=0 mlxscore=0 impostorscore=0
+ mlxlogscore=999 adultscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.0.1-1807170000 definitions=main-1811110194
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwBXNkJfj+hbd0suAA--.130S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoWfGr48Wr1xXrW5ur15uF1rJFb_yoWDWw1fpF
+	ZxK34jqF4xJr13Ca1xCa18Zws3Jw13XFW5Xr97GrWFk3Z8JFyaqF9FkF9FvFn8Kr1kZFya
+	vFyYyFnxur40yaDanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUU0bIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUPlb7Iv0xC_Kw4lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_tr0E3s1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr1j6F4UJwA2z4x0Y4vE
+	x4A2jsIE14v26F4UJVW0owA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_Cr1j6rxdM2AIxVAIcx
+	kEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v2
+	6r1Y6r17McIj6I8E87Iv67AKxVW8JVWxJwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IYc2
+	Ij64vIr41l7I0Y6sxI4wCY1x0264kExVAvwVAq07x20xylc7Ca8VAvwVCFzxkY4VCF77xA
+	MxkIecxEwVCI4VW7MxkI7II2jI8vz4vEwIxGrwCYIxAIcVC0I7IYx2IY67AKxVWDJVCq3w
+	CYIxAIcVC0I7IYx2IY6xkF7I0E14v26r4UJVWxJr1lcIIF0xvEx4A2jsIE14v26r4UJVWx
+	Jr1lcIIF0xvEx4A2jsIEc7CjxVAFwI0_Gr1j6F4UJwCF04k20xvY0x0EwIxGrwCF04k20x
+	vEw4C26cxK6c8Ij28IcwCF72vE77IF4wCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02
+	F40E14v26r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_GFv_Wr
+	ylIxkGc2Ij64vIr41lIxAIcVCF04k26cxKx2IYs7xG6r1I6r4UYxBIdaVFxhVjvjDU0xZF
+	pf9x07bLBMNUUUUU=
+
+From: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
+
+This commit splits rcu_torture_fwd_prog_nr() and rcu_torture_fwd_prog_cr()
+functions out of rcu_torture_fwd_prog() in order to reduce indentation
+pain and because rcu_torture_fwd_prog() was getting a bit too long.
+In addition, this will enable easier conditional execution of the
+rcu_torture_fwd_prog_cr() function, which can give false-positive
+failures in some NO_HZ_FULL configurations due to overloading the
+housekeeping CPUs.
+
+Signed-off-by: Paul E. McKenney <paulmck@linux.vnet.ibm.com>
+---
+ kernel/rcu/rcutorture.c | 254 +++++++++++++++++++++-------------------
+ 1 file changed, 135 insertions(+), 119 deletions(-)
+
+diff --git a/kernel/rcu/rcutorture.c b/kernel/rcu/rcutorture.c
+index 17f480129a78..bcc33bb8d9a6 100644
+--- a/kernel/rcu/rcutorture.c
++++ b/kernel/rcu/rcutorture.c
+@@ -1650,15 +1650,70 @@ static void rcu_torture_fwd_cb_cr(struct rcu_head *rhp)
+ 	spin_unlock(&rcu_fwd_lock);
+ }
+ 
+-/* Carry out grace-period forward-progress testing. */
+-static int rcu_torture_fwd_prog(void *args)
++/* Carry out need_resched()/cond_resched() forward-progress testing. */
++static void rcu_torture_fwd_prog_nr(int *tested, int *tested_tries)
+ {
+ 	unsigned long cver;
+ 	unsigned long dur;
+ 	struct fwd_cb_state fcs;
+ 	unsigned long gps;
+-	int i;
+ 	int idx;
++	int sd;
++	int sd4;
++	bool selfpropcb = false;
++	unsigned long stopat;
++	static DEFINE_TORTURE_RANDOM(trs);
++
++	if  (cur_ops->call && cur_ops->sync && cur_ops->cb_barrier) {
++		init_rcu_head_on_stack(&fcs.rh);
++		selfpropcb = true;
++	}
++
++	/* Tight loop containing cond_resched(). */
++	if  (selfpropcb) {
++		WRITE_ONCE(fcs.stop, 0);
++		cur_ops->call(&fcs.rh, rcu_torture_fwd_prog_cb);
++	}
++	cver = READ_ONCE(rcu_torture_current_version);
++	gps = cur_ops->get_gp_seq();
++	sd = cur_ops->stall_dur() + 1;
++	sd4 = (sd + fwd_progress_div - 1) / fwd_progress_div;
++	dur = sd4 + torture_random(&trs) % (sd - sd4);
++	rcu_fwd_startat = jiffies;
++	stopat = rcu_fwd_startat + dur;
++	while (time_before(jiffies, stopat) && !torture_must_stop()) {
++		idx = cur_ops->readlock();
++		udelay(10);
++		cur_ops->readunlock(idx);
++		if (!fwd_progress_need_resched || need_resched())
++			cond_resched();
++	}
++	(*tested_tries)++;
++	if (!time_before(jiffies, stopat) && !torture_must_stop()) {
++		(*tested)++;
++		cver = READ_ONCE(rcu_torture_current_version) - cver;
++		gps = rcutorture_seq_diff(cur_ops->get_gp_seq(), gps);
++		WARN_ON(!cver && gps < 2);
++		pr_alert("%s: Duration %ld cver %ld gps %ld\n", __func__, dur, cver, gps);
++	}
++	if (selfpropcb) {
++		WRITE_ONCE(fcs.stop, 1);
++		cur_ops->sync(); /* Wait for running CB to complete. */
++		cur_ops->cb_barrier(); /* Wait for queued callbacks. */
++	}
++
++	if (selfpropcb) {
++		WARN_ON(READ_ONCE(fcs.stop) != 2);
++		destroy_rcu_head_on_stack(&fcs.rh);
++	}
++}
++
++/* Carry out call_rcu() forward-progress testing. */
++static void rcu_torture_fwd_prog_cr(void)
++{
++	unsigned long cver;
++	unsigned long gps;
++	int i;
+ 	int j;
+ 	long n_launders;
+ 	long n_launders_cb_snap;
+@@ -1667,136 +1722,97 @@ static int rcu_torture_fwd_prog(void *args)
+ 	long n_max_gps;
+ 	struct rcu_fwd_cb *rfcp;
+ 	struct rcu_fwd_cb *rfcpn;
+-	int sd;
+-	int sd4;
+-	bool selfpropcb = false;
+ 	unsigned long stopat;
+ 	unsigned long stoppedat;
++
++	/* Loop continuously posting RCU callbacks. */
++	WRITE_ONCE(rcu_fwd_cb_nodelay, true);
++	cur_ops->sync(); /* Later readers see above write. */
++	rcu_fwd_startat = jiffies;
++	stopat = rcu_fwd_startat + MAX_FWD_CB_JIFFIES;
++	n_launders = 0;
++	n_launders_cb = 0;
++	n_launders_sa = 0;
++	n_max_cbs = 0;
++	n_max_gps = 0;
++	for (i = 0; i < ARRAY_SIZE(n_launders_hist); i++)
++		n_launders_hist[i] = 0;
++	cver = READ_ONCE(rcu_torture_current_version);
++	gps = cur_ops->get_gp_seq();
++	while (time_before(jiffies, stopat) && !torture_must_stop()) {
++		rfcp = READ_ONCE(rcu_fwd_cb_head);
++		rfcpn = NULL;
++		if (rfcp)
++			rfcpn = READ_ONCE(rfcp->rfc_next);
++		if (rfcpn) {
++			if (rfcp->rfc_gps >= MIN_FWD_CB_LAUNDERS &&
++			    ++n_max_gps >= MIN_FWD_CBS_LAUNDERED)
++				break;
++			rcu_fwd_cb_head = rfcpn;
++			n_launders++;
++			n_launders_sa++;
++		} else {
++			rfcp = kmalloc(sizeof(*rfcp), GFP_KERNEL);
++			if (WARN_ON_ONCE(!rfcp)) {
++				schedule_timeout_interruptible(1);
++				continue;
++			}
++			n_max_cbs++;
++			n_launders_sa = 0;
++			rfcp->rfc_gps = 0;
++		}
++		cur_ops->call(&rfcp->rh, rcu_torture_fwd_cb_cr);
++		cond_resched();
++	}
++	stoppedat = jiffies;
++	n_launders_cb_snap = READ_ONCE(n_launders_cb);
++	cver = READ_ONCE(rcu_torture_current_version) - cver;
++	gps = rcutorture_seq_diff(cur_ops->get_gp_seq(), gps);
++	cur_ops->cb_barrier(); /* Wait for callbacks to be invoked. */
++	for (;;) {
++		rfcp = rcu_fwd_cb_head;
++		if (!rfcp)
++			break;
++		rcu_fwd_cb_head = rfcp->rfc_next;
++		kfree(rfcp);
++	}
++	rcu_fwd_cb_tail = &rcu_fwd_cb_head;
++	WRITE_ONCE(rcu_fwd_cb_nodelay, false);
++	if (!torture_must_stop()) {
++		WARN_ON(n_max_gps < MIN_FWD_CBS_LAUNDERED);
++		pr_alert("%s Duration %lu barrier: %lu pending %ld n_launders: %ld n_launders_sa: %ld n_max_gps: %ld n_max_cbs: %ld cver %ld gps %ld\n",
++			 __func__,
++			 stoppedat - rcu_fwd_startat, jiffies - stoppedat,
++			 n_launders + n_max_cbs - n_launders_cb_snap,
++			 n_launders, n_launders_sa,
++			 n_max_gps, n_max_cbs, cver, gps);
++		for (i = ARRAY_SIZE(n_launders_hist) - 1; i > 0; i--)
++			if (n_launders_hist[i] > 0)
++				break;
++		pr_alert("Callback-invocation histogram:");
++		for (j = 0; j <= i; j++)
++			pr_cont(" %ds: %ld", j + 1, n_launders_hist[j]);
++		pr_cont("\n");
++	}
++}
++
++/* Carry out grace-period forward-progress testing. */
++static int rcu_torture_fwd_prog(void *args)
++{
+ 	int tested = 0;
+ 	int tested_tries = 0;
+-	static DEFINE_TORTURE_RANDOM(trs);
+ 
+ 	VERBOSE_TOROUT_STRING("rcu_torture_fwd_progress task started");
+ 	if (!IS_ENABLED(CONFIG_SMP) || !IS_ENABLED(CONFIG_RCU_BOOST))
+ 		set_user_nice(current, MAX_NICE);
+-	if  (cur_ops->call && cur_ops->sync && cur_ops->cb_barrier) {
+-		init_rcu_head_on_stack(&fcs.rh);
+-		selfpropcb = true;
+-	}
+ 	do {
+ 		schedule_timeout_interruptible(fwd_progress_holdoff * HZ);
+-
+-		/* Tight loop containing cond_resched(). */
+-		if  (selfpropcb) {
+-			WRITE_ONCE(fcs.stop, 0);
+-			cur_ops->call(&fcs.rh, rcu_torture_fwd_prog_cb);
+-		}
+-		cver = READ_ONCE(rcu_torture_current_version);
+-		gps = cur_ops->get_gp_seq();
+-		sd = cur_ops->stall_dur() + 1;
+-		sd4 = (sd + fwd_progress_div - 1) / fwd_progress_div;
+-		dur = sd4 + torture_random(&trs) % (sd - sd4);
+-		rcu_fwd_startat = jiffies;
+-		stopat = rcu_fwd_startat + dur;
+-		while (time_before(jiffies, stopat) && !torture_must_stop()) {
+-			idx = cur_ops->readlock();
+-			udelay(10);
+-			cur_ops->readunlock(idx);
+-			if (!fwd_progress_need_resched || need_resched())
+-				cond_resched();
+-		}
+-		tested_tries++;
+-		if (!time_before(jiffies, stopat) && !torture_must_stop()) {
+-			tested++;
+-			cver = READ_ONCE(rcu_torture_current_version) - cver;
+-			gps = rcutorture_seq_diff(cur_ops->get_gp_seq(), gps);
+-			WARN_ON(!cver && gps < 2);
+-			pr_alert("%s: Duration %ld cver %ld gps %ld\n", __func__, dur, cver, gps);
+-		}
+-		if (selfpropcb) {
+-			WRITE_ONCE(fcs.stop, 1);
+-			cur_ops->sync(); /* Wait for running CB to complete. */
+-			cur_ops->cb_barrier(); /* Wait for queued callbacks. */
+-		}
+-
+-		/* Loop continuously posting RCU callbacks. */
+-		WRITE_ONCE(rcu_fwd_cb_nodelay, true);
+-		cur_ops->sync(); /* Later readers see above write. */
+-		rcu_fwd_startat = jiffies;
+-		stopat = rcu_fwd_startat + MAX_FWD_CB_JIFFIES;
+-		n_launders = 0;
+-		n_launders_cb = 0;
+-		n_launders_sa = 0;
+-		n_max_cbs = 0;
+-		n_max_gps = 0;
+-		for (i = 0; i < ARRAY_SIZE(n_launders_hist); i++)
+-			n_launders_hist[i] = 0;
+-		cver = READ_ONCE(rcu_torture_current_version);
+-		gps = cur_ops->get_gp_seq();
+-		while (time_before(jiffies, stopat) && !torture_must_stop()) {
+-			rfcp = READ_ONCE(rcu_fwd_cb_head);
+-			rfcpn = NULL;
+-			if (rfcp)
+-				rfcpn = READ_ONCE(rfcp->rfc_next);
+-			if (rfcpn) {
+-				if (rfcp->rfc_gps >= MIN_FWD_CB_LAUNDERS &&
+-				    ++n_max_gps >= MIN_FWD_CBS_LAUNDERED)
+-					break;
+-				rcu_fwd_cb_head = rfcpn;
+-				n_launders++;
+-				n_launders_sa++;
+-			} else {
+-				rfcp = kmalloc(sizeof(*rfcp), GFP_KERNEL);
+-				if (WARN_ON_ONCE(!rfcp)) {
+-					schedule_timeout_interruptible(1);
+-					continue;
+-				}
+-				n_max_cbs++;
+-				n_launders_sa = 0;
+-				rfcp->rfc_gps = 0;
+-			}
+-			cur_ops->call(&rfcp->rh, rcu_torture_fwd_cb_cr);
+-			cond_resched();
+-		}
+-		stoppedat = jiffies;
+-		n_launders_cb_snap = READ_ONCE(n_launders_cb);
+-		cver = READ_ONCE(rcu_torture_current_version) - cver;
+-		gps = rcutorture_seq_diff(cur_ops->get_gp_seq(), gps);
+-		cur_ops->cb_barrier(); /* Wait for callbacks to be invoked. */
+-		for (;;) {
+-			rfcp = rcu_fwd_cb_head;
+-			if (!rfcp)
+-				break;
+-			rcu_fwd_cb_head = rfcp->rfc_next;
+-			kfree(rfcp);
+-		}
+-		rcu_fwd_cb_tail = &rcu_fwd_cb_head;
+-		WRITE_ONCE(rcu_fwd_cb_nodelay, false);
+-		if (!torture_must_stop()) {
+-			WARN_ON(n_max_gps < MIN_FWD_CBS_LAUNDERED);
+-			pr_alert("%s Duration %lu barrier: %lu pending %ld n_launders: %ld n_launders_sa: %ld n_max_gps: %ld n_max_cbs: %ld cver %ld gps %ld\n",
+-				 __func__,
+-				 stoppedat - rcu_fwd_startat,
+-				 jiffies - stoppedat,
+-				 n_launders + n_max_cbs - n_launders_cb_snap,
+-				 n_launders, n_launders_sa,
+-				 n_max_gps, n_max_cbs, cver, gps);
+-			for (i = ARRAY_SIZE(n_launders_hist) - 1; i > 0; i--)
+-				if (n_launders_hist[i] > 0)
+-					break;
+-			pr_alert("Callback-invocation histogram:");
+-			for (j = 0; j <= i; j++)
+-				pr_cont(" %ds: %ld", j + 1, n_launders_hist[j]);
+-			pr_cont("\n");
+-		}
++		rcu_torture_fwd_prog_nr(&tested, &tested_tries);
++		rcu_torture_fwd_prog_cr();
+ 
+ 		/* Avoid slow periods, better to test when busy. */
+ 		stutter_wait("rcu_torture_fwd_prog");
+ 	} while (!torture_must_stop());
+-	if (selfpropcb) {
+-		WARN_ON(READ_ONCE(fcs.stop) != 2);
+-		destroy_rcu_head_on_stack(&fcs.rh);
+-	}
+ 	/* Short runs might not contain a valid forward-progress attempt. */
+ 	WARN_ON(!tested && tested_tries >= 5);
+ 	pr_alert("%s: tested %d tested_tries %d\n", __func__, tested, tested_tries);
+-- 
+2.17.1

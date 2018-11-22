@@ -1,0 +1,153 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 13 Nov 2018 00:34:20 -0000
+Received: from icoremail.net (unknown [209.85.210.169])
+	by mail-app2 (Coremail) with SMTP id by_KCgC3f0F55ulbrBaAAQ--.38172S3;
+	Tue, 13 Nov 2018 04:45:46 +0800 (CST)
+Received: from mail-pf1-f169.google.com (unknown [209.85.210.169])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwAnBEB15ulbeMozAA--.1223S3;
+	Tue, 13 Nov 2018 04:45:41 +0800 (CST)
+Received: by mail-pf1-f169.google.com with SMTP id c72so185733pfc.6
+        for <xuliker@zju.edu.cn>; Mon, 12 Nov 2018 12:45:41 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:delivered-to:dkim-signature:date:in-reply-to
+         :message-id:mime-version:references:subject:from:to:cc:sender
+         :precedence:list-id;
+        bh=vtagQekhQJXPG+xzsGI7mExNCMsnJFENNGuTVqP4NUU=;
+        b=Uhy8N/pOWXV4WWdAx4FVMebtOlwmRhRADs+BBbBDbIGfS0GuX+9DmWVVKTI1PTFYVL
+         NKPt4L4W1SNsWlts81Gt8Qnw5ZoPr6v9yXk676hNv9QMlhnlZKQIhDNdjcwjBFfrfp5T
+         7neoOVGykRaZiM3TA91Sji1Uw5qkHy07zlxHbMUIobpYpZs604rv5Jl4RBtrganu44It
+         VwG2lqORoN2OCmJv6wJD2wyHUGyIKbFEqKQNpXmHfdyEhLxbZl5vLdC0ihYD4HTToi4x
+         GuKTQhbwvAbJHFvDHTQ9d/jM0CHDt1VDECXdmRqqnVGmeS9cmSCQyymbxdjr0Z0DLF7k
+         8eTQ==
+X-Gm-Message-State: AGRZ1gK4/pLUoX5Sj3PvU7jejxjxJVP2wtaVa3ZeVaukTZ2uW3KT/QQn
+	AZXl+8uWMqhkxKmsWZjtzluWM+USewXQt+Op35C147H1Gq/TI/lQ9Q==
+X-Received: by 2002:a63:fd53:: with SMTP id m19mr2163033pgj.340.1542055540685;
+        Mon, 12 Nov 2018 12:45:40 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp3656482pjt;
+        Mon, 12 Nov 2018 12:45:40 -0800 (PST)
+X-Google-Smtp-Source: AJdET5fkH/gFrLBnt719lnKfDGeIybNAB035QrLnmtLrl4/c+zya+26MDuC4kZbIVWCzkBtzX7cX
+X-Received: by 2002:a63:8043:: with SMTP id j64mr2153585pgd.405.1542055540088;
+        Mon, 12 Nov 2018 12:45:40 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542055540; cv=none;
+        d=google.com; s=arc-20160816;
+        b=LWqhvChj7T4UnrVkzy3IU3DOBA0o5gTjqdphJvpNfmbPYkPJTvem2PfZr3PXMbwfkm
+         o9+lR6AN/XvoeGitQfAXb/pZ0F4WANSDOp1F4/NdnivDyeEdk45F/Eheq8Y2SwXync16
+         cGotz6ygGLPdMk4meuCZL/3VqbmHY/uQr7Hq+VeW609ggk89zjPbWg1l4YmyMSd6QXyb
+         VxRPsq+se007Nzix7Mgw4ySbTRiE50JgY6o3rqLCa4xWxiP4P6GGI1Si08fSCWzqNpYn
+         OO/BCTgFtCh6tYX3Hn3cau/iZ6TYF4lQqnHOVZK7N8BmIq1JWaoiWngWfI7VPzYlnZhU
+         iabA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:cc:to:from:subject:references
+         :mime-version:message-id:in-reply-to:date:dkim-signature;
+        bh=vtagQekhQJXPG+xzsGI7mExNCMsnJFENNGuTVqP4NUU=;
+        b=p2bcF7Mr8zXlX8450uLxSPGUNCuenRNn6iILv2L2Jb/2zXt4nSitEX2eTfIKOf44Ms
+         kUvGFdCaNIT5D6+WLnvzTmDiHq+SHvlFuVWs5e4JcYZonU1y31o5IlxrGion8KAbNjCf
+         WqOeLZTjuYEsg4ujW5DZs/z/33VIyrs81/80W3JFIknjxdyiAHj3o5f0T6ZMnyqf/PQh
+         bOitiGjzkGWJgKLicsGLlfbGoKxLepGMUi8GBhS8mAoX1zLswMhvNZG+EkxDukAC68ko
+         946cW/I1ge/kDefWYW5G0i5+hzSlJtn1CZpJRX4u4HP7N6JQEOcjwcFBxrs0FlNWqmMs
+         uGCg==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@google.com header.s=20161025 header.b="ejP+nj/S";
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;
+       dmarc=pass (p=REJECT sp=REJECT dis=NONE) header.from=google.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id r13-v6si17467085pgk.127.2018.11.12.12.45.25;
+        Mon, 12 Nov 2018 12:45:40 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1729529AbeKMGkH (ORCPT <rfc822;fanshuming2011@gmail.com>
+        + 99 others); Tue, 13 Nov 2018 01:40:07 -0500
+Received: from mail-pl1-f201.google.com ([209.85.214.201]:54837 "EHLO
+        mail-pl1-f201.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725861AbeKMGkG (ORCPT <rfc822;kvm@vger.kernel.org>);
+        Tue, 13 Nov 2018 01:40:06 -0500
+Received: by mail-pl1-f201.google.com with SMTP id k14-v6so7952469pls.21
+        for <kvm@vger.kernel.org>; Mon, 12 Nov 2018 12:45:12 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=date:in-reply-to:message-id:mime-version:references:subject:from:to
+         :cc;
+        bh=vtagQekhQJXPG+xzsGI7mExNCMsnJFENNGuTVqP4NUU=;
+        b=ejP+nj/S6wjhVKP3K5PEURXP5dh4Wq5A87OAUmJyKlNxzvTcF+EI28S9u2Eef9PktL
+         UJMS+sfU0dGtMPeuMGRvjvpzRcpnuyZXkJsKAm77HrhdMwNeV45epWmiDojYFRuQ0ruL
+         o0/wkZZS/5+qlSL9oQpbBqxjDjUh879K/14Lwf2WJ3TP4yGahYEInOeCXuR7cPJO370F
+         ebkaYApkC8jjJEy5bUvVRGMrFS6S0LQr8uigNzQSPjdGTdACoCvtNH6W22wz92E+EXD+
+         K5Cg+BDSZ7ZUdt/DCK3AkAH5pN3Y6+KIsz6jytkIz80Gx3cnMxYjJLA65N8x2okzdQsh
+         iCIw==
+X-Received: by 2002:a65:4083:: with SMTP id t3-v6mr353534pgp.43.1542055512572;
+ Mon, 12 Nov 2018 12:45:12 -0800 (PST)
+Date: Mon, 12 Nov 2018 12:45:08 -0800
+In-Reply-To: <CALMp9eTLGYmfPXadBbWLPkjcA5XBQzr=iR1k3LvY3u0zgOFKEg@mail.gmail.com>
+Message-Id: <20181112204508.261895-1-jmattson@google.com>
+Mime-Version: 1.0
+References: <CALMp9eTLGYmfPXadBbWLPkjcA5XBQzr=iR1k3LvY3u0zgOFKEg@mail.gmail.com>
+X-Mailer: git-send-email 2.19.1.930.g4563a0d9d0-goog
+Subject: [PATCH v3 2/4] kvm: vmx: Document the need for MSR_STAR in i386 builds
+From: Jim Mattson <jmattson@google.com>
+To: kvm@vger.kernel.org
+Cc: Jim Mattson <jmattson@google.com>, Peter Shier <pshier@google.com>
+Content-Type: text/plain; charset="UTF-8"
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwAnBEB15ulbeMozAA--.1223S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW7JFy5KFy7GFy3CrWUWry7Awb_yoW8JrW8pF
+	Z7u3s5tr1DX3yfG393AF97XF4ak34kCr45Arsrur1SvF12q3WkZr4xt3W5A34xX392v34r
+	XF1Fq3yruF15JaDanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUPab7Iv0xC_tr1lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Xr0_Ar1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1l84ACjcxK6I8E
+	87Iv67AKxVW0oVCq3wA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_GcCE3s1le2I262IYc4CY6c
+	8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_Jr0_
+	Jr4lYx0Ex4A2jsIE14v26r1j6r4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvY0x0EwI
+	xGrwCjxxvEa2IrMxkF7I0Ew4C26cxK6c8Ij28IcwCY1Ik26cxK6xAEc7vF6xCjj44lc2xS
+	Y4AK6IIF6F1lc2IjII80xcxEwVAKI48JMxvI42IY6xIIjxv20xvE14v26r4j6ryUMxvI42
+	IY6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1lcIIF0xvEx4A2jsIE14v26r4UJVWxJr1lcIIF
+	0xvEx4A2jsIEc7CjxVAFwI0_Gr1j6F4UJwCF04k20xvY0x0EwIxGrwCF04k20xvEw4C26c
+	xK6c8Ij28IcwCF72vE77IF4wCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v2
+	6r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_JF0_Jw1lIxkGc2
+	Ij64vIr41lIxAIcVCF04k26cxKx2IYs7xG6Fyj6rWUJbIYCTnIWIevJa73UjIFyTuYvjxU
+	qGjgUUUUU
+
+Add a comment explaining why MSR_STAR must be included in
+vmx_msr_index[] even for i386 builds.
+
+The elided comment has not been relevant since move_msr_up() was
+introduced in commit a75beee6e4f5d ("KVM: VMX: Avoid saving and
+restoring msrs on lightweight vmexit").
+
+Signed-off-by: Jim Mattson <jmattson@google.com>
+Reviewed-by: Peter Shier <pshier@google.com>
+---
+ arch/x86/kvm/vmx.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
+
+diff --git a/arch/x86/kvm/vmx.c b/arch/x86/kvm/vmx.c
+index 120fc97a63fc..ee460a21d369 100644
+--- a/arch/x86/kvm/vmx.c
++++ b/arch/x86/kvm/vmx.c
+@@ -1388,8 +1388,11 @@ static u64 host_efer;
+ static void ept_save_pdptrs(struct kvm_vcpu *vcpu);
+ 
+ /*
+- * Keep MSR_STAR at the end, as setup_msrs() will try to optimize it
+- * away by decrementing the array size.
++ * Though SYSCALL is only supported in 64-bit mode on Intel CPUs, kvm
++ * will emulate SYSCALL in legacy mode if the vendor string in guest
++ * CPUID.0:{EBX,ECX,EDX} is "AuthenticAMD" or "AMDisbetter!" To
++ * support this emulation, IA32_STAR must always be included in
++ * vmx_msr_index[], even in i386 builds.
+  */
+ static const u32 vmx_msr_index[] = {
+ #ifdef CONFIG_X86_64
+-- 
+2.19.1.930.g4563a0d9d0-goog

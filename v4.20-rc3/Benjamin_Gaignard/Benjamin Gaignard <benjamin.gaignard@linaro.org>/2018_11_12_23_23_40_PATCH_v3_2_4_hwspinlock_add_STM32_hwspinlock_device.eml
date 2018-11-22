@@ -1,0 +1,338 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 13 Nov 2018 00:32:37 -0000
+Received: from icoremail.net (unknown [209.85.215.169])
+	by mail-app2 (Coremail) with SMTP id by_KCgCn36Q2m+lbz31+AQ--.37908S3;
+	Mon, 12 Nov 2018 23:24:41 +0800 (CST)
+Received: from mail-pg1-f169.google.com (unknown [209.85.215.169])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwCHbko1m+lbHmgyAA--.2837S3;
+	Mon, 12 Nov 2018 23:24:37 +0800 (CST)
+Received: by mail-pg1-f169.google.com with SMTP id 70so4210031pgh.8
+        for <xuliker@zju.edu.cn>; Mon, 12 Nov 2018 07:24:37 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:delivered-to:dkim-signature:from:to:cc:subject
+         :date:message-id:in-reply-to:references:sender:precedence:list-id;
+        bh=S8bHhUupkUTqv4GrIPDVQt3PTDb9g6MRhgvHMF/6NzU=;
+        b=uXldshTLxI/wTFfV+YdFMFD6ef7TV3Jc0M7AEoKWa5qqmM6an2Cf7BFS3dOGPoxnBK
+         wtD4AlU6ShT9/t7+7O55aO45Om5/jwon4yHX8dmnVp3GCqwx/l430Zpvl87PwmSV6UBr
+         weV9dj+ddaqI9hQWIeV6c8gDOxbdxl0ZQYhkAVWNLY5bU5cW3sowghSnvCCqm486L9c2
+         vbM64s/FngtmmjdelhCOun51CZ6jd/CVxDzJLlozNUDTPrAv36eoYbJbdRUQJB7h4tsB
+         +zDWe14TdEAqig0mzFW5GuVjO4+AKllMPzX9NlNctAtvbm1szbm1j/yj3TcM1exM6qMW
+         iT2A==
+X-Gm-Message-State: AGRZ1gLrDYQGaDUJ2u01wSeT1CkN8osTfNwCbpTaz3x+hyEJ15QE9Ogj
+	r8Ad33KrSTZSvlv9KAS4ZFgMeXBY56DouKw20r0sAed0gfGSI4+EcQ==
+X-Received: by 2002:a63:fd53:: with SMTP id m19mr1204694pgj.340.1542036276830;
+        Mon, 12 Nov 2018 07:24:36 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp3321334pjt;
+        Mon, 12 Nov 2018 07:24:36 -0800 (PST)
+X-Google-Smtp-Source: AJdET5cEOloJJ6c+PhNWEBa5WjiTNLoAcv0XYOjP609GD2LXKoR1ienGPO+cbttITN7NyrvfeI0Q
+X-Received: by 2002:a62:4896:: with SMTP id q22-v6mr1326470pfi.248.1542036275966;
+        Mon, 12 Nov 2018 07:24:35 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542036275; cv=none;
+        d=google.com; s=arc-20160816;
+        b=gHxNaOsDki7kWKzD89C/q9Ria3mKMq79ZPaEXI7Ikb2GBaNRqBcIIfy93dp92z+UZn
+         PiBSotLUEJpyb7kSpHaSx7A/OJL6c4XH5iHzNX8mwdyKiu6H70lM3SdRgWgdHCFw2KTP
+         CeJb/9KWcgBOwrjcdjGh9LkmZ96bmvzsHoju77G0/aF6uFLHQzsmHW7bpbDulcMnJpkm
+         FFb/P+AteCnX1vGha/WtkMiZPOG073AJUOMOwqSM6iV+aHwLjD5kSW4MntE6KSleh852
+         iW4ho/Z+xDk88cqvvf3JteotME5wv8O0MJ2dD/bNVKbTNYX67ulc8zRqAhgvfKcHw6Yf
+         rmOg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:references:in-reply-to:message-id:date
+         :subject:cc:to:from:dkim-signature;
+        bh=S8bHhUupkUTqv4GrIPDVQt3PTDb9g6MRhgvHMF/6NzU=;
+        b=BHTHv/lgno7MxWa8UE34PmykvD19QICZBUKy/9m+ceqJEilkacWJg8E4rnirktZnQ6
+         JPRA3ZtiC6T7xgqhS81FJ5OYp2BRmHkAolUdcAQO2T/s4DiTAeDeApGHFDo5FY9O6Ogq
+         xCVO7icIX6gUoFswvbucV+DRSPj/QpRVciK5ULhA47eWVaAs+0WQXob8sUTqlrVY5f21
+         hfqz/+MJ15LPi1nLHj/P+ornbaniDFFpazs6XJ6cLZQJdnkBc0qT6iEZ/1yYiZqTWgVL
+         eyfP5otzuSeNf3/CIWLEyNy+ME6erpzn8OW36x0ueEn4anzfTvOdwc1Vzsuzy/pswt7F
+         oNMw==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@linaro.org header.s=google header.b=IlHdHvbI;
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;
+       dmarc=pass (p=NONE sp=NONE dis=NONE) header.from=linaro.org
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id l1-v6si18366111pld.355.2018.11.12.07.24.21;
+        Mon, 12 Nov 2018 07:24:35 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1729937AbeKMBRj (ORCPT <rfc822;changseok.bae@gmail.com>
+        + 99 others); Mon, 12 Nov 2018 20:17:39 -0500
+Received: from mail-wr1-f68.google.com ([209.85.221.68]:47013 "EHLO
+        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729774AbeKMBRh (ORCPT
+        <rfc822;linux-kernel@vger.kernel.org>);
+        Mon, 12 Nov 2018 20:17:37 -0500
+Received: by mail-wr1-f68.google.com with SMTP id 74-v6so9790798wrb.13
+        for <linux-kernel@vger.kernel.org>; Mon, 12 Nov 2018 07:23:54 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references;
+        bh=S8bHhUupkUTqv4GrIPDVQt3PTDb9g6MRhgvHMF/6NzU=;
+        b=IlHdHvbIMsbZPOp6BcEzfi081E1nBwMoOoOCCVyl8k/KhFbV303J7JfVO79FU6nCKT
+         3cHwQfNISRvfaIlwEgKJ9rlzFqtTWBOJoVxk/PqEWpqglGHqa1WLjCB10wX+3qux7snj
+         oph3ekQPWgiNowFuLstDMXdXZtjlK11a0g0fw=
+X-Received: by 2002:adf:a599:: with SMTP id g25-v6mr1474539wrc.188.1542036233846;
+        Mon, 12 Nov 2018 07:23:53 -0800 (PST)
+Received: from lmecxl0911.lme.st.com ([2a04:cec0:105e:a8d5:7c2c:2737:d373:11ee])
+        by smtp.gmail.com with ESMTPSA id t82-v6sm11192849wme.30.2018.11.12.07.23.51
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
+        Mon, 12 Nov 2018 07:23:53 -0800 (PST)
+From: Benjamin Gaignard <benjamin.gaignard@linaro.org>
+X-Google-Original-From: Benjamin Gaignard <benjamin.gaignard@st.com>
+To: ohad@wizery.com, bjorn.andersson@linaro.org, robh+dt@kernel.org,
+        mark.rutland@arm.com, alexandre.torgue@st.com
+Cc: linux-remoteproc@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-stm32@st-md-mailman.stormreply.com,
+        Benjamin Gaignard <benjamin.gaignard@st.com>
+Subject: [PATCH v3 2/4] hwspinlock: add STM32 hwspinlock device
+Date: Mon, 12 Nov 2018 16:23:40 +0100
+Message-Id: <20181112152342.6561-3-benjamin.gaignard@st.com>
+X-Mailer: git-send-email 2.15.0
+In-Reply-To: <20181112152342.6561-1-benjamin.gaignard@st.com>
+References: <20181112152342.6561-1-benjamin.gaignard@st.com>
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwCHbko1m+lbHmgyAA--.2837S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW3Ww1kZry7Kw13uF13Jr1kZrb_yoWxXw17pF
+	y5GFW3Ar4xtF1F9r4ftF1vvF98tan2k345Jr9rW3WjyryUXF90q3WkJryYv3WYqF93Kasr
+	GFnrXw1UCFyUJF7anT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUPFb7Iv0xC_Zr1lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1l84ACjcxK6I8E
+	87Iv67AKxVW0oVCq3wA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_GcCE3s1le2I262IYc4CY6c
+	8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_Jr0_
+	Jr4lYx0Ex4A2jsIE14v26F4j6r4UJwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IYc2Ij64
+	vIr41l7I0Y6sxI4wCY1x0264kExVAvwVAq07x20xylc7Ca8VAvwVCFzxkY4VCF77xAMxkI
+	ecxEwVCI4VW5WwCY0x0Ix7I2Y4AK64vIr41lcIIF0xvE2Ix0cI8IcVAFwI0_Gr0_Xr1lcI
+	IF0xvE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwCYIxAIcVC2z280aVAFwI0_GcCE3s1lcIIF
+	0xvEx4A2jsIEc7CjxVAFwI0_GcCE3s1l42xK82IYc2Ij64vIr41l42xK82IY64kExVAvwV
+	Aq07x20xyl4x8a6x804xWl4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWU
+	JVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r1q6r43MIIYrxkI7V
+	AKI48JMIIF0xvE42xK8VAvwI8IcIk0rVWUCVW8JbIYCTnIWIevJa73UjIFyTuYvjxUq3Ef
+	UUUUU
+
+This patch adds support of hardware semaphores for stm32mp1 SoC.
+The hardware block provides 32 semaphores.
+
+Signed-off-by: Benjamin Gaignard <benjamin.gaignard@st.com>
+---
+version 3 :
+- use postcore_initcall() instead of module_platform_driver()
+  
+version 2 :
+- change clock name from hwspinlock to hsem to be align with hardware
+  documentation
+- remove useless licence terms from header
+- fix alphabetic order issues
+- do not abort remove function if hwspin_lock_unregister() failed
+
+ drivers/hwspinlock/Kconfig            |   9 ++
+ drivers/hwspinlock/Makefile           |   1 +
+ drivers/hwspinlock/stm32_hwspinlock.c | 156 ++++++++++++++++++++++++++++++++++
+ 3 files changed, 166 insertions(+)
+ create mode 100644 drivers/hwspinlock/stm32_hwspinlock.c
+
+diff --git a/drivers/hwspinlock/Kconfig b/drivers/hwspinlock/Kconfig
+index e895d29500ee..7869c67e5b6b 100644
+--- a/drivers/hwspinlock/Kconfig
++++ b/drivers/hwspinlock/Kconfig
+@@ -49,6 +49,15 @@ config HWSPINLOCK_SPRD
+ 
+ 	  If unsure, say N.
+ 
++config HWSPINLOCK_STM32
++	tristate "STM32 Hardware Spinlock device"
++	depends on MACH_STM32MP157
++	depends on HWSPINLOCK
++	help
++	  Say y here to support the STM32 Hardware Spinlock device.
++
++	  If unsure, say N.
++
+ config HSEM_U8500
+ 	tristate "STE Hardware Semaphore functionality"
+ 	depends on HWSPINLOCK
+diff --git a/drivers/hwspinlock/Makefile b/drivers/hwspinlock/Makefile
+index b87c01a506a4..ed053e3f02be 100644
+--- a/drivers/hwspinlock/Makefile
++++ b/drivers/hwspinlock/Makefile
+@@ -8,4 +8,5 @@ obj-$(CONFIG_HWSPINLOCK_OMAP)		+= omap_hwspinlock.o
+ obj-$(CONFIG_HWSPINLOCK_QCOM)		+= qcom_hwspinlock.o
+ obj-$(CONFIG_HWSPINLOCK_SIRF)		+= sirf_hwspinlock.o
+ obj-$(CONFIG_HWSPINLOCK_SPRD)		+= sprd_hwspinlock.o
++obj-$(CONFIG_HWSPINLOCK_STM32)		+= stm32_hwspinlock.o
+ obj-$(CONFIG_HSEM_U8500)		+= u8500_hsem.o
+diff --git a/drivers/hwspinlock/stm32_hwspinlock.c b/drivers/hwspinlock/stm32_hwspinlock.c
+new file mode 100644
+index 000000000000..34a8e009dc93
+--- /dev/null
++++ b/drivers/hwspinlock/stm32_hwspinlock.c
+@@ -0,0 +1,156 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * Copyright (C) STMicroelectronics SA 2018
++ * Author: Benjamin Gaignard <benjamin.gaignard@st.com> for STMicroelectronics.
++ */
++
++#include <linux/clk.h>
++#include <linux/hwspinlock.h>
++#include <linux/io.h>
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/of.h>
++#include <linux/platform_device.h>
++#include <linux/pm_runtime.h>
++
++#include "hwspinlock_internal.h"
++
++#define STM32_MUTEX_COREID	BIT(8)
++#define STM32_MUTEX_LOCK_BIT	BIT(31)
++#define STM32_MUTEX_NUM_LOCKS	32
++
++struct stm32_hwspinlock {
++	struct clk *clk;
++	struct hwspinlock_device bank;
++};
++
++static int stm32_hwspinlock_trylock(struct hwspinlock *lock)
++{
++	void __iomem *lock_addr = lock->priv;
++	u32 status;
++
++	writel(STM32_MUTEX_LOCK_BIT | STM32_MUTEX_COREID, lock_addr);
++	status = readl(lock_addr);
++
++	return status == (STM32_MUTEX_LOCK_BIT | STM32_MUTEX_COREID);
++}
++
++static void stm32_hwspinlock_unlock(struct hwspinlock *lock)
++{
++	void __iomem *lock_addr = lock->priv;
++
++	writel(STM32_MUTEX_COREID, lock_addr);
++}
++
++static const struct hwspinlock_ops stm32_hwspinlock_ops = {
++	.trylock	= stm32_hwspinlock_trylock,
++	.unlock		= stm32_hwspinlock_unlock,
++};
++
++static int stm32_hwspinlock_probe(struct platform_device *pdev)
++{
++	struct stm32_hwspinlock *hw;
++	void __iomem *io_base;
++	struct resource *res;
++	size_t array_size;
++	int i, ret;
++
++	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	io_base = devm_ioremap_resource(&pdev->dev, res);
++	if (!io_base)
++		return -ENOMEM;
++
++	array_size = STM32_MUTEX_NUM_LOCKS * sizeof(struct hwspinlock);
++	hw = devm_kzalloc(&pdev->dev, sizeof(*hw) + array_size, GFP_KERNEL);
++	if (!hw)
++		return -ENOMEM;
++
++	hw->clk = devm_clk_get(&pdev->dev, "hsem");
++	if (IS_ERR(hw->clk))
++		return PTR_ERR(hw->clk);
++
++	for (i = 0; i < STM32_MUTEX_NUM_LOCKS; i++)
++		hw->bank.lock[i].priv = io_base + i * sizeof(u32);
++
++	platform_set_drvdata(pdev, hw);
++	pm_runtime_enable(&pdev->dev);
++
++	ret = hwspin_lock_register(&hw->bank, &pdev->dev, &stm32_hwspinlock_ops,
++				   0, STM32_MUTEX_NUM_LOCKS);
++
++	if (ret)
++		pm_runtime_disable(&pdev->dev);
++
++	return ret;
++}
++
++static int stm32_hwspinlock_remove(struct platform_device *pdev)
++{
++	struct stm32_hwspinlock *hw = platform_get_drvdata(pdev);
++	int ret;
++
++	ret = hwspin_lock_unregister(&hw->bank);
++	if (ret)
++		dev_err(&pdev->dev, "%s failed: %d\n", __func__, ret);
++
++	pm_runtime_disable(&pdev->dev);
++
++	return 0;
++}
++
++static int __maybe_unused stm32_hwspinlock_runtime_suspend(struct device *dev)
++{
++	struct stm32_hwspinlock *hw = dev_get_drvdata(dev);
++
++	clk_disable_unprepare(hw->clk);
++
++	return 0;
++}
++
++static int __maybe_unused stm32_hwspinlock_runtime_resume(struct device *dev)
++{
++	struct stm32_hwspinlock *hw = dev_get_drvdata(dev);
++
++	clk_prepare_enable(hw->clk);
++
++	return 0;
++}
++
++static const struct dev_pm_ops stm32_hwspinlock_pm_ops = {
++	SET_RUNTIME_PM_OPS(stm32_hwspinlock_runtime_suspend,
++			   stm32_hwspinlock_runtime_resume,
++			   NULL)
++};
++
++static const struct of_device_id stm32_hwpinlock_ids[] = {
++	{ .compatible = "st,stm32-hwspinlock", },
++	{},
++};
++MODULE_DEVICE_TABLE(of, stm32_hwpinlock_ids);
++
++static struct platform_driver stm32_hwspinlock_driver = {
++	.probe		= stm32_hwspinlock_probe,
++	.remove		= stm32_hwspinlock_remove,
++	.driver		= {
++		.name	= "stm32_hwspinlock",
++		.of_match_table = stm32_hwpinlock_ids,
++		.pm	= &stm32_hwspinlock_pm_ops,
++	},
++};
++
++static int __init stm32_hwspinlock_init(void)
++{
++	return platform_driver_register(&stm32_hwspinlock_driver);
++}
++/* board init code might need to reserve hwspinlocks for predefined purposes */
++postcore_initcall(stm32_hwspinlock_init);
++
++static void __exit stm32_hwspinlock_exit(void)
++{
++	platform_driver_unregister(&stm32_hwspinlock_driver);
++}
++module_exit(stm32_hwspinlock_exit);
++
++MODULE_LICENSE("GPL v2");
++MODULE_DESCRIPTION("Hardware spinlock driver for STM32 SoCs");
++MODULE_AUTHOR("Benjamin Gaignard <benjamin.gaignard@st.com>");
+-- 
+2.15.0

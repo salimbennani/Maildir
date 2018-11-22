@@ -1,0 +1,214 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (61.164.42.155:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 15 Nov 2018 14:03:34 -0000
+Received: from icoremail.net (unknown [209.85.215.170])
+	by mail-app2 (Coremail) with SMTP id by_KCgDHH+7oP+1b1tyYAQ--.45502S3;
+	Thu, 15 Nov 2018 17:44:09 +0800 (CST)
+Received: from mail-pg1-f170.google.com (unknown [209.85.215.170])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwD33UnlP+1bGxdDAA--.29892S3;
+	Thu, 15 Nov 2018 17:44:06 +0800 (CST)
+Received: by mail-pg1-f170.google.com with SMTP id z11so6133404pgu.0
+        for <xuliker@zju.edu.cn>; Thu, 15 Nov 2018 01:44:06 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :from:to:subject:date:message-id:in-reply-to:references:sender
+         :precedence:list-id;
+        bh=5IcvL41T6clK1fVOpIGiOBhd08yqD9PPWC1Jeeectg0=;
+        b=ZcrJCMwTlWbMiLhAsBbUDR97WcYVwfq6hdVQnoQxO34YiGVy3FpDUHfSs0m4AgaLJx
+         FFUkg70ntINljBqPXP4+J8HMWOXHP6jb4LeBy6J0Eu8doqGJPT2RLkGrGaN9J0cXlI2S
+         xqrp8jaAHjTu5V4+FaqK7p8fvZH5PRMrNst9huqJ9w1Yw48+dxNGUZrcs/mIx8soLlqg
+         Bwzkl1GxwdFKroVx3XYzUyX7W3lRshi1oGQL/yOe+FZWkpoeypuzxO7nFcd3C2PngJyO
+         Zquo7zZ+BcAwCEzmLA4BMHoEbvLEp4du0MdOjdI14QjXo4q9x+xK/WneY58O+SXWhPOs
+         ytsw==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=redhat.com
+X-Gm-Message-State: AGRZ1gJAvpWWFTJ9qhYGXPZtzCfVxDwrEPACKeEgIgA+sts+GjPylQ82
+	wBTTGn8E3YmaWUwdKehKC0lN4BhidC1N0nnhn9Sio8/XXwHLPTvydw==
+X-Received: by 2002:a63:460a:: with SMTP id t10-v6mr5197843pga.197.1542275045665;
+        Thu, 15 Nov 2018 01:44:05 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:d106:0:0:0:0 with SMTP id l6-v6csp340924pju;
+        Thu, 15 Nov 2018 01:44:04 -0800 (PST)
+X-Google-Smtp-Source: AJdET5e1akCmjh6Ls1c2a7mCrhzW3fG+TSse86f5XJf0k7bIEOGd7vgomXJlMLVxw6k1WGXvpZ8n
+X-Received: by 2002:a17:902:848e:: with SMTP id c14-v6mr4604391plo.210.1542275044494;
+        Thu, 15 Nov 2018 01:44:04 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542275044; cv=none;
+        d=google.com; s=arc-20160816;
+        b=K41Qw0n+OIL6UaVsx1SpE20aXJZTrtVQq9P+8suwJFDm9iz986UtR04mcuXN1sHA0L
+         ZxQcHS0F34Rkr2pevn+HKPBQJxpxPp5ka5wDgz5qpZEWRoLG3kc7igJlMBBKcJMgLX2p
+         Axy55abQ4OF5nw1/M+R5u5Dvo/y9muDjl05Y0cR8nzrmZjFV/DEKJ6I/g9Lhk/8c/OgH
+         fxx2Tnx+xNaNKPNtz8no41qn0kZYRWhalREQXyXxS73ID2eys765RDlYy0pxKb02XBuY
+         G5GpMbeRD3I+R7GQMWYlmX98J+bky/4CFg4pZ3w15NATxJw0hbB2HszH+/jx/Vousbwv
+         x4Dg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:references:in-reply-to:message-id:date
+         :subject:to:from;
+        bh=5IcvL41T6clK1fVOpIGiOBhd08yqD9PPWC1Jeeectg0=;
+        b=mZz4Nqfv1A7joauc9AD/I3r8GgaG0LCe8OlUdENXbDB1OZa5ga4Oepv0cOmtW+Ul3n
+         UxQMrhhmt4DfhhqnghJ1bd53RdWgVKpPyG8voa0DDI574A5SbwgYb5lXFRpwlIHJIyPr
+         eSHa0H4Bz2v1T6gcYNbPGfEuFYmweiqHE63YHuEjvIB7GDILN9HhmSTdLdrStw7UvHNq
+         CBdjxrkXVQwOEEamMsjkD0t4R5b8Uuys2Bk1OVub27nDHiAI/WS267pN1NTUhiF+KFqC
+         ZNPspU3Cqh0vQDUifF+wU0CK6wxRW4lMPqVdE1ugPUwlmTcTIKHR5ZzZwdbtHvBcQfky
+         w3oA==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=redhat.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id f5-v6si5672433pfn.85.2018.11.15.01.43.50;
+        Thu, 15 Nov 2018 01:44:04 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S2388226AbeKOTu2 (ORCPT <rfc822;nodee764@gmail.com> + 99 others);
+        Thu, 15 Nov 2018 14:50:28 -0500
+Received: from mx1.redhat.com ([209.132.183.28]:58460 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729039AbeKOTu1 (ORCPT <rfc822;kvm@vger.kernel.org>);
+        Thu, 15 Nov 2018 14:50:27 -0500
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 382072D811;
+        Thu, 15 Nov 2018 09:43:23 +0000 (UTC)
+Received: from jason-ThinkPad-T450s.redhat.com (ovpn-12-99.pek2.redhat.com [10.72.12.99])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 9BC701A92F;
+        Thu, 15 Nov 2018 09:43:18 +0000 (UTC)
+From: Jason Wang <jasowang@redhat.com>
+To: mst@redhat.com, jasowang@redhat.com, kvm@vger.kernel.org,
+        virtualization@lists.linux-foundation.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH net-next 2/2] tuntap: free XDP dropped packets in a batch
+Date: Thu, 15 Nov 2018 17:43:10 +0800
+Message-Id: <20181115094310.17307-2-jasowang@redhat.com>
+In-Reply-To: <20181115094310.17307-1-jasowang@redhat.com>
+References: <20181115094310.17307-1-jasowang@redhat.com>
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.30]); Thu, 15 Nov 2018 09:43:23 +0000 (UTC)
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwD33UnlP+1bGxdDAA--.29892S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoWxGFyxWFyUZry5AFWfAF1fZwb_yoW5XryrpF
+	W5C34Iyr45JFW7Ww42kr4DZr1Syr1xGrWkCFy7A3yYqr1rXr1jka48KrWjyF15Kr97urWx
+	ua1DKFn8uas0vw7anT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUPYb7Iv0xC_tr1lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2
+	z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s0DM2AIxVAIcxkEcV
+	Aq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r10
+	6r15McIj6I8E87Iv67AKxVW8JVWxJwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IY64vIr4
+	1l7I0Y6sxI4wCY1x0264kExVAvwVAq07x20xylc7Ca8VAvwVCFzxkY4VCF77xAMxkIecxE
+	wVCI4VW8uwCY0x0Ix7I2Y4AK64vIr41lcIIF0xvE2Ix0cI8IcVAFwI0_Ar0_tr1lcIIF0x
+	vE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwCYIxAIcVC2z280aVAFwI0_Cr1j6rxdMxvI42IY
+	6I8E87Iv6xkF7I0E14v26F4UJVW0owCF04k20xvY0x0EwIxGrwCF04k20xvEw4C26cxK6c
+	8Ij28IcwCF72vE77IF4wCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v26r1j
+	6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_JF0_Jw1lIxkGc2Ij64
+	vIr41lIxAIcVCF04k26cxKx2IYs7xG6r4j6FyUYxBIdaVFxhVjvjDU0xZFpf9x07b1HUDU
+	UUUU=
+
+Thanks to the batched XDP buffs through msg_control. Instead of
+calling put_page() for each page which involves a atomic operation,
+let's batch them by record the last page that needs to be freed and
+its refcnt count and free them in a batch.
+
+Testpmd(virtio-user + vhost_net) + XDP_DROP shows 3.8% improvement.
+
+Before: 4.71Mpps
+After : 4.89Mpps
+
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+---
+ drivers/net/tun.c | 29 ++++++++++++++++++++++++++---
+ 1 file changed, 26 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/net/tun.c b/drivers/net/tun.c
+index a65779c6d72f..e90a7923a5f6 100644
+--- a/drivers/net/tun.c
++++ b/drivers/net/tun.c
+@@ -188,6 +188,11 @@ struct tun_file {
+ 	struct xdp_rxq_info xdp_rxq;
+ };
+ 
++struct tun_page {
++	struct page *page;
++	int count;
++};
++
+ struct tun_flow_entry {
+ 	struct hlist_node hash_link;
+ 	struct rcu_head rcu;
+@@ -2377,9 +2382,16 @@ static void tun_sock_write_space(struct sock *sk)
+ 	kill_fasync(&tfile->fasync, SIGIO, POLL_OUT);
+ }
+ 
++static void tun_put_page(struct tun_page *tpage)
++{
++	if (tpage->page)
++		__page_frag_cache_drain(tpage->page, tpage->count);
++}
++
+ static int tun_xdp_one(struct tun_struct *tun,
+ 		       struct tun_file *tfile,
+-		       struct xdp_buff *xdp, int *flush)
++		       struct xdp_buff *xdp, int *flush,
++		       struct tun_page *tpage)
+ {
+ 	struct tun_xdp_hdr *hdr = xdp->data_hard_start;
+ 	struct virtio_net_hdr *gso = &hdr->gso;
+@@ -2390,6 +2402,7 @@ static int tun_xdp_one(struct tun_struct *tun,
+ 	int buflen = hdr->buflen;
+ 	int err = 0;
+ 	bool skb_xdp = false;
++	struct page *page;
+ 
+ 	xdp_prog = rcu_dereference(tun->xdp_prog);
+ 	if (xdp_prog) {
+@@ -2416,7 +2429,14 @@ static int tun_xdp_one(struct tun_struct *tun,
+ 		case XDP_PASS:
+ 			break;
+ 		default:
+-			put_page(virt_to_head_page(xdp->data));
++			page = virt_to_head_page(xdp->data);
++			if (tpage->page == page) {
++				++tpage->count;
++			} else {
++				tun_put_page(tpage);
++				tpage->page = page;
++				tpage->count = 1;
++			}
+ 			return 0;
+ 		}
+ 	}
+@@ -2480,6 +2500,7 @@ static int tun_sendmsg(struct socket *sock, struct msghdr *m, size_t total_len)
+ 		return -EBADFD;
+ 
+ 	if (ctl && (ctl->type == TUN_MSG_PTR)) {
++		struct tun_page tpage = {0};
+ 		int n = ctl->num;
+ 		int flush = 0;
+ 
+@@ -2488,7 +2509,7 @@ static int tun_sendmsg(struct socket *sock, struct msghdr *m, size_t total_len)
+ 
+ 		for (i = 0; i < n; i++) {
+ 			xdp = &((struct xdp_buff *)ctl->ptr)[i];
+-			tun_xdp_one(tun, tfile, xdp, &flush);
++			tun_xdp_one(tun, tfile, xdp, &flush, &tpage);
+ 		}
+ 
+ 		if (flush)
+@@ -2497,6 +2518,8 @@ static int tun_sendmsg(struct socket *sock, struct msghdr *m, size_t total_len)
+ 		rcu_read_unlock();
+ 		local_bh_enable();
+ 
++		tun_put_page(&tpage);
++
+ 		ret = total_len;
+ 		goto out;
+ 	}
+-- 
+2.17.1

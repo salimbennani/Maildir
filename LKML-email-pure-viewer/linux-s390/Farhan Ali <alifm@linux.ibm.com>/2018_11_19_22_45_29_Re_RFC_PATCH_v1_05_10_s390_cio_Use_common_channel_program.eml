@@ -1,0 +1,169 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 20 Nov 2018 00:30:58 -0000
+Received: from icoremail.net (unknown [209.85.214.178])
+	by mail-app2 (Coremail) with SMTP id by_KCgDnX1+izPJbCse5AQ--.55361S3;
+	Mon, 19 Nov 2018 22:45:55 +0800 (CST)
+Received: from mail-pl1-f178.google.com (unknown [209.85.214.178])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwB3VUGgzPJb_vpYAA--.2640S3;
+	Mon, 19 Nov 2018 22:45:52 +0800 (CST)
+Received: by mail-pl1-f178.google.com with SMTP id x21-v6so11975512pln.9
+        for <xuliker@zju.edu.cn>; Mon, 19 Nov 2018 06:45:52 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :subject:to:cc:references:from:date:user-agent:mime-version
+         :in-reply-to:content-language:content-transfer-encoding:message-id
+         :sender:precedence:list-id;
+        bh=GNUiVh7oxoKdSA0wEgAPvZSySGQE1B2pd0PPlnqLqfY=;
+        b=e90fVrp2iqrSqe0UnqfvsIypkrNv0tu1Fh/dmI7K+VpXdLBReoVZgOwWXmZ+HEQhJn
+         /P/toXWyNN2Opsp+J8wRZJK2yypK75sABaamGuiBKCPtGMBXaBZDPnEsS4Y78/U9G4eJ
+         88wD+C0254jSjMiv5lMSmMs/j8E3h9r42IgOxzohky3Zx9y1VI8tmkJeeoUuKevvEE4n
+         M/uuwGeEPLThV7hjFr6ELZug7Py3vU+WkMXUbL0Bk7fkYTCjcpyYOrnBt+dLC99Jo+PG
+         MWh6VVtrLe2Y4+8uslJyaYLbgrBkV6oxHCOL4KepWoT7/zY4Izc5pZ3rnhreu668QM7c
+         vE3Q==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=ibm.com
+X-Gm-Message-State: AA+aEWbBfO8r4MQFkTHuEGvlL23StQsLgijiPu6HyMHpUeRJVTIIxsBY
+	Nptm2bzQ9nqducWG1juvDcNxk/FT0K+lMOD9sRQx2vw7ARariD8=
+X-Received: by 2002:a17:902:8f97:: with SMTP id z23mr13229387plo.283.1542638752096;
+        Mon, 19 Nov 2018 06:45:52 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:d106:0:0:0:0 with SMTP id l6-v6csp2750278pju;
+        Mon, 19 Nov 2018 06:45:51 -0800 (PST)
+X-Google-Smtp-Source: AJdET5dzslaZXbu5tcpG1yCw/t2WD5e6+xKwWX38IH/AnA0XE7zEYj6aeazPgWeCw5i1/2zAjR6C
+X-Received: by 2002:a63:ee4c:: with SMTP id n12mr19767351pgk.21.1542638751424;
+        Mon, 19 Nov 2018 06:45:51 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542638751; cv=none;
+        d=google.com; s=arc-20160816;
+        b=oslQhvbxKJn6Qb1xFJnFCwOl7khELwdU2kNFcm6nTLvtag+QJxfh9o/VvK3YhB/YST
+         TqBytU6sSIWGHzeOdUe6S6gZ4A0ArYNqj+nNNBLj0Maa7qaGUI1Hbl5TkKQlMPflgRla
+         dOtwmD9LbcZXcl6hW2zaxmqe8MO7sce1bhB/cvnmzDctXV6dnk5/M+mMiZNgCquvNiok
+         fCtEqHikJRkPB2Rljuozk+W8BPNRv5JORHwGMwfriDWt9Zepepy8sDNG2bTq07/OLqWh
+         8Gp+jR1/IfWSNA8R8aKRjfNwdB7+6H1HkZmTPxSsF95Zf8vd21l3g3sDZ6r3NuvHiZ6D
+         1gnA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:message-id:content-transfer-encoding
+         :content-language:in-reply-to:mime-version:user-agent:date:from
+         :references:cc:to:subject;
+        bh=GNUiVh7oxoKdSA0wEgAPvZSySGQE1B2pd0PPlnqLqfY=;
+        b=n720UGWqeduiwuslF0SGvpRMFScA+xu4WL/UoI4a22I7Ro+vTpvFB3dVp+eOqN80ma
+         Bfqyd8zvNa719uiMDLauTNMfEHRJ/y3TEC3kpD74vk9jFdV//TtFlmmXSTXnjeI3PP8i
+         0hqujQmtKRVMBrKHhlT2ORMTcEhSI5TwVRF9TkX64i1bJXmWsrt1Zawi6AAo0NlV4ybB
+         VrD2JIM9g2soUb16sqz7Sv0M4WrAoKK6FfBavCjc84JU5v2NbWqoKFqzkN4pV3Ho6Lo+
+         436QxWP3fE1SwgJut+z+9LPbbbvHfOVWmY7PbdoAu76PzT2/79zsMmPN3LFfKl0Y2pfH
+         doeQ==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=ibm.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id x9si38412152pgh.12.2018.11.19.06.45.36;
+        Mon, 19 Nov 2018 06:45:51 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1729514AbeKTBJX (ORCPT <rfc822;z.kun1001@gmail.com> + 99 others);
+        Mon, 19 Nov 2018 20:09:23 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:48294 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1729494AbeKTBJX (ORCPT
+        <rfc822;kvm@vger.kernel.org>); Mon, 19 Nov 2018 20:09:23 -0500
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.22/8.16.0.22) with SMTP id wAJEeLC2114204
+        for <kvm@vger.kernel.org>; Mon, 19 Nov 2018 09:45:33 -0500
+Received: from e11.ny.us.ibm.com (e11.ny.us.ibm.com [129.33.205.201])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2nuwy3455t-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <kvm@vger.kernel.org>; Mon, 19 Nov 2018 09:45:33 -0500
+Received: from localhost
+        by e11.ny.us.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <kvm@vger.kernel.org> from <alifm@linux.ibm.com>;
+        Mon, 19 Nov 2018 14:45:32 -0000
+Received: from b01cxnp23033.gho.pok.ibm.com (9.57.198.28)
+        by e11.ny.us.ibm.com (146.89.104.198) with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted;
+        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256/256)
+        Mon, 19 Nov 2018 14:45:30 -0000
+Received: from b01ledav001.gho.pok.ibm.com (b01ledav001.gho.pok.ibm.com [9.57.199.106])
+        by b01cxnp23033.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id wAJEjTqq27721836
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
+        Mon, 19 Nov 2018 14:45:29 GMT
+Received: from b01ledav001.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 4F69E2805E;
+        Mon, 19 Nov 2018 14:45:29 +0000 (GMT)
+Received: from b01ledav001.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 4098B2805C;
+        Mon, 19 Nov 2018 14:45:29 +0000 (GMT)
+Received: from [9.56.58.69] (unknown [9.56.58.69])
+        by b01ledav001.gho.pok.ibm.com (Postfix) with ESMTP;
+        Mon, 19 Nov 2018 14:45:29 +0000 (GMT)
+Subject: Re: [RFC PATCH v1 05/10] s390/cio: Use common channel program
+ processor for TIC
+To: Eric Farman <farman@linux.ibm.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Pierre Morel <pmorel@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org,
+        Halil Pasic <pasic@linux.ibm.com>,
+        "Jason J . Herne" <jjherne@linux.ibm.com>
+References: <20181109023937.96105-1-farman@linux.ibm.com>
+ <20181109023937.96105-6-farman@linux.ibm.com>
+From: Farhan Ali <alifm@linux.ibm.com>
+Date: Mon, 19 Nov 2018 09:45:29 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:52.0) Gecko/20100101
+ Thunderbird/52.4.0
+MIME-Version: 1.0
+In-Reply-To: <20181109023937.96105-6-farman@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+x-cbid: 18111914-2213-0000-0000-00000319EABD
+X-IBM-SpamModules-Scores: 
+X-IBM-SpamModules-Versions: BY=3.00010080; HX=3.00000242; KW=3.00000007;
+ PH=3.00000004; SC=3.00000270; SDB=6.01119735; UDB=6.00580976; IPR=6.00899857;
+ MB=3.00024231; MTD=3.00000008; XFM=3.00000015; UTC=2018-11-19 14:45:31
+X-IBM-AV-DETECTION: SAVI=unused REMOTE=unused XFE=unused
+x-cbparentid: 18111914-2214-0000-0000-00005C4D9E06
+Message-Id: <d6d081df-aff1-89b5-c1fb-2342daf6b1d6@linux.ibm.com>
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2018-11-19_06:,,
+ signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ malwarescore=0 suspectscore=0 phishscore=0 bulkscore=0 spamscore=0
+ clxscore=1015 lowpriorityscore=0 mlxscore=0 impostorscore=0
+ mlxlogscore=752 adultscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.0.1-1810050000 definitions=main-1811190136
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwB3VUGgzPJb_vpYAA--.2640S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjDUn29KB7ZKAUJUUUUU529EdanIXcx71UUUUU7v73
+	VFW2AGmfu7jjvjm3AaLaJ3UjIYCTnIWjp_UUUOV7k0a2IF6F4UM7kC6x804xWl14x267AK
+	xVWUJVW8JwAFIxvE14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK02
+	1l84ACjcxK6xIIjxv20xvE14v26F1j6w1UM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26F4j
+	6r4UJwA2z4x0Y4vEx4A2jsIE14v26rxl6s0DM28EF7xvwVC2z280aVCY1x0267AKxVW0oV
+	Cq3wAS0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0
+	I7IYx2IY67AKxVWUJVWUGwAv7VC2z280aVAFwI0_Gr0_Cr1lOx8S6xCaFVCjc4AY6r1j6r
+	4UM4x0Y48IcVAKI48JMx02cVCv0xWlc7I2V7IY0VAS07AlzVAYIcxG8wCY1x0264kExVAv
+	wVAq07x20xylc7Ca8VAvwVCFzxkY4VCF77xAMxkIecxEwVCI4VW5XwCY0x0Ix7I2Y4AK64
+	vIr41lcIIF0xvE2Ix0cI8IcVAFwI0_Gr0_Xr1lcIIF0xvE2Ix0cI8IcVCY1x0267AKxVW8
+	JVWxJwCYIxAIcVC2z280aVAFwI0_Cr1j6rxdMxvI42IY6I8E87Iv6xkF7I0E14v26F4UJV
+	W0owCF04k20xvY0x0EwIxGrwCF04k20xvEw4C26cxK6c8Ij28IcwCF72vE77IF4wCFx2Iq
+	xVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v26r1j6r18MI8I3I0E7480Y4vE14v26r
+	106r1rMI8E67AF67kF1VAFwI0_Jw0_GFylIxkGc2Ij64vIr41lIxAIcVCF04k26cxKx2IY
+	s7xG6Fyj6rWUJbIYCTnIWIevJa73UjIFyTuYvjxUqwiSDUUUU
+
+
+
+On 11/08/2018 09:39 PM, Eric Farman wrote:
+> Now that a channel program is examined by a separate routine,
+> we can replace much of the TIC code with a call to that function.
+> 
+> Signed-off-by: Eric Farman<farman@linux.ibm.com>
+> ---
+>   drivers/s390/cio/vfio_ccw_cp.c | 39 ++++-----------------------------------
+>   1 file changed, 4 insertions(+), 35 deletions(-)
+
+Reviewed-by: Farhan Ali<alifm@linux.ibm.com>

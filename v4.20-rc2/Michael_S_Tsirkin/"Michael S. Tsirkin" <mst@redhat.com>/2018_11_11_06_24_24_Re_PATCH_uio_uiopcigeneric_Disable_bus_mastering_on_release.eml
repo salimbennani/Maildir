@@ -1,0 +1,182 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (61.164.42.155:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 11 Nov 2018 15:04:07 -0000
+Received: from icoremail.net (unknown [209.85.210.181])
+	by mail-app2 (Coremail) with SMTP id by_KCgDXv962WudbxHFxAQ--.34869S3;
+	Sun, 11 Nov 2018 06:24:55 +0800 (CST)
+Received: from mail-pf1-f181.google.com (unknown [209.85.210.181])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwCXdUGxWudb3tIoAA--.11396S3;
+	Sun, 11 Nov 2018 06:24:49 +0800 (CST)
+Received: by mail-pf1-f181.google.com with SMTP id u13-v6so2516395pfm.4
+        for <xuliker@zju.edu.cn>; Sat, 10 Nov 2018 14:24:49 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:sender:precedence:list-id;
+        bh=Nwuy33zmFdGTDUybHAS/O6yMUp7c+fiAkYt85Gez86s=;
+        b=W77WrpABMYasGGJLxMsOXgWODB5uTzlYyK72eGciwtRge+v3lLmV+xXmZgm48UMwnW
+         GKKIztjpfsjq4h/yXRDJdnPKRP6iEyexAT65vJnejqCCxsn1PlFOWjC5glMVc03CBL6u
+         u0xMswRg+P0A+bMzWKCmgnb4Y1Eo5o4u913C237kSqQkW4F1Im/Uuo9Bet2EtID87uK/
+         fYhq62k/XvQPMjNwAKniKTf9RLfoJUXI7ZH1b//4eOa2+fnldlgfccqkrTX85xDpDFtw
+         1PSeiRf37I+6fpx98Rz+nrXzjfk67gCtCIGVUcmu5q0XLfE5AUI4V0vE2HWJUYXHi6lR
+         4QBg==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=redhat.com
+X-Gm-Message-State: AGRZ1gK7rVG4En77g5ToarjXvPfqDpEZMpElddsP+VWLnP0ZmFJD+ggA
+	WZ1AQZ1nJNyFiGKH/NGGUaaRgXamJH/vh3StyTnTbkPdnR0Hxwc=
+X-Received: by 2002:a63:3c44:: with SMTP id i4mr12192379pgn.286.1541888689505;
+        Sat, 10 Nov 2018 14:24:49 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp1523782pjt;
+        Sat, 10 Nov 2018 14:24:48 -0800 (PST)
+X-Google-Smtp-Source: AJdET5eSSkB1KrA2JNbkWenk3cC+noKBKx1ojOWeV+OyVO9nrWgtTuFUioogL8GmYypWv9CZfyMo
+X-Received: by 2002:a17:902:3fe4:: with SMTP id a91-v6mr14102662pld.295.1541888688292;
+        Sat, 10 Nov 2018 14:24:48 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1541888688; cv=none;
+        d=google.com; s=arc-20160816;
+        b=M7cPvr6sdTnp0dCeIWwmciTE4tM2VAiYQuMms6TlEC/kZRHIgzxBw8fdOHRsfuzUPY
+         kOrfh5fniNL4qH9B+NSk0BJGYv+CXp5QEaLFkJx8nw40V0VPEemqK2SZvpAAb5aet4ou
+         /U5MZ3CS5xEC3tdUXK5As/tmO1iES+ejAi2HOtpyzay3KsZ/WiAEhYux78DVJEzD5OLg
+         euKDPoYxnW41LdI31SKsU+NlMXJksLqPDJnVdv712IGRvSagQj+uHcyb8Xlx06C1XhKM
+         S+OQC9WKgp6cSsngehq2JAtnCfaXCbOgYY8hVmhlJr3D4imT6aq5U2NFTjBnsyIWUPpt
+         do2g==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:in-reply-to:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date;
+        bh=Nwuy33zmFdGTDUybHAS/O6yMUp7c+fiAkYt85Gez86s=;
+        b=s7oklpZoTXOiivlQalAjL26LaGMXURczXtUU9zk/FhHyOM42QF3mQ5M5mg1bCDfvFJ
+         sMOVyKuRISgQKN1McTzy7QvSGRYNjGfQL4mK04kp4YrGlQvTkBZcr2m5H8R4QDKjUZGh
+         nDzOljAy6qG8PQkMWTXsFIt0/GdQqpVti77C2v4iX33jhEd2jTQhGFtBK/HNVyP/awZ0
+         xCzmIi6cJJxi2wnh0BvXeIbgdXOBjc4y/g7sZ1BSLLnUEyfrT7jGhMC+hUK/L7maI3/H
+         R94UGPQT3kGRjKLvCvK/FNgHN0BNxNtXYhrvCZIEKLrBEIxwgzrlFb/bzI/cMJ/uopsn
+         jZpQ==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=redhat.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id b131si11303798pga.51.2018.11.10.14.24.26;
+        Sat, 10 Nov 2018 14:24:48 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1725896AbeKKIK5 (ORCPT <rfc822;fanshuming2011@gmail.com>
+        + 99 others); Sun, 11 Nov 2018 03:10:57 -0500
+Received: from mx1.redhat.com ([209.132.183.28]:60090 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725778AbeKKIK5 (ORCPT <rfc822;kvm@vger.kernel.org>);
+        Sun, 11 Nov 2018 03:10:57 -0500
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id A1C9CC04958F;
+        Sat, 10 Nov 2018 22:24:25 +0000 (UTC)
+Received: from redhat.com (ovpn-120-211.rdu2.redhat.com [10.10.120.211])
+        by smtp.corp.redhat.com (Postfix) with SMTP id BF88C5D736;
+        Sat, 10 Nov 2018 22:24:24 +0000 (UTC)
+Date: Sat, 10 Nov 2018 17:24:24 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Venkatesh Srinivas <venkateshs@google.com>
+Cc: kvm@vger.kernel.org, vsrinivas@ops101.org,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Catherine Sullivan <csully@google.com>
+Subject: Re: [PATCH] uio/uio_pci_generic: Disable bus-mastering on release
+Message-ID: <20181110171714-mutt-send-email-mst@kernel.org>
+References: <20181109231637.231582-1-venkateshs@google.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20181109231637.231582-1-venkateshs@google.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.31]); Sat, 10 Nov 2018 22:24:25 +0000 (UTC)
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwCXdUGxWudb3tIoAA--.11396S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW7KF4UZr18uw43Cw4DCF1DAwb_yoW8Kw45pa
+	1FqFy5Gr48JF18ur4UXF1jvFyFvFZxZrZxKry2yw1jgrnxZr90gr92gF1FyFW5Ww4xuF4x
+	tFy0yayUu3WYq3DanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUU0bIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUPab7Iv0xC_Kw4lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_tr0E3s1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2
+	z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s0DM2AIxVAIcxkEcV
+	Aq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1j
+	6r18McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IY64vIr4
+	1l7I0Y6sxI4wCY1x0264kExVAvwVAq07x20xylc7Ca8VAvwVCFzxkY4VCF77xAMxkIecxE
+	wVCI4VW3MxkI7II2jI8vz4vEwIxGrwCYIxAIcVC0I7IYx2IY67AKxVWUJVWUCwCYIxAIcV
+	C0I7IYx2IY6xkF7I0E14v26r1j6r4UMxvI42IY6I8E87Iv67AKxVW8Jr0_Cr1UMxvI42IY
+	6I8E87Iv6xkF7I0E14v26r4UJVWxJr1l42xK82IYc2Ij64vIr41l42xK82IY64kExVAvwV
+	Aq07x20xyl4x8a6x804xWl4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWU
+	JVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r126r1DMIIYrxkI7V
+	AKI48JMIIF0xvE42xK8VAvwI8IcIk0rVWrJr0_WFyUJbIYCTnIWIevJa73UjIFyTuYvjxU
+	QmhFDUUUU
+
+On Fri, Nov 09, 2018 at 06:16:37PM -0500, Venkatesh Srinivas wrote:
+> Userspace code using uio_pci_generic may enable bus-mastering by
+> directly manipulating a PCI device's command register. If a userspace
+> program enables bus-mastering but exits/crashes uncleanly, bus-
+> mastering will still be enabled and stale DMA addresses may be
+> programmed and live in the device.
+> 
+> Disable bus-mastering unconditionally on last close of a UIO PCI fd
+> to avoid this. If the device did not have bus-mastering enabled,
+> pci_clear_master() is a no-op.
+> 
+> Signed-off-by: Venkatesh Srinivas <venkateshs@google.com>
+> Reviewed-by: Bjorn Helgaas <bhelgaas@google.com>
+> Reviewed-by: Catherine Sullivan <csully@google.com>
+> ---
+>  drivers/uio/uio_pci_generic.c | 9 +++++++++
+>  1 file changed, 9 insertions(+)
+> 
+> diff --git a/drivers/uio/uio_pci_generic.c b/drivers/uio/uio_pci_generic.c
+> index 8773e373ffe5..832af15678ef 100644
+> --- a/drivers/uio/uio_pci_generic.c
+> +++ b/drivers/uio/uio_pci_generic.c
+> @@ -39,6 +39,14 @@ to_uio_pci_generic_dev(struct uio_info *info)
+>  	return container_of(info, struct uio_pci_generic_dev, info);
+>  }
+>  
+> +static int release(struct uio_info *info, struct inode *inode)
+> +{
+> +	struct uio_pci_generic_dev *gdev = to_uio_pci_generic_dev(info);
+
+An empty line would add readability here.
+
+> +	/* Stop the device from initiating further DMAs */
+
+UIO is intended for non-DMA capable devices, since
+it doesn't enforce IOMMU protection.
+So this "further DMA" worries me as it might make people think it's ok.
+How about:
+
+/* This driver is insecure when used with devices doing DMA,
+ * but some people (mis)use it with such devices.
+ * Let's at least make sure DMA isn't left enabled
+ * after the userspace driver closes the fd.
+ * Note that there's a non-zero chance doing this will wedge the device
+ * at least until reset.
+ */
+
+
+> +	pci_clear_master(gdev->pdev);
+> +	return 0;
+> +}
+> +
+>  /* Interrupt handler. Read/modify/write the command register to disable
+>   * the interrupt. */
+>  static irqreturn_t irqhandler(int irq, struct uio_info *info)
+> @@ -78,6 +86,7 @@ static int probe(struct pci_dev *pdev,
+>  
+>  	gdev->info.name = "uio_pci_generic";
+>  	gdev->info.version = DRIVER_VERSION;
+> +	gdev->info.release = release;
+>  	gdev->pdev = pdev;
+>  	if (pdev->irq) {
+>  		gdev->info.irq = pdev->irq;
+> -- 
+> 2.19.1.930.g4563a0d9d0-goog

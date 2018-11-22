@@ -1,0 +1,159 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 21 Nov 2018 00:41:46 -0000
+Received: from icoremail.net (unknown [209.85.214.179])
+	by mail-app4 (Coremail) with SMTP id cS_KCgCn35gtUfRbnkvhAQ--.55224S3;
+	Wed, 21 Nov 2018 02:23:41 +0800 (CST)
+Received: from mail-pl1-f179.google.com (unknown [209.85.214.179])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwCXeUUnUfRb5GNfAA--.3087S3;
+	Wed, 21 Nov 2018 02:23:35 +0800 (CST)
+Received: by mail-pl1-f179.google.com with SMTP id y6-v6so1530069plt.3
+        for <xuliker@zju.edu.cn>; Tue, 20 Nov 2018 10:23:35 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:delivered-to:dkim-signature:mime-version
+         :in-reply-to:references:from:date:message-id:subject:to:cc:sender
+         :precedence:list-id;
+        bh=ucSKVVNE3wS2/ka1nscF4tSese8D01G447hLJmlNwNM=;
+        b=LJCCGCiwwS9lzNPO7Jb/VCda9F98ll79iVYsS6MYDU3wB0/ba6d9EZ5Mo6y3tVeRkT
+         0vUd6z6LqNqa0BAN9Ot1ybjocvQYGkG6vdH8NTE2x8cH03qseFsLbLsASEObyOrkas5l
+         E96XF8+xSkSRB4RfhAelARGNGW+x6vUmRNAsQ66Ttnrwxi3DpjIfsTZwSi3I+Pq3hleN
+         5c4mHSbYLgk/Boj3NbRfeowE1LmOLNInTudX8qE+0d7W5UkWA/hz0AcbZJEUJqeMfkea
+         vq7gmWNypv9RUCLAHM3iDPaVQYKPElNf/5SAXnfnpQLqneFunNCikjfeYEDgsiQUWyoW
+         zAaw==
+X-Gm-Message-State: AA+aEWb3B37tSeZoKuIe6cPTqTKa7X6sXNoJoaV11ldgGcMyd1cXOynx
+	NVkXlilzHwbb84w2if6KYZ+jxavMYFgBJRHTK4AdX3pFAQTGxv8=
+X-Received: by 2002:a17:902:bd46:: with SMTP id b6mr3291614plx.231.1542738215357;
+        Tue, 20 Nov 2018 10:23:35 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:d106:0:0:0:0 with SMTP id l6-v6csp956181pju;
+        Tue, 20 Nov 2018 10:23:34 -0800 (PST)
+X-Google-Smtp-Source: AFSGD/X7ZZ1tUpoVbgRBUIUj3IdGl8xDSSTL2nVKc5N/RhUsuK5URfYh1BIup7ght1tHLbn367sD
+X-Received: by 2002:a62:4b4d:: with SMTP id y74mr2009780pfa.186.1542738214570;
+        Tue, 20 Nov 2018 10:23:34 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542738214; cv=none;
+        d=google.com; s=arc-20160816;
+        b=QQGKVt6ug214msz1jpSAkrwtVnj4Mq4oCj7j2yyBH86jPczxtBC7iz83hirSoX7k6r
+         mxlmL8IPgSYfDuNlPUzBdN/qIHVh1GdA7vdzYlmv5WunH/nn7aQKWzSfJbGGkEIR2l7R
+         l51U51OkfsNKjj47qslwEK3oCH7oJAeNI1bpcabyyhNR7UZzgRMDOL1xMp2/Yc0Z7sq3
+         n/jo0+YWJlbl88eRDIBWfB8GPMoW54Abrqdif9qBP3d+x+uZFEQ0Aev43qmhhspygIUr
+         O/TygthMOn1V64mA/wmZEsADMSmduLMSLafPmVn6cG8d3K24VY0xFe8rkPIil/7jVa+M
+         /gsw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:cc:to:subject:message-id:date:from
+         :references:in-reply-to:mime-version:dkim-signature;
+        bh=ucSKVVNE3wS2/ka1nscF4tSese8D01G447hLJmlNwNM=;
+        b=Wk9jRuZwbuS2T/vPKMLFnwUacn8ubdPTOMSY9EkObcZTOVG9C86AnzjRmMhDriWXtm
+         3u1zz1KTQVtii+lZMVXkRU81ywAstRtExV9JkVRZoT73DSk76onnIcnNt0DzjpDbkvH4
+         Cs9i03+xO50I7GqGUKGYte+Qi3W6lJp5ouSIToB3DAB1ls8gRQo+c4JoNlMu/KVj2lpT
+         N7q13++lVWnTchD+TJiVf2fOJZhcmKdWsF6F/yQYpJEhAjEvfHeEu27snVbTpH7wk+49
+         x9JZiEbWNOYl/7kaj5E6hR2zaDm0L9XcRiGlIyBq7NCt7edO3LRSn3ChVxD/qX2qV2yh
+         ox5A==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@google.com header.s=20161025 header.b=crdubHc7;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;
+       dmarc=pass (p=REJECT sp=REJECT dis=NONE) header.from=google.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id y20si13890702plp.415.2018.11.20.10.23.20;
+        Tue, 20 Nov 2018 10:23:34 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1726062AbeKUEvP (ORCPT <rfc822;alpcanarslan95@gmail.com>
+        + 99 others); Tue, 20 Nov 2018 23:51:15 -0500
+Received: from mail-ot1-f68.google.com ([209.85.210.68]:37543 "EHLO
+        mail-ot1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725926AbeKUEvP (ORCPT <rfc822;kvm@vger.kernel.org>);
+        Tue, 20 Nov 2018 23:51:15 -0500
+Received: by mail-ot1-f68.google.com with SMTP id 40so2558911oth.4
+        for <kvm@vger.kernel.org>; Tue, 20 Nov 2018 10:20:47 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=mime-version:in-reply-to:references:from:date:message-id:subject:to
+         :cc;
+        bh=ucSKVVNE3wS2/ka1nscF4tSese8D01G447hLJmlNwNM=;
+        b=crdubHc73JhkCupYDCeVzqmtYdU0YO7r40jxIWvS9Kz9SL5MSv3hgHc8TIfnLiK3Ru
+         jfVBWuz53JlbUhjXwDIMP8LAidWkuHTzqWJL464XO5asBUUdeMjYOajfmDc6Pjskkv/s
+         /P6PbWHvwKde8ol2s0ltV/gwWiqp5yga25E9FW8UGv8uR3tKczH8UKEFjkQnd0KvrizU
+         K0GeF5cZzxxy7Sc4sF4fDwpQb2CCeXsA8rppUVcHA3kfO0vW0trvsL20/qmNBd1kYAMC
+         nM37j3LUrOvWHUwNPLk3yJIJK1j5Sk472yepWi19ld/TcU71ZcBYlHGAfhIV2a3rcqej
+         0Urw==
+X-Received: by 2002:a9d:51c2:: with SMTP id d2mr1963109oth.0.1542738046575;
+ Tue, 20 Nov 2018 10:20:46 -0800 (PST)
+MIME-Version: 1.0
+Received: by 2002:ac9:31a7:0:0:0:0:0 with HTTP; Tue, 20 Nov 2018 10:20:45
+ -0800 (PST)
+In-Reply-To: <20181120160325.75415-1-liran.alon@oracle.com>
+References: <20181120160325.75415-1-liran.alon@oracle.com>
+From: Jim Mattson <jmattson@google.com>
+Date: Tue, 20 Nov 2018 10:20:45 -0800
+Message-ID: <CALMp9eQgt1zcjdufYf+k9Y5mZxh2OhRq6otqZ_yshfhk9Ocprw@mail.gmail.com>
+Subject: Re: [PATCH] KVM: VMX: Update shared MSRs to be saved/restored on
+ MSR_EFER.LMA changes
+To: Liran Alon <liran.alon@oracle.com>
+Cc: Paolo Bonzini <pbonzini@redhat.com>,
+        =?UTF-8?B?UmFkaW0gS3LEjW3DocWZ?= <rkrcmar@redhat.com>,
+        kvm list <kvm@vger.kernel.org>,
+        Idan Brown <idan.brown@oracle.com>, eyal.moscovici@oracle.com,
+        Sean Christopherson <sean.j.christopherson@intel.com>
+Content-Type: text/plain; charset="UTF-8"
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwCXeUUnUfRb5GNfAA--.3087S3
+Authentication-Results: mail-app4; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW7Kw4fXry7ZF1UKF4ktF1rtFb_yoW8AFyrpr
+	y8G3y5Kr48JF1xZw1xXr4UCFWkGFn3ur43JrZxCasYy342gw1Iyr1kKa4FvFWfZ3yvkFn5
+	Xay7ZrZ2gayDAa7anT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUBvb7Iv0xC_tr1lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2
+	z280aVAFwI0_Cr1j6rxdM28EF7xvwVC2z280aVCY1x0267AKxVWxJr0_GcWle2I262IYc4
+	CY6c8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_
+	Jrv_JF1lYx0Ex4A2jsIE14v26r4j6F4UMcvjeVCFs4IE7xkEbVWUJVW8JwCjxxvEa2IrMx
+	kF7I0Ew4C26cxK6c8Ij28IcwCY1Ik26cxK6xAEc7vF6xCjj44lc2xSY4AK6IIF6rylc2Ij
+	II80xcxEwVAKI48JMxvI42IY6xIIjxv20xvE14v26ryj6F1UMxvI42IY6xIIjxv20xvEc7
+	CjxVAFwI0_Gr0_Cr1lcIIF0xvEx4A2jsIE14v26r4UJVWxJr1lcIIF0xvEx4A2jsIEc7Cj
+	xVAFwI0_Gr1j6F4UJwCF04k20xvY0x0EwIxGrwCF04k20xvEw4C26cxK6c8Ij28IcwCF72
+	vE77IF4wCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v26r1j6r18MI8I3I0E
+	7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_Jw0_GFylIxkGc2Ij64vIr41lIxAIcV
+	CF04k26cxKx2IYs7xG6r4j6FyUYxBIdaVFxhVjvjDU0xZFpf9x07b0D73UUUUU=
+
+On Tue, Nov 20, 2018 at 8:03 AM, Liran Alon <liran.alon@oracle.com> wrote:
+> When guest transitions from/to long-mode by modifying MSR_EFER.LMA,
+> the list of shared MSRs to be saved/restored on guest<->host
+> transitions is updated (See vmx_set_efer() call to setup_msrs()).
+>
+> On every entry to guest, vcpu_enter_guest() calls
+> vmx_prepare_switch_to_guest(). This function should also take care
+> of setting the shared MSRs to be saved/restored. However, the
+> function does nothing in case we are already running with loaded
+> guest state (vmx->loaded_cpu_state != NULL).
+>
+> This means that even when guest modifies MSR_EFER.LMA which results
+> in updating the list of shared MSRs, it isn't being taken into account
+> by vmx_prepare_switch_to_guest() because it happens while we are
+> running with loaded guest state.
+>
+> To fix above mentioned issue, add a flag to mark that the list of
+> shared MSRs has been updated and modify vmx_prepare_switch_to_guest()
+> to set shared MSRs when running with host state *OR* list of shared
+> MSRs has been updated.
+>
+> Note that this issue was mistakenly introduced by commit
+> 678e315e78a7 ("KVM: vmx: add dedicated utility to access guest's
+> kernel_gs_base") because previously vmx_set_efer() always called
+> vmx_load_host_state() which resulted in vmx_prepare_switch_to_guest() to
+> set shared MSRs.
+>
+> Fixes: 678e315e78a7 ("KVM: vmx: add dedicated utility to access guest's kernel_gs_base")
+>
+> Reported-by: Eyal Moscovici <eyal.moscovici@oracle.com>
+> Reviewed-by: Mihai Carabas <mihai.carabas@oracle.com>
+> Reviewed-by: Liam Merwick <liam.merwick@oracle.com>
+> Signed-off-by: Liran Alon <liran.alon@oracle.com>
+Reviewed-by: Jim Mattson <jmattson@google.com>

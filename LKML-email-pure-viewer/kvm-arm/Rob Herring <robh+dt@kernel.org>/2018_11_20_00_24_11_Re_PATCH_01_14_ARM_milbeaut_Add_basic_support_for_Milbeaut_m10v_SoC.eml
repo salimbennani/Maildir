@@ -1,0 +1,461 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 20 Nov 2018 00:31:37 -0000
+Received: from icoremail.net (unknown [209.85.214.174])
+	by mail-app2 (Coremail) with SMTP id by_KCgDnX98K5fJbQGG6AQ--.55416S3;
+	Tue, 20 Nov 2018 00:30:30 +0800 (CST)
+Received: from mail-pl1-f174.google.com (unknown [209.85.214.174])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwCXf0vW4_JbMFdZAA--.2417S3;
+	Tue, 20 Nov 2018 00:24:54 +0800 (CST)
+Received: by mail-pl1-f174.google.com with SMTP id z23so3586078plo.0
+        for <xuliker@zju.edu.cn>; Mon, 19 Nov 2018 08:24:54 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:delivered-to:dkim-signature:mime-version
+         :references:in-reply-to:from:date:message-id:subject:to:cc:sender
+         :precedence:list-id;
+        bh=5qFkfzGULDvNAIbDD8QpG81AQ91YGHi82hRi6z9W/bI=;
+        b=W1C2a7o15/zG/J/WEnAMikF35OM9Fe7iU4yGXrN8i0eVv9KoBBrb31wRjuEcS+Erl7
+         Z/zWBttJFGL0OU0X04W5bo2FwtwR35p+8+PB3JrjIeKuyTidIha4MoKvjYG4jMb/uMcb
+         K3oD30GocLGlkE3trAV/YGI6ZIde6E9Tq5DCTPCdPpCaN6+GiY+8ZsWSGzFnDg48/apj
+         ivZpRE/4GvqZT0IAmxSojQGIpUc5c/Y8agoOrvDC9NvR3i67k9g4w2CGNN1scoH3+2Ki
+         ghA3QYspdnC70SWJttLTsXbQtcmwEG6ksiIJGvc91lQnhLXdvKUaxnuUI6PMhEnF0aeE
+         Wtow==
+X-Gm-Message-State: AGRZ1gIG8XCnOEswiUcrsY/2VjxcyHFAcLihmjR4E8l+SkzIWqD3JrPA
+	oY655YPANyU9g4TA6XJspIgy1yzsemM9RQX58WZChwnX2Qj7a4Q=
+X-Received: by 2002:a17:902:bd46:: with SMTP id b6mr22895139plx.231.1542644694604;
+        Mon, 19 Nov 2018 08:24:54 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:d106:0:0:0:0 with SMTP id l6-v6csp2870654pju;
+        Mon, 19 Nov 2018 08:24:53 -0800 (PST)
+X-Google-Smtp-Source: AJdET5d2s0NypaXuaIjKmMbHvFYAMm/WAed1WgD/Oj/VkJQNLsOayt4B9Zv3gUQsTyrCRg0YsDB7
+X-Received: by 2002:a17:902:780c:: with SMTP id p12mr22586005pll.197.1542644693636;
+        Mon, 19 Nov 2018 08:24:53 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542644693; cv=none;
+        d=google.com; s=arc-20160816;
+        b=gNNnYU8bv1Kj6wq/09BAGJW8DjNn+Qe0+Lly6+unhGWIeyRcLnvmLIBLRI0hUnlXjM
+         E/6s1lFd6y0IehBeE7dIn9QwPNK7BDzHwujqQNNIAKARPidt9ROwgQv3MI8Fay8g6NT6
+         pcoAMj8YgeM2egYLrfborycT5Nofvg8nYCzHljAVC9+Yj54awGEyUHGS2iNpFtDlmByc
+         pwLgupF3zfutsv5Z1qDe99+SdTByaRULVbN2n1QisFZugeqtMPCO0rVl5K+Kz3j8Ce+e
+         K+opY+xW4Uwm99lxGbUaBc7KmWMs1LKswQBEMb2nU7V6qjiFU7+w1/7HMsOR26TNsNiN
+         0VKA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=5qFkfzGULDvNAIbDD8QpG81AQ91YGHi82hRi6z9W/bI=;
+        b=tKn+Gw9V52CAM2VCmIGOQWt/oJWE0fH+jdFuS2PR3TzGguyrNTBb66eDdiey6zbRTZ
+         ZXe5V3gdzupSTrNHXgp8RlfIie4bIYCJ7cx6pHm+ftY2carwioI2Vbs22keBv/bAv9OV
+         VLULDasYT2mZDutHXChOTLrKfQjswryLiyKWkip7xxpQUV+UHZ8ZJd42hDUYNNxX50bb
+         o95nfJpHzjtJEir2uItRBBXD9T39y1olaFb+r9ekk9S89Mcyuv6REy2DxBVMS8vL116z
+         5U6iUT+o3T4Zqd7U5pmSWcVeLLsITG7G0Kds7wdUa3vqcCsP/mFZTJ7HDyff1GqZqXHs
+         AOVA==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@kernel.org header.s=default header.b=hCswJv9k;
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;
+       dmarc=pass (p=NONE sp=NONE dis=NONE) header.from=kernel.org
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id be8-v6si39971797plb.143.2018.11.19.08.24.38;
+        Mon, 19 Nov 2018 08:24:53 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1730043AbeKTCsb (ORCPT <rfc822;nullbytes00@gmail.com>
+        + 99 others); Mon, 19 Nov 2018 21:48:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49368 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729912AbeKTCsb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+        Mon, 19 Nov 2018 21:48:31 -0500
+Received: from mail-qk1-f176.google.com (mail-qk1-f176.google.com [209.85.222.176])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9CA4020831;
+        Mon, 19 Nov 2018 16:24:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1542644664;
+        bh=mp3NNNwXLBStJAvbXqmW1PSCrkeaPhfzhqj88V80esc=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=hCswJv9kZSwsyb4sGsYsQqZ2igdBpQtbRKuSlU0FzZ2gmu7386cJiRJRXBX3N4VxF
+         dsxsnQwL2gTnGcYfOdOr0fczdu1Sfskhk6h+jd43ZcpWXWeJfeMN/FgwQQ3C8LCfad
+         47KQt4m4SqzpRZJrJd/46KlH8P3PbCpYVl6h45Xk=
+Received: by mail-qk1-f176.google.com with SMTP id n12so49478744qkh.11;
+        Mon, 19 Nov 2018 08:24:24 -0800 (PST)
+X-Received: by 2002:ac8:2d35:: with SMTP id n50mr20814051qta.38.1542644663823;
+ Mon, 19 Nov 2018 08:24:23 -0800 (PST)
+MIME-Version: 1.0
+References: <1542589274-13878-1-git-send-email-sugaya.taichi@socionext.com> <1542589274-13878-2-git-send-email-sugaya.taichi@socionext.com>
+In-Reply-To: <1542589274-13878-2-git-send-email-sugaya.taichi@socionext.com>
+From: Rob Herring <robh+dt@kernel.org>
+Date: Mon, 19 Nov 2018 10:24:11 -0600
+X-Gmail-Original-Message-ID: <CAL_JsqJotYwwC490XmCtn_=-mrosxG3UUCy0P_SVO3d94yW6VA@mail.gmail.com>
+Message-ID: <CAL_JsqJotYwwC490XmCtn_=-mrosxG3UUCy0P_SVO3d94yW6VA@mail.gmail.com>
+Subject: Re: [PATCH 01/14] ARM: milbeaut: Add basic support for Milbeaut m10v SoC
+To: sugaya.taichi@socionext.com
+Cc: linux-clk <linux-clk@vger.kernel.org>, devicetree@vger.kernel.org,
+        "moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE" 
+        <linux-arm-kernel@lists.infradead.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "open list:SERIAL DRIVERS" <linux-serial@vger.kernel.org>,
+        Michael Turquette <mturquette@baylibre.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Russell King <linux@armlinux.org.uk>,
+        Jiri Slaby <jslaby@suse.com>,
+        Masami Hiramatsu <masami.hiramatsu@linaro.org>,
+        Jassi Brar <jaswinder.singh@linaro.org>
+Content-Type: text/plain; charset="UTF-8"
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwCXf0vW4_JbMFdZAA--.2417S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoWxtry8Xr1kZF13CFyxJFW3Awb_yoWfJrykpF
+	Wj9an5GrWUW3W7GayfAF48uFZYyw1vgayj9a47Wry8Jan7Ary8WF1v93sxA34xGr4DCa18
+	Wr4rGF47uan5t3DanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUPIb7Iv0xC_tr1lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2
+	z280aVAFwI0_Gr1j6F4UJwA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_Gr1j6F4UJwAS0I0E0x
+	vYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AK
+	xVWUJVWUGwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcV
+	AKI48JMx02cVCv0xWlc7CjxVAKzI0EY4vE52x082I5MxkFs20EY4vE44CYbxCE4x80FwCY
+	02Avz4vEIxC_JwCY0x0Ix7I2Y4AK64vIr41lcIIF0xvE2Ix0cI8IcVAFwI0_Gr0_Xr1lcI
+	IF0xvE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwCYIxAIcVC2z280aVAFwI0_Gr0_Cr1lcIIF
+	0xvEx4A2jsIEc7CjxVAFwI0_Gr0_Gr1UMxAIw28IcxkI7VAKI48JMxAIw28IcVAKzI0EY4
+	vE52x082I5MxCjnVCjjxCrMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_
+	Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVW8ZVWrXwCIc40Y0x
+	0EwIxGrwCI42IY6xAIw20EY4v20xvaj40_Zr0_Wr1UYxBIdaVFxhVjvjDU0xZFpf9x07be
+	l1kUUUUU=
+
+On Sun, Nov 18, 2018 at 7:00 PM Sugaya Taichi
+<sugaya.taichi@socionext.com> wrote:
+>
+> This adds the basic M10V SoC support under arch/arm.
+> Since all cores are activated in the custom bootloader before booting
+> linux, it is necessary to wait for sub-cores using the trampoline area.
+>
+> Signed-off-by: Sugaya Taichi <sugaya.taichi@socionext.com>
+> ---
+>  arch/arm/Kconfig                  |   2 +
+>  arch/arm/Makefile                 |   1 +
+>  arch/arm/mach-milbeaut/Kconfig    |  28 +++++++
+>  arch/arm/mach-milbeaut/Makefile   |   3 +
+>  arch/arm/mach-milbeaut/m10v_evb.c |  31 ++++++++
+>  arch/arm/mach-milbeaut/platsmp.c  | 157 ++++++++++++++++++++++++++++++++++++++
+>  6 files changed, 222 insertions(+)
+>  create mode 100644 arch/arm/mach-milbeaut/Kconfig
+>  create mode 100644 arch/arm/mach-milbeaut/Makefile
+>  create mode 100644 arch/arm/mach-milbeaut/m10v_evb.c
+>  create mode 100644 arch/arm/mach-milbeaut/platsmp.c
+>
+> diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
+> index 91be74d..0b8a1af 100644
+> --- a/arch/arm/Kconfig
+> +++ b/arch/arm/Kconfig
+> @@ -767,6 +767,8 @@ source "arch/arm/mach-mediatek/Kconfig"
+>
+>  source "arch/arm/mach-meson/Kconfig"
+>
+> +source "arch/arm/mach-milbeaut/Kconfig"
+> +
+>  source "arch/arm/mach-mmp/Kconfig"
+>
+>  source "arch/arm/mach-moxart/Kconfig"
+> diff --git a/arch/arm/Makefile b/arch/arm/Makefile
+> index 05a91d8..627853c 100644
+> --- a/arch/arm/Makefile
+> +++ b/arch/arm/Makefile
+> @@ -190,6 +190,7 @@ machine-$(CONFIG_ARCH_MV78XX0)              += mv78xx0
+>  machine-$(CONFIG_ARCH_MVEBU)           += mvebu
+>  machine-$(CONFIG_ARCH_MXC)             += imx
+>  machine-$(CONFIG_ARCH_MEDIATEK)                += mediatek
+> +machine-$(CONFIG_ARCH_MILBEAUT)                += milbeaut
+>  machine-$(CONFIG_ARCH_MXS)             += mxs
+>  machine-$(CONFIG_ARCH_NETX)            += netx
+>  machine-$(CONFIG_ARCH_NOMADIK)         += nomadik
+> diff --git a/arch/arm/mach-milbeaut/Kconfig b/arch/arm/mach-milbeaut/Kconfig
+> new file mode 100644
+> index 0000000..63b6f69
+> --- /dev/null
+> +++ b/arch/arm/mach-milbeaut/Kconfig
+> @@ -0,0 +1,28 @@
+> +# SPDX-License-Identifier: GPL-2.0
+> +menuconfig ARCH_MILBEAUT
+> +       bool "Socionext Milbeaut SoCs"
+> +       depends on ARCH_MULTI_V7
+> +       select ARM_GIC
+
+> +       select CLKDEV_LOOKUP
+> +       select GENERIC_CLOCKEVENTS
+> +       select CLKSRC_MMIO
+
+The clock and timer drivers' kconfig entries should select these.
+
+> +       select ZONE_DMA
+
+Why is this needed?
+
+> +       help
+> +               This enables support for Socionext Milbeaut SoCs
+> +
+> +if ARCH_MILBEAUT
+> +
+> +config ARCH_MILBEAUT_M10V
+> +       bool "Milbeaut SC2000/M10V platform"
+> +       select ARM_ARCH_TIMER
+> +       select M10V_TIMER
+> +       select PINCTRL
+> +       select PINCTRL_M10V
+> +       help
+> +         Support for Socionext's MILBEAUT M10V based systems
+> +
+> +config MACH_M10V_EVB
+> +       bool "Support for Milbeaut Evaluation boards"
+
+You shouldn't need a kconfig entry for each board.
+
+> +       default y
+> +
+> +endif
+> diff --git a/arch/arm/mach-milbeaut/Makefile b/arch/arm/mach-milbeaut/Makefile
+> new file mode 100644
+> index 0000000..64f6f52
+> --- /dev/null
+> +++ b/arch/arm/mach-milbeaut/Makefile
+> @@ -0,0 +1,3 @@
+> +obj-$(CONFIG_SMP) += platsmp.o
+> +obj-$(CONFIG_MACH_M10V_EVB) += m10v_evb.o
+> +
+> diff --git a/arch/arm/mach-milbeaut/m10v_evb.c b/arch/arm/mach-milbeaut/m10v_evb.c
+> new file mode 100644
+> index 0000000..a1fa7c3
+> --- /dev/null
+> +++ b/arch/arm/mach-milbeaut/m10v_evb.c
+
+This all looks SoC specific, not board specific.
+
+> @@ -0,0 +1,31 @@
+> +// SPDX-License-Identifier: GPL-2.0
+> +/*
+> + * Copyright (C) 2018 Socionext Inc.
+> + * Copyright:   (C) 2015 Linaro Ltd.
+> + */
+> +
+> +#include <linux/of.h>
+> +#include <linux/platform_device.h>
+
+Not needed.
+
+> +
+> +#include <asm/mach/arch.h>
+> +#include <asm/mach/map.h>
+> +
+> +static struct map_desc m10v_io_desc[] __initdata = {
+> +};
+> +
+> +void __init m10v_map_io(void)
+> +{
+> +       debug_ll_io_init();
+
+If you use earlycon instead, then this isn't needed.
+
+> +       iotable_init(m10v_io_desc, ARRAY_SIZE(m10v_io_desc));
+
+This isn't needed.
+
+> +}
+> +
+> +static const char * const m10v_compat[] = {
+> +       "socionext,milbeaut-m10v-evb",
+> +       NULL,
+> +};
+> +
+> +DT_MACHINE_START(M10V_REB, "Socionext Milbeaut")
+> +       .dt_compat      = m10v_compat,
+> +       .l2c_aux_mask   = 0xffffffff,
+> +       .map_io         = m10v_map_io,
+
+It looks like you can remove this entire file and use the default machine desc.
+
+> +MACHINE_END
+> diff --git a/arch/arm/mach-milbeaut/platsmp.c b/arch/arm/mach-milbeaut/platsmp.c
+> new file mode 100644
+> index 0000000..b706851
+> --- /dev/null
+> +++ b/arch/arm/mach-milbeaut/platsmp.c
+> @@ -0,0 +1,157 @@
+> +// SPDX-License-Identifier: GPL-2.0
+> +/*
+> + * Copyright (C) 2018 Socionext Inc.
+> + * Copyright:  (C) 2015 Linaro Ltd.
+> + */
+> +
+> +#include <linux/cpu_pm.h>
+> +#include <linux/irqchip/arm-gic.h>
+> +#include <linux/of_device.h>
+
+Not needed.
+
+> +#include <linux/of_address.h>
+> +#include <linux/platform_device.h>
+
+Not needed.
+
+> +#include <linux/suspend.h>
+> +
+> +#include <asm/cacheflush.h>
+> +#include <asm/cp15.h>
+> +#include <asm/idmap.h>
+> +#include <asm/smp_plat.h>
+> +#include <asm/suspend.h>
+> +
+> +#define M10V_MAX_CPU   4
+> +
+> +#define KERNEL_UNBOOT_FLAG     0x12345678
+> +#define CPU_FINISH_SUSPEND_FLAG 0x56784321
+> +
+> +static void __iomem *trampoline;
+> +
+> +static int m10v_boot_secondary(unsigned int l_cpu, struct task_struct *idle)
+> +{
+> +       unsigned int mpidr, cpu, cluster;
+> +
+> +       mpidr = cpu_logical_map(l_cpu);
+> +       cpu = MPIDR_AFFINITY_LEVEL(mpidr, 0);
+> +       cluster = MPIDR_AFFINITY_LEVEL(mpidr, 1);
+> +
+> +       if (cpu >= M10V_MAX_CPU)
+> +               return -EINVAL;
+> +
+> +       pr_debug("%s: cpu %u cluster %u\n", __func__, cpu, cluster);
+> +
+> +       writel(virt_to_phys(secondary_startup), trampoline + cpu * 4);
+> +       arch_send_wakeup_ipi_mask(cpumask_of(l_cpu));
+> +
+> +       return 0;
+> +}
+> +
+> +static void m10v_cpu_die(unsigned int l_cpu)
+> +{
+> +       gic_cpu_if_down(0);
+> +
+> +       v7_exit_coherency_flush(louis);
+> +
+> +       /* Now we are prepared for power-down, do it: */
+> +       wfi();
+> +}
+> +
+> +static int m10v_cpu_kill(unsigned int l_cpu)
+> +{
+> +       unsigned int mpidr, cpu;
+> +
+> +       mpidr = cpu_logical_map(l_cpu);
+> +       cpu = MPIDR_AFFINITY_LEVEL(mpidr, 0);
+> +
+> +       writel(KERNEL_UNBOOT_FLAG, trampoline + cpu * 4);
+> +
+> +       return 1;
+> +}
+> +
+> +static struct smp_operations m10v_smp_ops __initdata = {
+> +       .smp_boot_secondary     = m10v_boot_secondary,
+> +       .cpu_die                = m10v_cpu_die,
+> +       .cpu_kill               = m10v_cpu_kill,
+> +};
+> +
+> +static int __init m10v_smp_init(void)
+> +{
+> +       unsigned int mpidr, cpu, cluster;
+> +       struct device_node *np;
+> +
+> +       np = of_find_compatible_node(NULL, NULL, "socionext,milbeaut-m10v-evb");
+> +       if (!np || !of_device_is_available(np))
+
+Just use of_machine_is_compatible() here.
+
+> +               return -ENODEV;
+> +       of_node_put(np);
+> +
+> +       np = of_find_compatible_node(NULL, NULL, "socionext,smp-trampoline");
+> +       if (!np)
+> +               return -ENODEV;
+> +
+> +       trampoline = of_iomap(np, 0);
+> +       if (!trampoline)
+> +               return -ENODEV;
+> +       of_node_put(np);
+> +
+> +       mpidr = read_cpuid_mpidr();
+> +       cpu = MPIDR_AFFINITY_LEVEL(mpidr, 0);
+> +       cluster = MPIDR_AFFINITY_LEVEL(mpidr, 1);
+> +
+> +       pr_info("MCPM boot on cpu_%u cluster_%u\n", cpu, cluster);
+> +
+> +       for (cpu = 0; cpu < M10V_MAX_CPU; cpu++)
+> +               writel(KERNEL_UNBOOT_FLAG, trampoline + cpu * 4);
+> +
+> +       smp_set_ops(&m10v_smp_ops);
+> +
+> +       return 0;
+> +}
+> +early_initcall(m10v_smp_init);
+> +
+> +static int m10v_pm_valid(suspend_state_t state)
+> +{
+> +       return (state == PM_SUSPEND_STANDBY) || (state == PM_SUSPEND_MEM);
+> +}
+> +
+> +typedef void (*phys_reset_t)(unsigned long);
+> +static phys_reset_t phys_reset;
+> +
+> +static int m10v_die(unsigned long arg)
+> +{
+> +       setup_mm_for_reboot();
+> +       asm("wfi");
+> +       /* Boot just like a secondary */
+> +       phys_reset = (phys_reset_t)(unsigned long)virt_to_phys(cpu_reset);
+> +       phys_reset(virt_to_phys(cpu_resume));
+> +
+> +       return 0;
+> +}
+> +
+> +static int m10v_pm_enter(suspend_state_t state)
+> +{
+> +       switch (state) {
+> +       case PM_SUSPEND_STANDBY:
+> +               pr_err("STANDBY\n");
+> +               asm("wfi");
+> +               break;
+> +       case PM_SUSPEND_MEM:
+> +               pr_err("SUSPEND\n");
+> +               cpu_pm_enter();
+> +               cpu_suspend(0, m10v_die);
+> +               cpu_pm_exit();
+> +               break;
+> +       }
+> +       return 0;
+> +}
+> +
+> +static const struct platform_suspend_ops m10v_pm_ops = {
+> +       .valid          = m10v_pm_valid,
+> +       .enter          = m10v_pm_enter,
+> +};
+> +
+> +struct clk *m10v_clclk_register(struct device *cpu_dev);
+> +
+> +static int __init m10v_pm_init(void)
+> +{
+> +       suspend_set_ops(&m10v_pm_ops);
+> +
+> +       return 0;
+> +}
+> +late_initcall(m10v_pm_init);
+> --
+> 1.9.1
+>

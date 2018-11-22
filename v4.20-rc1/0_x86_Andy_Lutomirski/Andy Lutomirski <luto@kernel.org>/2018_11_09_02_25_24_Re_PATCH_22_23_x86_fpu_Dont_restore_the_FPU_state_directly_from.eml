@@ -1,0 +1,144 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 09 Nov 2018 00:37:15 -0000
+Received: from icoremail.net (unknown [209.85.214.181])
+	by mail-app2 (Coremail) with SMTP id by_KCgDXv2LJf+RbWuNhAQ--.30041S3;
+	Fri, 09 Nov 2018 02:26:19 +0800 (CST)
+Received: from mail-pl1-f181.google.com (unknown [209.85.214.181])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwCXcz_Gf+Rbax0eAA--.7160S3;
+	Fri, 09 Nov 2018 02:26:14 +0800 (CST)
+Received: by mail-pl1-f181.google.com with SMTP id w24-v6so9923704plq.3
+        for <xuliker@zju.edu.cn>; Thu, 08 Nov 2018 10:26:14 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:delivered-to:dkim-signature:mime-version
+         :references:in-reply-to:from:date:message-id:subject:to:cc:sender
+         :precedence:list-id;
+        bh=TeGvDy8RK7IinqtDIxQSvKmVvjX9FuurXn/IJ071UWM=;
+        b=ETV/HtqvxcZ4dQJTyCP/zYFNQk4VcK0tkEAAoyq7AuAJDHSj8H3HxB3Eal8X0ZSCsI
+         CMcR+DApjzY8X6+Zqs9ge9TJP2uH3b5Tf7s4fCmgzQdl0IaTtwGZ0bUAaPXul9dY8xAL
+         WJkrKHQPsyxjGXfxW0M9GvDbX4cPzwJQPxYF+TJGfn6zruaAC/XdkbkhCSEadASGfoDr
+         BRoAvTuW6bAp40ZIc+sI89z8VaRhCdRUiIVuCM3G9As5qF3acgU0GwDKU2zo0xTIudkk
+         caFTWu6wi7d4MkDPLzuY4ui/kKi/ZRP/As1qIFUgwpGz2/YZ3guib1aeTO+com9iI9R5
+         SmRg==
+X-Gm-Message-State: AGRZ1gJCWO8UaZISg6wSgqQG88wEKSMqSU1mpQA8HTVWq7hCHJVcvPU1
+	mAcTCU6bhsV4c7aDMa/TC/0lj0ngLp1rEmXKHc1ICBzhYgwa0a5sXw==
+X-Received: by 2002:a17:902:b598:: with SMTP id a24-v6mr5582028pls.231.1541701574257;
+        Thu, 08 Nov 2018 10:26:14 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp549786pjt;
+        Thu, 8 Nov 2018 10:26:13 -0800 (PST)
+X-Google-Smtp-Source: AJdET5cec1E+/+npN4zEY2u8+R4ddfD3TpGmgOnISdpYQqzH3P6ho/Cmbb6cfTcPFynS/qcUSlyw
+X-Received: by 2002:a63:fc49:: with SMTP id r9mr4521440pgk.209.1541701573571;
+        Thu, 08 Nov 2018 10:26:13 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1541701573; cv=none;
+        d=google.com; s=arc-20160816;
+        b=kUIQ2Zw9xTOk+TMj4Y5pfbv53OuXDKx9NZ460VRToPKHaUDsY4qnwWMEn+LFs/oG2S
+         ZvPxLfQDVH2Q+7P+bJ+AWJFtmf9nWJJ8vHs958NamrWA52vHhVddsNBpAwXmFDPpEBRv
+         4ArzRYZ57MHVuxsSvugpzus10aSgYda/6U/R8fDiIsMtfQ8orQ9HVe3ruXekOpK+9OhB
+         M+tC6l1KqNWgZsIfcX60fxFSPoM73EZwoiUjGIqbt9zLZQHDU485gTzKnFYsjdZoJSn4
+         CKVPefcFMFYGeI/EvLYzOH4sYPLtM0ed0DBfmXSZDGOSfsfQfJosdTMalpHClZlW9Q9h
+         qAvw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=TeGvDy8RK7IinqtDIxQSvKmVvjX9FuurXn/IJ071UWM=;
+        b=YQf27xOW41RdGO4aFt5e23zySqIX4wTGmJYMfX8H2+V+PaYgHbBEyOUwzJZce3v1dm
+         x2IEmPSbfW+PDIvXDipD5T2yvIBcygH6KFAl3kudd1tfnkARKpFXKLHL/K/x1fulxTCe
+         +eWW7NKlpRS6cJIVrDzhFseFcLaPsrRCcU0C3tyXfPyIsmRsGQMELcGGBjpXLYSXHDbc
+         XFwPVXquoFz3tgsBAId3cbP+UTxj2XfWKwfrQWavu+zdp78/xRSDZQAVwCwKnOBXxOJL
+         ynQy5VjEx0zp+e3+CoYRlvx42Ye9/tPA5Xlf5BaEZxu9KfFKmz6/pUIlndp8tLVeRwaM
+         vaKA==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@kernel.org header.s=default header.b=2VfHeAqf;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;
+       dmarc=pass (p=NONE sp=NONE dis=NONE) header.from=kernel.org
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id t16-v6si4939659plr.352.2018.11.08.10.25.54;
+        Thu, 08 Nov 2018 10:26:13 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1726881AbeKIECW (ORCPT <rfc822;fanshuming2011@gmail.com>
+        + 99 others); Thu, 8 Nov 2018 23:02:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54350 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726751AbeKIECW (ORCPT <rfc822;kvm@vger.kernel.org>);
+        Thu, 8 Nov 2018 23:02:22 -0500
+Received: from mail-wr1-f49.google.com (mail-wr1-f49.google.com [209.85.221.49])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id CEA5220892
+        for <kvm@vger.kernel.org>; Thu,  8 Nov 2018 18:25:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1541701537;
+        bh=1btlQgstCpJizvq6kZHc76gmMfvapjxjFfB1YtKv9hc=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=2VfHeAqf4tFX+DYTLht0rE/yFHZSWTdDscN+eUuluGJQZWsVxLJImPu31/5CDLlJY
+         Z5a7BKHEQl2U5UNa153jX14kxXDWNkGTdyhFgIe0dVr6pSKMy+uc/tL8w+6p4CP/qy
+         NwBBwunfmBpETFlGkFeC5XcOajMQMEbEMzw4A7tk=
+Received: by mail-wr1-f49.google.com with SMTP id i17-v6so22315699wre.7
+        for <kvm@vger.kernel.org>; Thu, 08 Nov 2018 10:25:36 -0800 (PST)
+X-Received: by 2002:adf:82c9:: with SMTP id 67-v6mr4882257wrc.131.1541701535293;
+ Thu, 08 Nov 2018 10:25:35 -0800 (PST)
+MIME-Version: 1.0
+References: <20181107194858.9380-1-bigeasy@linutronix.de> <20181107194858.9380-23-bigeasy@linutronix.de>
+In-Reply-To: <20181107194858.9380-23-bigeasy@linutronix.de>
+From: Andy Lutomirski <luto@kernel.org>
+Date: Thu, 8 Nov 2018 10:25:24 -0800
+X-Gmail-Original-Message-ID: <CALCETrXYTSsxYUmxb6FmvQrSaMPJ77jqgnfzG_7yRGxLUw3_QQ@mail.gmail.com>
+Message-ID: <CALCETrXYTSsxYUmxb6FmvQrSaMPJ77jqgnfzG_7yRGxLUw3_QQ@mail.gmail.com>
+Subject: Re: [PATCH 22/23] x86/fpu: Don't restore the FPU state directly from
+ userland in __fpu__restore_sig()
+To: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Cc: LKML <linux-kernel@vger.kernel.org>, X86 ML <x86@kernel.org>,
+        Andrew Lutomirski <luto@kernel.org>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Radim Krcmar <rkrcmar@redhat.com>,
+        kvm list <kvm@vger.kernel.org>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Rik van Riel <riel@surriel.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>
+Content-Type: text/plain; charset="UTF-8"
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwCXcz_Gf+Rbax0eAA--.7160S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvdXoW7Gw1DXF48ZF13KrWxJF1UJrb_yoW3XFg_K3
+	y5uFyxGw13GFsa93WSyws8Z3yDAFWUGry2qwn8XrW2yryxX3srKw40vFyfur4kGFWaqwn3
+	Wr17tr1Fg34avjkaLaAFLSUrUUUUUb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAU7a7-sFnT
+	9fnUUIcSsGvfJTRUUUbakYjsxI4VWxJwAYFVCjjxCrM7AC8VAFwI0_Jr0_Gr1l1IIY67AE
+	w4v_Jr0_Jr4l8cAvFVAK0II2c7xJM28CjxkF64kEwVA0rcxSw2x7M28EF7xvwVC0I7IYx2
+	IY67AKxVW7JVWDJwA2z4x0Y4vE2Ix0cI8IcVCY1x0267AKxVWxJVW8Jr1l84ACjcxK6I8E
+	87Iv67AKxVWxJr0_GcWl84ACjcxK6I8E87Iv6xkF7I0E14v26F4UJVW0owAS0I0E0xvYzx
+	vE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AKxVWU
+	JVWUGwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcVAKI4
+	8JMx02cVCv0xWlc7CjxVAKzI0EY4vE52x082I5MxkI7II2jI8vz4vEwIxGrwCYIxAIcVC0
+	I7IYx2IY67AKxVW8JVW5JwCYIxAIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMxvI42IY6I
+	8E87Iv67AKxVW8Jr0_Cr1UMxvI42IY6I8E87Iv6xkF7I0E14v26r4UJVWxJr1l42xK82IY
+	c2Ij64vIr41l42xK82IY64kExVAvwVAq07x20xyl4x8a6x804xWl4I8I3I0E4IkC6x0Yz7
+	v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF
+	1VAY17CE14v26r1q6r43MIIYrxkI7VAKI48JMIIF0xvE42xK8VAvwI8IcIk0rVW8JVW3Jb
+	IYCTnIWIevJa73UjIFyTuYvjxU-Vc_DUUUU
+
+On Wed, Nov 7, 2018 at 11:49 AM Sebastian Andrzej Siewior
+<bigeasy@linutronix.de> wrote:
+>
+> __fpu__restore_sig() restores the CPU's FPU state directly from
+> userland. If we restore registers on return to userland then we can't
+> load them directly from userland because a context switch/BH could
+> destroy them.
+>
+> Restore the FPU registers after they have been copied from userland.
+> __fpregs_changes_begin() ensures that they are not modified while beeing
+> worked on. TIF_NEED_FPU_LOAD is clreared we want to keep our state, not
+> the saved state.
+
+I'm conceptually okay with this change, but what happens if the
+registers that are copied into the kernel are garbage?  We used to
+fail the restore and presumably kill the task.  What happens now?

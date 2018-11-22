@@ -1,0 +1,263 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 14 Nov 2018 00:34:56 -0000
+Received: from icoremail.net (unknown [209.85.210.176])
+	by mail-app2 (Coremail) with SMTP id by_KCgC3f+1b7OpbLhOHAQ--.40298S3;
+	Tue, 13 Nov 2018 23:23:07 +0800 (CST)
+Received: from mail-pf1-f176.google.com (unknown [209.85.210.176])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwD33kpW7OpbLBA5AA--.864S3;
+	Tue, 13 Nov 2018 23:23:02 +0800 (CST)
+Received: by mail-pf1-f176.google.com with SMTP id s9-v6so6199372pfm.13
+        for <xuliker@zju.edu.cn>; Tue, 13 Nov 2018 07:23:02 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :from:to:cc:subject:date:message-id:in-reply-to:references:sender
+         :precedence:list-id;
+        bh=lykKKJdGW2FQbEeqyN96UdAOuJDSACfqE/vUkr+Uq0s=;
+        b=YEpCc5MT2u4UUBeBryLHM/8y29HPlr6+GXl+6Zgh7BSO7q19evRthgk0QIToORd6pK
+         sbOJ+3xeev+VgWECxcPBPtM01RhFMxK+xOx51/dPp/8DrJoaDGKUygpJIfdXCAz6npAB
+         WNyHnmQP/FgT0RN4GOA1KHar1PmvRpfTzFCD2GvIgnM3nh0eEtmzTmC8MVi7aOFmDYqt
+         WH3hkmHrVGDDyvgbAWK5ioOLtqCBsRWydUGFRIPduSoytOofw6t39N1uxSmvJUMPxU4x
+         ySLJdK6hiFwTkxsb4S+bTJZsXMEo/RRgd/Qk9Lh29sfmGSzB5N/ZYurfkqksfQig21BF
+         bTPA==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=redhat.com
+X-Gm-Message-State: AGRZ1gL0LNy+UO29AbAs/+2HsphwKXy71lMyKoG/ErTanxNVkBCy9ULW
+	HKlwV/ebtGogfXWmuWRBjBzLp1PvcIiv/KrXn+zUWfr1TfmAxcejYA==
+X-Received: by 2002:a63:9402:: with SMTP id m2mr4944285pge.93.1542122582530;
+        Tue, 13 Nov 2018 07:23:02 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp4601393pjt;
+        Tue, 13 Nov 2018 07:23:01 -0800 (PST)
+X-Google-Smtp-Source: AJdET5c5DGtptDzavSC4iTRRCF5885JxfbPyUqfuSMwycwcyfQp4fEzzjvjdQ4DF1v6jg57Z3GKi
+X-Received: by 2002:a62:5285:: with SMTP id g127-v6mr5526524pfb.128.1542122581122;
+        Tue, 13 Nov 2018 07:23:01 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542122581; cv=none;
+        d=google.com; s=arc-20160816;
+        b=kMAtDniV/PAPwsk29PNS0dWM+B1CZl0giEvhb2oRXRwCiovIdlRnlT38A9pCCwMLtK
+         hdxDT8mwsWrG2/DKBgScjG6UYdCcUHZTsDsHRxIo389XDPwGMZIJ6PqNg8RLxMXBqpoN
+         RejP7QkCyTSitnwjdIC6BLarQHuVbU3sNEKW76aj8WJA/weimxDteFApzk0hhl0AD1BF
+         033gUBbfnkjRVF6G+VMqs5Po2ZOtHgruQ0Yy65y6z2NJ0rIrT9YiMVeKN4vlVuerdUiB
+         phN6gf25r9qWbgdewscmkGgLLRYoP5YTqKPz/R6OTBPZ5XU8wy4msG2D7/B0yNWT2AF4
+         PMXA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:references:in-reply-to:message-id:date
+         :subject:cc:to:from;
+        bh=lykKKJdGW2FQbEeqyN96UdAOuJDSACfqE/vUkr+Uq0s=;
+        b=zsBOSSN+V5gdGl8kD4zv1JQ49/qd+r78mUl8WjXYMNG3c0qSFBDwQjixcxjpVvMUjk
+         82FZKuZsrHNKxG8cwioK5uiowdf3kjM0GV+nzA8QjonKwUOMFUKVv+E2lVVpOzV2AEBQ
+         u3DRIpGPvmUdE1jEvkD2oqU+iCEvGd4KWlIuciJML2v4fED7RFqCC4AB5OGM8lqKjdjy
+         ZaSlf9Plea4AUOCJnoQNzOcq8fNlTHK0ZpCb0TniCP/k5tsnH1Pia/YF/paV9AvMnOXJ
+         O2MBy9BsHh7aThKoPiff7l3mKMmhlqo4+YPn0NsWkWIM8SiAVy6c4Px0V69dooF5Q62V
+         MkPA==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=redhat.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id p6-v6si19775941plk.429.2018.11.13.07.22.47;
+        Tue, 13 Nov 2018 07:23:01 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S2387807AbeKNBVD (ORCPT <rfc822;fanshuming2011@gmail.com>
+        + 99 others); Tue, 13 Nov 2018 20:21:03 -0500
+Received: from mx1.redhat.com ([209.132.183.28]:48724 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2387812AbeKNBVC (ORCPT <rfc822;kvm@vger.kernel.org>);
+        Tue, 13 Nov 2018 20:21:02 -0500
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 59CB7308213C;
+        Tue, 13 Nov 2018 15:22:27 +0000 (UTC)
+Received: from vitty.brq.redhat.com (unknown [10.34.244.70])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 05CF0100034A;
+        Tue, 13 Nov 2018 15:22:23 +0000 (UTC)
+From: Vitaly Kuznetsov <vkuznets@redhat.com>
+To: kvm@vger.kernel.org
+Cc: Paolo Bonzini <pbonzini@redhat.com>,
+        =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>,
+        linux-kernel@vger.kernel.org, Roman Kagan <rkagan@virtuozzo.com>,
+        "K. Y. Srinivasan" <kys@microsoft.com>,
+        Haiyang Zhang <haiyangz@microsoft.com>,
+        Stephen Hemminger <sthemmin@microsoft.com>, x86@kernel.org,
+        "Michael Kelley (EOSG)" <Michael.H.Kelley@microsoft.com>
+Subject: [PATCH 2/3] x86/kvm/hyper-v: use stimer config definition from hyperv-tlfs.h
+Date: Tue, 13 Nov 2018 16:22:15 +0100
+Message-Id: <20181113152218.22049-3-vkuznets@redhat.com>
+In-Reply-To: <20181113152218.22049-1-vkuznets@redhat.com>
+References: <20181113152218.22049-1-vkuznets@redhat.com>
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.42]); Tue, 13 Nov 2018 15:22:27 +0000 (UTC)
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwD33kpW7OpbLBA5AA--.864S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW3WrW8Xr1DWr47XrykJr4xJFb_yoW7Ar1fpa
+	1qyas7K3yUWFW5Jw4DJrWkC3s09wn7Kr1UKr47GrZ0yrnFyryUtF4ktF1jvF43GFykXF1S
+	9FyruF4ay348Jw7anT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUPjb7Iv0xC_Zr1lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_tr0E3s1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2
+	z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s0DM2AIxVAIcxkEcV
+	Aq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1j
+	6r18McIj6I8E87Iv67AKxVW8JVWxJwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IY64vIr4
+	1l7I0Y6sxI4wCY1x0264kExVAvwVAq07x20xylc7Ca8VAvwVCFzxkY4VCF77xAMxkIecxE
+	wVCI4VW5WwCY0x0Ix7I2Y4AK64vIr41lcIIF0xvE2Ix0cI8IcVAFwI0_Xr0_Ar1lcIIF0x
+	vE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwCYIxAIcVC2z280aVAFwI0_GcCE3s1lcIIF0xvE
+	x4A2jsIEc7CjxVAFwI0_GcCE3s1l42xK82IYc2Ij64vIr41l42xK82IY64kExVAvwVAq07
+	x20xyl4x8a6x804xWl4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWU
+	GwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r1q6r43MIIYrxkI7VAKI4
+	8JMIIF0xvE42xK8VAvwI8IcIk0rVW8JVW3JbIYCTnIWIevJa73UjIFyTuYvjxUgpRRDUUU
+	U
+
+As a preparation to implementing Direct Mode for Hyper-V synthetic
+timers switch to using stimer config definition from hyperv-tlfs.h.
+
+Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+---
+ arch/x86/include/asm/hyperv-tlfs.h |  6 ------
+ arch/x86/include/asm/kvm_host.h    |  2 +-
+ arch/x86/kvm/hyperv.c              | 33 +++++++++++++++---------------
+ 3 files changed, 18 insertions(+), 23 deletions(-)
+
+diff --git a/arch/x86/include/asm/hyperv-tlfs.h b/arch/x86/include/asm/hyperv-tlfs.h
+index b032c05cd3ee..ebfed56976d2 100644
+--- a/arch/x86/include/asm/hyperv-tlfs.h
++++ b/arch/x86/include/asm/hyperv-tlfs.h
+@@ -725,12 +725,6 @@ struct hv_enlightened_vmcs {
+ 
+ #define HV_VMX_ENLIGHTENED_CLEAN_FIELD_ALL			0xFFFF
+ 
+-#define HV_STIMER_ENABLE		(1ULL << 0)
+-#define HV_STIMER_PERIODIC		(1ULL << 1)
+-#define HV_STIMER_LAZY			(1ULL << 2)
+-#define HV_STIMER_AUTOENABLE		(1ULL << 3)
+-#define HV_STIMER_SINT(config)		(__u8)(((config) >> 16) & 0x0F)
+-
+ /* Define synthetic interrupt controller flag constants. */
+ #define HV_EVENT_FLAGS_COUNT		(256 * 8)
+ #define HV_EVENT_FLAGS_LONG_COUNT	(256 / sizeof(unsigned long))
+diff --git a/arch/x86/include/asm/kvm_host.h b/arch/x86/include/asm/kvm_host.h
+index 55e51ff7e421..e1a40e649cdc 100644
+--- a/arch/x86/include/asm/kvm_host.h
++++ b/arch/x86/include/asm/kvm_host.h
+@@ -497,7 +497,7 @@ struct kvm_mtrr {
+ struct kvm_vcpu_hv_stimer {
+ 	struct hrtimer timer;
+ 	int index;
+-	u64 config;
++	union hv_stimer_config config;
+ 	u64 count;
+ 	u64 exp_time;
+ 	struct hv_message msg;
+diff --git a/arch/x86/kvm/hyperv.c b/arch/x86/kvm/hyperv.c
+index 4e80080f277a..eaec15c738df 100644
+--- a/arch/x86/kvm/hyperv.c
++++ b/arch/x86/kvm/hyperv.c
+@@ -201,9 +201,8 @@ static void kvm_hv_notify_acked_sint(struct kvm_vcpu *vcpu, u32 sint)
+ 	stimers_pending = 0;
+ 	for (idx = 0; idx < ARRAY_SIZE(hv_vcpu->stimer); idx++) {
+ 		stimer = &hv_vcpu->stimer[idx];
+-		if (stimer->msg_pending &&
+-		    (stimer->config & HV_STIMER_ENABLE) &&
+-		    HV_STIMER_SINT(stimer->config) == sint) {
++		if (stimer->msg_pending && stimer->config.enable &&
++		    stimer->config.sintx == sint) {
+ 			set_bit(stimer->index,
+ 				hv_vcpu->stimer_pending_bitmap);
+ 			stimers_pending++;
+@@ -497,7 +496,7 @@ static int stimer_start(struct kvm_vcpu_hv_stimer *stimer)
+ 	time_now = get_time_ref_counter(stimer_to_vcpu(stimer)->kvm);
+ 	ktime_now = ktime_get();
+ 
+-	if (stimer->config & HV_STIMER_PERIODIC) {
++	if (stimer->config.periodic) {
+ 		if (stimer->exp_time) {
+ 			if (time_now >= stimer->exp_time) {
+ 				u64 remainder;
+@@ -546,13 +545,15 @@ static int stimer_start(struct kvm_vcpu_hv_stimer *stimer)
+ static int stimer_set_config(struct kvm_vcpu_hv_stimer *stimer, u64 config,
+ 			     bool host)
+ {
++	union hv_stimer_config new_config = {.as_uint64 = config};
++
+ 	trace_kvm_hv_stimer_set_config(stimer_to_vcpu(stimer)->vcpu_id,
+ 				       stimer->index, config, host);
+ 
+ 	stimer_cleanup(stimer);
+-	if ((stimer->config & HV_STIMER_ENABLE) && HV_STIMER_SINT(config) == 0)
+-		config &= ~HV_STIMER_ENABLE;
+-	stimer->config = config;
++	if (stimer->config.enable && new_config.sintx == 0)
++		new_config.enable = 0;
++	stimer->config.as_uint64 = new_config.as_uint64;
+ 	stimer_mark_pending(stimer, false);
+ 	return 0;
+ }
+@@ -566,16 +567,16 @@ static int stimer_set_count(struct kvm_vcpu_hv_stimer *stimer, u64 count,
+ 	stimer_cleanup(stimer);
+ 	stimer->count = count;
+ 	if (stimer->count == 0)
+-		stimer->config &= ~HV_STIMER_ENABLE;
+-	else if (stimer->config & HV_STIMER_AUTOENABLE)
+-		stimer->config |= HV_STIMER_ENABLE;
++		stimer->config.enable = 0;
++	else if (stimer->config.auto_enable)
++		stimer->config.enable = 1;
+ 	stimer_mark_pending(stimer, false);
+ 	return 0;
+ }
+ 
+ static int stimer_get_config(struct kvm_vcpu_hv_stimer *stimer, u64 *pconfig)
+ {
+-	*pconfig = stimer->config;
++	*pconfig = stimer->config.as_uint64;
+ 	return 0;
+ }
+ 
+@@ -636,7 +637,7 @@ static int stimer_send_msg(struct kvm_vcpu_hv_stimer *stimer)
+ 	payload->expiration_time = stimer->exp_time;
+ 	payload->delivery_time = get_time_ref_counter(vcpu->kvm);
+ 	return synic_deliver_msg(vcpu_to_synic(vcpu),
+-				 HV_STIMER_SINT(stimer->config), msg);
++				 stimer->config.sintx, msg);
+ }
+ 
+ static void stimer_expiration(struct kvm_vcpu_hv_stimer *stimer)
+@@ -649,8 +650,8 @@ static void stimer_expiration(struct kvm_vcpu_hv_stimer *stimer)
+ 				       stimer->index, r);
+ 	if (!r) {
+ 		stimer->msg_pending = false;
+-		if (!(stimer->config & HV_STIMER_PERIODIC))
+-			stimer->config &= ~HV_STIMER_ENABLE;
++		if (!(stimer->config.periodic))
++			stimer->config.enable = 0;
+ 	}
+ }
+ 
+@@ -664,7 +665,7 @@ void kvm_hv_process_stimers(struct kvm_vcpu *vcpu)
+ 	for (i = 0; i < ARRAY_SIZE(hv_vcpu->stimer); i++)
+ 		if (test_and_clear_bit(i, hv_vcpu->stimer_pending_bitmap)) {
+ 			stimer = &hv_vcpu->stimer[i];
+-			if (stimer->config & HV_STIMER_ENABLE) {
++			if (stimer->config.enable) {
+ 				exp_time = stimer->exp_time;
+ 
+ 				if (exp_time) {
+@@ -674,7 +675,7 @@ void kvm_hv_process_stimers(struct kvm_vcpu *vcpu)
+ 						stimer_expiration(stimer);
+ 				}
+ 
+-				if ((stimer->config & HV_STIMER_ENABLE) &&
++				if ((stimer->config.enable) &&
+ 				    stimer->count) {
+ 					if (!stimer->msg_pending)
+ 						stimer_start(stimer);
+-- 
+2.17.2

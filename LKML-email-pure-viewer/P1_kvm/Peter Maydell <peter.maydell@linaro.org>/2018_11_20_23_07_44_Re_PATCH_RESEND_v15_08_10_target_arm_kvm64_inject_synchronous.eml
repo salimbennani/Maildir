@@ -1,0 +1,358 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 21 Nov 2018 00:40:14 -0000
+Received: from icoremail.net (unknown [209.85.215.170])
+	by mail-app4 (Coremail) with SMTP id cS_KCgC3fzEkKfRbKZTgAQ--.33825S3;
+	Tue, 20 Nov 2018 23:32:53 +0800 (CST)
+Received: from mail-pg1-f170.google.com (unknown [209.85.215.170])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwCnhEAiKfRbbdheAA--.4052S3;
+	Tue, 20 Nov 2018 23:32:50 +0800 (CST)
+Received: by mail-pg1-f170.google.com with SMTP id t13so1042409pgr.11
+        for <xuliker@zju.edu.cn>; Tue, 20 Nov 2018 07:32:50 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:delivered-to:dkim-signature:mime-version
+         :in-reply-to:references:from:date:message-id:subject:to:cc:sender
+         :precedence:list-id;
+        bh=i3D/tCFvnZC2Ezu6GfTkY91MaNC3l17VOtkrz+mH7Ds=;
+        b=TPNT8IukyNLCJUUOjth/9lASP5T0sK1bAnng6ALmgPqaiovZnPaodHM4hExoJT1pjn
+         H2CXD8c+ML0W7lZZGkxZGKUJePBYotRpvQwC1FsquZGbYvyU9Vp/eYGluWHPNI/pysyK
+         WZbJmmFkoN6eHD95B0w6l/Ea6vnvtuGTNR6DaTj3Q79ddzmbBiF3KPfwM3VKUvr5gOKe
+         bdfxwCv3wYzTF3c3YE5P4f5IWX1715+dA3XnAcveWZ4MB1RJCJnqNoNwawBQSC5RQOSa
+         Bl2+MrTAvyCxCdJgdUDIPDcvSVMFZnHJn4XhHlKo8P+e52lZy+dddOt4+HEHBmXwh5LL
+         PSGQ==
+X-Gm-Message-State: AA+aEWYt4LJYSxtKjJkYtVWjmjgyBBbbmPk+da4tOmzYa8FiFQSMeSH0
+	oIyLz9PeobzivwNRl7miVkn4ZVAfeQKK4wTlh/P1ey7TXkGUZw4=
+X-Received: by 2002:a63:4613:: with SMTP id t19-v6mr2331266pga.197.1542727969886;
+        Tue, 20 Nov 2018 07:32:49 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:d106:0:0:0:0 with SMTP id l6-v6csp746353pju;
+        Tue, 20 Nov 2018 07:32:47 -0800 (PST)
+X-Google-Smtp-Source: AJdET5cK+0eFN0UyBAj0bLEUWo+RkQyzbWmRGNXvqwFK/lMnXNu1bDp2RQq4cZ6bxKwpmWxairiU
+X-Received: by 2002:a62:5c06:: with SMTP id q6-v6mr2670709pfb.171.1542727967931;
+        Tue, 20 Nov 2018 07:32:47 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542727967; cv=none;
+        d=google.com; s=arc-20160816;
+        b=uRMGWdKs05MqIgl3b1NBxxYowtleQSgDqh4JoUqBbqo7PqENIQSzwTfc5JRZyuO4rA
+         ONeQMjsA0NNhANPOlulZnARdeQffKBot480p9XqJmbGA77l/HT2LnPAybV2UFZPjjzMq
+         fvo/AIDpbF0p+Ce0YMyVMjUvDvgpgVSzSyC/uAqBQIWOEPrEa3wz7gysETO9gsqBb/v4
+         IJrRrdLnaDahNaK8Jj9K7qJlOX25u11v6hUZG9wyHXxQp3/X5JJGD1lOvawrHbObY9TV
+         CZdfGR7PoURxPDx5zCNrTTTSO4/9NAILeGDsS2YZx6xfzaO9HeoJDj9ZP9REBGCc7BP9
+         dNfg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:cc:to:subject:message-id:date:from
+         :references:in-reply-to:mime-version:dkim-signature;
+        bh=i3D/tCFvnZC2Ezu6GfTkY91MaNC3l17VOtkrz+mH7Ds=;
+        b=rXrIeDFA5IK7NxdDsT9EjboHLYJurZOJVNzboY9umtolt8xMLCU1mOzJcKMHt5MkLz
+         XV5r5Cklt6ZxcVGKQbr97X+Wu/8+5b1GOjaAll0+niuZBABMfJaoXVlgRJplFkCmw+WY
+         8TwsjcwVf2ZdG6QnLpt1QqI26a3dCgFtBWiH1khSj/qXABexZ4R0PtQAlZjEuZwrRgDF
+         J0vUXxnxpCaQz9VHVyTPfP0YAezYejvmeR0bawkE8KHBXSpg9cAPhHfmSVR3mmLQfmit
+         kvD71cwknVVP7jKEpW88+TRqdl9l0n30WkwIandWX1AuK1w2XpIHR21TJRgFME33RABx
+         68pQ==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@linaro.org header.s=google header.b=TDb8avxm;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;
+       dmarc=pass (p=NONE sp=NONE dis=NONE) header.from=linaro.org
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id 62si33841481pgi.314.2018.11.20.07.32.32;
+        Tue, 20 Nov 2018 07:32:47 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1726668AbeKUBhl (ORCPT <rfc822;alpcanarslan95@gmail.com>
+        + 99 others); Tue, 20 Nov 2018 20:37:41 -0500
+Received: from mail-oi1-f196.google.com ([209.85.167.196]:37790 "EHLO
+        mail-oi1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725851AbeKUBhl (ORCPT <rfc822;kvm@vger.kernel.org>);
+        Tue, 20 Nov 2018 20:37:41 -0500
+Received: by mail-oi1-f196.google.com with SMTP id y23so1743446oia.4
+        for <kvm@vger.kernel.org>; Tue, 20 Nov 2018 07:08:05 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:in-reply-to:references:from:date:message-id:subject:to
+         :cc;
+        bh=i3D/tCFvnZC2Ezu6GfTkY91MaNC3l17VOtkrz+mH7Ds=;
+        b=TDb8avxm5G/sAkzBIQuMSQHprVODyfX9Gqt60efRdZJ+dLdARw1U8W6YCuAMbFwt6s
+         m0z+JQcab9HNWEcKs7SMEvineiRD/JlYbI2Sk36JjeMVKA90XdnursmYG6M/B0Jm5VDt
+         2WetsRLlgDEGzhYbsCfNCO/u6u940sOG3onbY=
+X-Received: by 2002:aca:ed92:: with SMTP id l140mr1203629oih.112.1542726484844;
+ Tue, 20 Nov 2018 07:08:04 -0800 (PST)
+MIME-Version: 1.0
+Received: by 2002:a9d:4b0e:0:0:0:0:0 with HTTP; Tue, 20 Nov 2018 07:07:44
+ -0800 (PST)
+In-Reply-To: <1541672989-15967-9-git-send-email-gengdongjiu@huawei.com>
+References: <1541672989-15967-1-git-send-email-gengdongjiu@huawei.com> <1541672989-15967-9-git-send-email-gengdongjiu@huawei.com>
+From: Peter Maydell <peter.maydell@linaro.org>
+Date: Tue, 20 Nov 2018 15:07:44 +0000
+Message-ID: <CAFEAcA-PWgxv7dg-=i7ms7KT_x3nPFXraLp4pu_j3_w+qZYyxQ@mail.gmail.com>
+Subject: Re: [PATCH RESEND v15 08/10] target-arm: kvm64: inject synchronous
+ External Abort
+To: Dongjiu Geng <gengdongjiu@huawei.com>
+Cc: Igor Mammedov <imammedo@redhat.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Laszlo Ersek <lersek@redhat.com>,
+        Marc Zyngier <marc.zyngier@arm.com>,
+        James Morse <james.morse@arm.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Marcelo Tosatti <mtosatti@redhat.com>,
+        Richard Henderson <rth@twiddle.net>,
+        Zheng Xiang <zhengxiang9@huawei.com>,
+        Eduardo Habkost <ehabkost@redhat.com>,
+        kvm-devel <kvm@vger.kernel.org>,
+        Shannon Zhao <shannon.zhaosl@gmail.com>,
+        QEMU Developers <qemu-devel@nongnu.org>,
+        qemu-arm <qemu-arm@nongnu.org>
+Content-Type: text/plain; charset="UTF-8"
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwCnhEAiKfRbbdheAA--.4052S3
+Authentication-Results: mail-app4; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW3Jw4xJw1UWFyUAFyxXryrZwb_yoW3GF45pr
+	ZFgry3WrW8Xa47A34fAF4UGr45J3yF9FnFkF4xGr1fAF4Yq34DJr1kKw4akF1Ykry8Wryj
+	qF1Fyr1Yka1UX3DanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUBIb7Iv0xC_tr1lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2
+	z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s0DM2AIxVAIcxkEcV
+	Aq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1Y
+	6r17McIj6I8E87Iv67AKxVWxJVW8Jr1lOx8S6xCaFVCjc4AY6r1j6r4UMx02cVCv0xWlc7
+	CjxVAKzI0EY4vE52x082I5MxkFs20EY4vE44CYbxCE4x80FwCY02Avz4vEIxC_XrWlc2Ij
+	II80xcxEwVAKI48JMxvI42IY6xIIjxv20xvE14v26ryj6F1UMxvI42IY6xIIjxv20xvEc7
+	CjxVAFwI0_Gr0_Cr1lcIIF0xvEx4A2jsIE14v26rxl6s0DMxvI42IY6I8E87Iv6xkF7I0E
+	14v26rxl6s0DMxAIw28IcxkI7VAKI48JMxAIw28IcVAKzI0EY4vE52x082I5MxCjnVCjjx
+	CrMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxVCjr7xv
+	wVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVW8ZVWrXwCIc40Y0x0EwIxGrwCI42IY6xAIw2
+	0EY4v20xvaj40_Gr0_ZrUvcSsGvfC2KfnxnUUI43ZEXa7IU5wZ23UUUUU==
+
+On 8 November 2018 at 10:29, Dongjiu Geng <gengdongjiu@huawei.com> wrote:
+> Add synchronous external abort injection logic, setup
+> exception type and syndrome value. When switch to guest,
+> guest will jump to the synchronous external abort vector
+> table entry.
+>
+> The ESR_ELx.DFSC is set to synchronous external abort(0x10),
+> and ESR_ELx.FnV is set to not valid(0x1), which will tell
+> guest that FAR is not valid and holds an UNKNOWN value.
+> These value will be set to KVM register structures through
+> KVM_SET_ONE_REG IOCTL.
+>
+> Signed-off-by: Dongjiu Geng <gengdongjiu@huawei.com>
+> ---
+> Marc is against that KVM inject the synchronous external abort(SEA) in [1],
+> so user space how to inject it. The test result that injection SEA to guest by Qemu
+> is shown in [2].
+>
+> [1]: https://lkml.org/lkml/2017/3/2/110
+> [2]:
+> Taking exception 4 [Data Abort]
+> ...from EL0 to EL1
+> ...with ESR 0x24/0x92000410
+> ...with FAR 0x0
+> ...with ELR 0x40cf04
+> ...to EL1 PC 0xffffffc000084c00 PSTATE 0x3c5
+> after kvm_inject_arm_sea
+> Unhandled fault: synchronous external abort (0x92000410) at 0x0000007fa234c12c
+> CPU: 0 PID: 536 Comm: devmem Not tainted 4.1.0+ #20
+> Hardware name: linux,dummy-virt (DT)
+> task: ffffffc019ab2b00 ti: ffffffc008134000 task.ti: ffffffc008134000
+> PC is at 0x40cf04
+> LR is at 0x40cdec
+> pc : [<000000000040cf04>] lr : [<000000000040cdec>] pstate: 60000000
+> sp : 0000007ff7b24130
+> x29: 0000007ff7b24260 x28: 0000000000000000
+> x27: 00000000000000ad x26: 000000000049c000
+> x25: 000000000048904b x24: 000000000049c000
+> x23: 0000000040600000 x22: 0000007ff7b243a0
+> x21: 0000000000000002 x20: 0000000000000000
+> x19: 0000000000000020 x18: 0000000000000000
+> x17: 000000000049c6d0 x16: 0000007fa22c85c0
+> x15: 0000000000005798 x14: 0000007fa2205f1c
+> x13: 0000007fa241ccb0 x12: 0000000000000137
+> x11: 0000000000000000 x10: 0000000000000000
+> x9 : 0000000000000000 x8 : 00000000000000de
+> x7 : 0000000000000000 x6 : 0000000000002000
+> x5 : 0000000040600000 x4 : 0000000000000003
+> x3 : 0000000000000001 x2 : 0000000000000000
+> x1 : 0000000000000000 x0 : 0000007fa2418000
+> ---
+>  target/arm/cpu.h       |  2 ++
+>  target/arm/helper.c    | 23 +++++++++++++++++++++++
+>  target/arm/internals.h |  5 +++--
+>  target/arm/kvm64.c     | 39 +++++++++++++++++++++++++++++++++++++++
+>  target/arm/op_helper.c |  2 +-
+>  5 files changed, 68 insertions(+), 3 deletions(-)
+>
+> diff --git a/target/arm/cpu.h b/target/arm/cpu.h
+> index b5eff79..502507d 100644
+> --- a/target/arm/cpu.h
+> +++ b/target/arm/cpu.h
+> @@ -2331,6 +2331,8 @@ bool write_list_to_cpustate(ARMCPU *cpu);
+>   */
+>  bool write_cpustate_to_list(ARMCPU *cpu);
+>
+> +bool write_part_cpustate_to_list(ARMCPU *cpu, ptrdiff_t fieldoffset);
+> +
+>  #define ARM_CPUID_TI915T      0x54029152
+>  #define ARM_CPUID_TI925T      0x54029252
+>
+> diff --git a/target/arm/helper.c b/target/arm/helper.c
+> index 9630193..df078ff 100644
+> --- a/target/arm/helper.c
+> +++ b/target/arm/helper.c
+> @@ -263,6 +263,29 @@ static bool raw_accessors_invalid(const ARMCPRegInfo *ri)
+>      return true;
+>  }
+>
+> +bool write_part_cpustate_to_list(ARMCPU *cpu, ptrdiff_t fieldoffset)
+> +{
+> +    const ARMCPRegInfo *ri;
+> +    uint32_t regidx, i;
+> +
+> +    for (i = 0; i < cpu->cpreg_array_len; i++) {
+> +        regidx = kvm_to_cpreg_id(cpu->cpreg_indexes[i]);
+> +        ri = get_arm_cp_reginfo(cpu->cp_regs, regidx);
+> +        if (!ri) {
+> +            continue;
+> +        }
+> +
+> +        if (ri->type & ARM_CP_NO_RAW) {
+> +            continue;
+> +        }
+> +        if (ri->fieldoffset == fieldoffset) {
+> +            cpu->cpreg_values[i] = read_raw_cp_reg(&cpu->env, ri);
+> +            return true;
+> +        }
+> +    }
+> +    return false;
+> +}
+
+What is this about? Nothing else in QEMU needs to mess with the
+cpustate synchronization. My first assumption is that you should
+not need to do so either.
+
+> +
+>  bool write_cpustate_to_list(ARMCPU *cpu)
+>  {
+>      /* Write the coprocessor state from cpu->env to the (index,value) list. */
+> diff --git a/target/arm/internals.h b/target/arm/internals.h
+> index 6c2bb2d..04ea074 100644
+> --- a/target/arm/internals.h
+> +++ b/target/arm/internals.h
+> @@ -415,13 +415,14 @@ static inline uint32_t syn_insn_abort(int same_el, int ea, int s1ptw, int fsc)
+>          | ARM_EL_IL | (ea << 9) | (s1ptw << 7) | fsc;
+>  }
+>
+> -static inline uint32_t syn_data_abort_no_iss(int same_el,
+> +static inline uint32_t syn_data_abort_no_iss(int same_el, int fnv,
+>                                               int ea, int cm, int s1ptw,
+>                                               int wnr, int fsc)
+>  {
+>      return (EC_DATAABORT << ARM_EL_EC_SHIFT) | (same_el << ARM_EL_EC_SHIFT)
+>             | ARM_EL_IL
+> -           | (ea << 9) | (cm << 8) | (s1ptw << 7) | (wnr << 6) | fsc;
+> +           | (fnv << 10) | (ea << 9) | (cm << 8) | (s1ptw << 7)
+> +           | (wnr << 6) | fsc;
+>  }
+>
+>  static inline uint32_t syn_data_abort_with_iss(int same_el,
+> diff --git a/target/arm/kvm64.c b/target/arm/kvm64.c
+> index 5de8ff0..0ca2b29 100644
+> --- a/target/arm/kvm64.c
+> +++ b/target/arm/kvm64.c
+> @@ -594,6 +594,45 @@ int kvm_arm_cpreg_level(uint64_t regidx)
+>      return KVM_PUT_RUNTIME_STATE;
+>  }
+>
+> +/* Inject synchronous external abort */
+> +static void kvm_inject_arm_sea(CPUState *c)
+> +{
+> +    ARMCPU *cpu = ARM_CPU(c);
+> +    CPUARMState *env = &cpu->env;
+> +    CPUClass *cc = CPU_GET_CLASS(c);
+> +    uint32_t esr;
+> +    int ret;
+> +
+> +    /* This exception is synchronous data abort */
+> +    c->exception_index = EXCP_DATA_ABORT;
+> +    /* Inject the exception to guest EL1 */
+> +    env->exception.target_el = 1;
+
+These comments don't tell us anything that the code does not.
+
+> +
+> +    /* Set the DFSC to synchronous external abort and set FnV to not valid,
+> +     * this will tell guest the FAR_ELx is UNKNOWN for this abort.
+> +     */
+> +
+> +    /* This exception comes from lower or current exception level. */
+> +    if (arm_current_el(env) == PSTATE_MODE_EL0t) {
+
+arm_current_el() returns an integer; you should be comparing it to
+0,1,2,3, not to PSTATE_MODE_* constants.
+
+> +        esr = syn_data_abort_no_iss(0, 1, 0, 0, 0, 0, 0x10);
+> +    } else {
+> +        esr = syn_data_abort_no_iss(1, 1, 0, 0, 0, 0, 0x10);
+> +    }
+
+Better written as
+    bool same_el;
+    [...]
+
+    same_el = arm_current_el(env) == env->exception.target_el;
+    env->exception.syndrome = syn_data_abort_no_iss(same_el, 1, 0, 0,
+0, 0, 0x10);
+
+> +
+> +    env->exception.syndrome = esr;
+> +
+> +    cc->do_interrupt(c);
+
+You need to take the iothread lock before calling do_interrupt.
+Compare the code in kvm_arm_handle_debug().
+
+> +    if (kvm_enabled()) {
+
+How can we get here if KVM is not enabled ?
+
+> +        /* write ESR_EL1 from cpustate to list*/
+> +        ret = write_part_cpustate_to_list(cpu,
+> +                    offsetof(CPUARMState, cp15.esr_el[1]));
+> +        if (!ret) {
+> +            fprintf(stderr, "<%s> failed to set esr_el1\n", __func__);
+> +            abort();
+> +        }
+
+kvm_arm_handle_debug() doesn't need to do this, I don't understand
+why this would be different.
+
+> +    }
+> +}
+> +
+>  #define AARCH64_CORE_REG(x)   (KVM_REG_ARM64 | KVM_REG_SIZE_U64 | \
+>                   KVM_REG_ARM_CORE | KVM_REG_ARM_CORE_REG(x))
+>
+> diff --git a/target/arm/op_helper.c b/target/arm/op_helper.c
+> index 90741f6..3f1d656 100644
+> --- a/target/arm/op_helper.c
+> +++ b/target/arm/op_helper.c
+> @@ -109,7 +109,7 @@ static inline uint32_t merge_syn_data_abort(uint32_t template_syn,
+>       * ISV field.
+>       */
+>      if (!(template_syn & ARM_EL_ISV) || target_el != 2 || s1ptw) {
+> -        syn = syn_data_abort_no_iss(same_el,
+> +        syn = syn_data_abort_no_iss(same_el, 0,
+>                                      ea, 0, s1ptw, is_write, fsc);
+>      } else {
+>          /* Fields: IL, ISV, SAS, SSE, SRT, SF and AR come from the template
+> --
+> 1.8.3.1
+>
+
+thanks
+-- PMM

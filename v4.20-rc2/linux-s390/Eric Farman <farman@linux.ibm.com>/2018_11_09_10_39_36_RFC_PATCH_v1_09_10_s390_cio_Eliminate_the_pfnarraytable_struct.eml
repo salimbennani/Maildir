@@ -1,0 +1,310 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 09 Nov 2018 05:30:38 -0000
+Received: from icoremail.net (unknown [209.85.214.169])
+	by mail-app2 (Coremail) with SMTP id by_KCgD3_5sW9ORbyFVkAQ--.29962S3;
+	Fri, 09 Nov 2018 10:42:31 +0800 (CST)
+Received: from mail-pl1-f169.google.com (unknown [209.85.214.169])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwBXN0MU9ORbnwcgAA--.8500S3;
+	Fri, 09 Nov 2018 10:42:28 +0800 (CST)
+Received: by mail-pl1-f169.google.com with SMTP id g59-v6so213442plb.10
+        for <xuliker@zju.edu.cn>; Thu, 08 Nov 2018 18:42:28 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :from:to:cc:subject:date:in-reply-to:references:message-id:sender
+         :precedence:list-id;
+        bh=QlQkAv5XAaFNIgppkSs1Lsp1syFUj8vfJ4fVI9G8iOE=;
+        b=rmy7RwTNpYuJuaiFsJX8l98ChxU0cxE7j1+gI/Xyu3U0czaBCDMbCOSALeOf+Int1q
+         kdC6Le78sU85DVsb6YC/BtEQ963k8fq4cnGJCYhXtFddDKHkSk5+/jcI0p86vnhEz+Gz
+         uxqZtnINz7NX40CEP6k3vDgHwNSGV+RvFS1rL9jInPo8PdG7TO7EWUv8WuFsnDjcWNhT
+         ZvihaIAUhP11albeZpvQOfAk04MuCqC56XeLYubncjITwNtATOeqCpztPj8HjerUhAWo
+         NZlKEYaCQihZHlkmQc0DSw3XoKCVlhvs46vb3ynwJ/erYjxTM3yxU786CmuoXwuqXkP/
+         RWlQ==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=ibm.com
+X-Gm-Message-State: AGRZ1gI359Fr4oPELSdmYXdsJJts3uSsW4SZvEMKkAZIhiHZd09Trksn
+	G19hEbJMbYgfha+S8GeNFwlW2scJhIuG95gh/XbRiC088dCrYlMlFw==
+X-Received: by 2002:a17:902:6686:: with SMTP id e6-v6mr7040847plk.173.1541731347995;
+        Thu, 08 Nov 2018 18:42:27 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp1000917pjt;
+        Thu, 8 Nov 2018 18:42:27 -0800 (PST)
+X-Google-Smtp-Source: AJdET5c+HIOoV1taSmyk4CETjuVU7GLT/T+kMxhCjAaCKWi/Z2UWun4UFJ9L/9UfkZ/0IGqto2vE
+X-Received: by 2002:a62:5c41:: with SMTP id q62-v6mr7259073pfb.171.1541731347039;
+        Thu, 08 Nov 2018 18:42:27 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1541731347; cv=none;
+        d=google.com; s=arc-20160816;
+        b=rD+xQz25DVoFVObZFHjfHvcNp4oqIkFN15JB8WnMYpd9ItXrdrIz5UrxRvXqPjRFI0
+         8yZGtDeFpnzoY37PYISdlLiadY/nPYDwaKgLxbpJoC/Ii7oP4ZO5lnyR6IN6tDylIKAO
+         dtlblFkinWN5G0Gx11XhiFx3RGGa+4OlVFEF2lKtQFcOfSrx8pPxBFmhmLZ35zK2LxUN
+         8SEW5fqw569eWY/Khk+h7tX3GdWTlDoq3CL7P4zviTjVqwVJFRGnz28+PdLwgBRzrpMk
+         OzCadz7D9ZIhDn57ZgN0RzGJ+9PLhB5XVYoJPJWs6PqFhuLtPGa41JXjw5utIMbQY7F9
+         PqpA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:message-id:references:in-reply-to:date
+         :subject:cc:to:from;
+        bh=QlQkAv5XAaFNIgppkSs1Lsp1syFUj8vfJ4fVI9G8iOE=;
+        b=k9N9/kY2P3T4k84xmwhL5zy8iPGLdTUz+lQP22MWdaRn55aBx9FUTsI4Xkouc+NSXL
+         7F172RHzJDRlYIEhPqDaf9Zo72IV0BT9WcprI63pF/APu3tk59QXZDXuk6wRcWLCiMF2
+         MzCa3Gc4+glg+XaAbfCYUVYGacabhh7CaHEXUBVus0XfsUblZLQOQscSNkNjcfGoSo8C
+         KxWOrS7X8swKloYE8pz6sp4YHSN+3tqZLWRb8PC/EDmlO+EncFjrGoMmD4gebHGHpeFu
+         JD57cxMTKOx+JqtzvCYgBAvPhk2qVLf8+I0tPdNbDOF3fVrphRXvgR0/iowG/as1qcKU
+         KNEA==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=ibm.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id l13-v6si7131954pls.222.2018.11.08.18.42.14;
+        Thu, 08 Nov 2018 18:42:27 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1727864AbeKIMSp (ORCPT <rfc822;fanshuming2011@gmail.com>
+        + 99 others); Fri, 9 Nov 2018 07:18:45 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:51338 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727536AbeKIMSl (ORCPT
+        <rfc822;kvm@vger.kernel.org>); Fri, 9 Nov 2018 07:18:41 -0500
+Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.22/8.16.0.22) with SMTP id wA92XZ4X004935
+        for <kvm@vger.kernel.org>; Thu, 8 Nov 2018 21:40:09 -0500
+Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2nmvgf31pf-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <kvm@vger.kernel.org>; Thu, 08 Nov 2018 21:40:09 -0500
+Received: from localhost
+        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <kvm@vger.kernel.org> from <farman@linux.ibm.com>;
+        Fri, 9 Nov 2018 02:40:07 -0000
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (9.149.109.195)
+        by e06smtp02.uk.ibm.com (192.168.101.132) with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted;
+        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256/256)
+        Fri, 9 Nov 2018 02:40:05 -0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id wA92e3ms44892162
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
+        Fri, 9 Nov 2018 02:40:03 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 965B7A405D;
+        Fri,  9 Nov 2018 02:40:03 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 7F656A4040;
+        Fri,  9 Nov 2018 02:40:03 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Fri,  9 Nov 2018 02:40:03 +0000 (GMT)
+Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 4958)
+        id 051C220F650; Fri,  9 Nov 2018 03:40:03 +0100 (CET)
+From: Eric Farman <farman@linux.ibm.com>
+To: Cornelia Huck <cohuck@redhat.com>,
+        Pierre Morel <pmorel@linux.ibm.com>
+Cc: Eric Farman <farman@linux.ibm.com>, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org, Halil Pasic <pasic@linux.ibm.com>,
+        Farhan Ali <alifm@linux.ibm.com>,
+        "Jason J . Herne" <jjherne@linux.ibm.com>
+Subject: [RFC PATCH v1 09/10] s390/cio: Eliminate the pfn_array_table struct
+Date: Fri,  9 Nov 2018 03:39:36 +0100
+X-Mailer: git-send-email 2.16.4
+In-Reply-To: <20181109023937.96105-1-farman@linux.ibm.com>
+References: <20181109023937.96105-1-farman@linux.ibm.com>
+X-TM-AS-GCONF: 00
+x-cbid: 18110902-0008-0000-0000-0000028F7602
+X-IBM-AV-DETECTION: SAVI=unused REMOTE=unused XFE=unused
+x-cbparentid: 18110902-0009-0000-0000-000021F9BCC5
+Message-Id: <20181109023937.96105-10-farman@linux.ibm.com>
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2018-11-08_13:,,
+ signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ malwarescore=0 suspectscore=2 phishscore=0 bulkscore=0 spamscore=0
+ clxscore=1015 lowpriorityscore=0 mlxscore=0 impostorscore=0
+ mlxlogscore=999 adultscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.0.1-1807170000 definitions=main-1811090022
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwBXN0MU9ORbnwcgAA--.8500S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoWxGw43AF1UKrWxGw4DuFyUKFg_yoW7JF4fpF
+	43tr9F9r48JryxWrZ8K34Yk3WFyr97Ca4UGryrC34IyF13Zr9YyFyxK34fKrZYqrW8AF1f
+	XFsYq3sxGr47KF7anT9S1TB71UUUUUUqnTZGkaVYY2UrUUUU0bIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUPYb7Iv0xC_Kw4lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1l84ACjcxK6I8E
+	87Iv67AKxVW0oVCq3wA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_GcCE3s1le2I262IYc4CY6c
+	8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_JrI_
+	JrylYx0Ex4A2jsIE14v26r4j6F4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvY0x0EwI
+	xGrwCjxxvEa2IrMxkF7I0Ew4C26cxK6c8Ij28IcwCY1Ik26cxK6xAEc7vF6xCjj44lc2xS
+	Y4AK6IIF6r4UMxkI7II2jI8vz4vEwIxGrwCYIxAIcVC0I7IYx2IY67AKxVW8JVW5JwCYIx
+	AIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMxvI42IY6I8E87Iv67AKxVW0oVCq3wCYIxAI
+	cVC2z280aVCY1x0267AKxVW0oVCq3wCF04k20xvY0x0EwIxGrwCF04k20xvEw4C26cxK6c
+	8Ij28IcwCF72vE77IF4wCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v26r1j
+	6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_Jw0_GFylIxkGc2Ij64
+	vIr41lIxAIcVCF04k26cxKx2IYs7xG6r4j6FyUYxBIdaVFxhVjvjDU0xZFpf9x07bl6pPU
+	UUUU=
+
+The pfn_array_table struct is created as an array that is the number of
+IDA Words, and each of those elements (a pfn_array struct) is itself an
+array just one element long (one per IDAW, I guess).  This unnecessarily
+complicates a lot of this code, when the whole point of an IDAL is to
+point to an array of pages.  Since we know we have an IDAL in this code
+path, we can replace this with just an array of pfn_array structs that
+is itself the number of IDAWs we want and need.
+
+Signed-off-by: Eric Farman <farman@linux.ibm.com>
+---
+ drivers/s390/cio/vfio_ccw_cp.c | 49 +++++++++++++++---------------------------
+ 1 file changed, 17 insertions(+), 32 deletions(-)
+
+diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
+index d01e146289fb..d502dcd09d9a 100644
+--- a/drivers/s390/cio/vfio_ccw_cp.c
++++ b/drivers/s390/cio/vfio_ccw_cp.c
+@@ -46,7 +46,7 @@ struct ccwchain {
+ 	/* Count of the valid ccws in chain. */
+ 	int			ch_len;
+ 	/* Pinned PAGEs for the original data. */
+-	struct pfn_array_table	*ch_pat;
++	struct pfn_array	*ch_pa;
+ };
+ 
+ static int pfn_array_pin(struct pfn_array *pa, struct device *mdev)
+@@ -125,14 +125,12 @@ static void pfn_array_table_unpin_free(struct pfn_array_table *pat,
+ 	}
+ }
+ 
+-static bool pfn_array_table_iova_pinned(struct pfn_array_table *pat,
++static bool pfn_array_table_iova_pinned(struct pfn_array *pa,
+ 					unsigned long iova)
+ {
+-	struct pfn_array *pa = pat->pat_pa;
+ 	unsigned long iova_pfn = iova >> PAGE_SHIFT;
+ 	int i, j;
+ 
+-	for (i = 0; i < pat->pat_nr; i++, pa++)
+ 		for (j = 0; j < pa->pa_nr; j++)
+ 			if (pa->pa_iova_pfn[j] == iova_pfn)
+ 				return true;
+@@ -141,10 +139,9 @@ static bool pfn_array_table_iova_pinned(struct pfn_array_table *pat,
+ }
+ /* Create the list idal words for a pfn_array_table. */
+ static inline void pfn_array_table_idal_create_words(
+-	struct pfn_array_table *pat,
++	struct pfn_array *pa,
+ 	unsigned long *idaws)
+ {
+-	struct pfn_array *pa;
+ 	int i, j, k;
+ 
+ 	/*
+@@ -155,15 +152,12 @@ static inline void pfn_array_table_idal_create_words(
+ 	 * idaw.
+ 	 */
+ 	k = 0;
+-	for (i = 0; i < pat->pat_nr; i++) {
+-		pa = pat->pat_pa + i;
+ 		for (j = 0; j < pa->pa_nr; j++) {
+ 			idaws[k] = pa->pa_pfn[j] << PAGE_SHIFT;
+ 			if (k == 0)
+ 				idaws[k] += pa->pa_iova & (PAGE_SIZE - 1);
+ 			k++;
+ 		}
+-	}
+ }
+ 
+ 
+@@ -274,7 +268,7 @@ static struct ccwchain *ccwchain_alloc(struct channel_program *cp, int len)
+ 	/* Make ccw address aligned to 8. */
+ 	size = ((sizeof(*chain) + 7L) & -8L) +
+ 		sizeof(*chain->ch_ccw) * len +
+-		sizeof(*chain->ch_pat) * len;
++		sizeof(*chain->ch_pa) * len;
+ 	chain = kzalloc(size, GFP_DMA | GFP_KERNEL);
+ 	if (!chain)
+ 		return NULL;
+@@ -283,7 +277,7 @@ static struct ccwchain *ccwchain_alloc(struct channel_program *cp, int len)
+ 	chain->ch_ccw = (struct ccw1 *)data;
+ 
+ 	data = (u8 *)(chain->ch_ccw) + sizeof(*chain->ch_ccw) * len;
+-	chain->ch_pat = (struct pfn_array_table *)data;
++	chain->ch_pa = (struct pfn_array *)data;
+ 
+ 	chain->ch_len = len;
+ 
+@@ -471,8 +465,8 @@ static int ccwchain_fetch_ccw(struct ccwchain *chain,
+ 	idaw_len = idaw_nr * sizeof(*idaws);
+ 
+ 	/* Pin data page(s) in memory. */
+-	pat = chain->ch_pat + idx;
+-	ret = pfn_array_table_init(pat, idaw_nr);
++	pa = chain->ch_pa + idx;
++	ret = pfn_array_alloc(pa, idaw_nr);
+ 	if (ret)
+ 		goto out_init;
+ 
+@@ -498,33 +492,25 @@ static int ccwchain_fetch_ccw(struct ccwchain *chain,
+ 	 * Build the pfn structure so we can pin the associated pages.
+ 	 */
+ 
+-	for (i = 0; i < idaw_nr; i++) {
+-		idaw_iova = *(idaws + i);
+-		pa = pat->pat_pa + i;
+-
+-		ret = pfn_array_alloc(pa, 1);
+-		if (ret < 0)
+-			goto out_free_idaws;
++	pa->pa_iova = idaws[0];
++	for (i = 0; i < idaw_nr; i++)
++		pa->pa_iova_pfn[i] = idaws[i] >> PAGE_SHIFT;
+ 
+-		pa->pa_iova = idaws[0];
+-		pa->pa_iova_pfn[0] = idaws[i] >> PAGE_SHIFT;
+-
+-		ret = pfn_array_pin(pa, cp->mdev);
+-		if (ret <= 0)
+-			goto out_free_idaws;
+-	}
++	ret = pfn_array_pin(pa, cp->mdev);
++	if (ret <= 0)
++		goto out_free_idaws;
+ 
+ 	ccw->cda = virt_to_phys(idaws);
+ 	ccw->flags |= CCW_FLAG_IDA;
+ 
+-	pfn_array_table_idal_create_words(pat, idaws);
++	pfn_array_table_idal_create_words(pa, idaws);
+ 
+ 	return 0;
+ 
+ out_free_idaws:
+ 	kfree(idaws);
+ out_unpin:
+-	pfn_array_table_unpin_free(pat, cp->mdev);
++	pfn_array_unpin_free(pa, cp->mdev);
+ out_init:
+ 	ccw->cda = 0;
+ 	return ret;
+@@ -643,8 +629,7 @@ void cp_free(struct channel_program *cp)
+ 
+ 	list_for_each_entry_safe(chain, temp, &cp->ccwchain_list, next) {
+ 		for (i = 0; i < chain->ch_len; i++) {
+-			pfn_array_table_unpin_free(chain->ch_pat + i,
+-						   cp->mdev);
++			pfn_array_unpin_free(chain->ch_pa + i, cp->mdev);
+ 			ccwchain_cda_free(chain, i);
+ 		}
+ 		ccwchain_free(chain);
+@@ -804,7 +789,7 @@ bool cp_iova_pinned(struct channel_program *cp, u64 iova)
+ 
+ 	list_for_each_entry(chain, &cp->ccwchain_list, next) {
+ 		for (i = 0; i < chain->ch_len; i++)
+-			if (pfn_array_table_iova_pinned(chain->ch_pat + i,
++			if (pfn_array_table_iova_pinned(chain->ch_pa + i,
+ 							iova))
+ 				return true;
+ 	}
+-- 
+2.16.4

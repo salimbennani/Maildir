@@ -1,0 +1,336 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (61.164.42.155:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 17 Nov 2018 03:15:12 -0000
+Received: from icoremail.net (unknown [209.85.210.175])
+	by mail-app2 (Coremail) with SMTP id by_KCgDHH3qEUu9bzv+lAQ--.49153S3;
+	Sat, 17 Nov 2018 07:28:05 +0800 (CST)
+Received: from mail-pf1-f175.google.com (unknown [209.85.210.175])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwBX0EyCUu9bLnRLAA--.2962S3;
+	Sat, 17 Nov 2018 07:28:03 +0800 (CST)
+Received: by mail-pf1-f175.google.com with SMTP id q1so4093363pfi.5
+        for <xuliker@zju.edu.cn>; Fri, 16 Nov 2018 15:28:03 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding:sender:precedence:list-id;
+        bh=+BBd7M19I5v/xQyABib8vxOT/prj/PJrT8DMWlNymUY=;
+        b=arC3GSRYSH9F/3QRz0KHe9tWFcYwCsUx80kpqNMnrRgwRiEHncRpTL4uiOdawqfibK
+         r/lAM3t9oJW820HDc2QLD5avWJvBXH7oJNl9z2E+xXCx0xHywLO6rtQ4FD2JGstvCG1F
+         nWt3EYPaK201YhgUEW4+PgI6lCxrMbsgXSS2dqWiNP6q2kTDtcC8yQtVi535D+FPqCBV
+         Y2lZuYxYprB6oAOdcDAbYJShgiS6qrEkuqdSjX0LQY1LrOdub2ydPZ/tzt1AhZxeEMmD
+         rJSFp+bEIWKruOn9oXfigYcKT9CcUQ5hUth43pgIBnS+8vBhLgI1c0BoQI9juoV7nW+4
+         r29w==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=intel.com
+X-Gm-Message-State: AGRZ1gKNy/WCLHV62mZ5tE1Aay8mK7b6pcF8dDJsMuAPIEAN4mirnftY
+	7YHO5GBtHoY5BFFGaiZADrgaLoTWQp8OuiytlORZM742VgFoj80=
+X-Received: by 2002:a63:460a:: with SMTP id t10-v6mr11887089pga.197.1542410882754;
+        Fri, 16 Nov 2018 15:28:02 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:d106:0:0:0:0 with SMTP id l6-v6csp1031838pju;
+        Fri, 16 Nov 2018 15:28:01 -0800 (PST)
+X-Google-Smtp-Source: AJdET5eVUtjNiuAPhsS3DbVbwcGjZCkEmugZU8kWL7aNGxFzSoCRHMqeSlC1YkZL+Jufw9r/ThqX
+X-Received: by 2002:a63:d513:: with SMTP id c19mr11743962pgg.287.1542410881736;
+        Fri, 16 Nov 2018 15:28:01 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542410881; cv=none;
+        d=google.com; s=arc-20160816;
+        b=O9h6h+svrUZ5Sqq/1GRZJ4Od9RnsJbzhaaA1cfM4eNLRtFI2qLCkQyEMKNJSBvLdBU
+         0a51J/292dmvsP5JVL5y4TdxJuImPnWAFlD0/4yuIxWG3WFSfz5MPQNXBHm4RhUJ+nSf
+         7HfE+8Uc024WXiNivDnjjxc00sqfKhQRGERJw4nXpzhGOKoBbMMuRUDOYJ9QpHz+RO/F
+         ff7v7Oo5QYwFjA69mxaU6jdTZ/GiXOcnHuZrvZKcw9LxqEc23DswBk1zgtJz8eTlaP2X
+         BQ9HuaC0HMJzprdMr7DsSS/4tR20pIFXKIlV06VOdQW8vV6Jx1NWLMJbr5Q18qlgP0Vc
+         DnUw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:content-transfer-encoding:mime-version
+         :message-id:date:subject:cc:to:from;
+        bh=+BBd7M19I5v/xQyABib8vxOT/prj/PJrT8DMWlNymUY=;
+        b=NYDBq/m8jfv0YLp+mF7pHWxdybUX88lO7WiUaTUI9eXZDWSHjiB2oHk2o3aKdFXZv0
+         ztNcxxeuEy2ZKbCoTxGbgcPb20NjQisvxtjwtd06EvBY+VgwUYTSTCwK9No0AgnZHe/Y
+         yrJUC7QyCMLinFCKPuJwaNCzD1f8MBoUF/fGr6/rn/0xAbraI2gVqrIp0pY23TOdeci+
+         zw+VHKTaGJdZstSmy5ufqxPASJqglUd9YrvTNEn3ymRGwd9DmaYfCmcO0nDa1mQ+ZgN6
+         pc++rg+YbMV7nShUxauPHHerIzqcSKqtKU/9GAmN2SIdeYKCmvDo4HF89aj5lK7fP+c5
+         /FsQ==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=intel.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id d33-v6si33313245pla.82.2018.11.16.15.27.47;
+        Fri, 16 Nov 2018 15:28:01 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1730727AbeKQJl5 (ORCPT <rfc822;xjxyklwx@gmail.com> + 99 others);
+        Sat, 17 Nov 2018 04:41:57 -0500
+Received: from mga04.intel.com ([192.55.52.120]:44214 "EHLO mga04.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726222AbeKQJl5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+        Sat, 17 Nov 2018 04:41:57 -0500
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga001.fm.intel.com ([10.253.24.23])
+  by fmsmga104.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 16 Nov 2018 15:27:31 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.56,242,1539673200"; 
+   d="scan'208";a="108829745"
+Received: from chang-linux-2.sc.intel.com ([10.3.52.165])
+  by fmsmga001.fm.intel.com with ESMTP; 16 Nov 2018 15:27:31 -0800
+From: "Chang S. Bae" <chang.seok.bae@intel.com>
+To: Andy Lutomirski <luto@kernel.org>, Ingo Molnar <mingo@kernel.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>,
+        "H . Peter Anvin" <hpa@zytor.com>, Andi Kleen <ak@linux.intel.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Ravi Shankar <ravi.v.shankar@intel.com>,
+        "Chang S . Bae" <chang.seok.bae@intel.com>,
+        LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH v5] x86/fsgsbase/64: Fix the base write helper functions
+Date: Fri, 16 Nov 2018 15:27:28 -0800
+Message-Id: <20181116232728.23538-1-chang.seok.bae@intel.com>
+X-Mailer: git-send-email 2.19.1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwBX0EyCUu9bLnRLAA--.2962S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoWxtry5trWUWF1rWF43Aw1fZwb_yoWxCw1UpF
+	ySkws3tw4qq3sY9rZxJF4DXr1ruFykG3sxKry7A3y5Xa48tr4rWFZ2vw1UXr48Xry8Wa4S
+	qay3twnxuw4DJF7anT9S1TB71UUUUUUqnTZGkaVYY2UrUUUU0bIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUPIb7Iv0xC_Kw4lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Xr0_Ar1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1l84ACjcxK6I8E
+	87Iv67AKxVW0oVCq3wA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_GcCE3s1le2I262IYc4CY6c
+	8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_Jr0_
+	Jr4lYx0Ex4A2jsIE14v26r1j6r4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvY0x0EwI
+	xGrwCjxxvEa2IrMxkF7I0Ew4C26cxK6c8Ij28IcwCY1Ik26cxK6xAEc7vF6xCjj44lc2xS
+	Y4AK6IIF6FWlc2IjII80xcxEwVAKI48JMxvI42IY6xIIjxv20xvE14v26r1I6r4UMxvI42
+	IY6xIIjxv20xvEc7CjxVAFwI0_Jr0_Gr1lcIIF0xvEx4A2jsIE14v26r4UJVWxJr1lcIIF
+	0xvEx4A2jsIEc7CjxVAFwI0_Gr1j6F4UJwCF04k20xvY0x0EwIxGrwCF04k20xvEw4C26c
+	xK6c8Ij28IcwCF72vE77IF4wCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v2
+	6r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_Jw0_GFylIxkGc2
+	Ij64vIr41lIxAIcVCF04k26cxKx2IYs7xG6r1j6r1xYxBIdaVFxhVjvjDU0xZFpf9x07bH
+	NtsUUUUU=
+
+The helper functions that purport to write the base should just write it
+only. It shouldn't have magic optimizations to change the index.
+
+Make the index explicitly changed from the caller, instead of including
+the code in the helpers.
+
+Subsequently, the task write helpers do not handle for the current task
+anymore. The range check for a base value is also factored out, to
+minimize code redundancy from the caller.
+
+v2: Fix further on the task write functions. Revert the changes on the
+task read helpers.
+
+v3: Fix putreg(). Edit the changelog.
+
+v4: Update the task write helper functions and do_arch_prctl_64(). Fix
+the comment in putreg().
+
+v5: Fix preempt_disable() calls in do_arch_prctl_64()
+
+Suggested-by: Andy Lutomirski <luto@kernel.org>
+Signed-off-by: Chang S. Bae <chang.seok.bae@intel.com>
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: H. Peter Anvin <hpa@zytor.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+---
+ arch/x86/include/asm/fsgsbase.h | 15 ++++--
+ arch/x86/kernel/process_64.c    | 86 ++++++++++++++++-----------------
+ arch/x86/kernel/ptrace.c        |  9 ++--
+ 3 files changed, 58 insertions(+), 52 deletions(-)
+
+diff --git a/arch/x86/include/asm/fsgsbase.h b/arch/x86/include/asm/fsgsbase.h
+index eb377b6e9eed..bca4c743de77 100644
+--- a/arch/x86/include/asm/fsgsbase.h
++++ b/arch/x86/include/asm/fsgsbase.h
+@@ -16,8 +16,8 @@
+  */
+ extern unsigned long x86_fsbase_read_task(struct task_struct *task);
+ extern unsigned long x86_gsbase_read_task(struct task_struct *task);
+-extern int x86_fsbase_write_task(struct task_struct *task, unsigned long fsbase);
+-extern int x86_gsbase_write_task(struct task_struct *task, unsigned long gsbase);
++extern void x86_fsbase_write_task(struct task_struct *task, unsigned long fsbase);
++extern void x86_gsbase_write_task(struct task_struct *task, unsigned long gsbase);
+ 
+ /* Helper functions for reading/writing FS/GS base */
+ 
+@@ -39,8 +39,15 @@ static inline unsigned long x86_gsbase_read_cpu_inactive(void)
+ 	return gsbase;
+ }
+ 
+-extern void x86_fsbase_write_cpu(unsigned long fsbase);
+-extern void x86_gsbase_write_cpu_inactive(unsigned long gsbase);
++static inline void x86_fsbase_write_cpu(unsigned long fsbase)
++{
++	wrmsrl(MSR_FS_BASE, fsbase);
++}
++
++static inline void x86_gsbase_write_cpu_inactive(unsigned long gsbase)
++{
++	wrmsrl(MSR_KERNEL_GS_BASE, gsbase);
++}
+ 
+ #endif /* CONFIG_X86_64 */
+ 
+diff --git a/arch/x86/kernel/process_64.c b/arch/x86/kernel/process_64.c
+index 31b4755369f0..e2c3dbe68d69 100644
+--- a/arch/x86/kernel/process_64.c
++++ b/arch/x86/kernel/process_64.c
+@@ -337,24 +337,6 @@ static unsigned long x86_fsgsbase_read_task(struct task_struct *task,
+ 	return base;
+ }
+ 
+-void x86_fsbase_write_cpu(unsigned long fsbase)
+-{
+-	/*
+-	 * Set the selector to 0 as a notion, that the segment base is
+-	 * overwritten, which will be checked for skipping the segment load
+-	 * during context switch.
+-	 */
+-	loadseg(FS, 0);
+-	wrmsrl(MSR_FS_BASE, fsbase);
+-}
+-
+-void x86_gsbase_write_cpu_inactive(unsigned long gsbase)
+-{
+-	/* Set the selector to 0 for the same reason as %fs above. */
+-	loadseg(GS, 0);
+-	wrmsrl(MSR_KERNEL_GS_BASE, gsbase);
+-}
+-
+ unsigned long x86_fsbase_read_task(struct task_struct *task)
+ {
+ 	unsigned long fsbase;
+@@ -383,38 +365,18 @@ unsigned long x86_gsbase_read_task(struct task_struct *task)
+ 	return gsbase;
+ }
+ 
+-int x86_fsbase_write_task(struct task_struct *task, unsigned long fsbase)
++void x86_fsbase_write_task(struct task_struct *task, unsigned long fsbase)
+ {
+-	/*
+-	 * Not strictly needed for %fs, but do it for symmetry
+-	 * with %gs
+-	 */
+-	if (unlikely(fsbase >= TASK_SIZE_MAX))
+-		return -EPERM;
++	WARN_ON_ONCE(task == current);
+ 
+-	preempt_disable();
+ 	task->thread.fsbase = fsbase;
+-	if (task == current)
+-		x86_fsbase_write_cpu(fsbase);
+-	task->thread.fsindex = 0;
+-	preempt_enable();
+-
+-	return 0;
+ }
+ 
+-int x86_gsbase_write_task(struct task_struct *task, unsigned long gsbase)
++void x86_gsbase_write_task(struct task_struct *task, unsigned long gsbase)
+ {
+-	if (unlikely(gsbase >= TASK_SIZE_MAX))
+-		return -EPERM;
++	WARN_ON_ONCE(task == current);
+ 
+-	preempt_disable();
+ 	task->thread.gsbase = gsbase;
+-	if (task == current)
+-		x86_gsbase_write_cpu_inactive(gsbase);
+-	task->thread.gsindex = 0;
+-	preempt_enable();
+-
+-	return 0;
+ }
+ 
+ int copy_thread_tls(unsigned long clone_flags, unsigned long sp,
+@@ -758,11 +720,47 @@ long do_arch_prctl_64(struct task_struct *task, int option, unsigned long arg2)
+ 
+ 	switch (option) {
+ 	case ARCH_SET_GS: {
+-		ret = x86_gsbase_write_task(task, arg2);
++		if (unlikely(arg2 >= TASK_SIZE_MAX))
++			return -EPERM;
++
++		preempt_disable();
++		/*
++		 * ARCH_SET_GS has always overwritten the index
++		 * and the base. Zero is the most sensible value
++		 * to put in the index, and is the only value that
++		 * makes any sense if FSGSBASE is unavailable.
++		 */
++		if (task == current) {
++			loadseg(GS, 0);
++			x86_gsbase_write_cpu_inactive(arg2);
++		} else {
++			task->thread.gsindex = 0;
++			x86_gsbase_write_task(task, arg2);
++		}
++		preempt_enable();
+ 		break;
+ 	}
+ 	case ARCH_SET_FS: {
+-		ret = x86_fsbase_write_task(task, arg2);
++		/*
++		 * Not strictly needed for %fs, but do it for symmetry
++		 * with %gs
++		 */
++		if (unlikely(arg2 >= TASK_SIZE_MAX))
++			return -EPERM;
++
++		preempt_disable();
++		/*
++		 * Set the selector to 0 for the same reason
++		 * as %gs above.
++		 */
++		if (task == current) {
++			loadseg(FS, 0);
++			x86_fsbase_write_cpu(arg2);
++		} else {
++			task->thread.fsindex = 0;
++			x86_fsbase_write_task(task, arg2);
++		}
++		preempt_enable();
+ 		break;
+ 	}
+ 	case ARCH_GET_FS: {
+diff --git a/arch/x86/kernel/ptrace.c b/arch/x86/kernel/ptrace.c
+index ffae9b9740fd..4b8ee05dd6ad 100644
+--- a/arch/x86/kernel/ptrace.c
++++ b/arch/x86/kernel/ptrace.c
+@@ -397,11 +397,12 @@ static int putreg(struct task_struct *child,
+ 		if (value >= TASK_SIZE_MAX)
+ 			return -EIO;
+ 		/*
+-		 * When changing the FS base, use the same
+-		 * mechanism as for do_arch_prctl_64().
++		 * When changing the FS base, use do_arch_prctl_64()
++		 * to set the index to zero and to set the base
++		 * as requested.
+ 		 */
+ 		if (child->thread.fsbase != value)
+-			return x86_fsbase_write_task(child, value);
++			return do_arch_prctl_64(child, ARCH_SET_FS, value);
+ 		return 0;
+ 	case offsetof(struct user_regs_struct,gs_base):
+ 		/*
+@@ -410,7 +411,7 @@ static int putreg(struct task_struct *child,
+ 		if (value >= TASK_SIZE_MAX)
+ 			return -EIO;
+ 		if (child->thread.gsbase != value)
+-			return x86_gsbase_write_task(child, value);
++			return do_arch_prctl_64(child, ARCH_SET_GS, value);
+ 		return 0;
+ #endif
+ 	}
+-- 
+2.19.1

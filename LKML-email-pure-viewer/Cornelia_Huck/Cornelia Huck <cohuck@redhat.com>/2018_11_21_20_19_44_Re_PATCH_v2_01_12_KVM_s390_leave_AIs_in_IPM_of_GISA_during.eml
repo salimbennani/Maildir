@@ -1,0 +1,175 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 22 Nov 2018 00:33:06 -0000
+Received: from icoremail.net (unknown [209.85.214.169])
+	by mail-app2 (Coremail) with SMTP id by_KCgD3_wuyTfVbo73HAQ--.57798S3;
+	Wed, 21 Nov 2018 20:21:07 +0800 (CST)
+Received: from mail-pl1-f169.google.com (unknown [209.85.214.169])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwDHq0ewTfVbAGBjAA--.19049S3;
+	Wed, 21 Nov 2018 20:21:04 +0800 (CST)
+Received: by mail-pl1-f169.google.com with SMTP id gn14so5329839plb.10
+        for <xuliker@zju.edu.cn>; Wed, 21 Nov 2018 04:21:04 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :date:from:to:cc:subject:message-id:in-reply-to:references
+         :organization:mime-version:content-transfer-encoding:sender
+         :precedence:list-id;
+        bh=Xq3JUG9K9DtBKCyHnBSztVMpLpbw//+k9PJKznGeHaY=;
+        b=SB1uMnw7Mrodw7voVZPABARG053QV3bHELApUXclMxdlhbj15PTFd5O+XzYhq3wUDF
+         ZcBam0A0Bx1KU8Bxm4GGuVrJI78EUFA2kDK2MybidfX0xACLeW5T34dLZ+iC8lL1PUI3
+         bXZgJDTL38wQASrDzpRM7m8sVIV9dTqlbHE7rAFmXJiPCk2hrV8DUMriZBai6IGlxtQM
+         y4M3hlNOQTjK/WA2gz1ZbIUiX8JZRVsK6V3b3O69mkVuuDWjg7BEXfdEwLO6IyCTZRH6
+         ScdkUCufkFj+XZ0BfHTs+e4O5APa+SO/ZdhOw9eIA/nXvNvAN0svGx0kRv6cukVSI2e7
+         p7DQ==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=redhat.com
+X-Gm-Message-State: AA+aEWYbFy2y90A/Znd6+ino2u76Lp1qxne9S0fF7LhrqE+8THDTsboF
+	qzsZ2miAtwgJfIsSOosFXg3t35DmAcSnglSs/js+iRq0gHnmnMY=
+X-Received: by 2002:a63:2c0e:: with SMTP id s14mr5887104pgs.132.1542802864390;
+        Wed, 21 Nov 2018 04:21:04 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:d106:0:0:0:0 with SMTP id l6-v6csp1871911pju;
+        Wed, 21 Nov 2018 04:21:03 -0800 (PST)
+X-Google-Smtp-Source: AJdET5e2pFox4DR9T9yBLvR5Axb8mxtVulJb4tJVAKc6iAgV/17jXskPv4EefLzAXgEfIyLuhOjA
+X-Received: by 2002:a62:a117:: with SMTP id b23-v6mr6399261pff.163.1542802863676;
+        Wed, 21 Nov 2018 04:21:03 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542802863; cv=none;
+        d=google.com; s=arc-20160816;
+        b=lT0HjPrefc1Z930PEJ4oD7BGM51vER5d81oGSkwUKvHzOVS5ZNdavZn5oI3OZqGCQt
+         WgTceG7HVMdR3Y+u8dEkflVw2VIOJntm1AHtX2tETADuz1L5MvkdatJp8Kwt5r+5/kM4
+         vocdO8+BS4I79gGf0uhPCkTWFD+BevWJfaFW9FXvCP1sq81yZJVvP1g6TiL1e6Wzw8NL
+         +z53WIkOreEUcuaSuSS9l2QZYNqZTx62j07Q+g6WUvISGBESH0noF2l+oDcxbzSIA+AK
+         rPQ2Q2KTyXVWbkF/j2fC4jFIcyvmj35YQzMGhvvpv5qO8vNQf1mi9IUF+IkLbsm9RYOq
+         A5Tg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:content-transfer-encoding:mime-version
+         :organization:references:in-reply-to:message-id:subject:cc:to:from
+         :date;
+        bh=Xq3JUG9K9DtBKCyHnBSztVMpLpbw//+k9PJKznGeHaY=;
+        b=Tg4sExq1RzbL7hDmg1osPyeDpX47oTlLuBO2yJUBfNrdbsfUrc0BUxSiEFnbur4Bg0
+         O1q7w8NfItYyKItnbzEpSTjPf+pSUpG6IlMe0C5wlBH2iZbmhnmYdOCYQVGWMzlPZwNW
+         ONkVnOIdvKXRE1d7l44Fh5cOc3MWWwSGCsyMoSIH4d/A/THY/KeJ//MdpyBTBh6iFC8V
+         5gZP38E69324dot8h9B4XWkoA6wgsJ4mjLjb/wVlWQKbG8sDSxX9+UMGV0luM5NbNS5y
+         IDLvEbODTSf4rQjiaYJmVqMw86WDC8AXrq5xoQLAJRjlvP6bGtBh8eUjKHORqM+UGOLv
+         FyOg==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=redhat.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id s8si20509800pgl.503.2018.11.21.04.20.42;
+        Wed, 21 Nov 2018 04:21:03 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1730186AbeKUWyD (ORCPT <rfc822;alpcanarslan95@gmail.com>
+        + 99 others); Wed, 21 Nov 2018 17:54:03 -0500
+Received: from mx1.redhat.com ([209.132.183.28]:50496 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729276AbeKUWyC (ORCPT <rfc822;kvm@vger.kernel.org>);
+        Wed, 21 Nov 2018 17:54:02 -0500
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 3470A3082142;
+        Wed, 21 Nov 2018 12:19:53 +0000 (UTC)
+Received: from gondolin (ovpn-117-72.ams2.redhat.com [10.36.117.72])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id AB3045D6A9;
+        Wed, 21 Nov 2018 12:19:47 +0000 (UTC)
+Date: Wed, 21 Nov 2018 13:19:44 +0100
+From: Cornelia Huck <cohuck@redhat.com>
+To: Michael Mueller <mimu@linux.ibm.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        Martin Schwidefsky <schwidefsky@de.ibm.com>,
+        Heiko Carstens <heiko.carstens@de.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Pierre Morel <pmorel@linux.ibm.com>
+Subject: Re: [PATCH v2 01/12] KVM: s390: leave AIs in IPM of GISA during
+ vcpu_pre_run()
+Message-ID: <20181121131944.194a7436.cohuck@redhat.com>
+In-Reply-To: <7a5c2915-ad42-cc17-038d-3e87aae5afee@linux.ibm.com>
+References: <20181119172536.52649-1-mimu@linux.ibm.com>
+        <20181119172536.52649-2-mimu@linux.ibm.com>
+        <20181120123344.3b23d5f8.cohuck@redhat.com>
+        <7a5c2915-ad42-cc17-038d-3e87aae5afee@linux.ibm.com>
+Organization: Red Hat GmbH
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.42]); Wed, 21 Nov 2018 12:19:53 +0000 (UTC)
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwDHq0ewTfVbAGBjAA--.19049S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW7uF1fZFyrXrWUZr43Ww47XFb_yoW8Zrykp3
+	y3K3ZIkFn7JFy7uwsava10qFyFk395Xr4UG3s7J3y8GFyY934vqrnxGryFkFyDKrWxGw12
+	vr1Fvw1xWa45AFJanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUPFb7Iv0xC_tr1lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2
+	z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s0DM2AIxVAIcxkEcV
+	Aq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1j
+	6r18McIj6I8E87Iv67AKxVWxJVW8Jr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcVAKI4
+	8JMx02cVCv0xWlc7CjxVAKzI0EY4vE52x082I5MxkFs20EY4vE44CYbxCE4x80FwCY02Av
+	z4vEIxC_Xr1lc2IjII80xcxEwVAKI48JMxvI42IY6xIIjxv20xvE14v26r1I6r4UMxvI42
+	IY6xIIjxv20xvEc7CjxVAFwI0_Jr0_Gr1lcIIF0xvEx4A2jsIE14v26F4UJVW0owCYIxAI
+	cVC2z280aVCY1x0267AKxVWxJr0_GcWl42xK82IYc2Ij64vIr41l42xK82IY64kExVAvwV
+	Aq07x20xyl4x8a6x804xWl4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWU
+	JVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r1q6r43MIIYrxkI7V
+	AKI48JMIIF0xvE42xK8VAvwI8IcIk0rVW8JVW3JbIYCTnIWIevJa73UjIFyTuYvjxU6yxR
+	DUUUU
+
+On Wed, 21 Nov 2018 09:30:34 +0100
+Michael Mueller <mimu@linux.ibm.com> wrote:
+
+> On 20.11.18 12:33, Cornelia Huck wrote:
+> > On Mon, 19 Nov 2018 18:25:25 +0100
+> > Michael Mueller <mimu@linux.ibm.com> wrote:
+> >   
+> >> Do not call __deliver_io() for adapter interruptions already
+> >> pending in the IPM. That is a double effort. They will
+> >> be processed as soon the vcpu control is given to SIE.
+> >>
+> >> Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
+> >> ---
+> >>   arch/s390/kvm/interrupt.c | 54 ++++++++++++++++++++++-------------------------
+> >>   1 file changed, 25 insertions(+), 29 deletions(-)  
+> > 
+> > I think this patch does what it says on the tin, but I'm a bit lost as
+> > to the why. (Might make more sense with the gib.)
+> > 
+> > Currently, we are trying to process any I/O interrupts, even if we'd
+> > get them delivered via the gisa, when we're out of the SIE anyway.
+> > IIRC, while this looks a bit like a belt-and-suspenders approach, it
+> > also prevented performance problems when the vcpu did not go back into
+> > the SIE immediately (it even may exit to userspace).
+> > 
+> > Also, if you're ignoring the I/O interrupts pending in the ipm, you may
+> > end up delivering interrupts with a lower priority (higher isc) first.
+> > I'm not sure that's what we want.
+> > 
+> > But maybe I'm just missing another bit of the code that makes this
+> > safe. Can you elaborate a bit?  
+> 
+> 
+> Function kvm_s390_deliver_pending_interrupts() is called in the 
+> beginning of vcpu_pre_run() and we are about to enter the SIE anyway. 
+> SIE will also grant the right ISC priority for adapter interruptions.
+> 
+> I basically want to avoid that a GISA that is part of the alert list
+> will get its IPM bits cleared outside the GIB alert interruption 
+> context. process_gib_alert_list()
+
+Unfinished sentence?
+
+Anyway, I think the patch description would benefit from adding a
+sentence or two describing possible performance benefits and ease of
+alert handling when the gib is introduced (?)

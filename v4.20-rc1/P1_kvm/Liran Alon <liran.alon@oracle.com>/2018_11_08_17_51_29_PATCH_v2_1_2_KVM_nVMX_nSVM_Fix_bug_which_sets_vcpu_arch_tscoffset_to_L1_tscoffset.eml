@@ -1,0 +1,287 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (61.164.42.155:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 08 Nov 2018 10:29:29 -0000
+Received: from icoremail.net (unknown [209.85.210.172])
+	by mail-app2 (Coremail) with SMTP id by_KCgDnX19oB+RbkxRfAQ--.28807S3;
+	Thu, 08 Nov 2018 17:52:41 +0800 (CST)
+Received: from mail-pf1-f172.google.com (unknown [209.85.210.172])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwAH5UBkB+RbvB4cAA--.814S3;
+	Thu, 08 Nov 2018 17:52:36 +0800 (CST)
+Received: by mail-pf1-f172.google.com with SMTP id e22-v6so9074059pfn.8
+        for <xuliker@zju.edu.cn>; Thu, 08 Nov 2018 01:52:36 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:delivered-to:dkim-signature:from:to:cc:subject
+         :date:message-id:sender:precedence:list-id;
+        bh=VbmEdIuEIA9ybwXGCX07AKAZ20ka2v+T8tbrdFNYvXE=;
+        b=f+0OZoH2vCfydU+O+LV6d6TjvpUJ1LItyD0tI5PDx4FCDaee+U+mz4lzbau6IlF4q9
+         OzsJ5uRGq1OJGsGldxu0jSBIM4fI0mmqQ3gOjGWjxVWcy1zjZd7Zg5qcYoe0WxL+85oF
+         zhxrEDfOK6KdPO5R2TYa3GX+zZrNuucmy1GQVinSYDgnD4KQNpXPAjZpJDHAju+NCK6Z
+         ph5A9YJARmJnAbvG6viutMQhIl9I6osZiFHycXb5AGOWYI1/j+Ht8Uw7c41ZjfVrziUL
+         /3Z/3z/08yWd9EC0xk6KmV8vP65ST4thKsPK1kXbvFOL9u3f7JjgHzivUTnbK37DnuMU
+         Kebg==
+X-Gm-Message-State: AGRZ1gKdu47meqwm/HmJx0VqPkNCEGnlXQrv2XDPmNbtJaEKHYqBoHMp
+	BFSiH1xEkBX+2Etg6wS//wVEJaH5LfARdIpxLO51FkUD9PFTD7gIuQ==
+X-Received: by 2002:a63:4044:: with SMTP id n65mr3175072pga.90.1541670756212;
+        Thu, 08 Nov 2018 01:52:36 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp306051pjt;
+        Thu, 8 Nov 2018 01:52:34 -0800 (PST)
+X-Google-Smtp-Source: AJdET5eTNj2zVNsOzszsNug1EN/eMzL260lr9eVRwcLZ34h0gz37xT6qLmWsYTizeuxqAlCKQobA
+X-Received: by 2002:a62:9f42:: with SMTP id g63-v6mr3824697pfe.144.1541670754702;
+        Thu, 08 Nov 2018 01:52:34 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1541670754; cv=none;
+        d=google.com; s=arc-20160816;
+        b=cCfcQKjrE7iGUQkSDgjxT37aFG9U5bgwTuh+xZtoEjm3mvQfVviwhqse+PSjjfs7OA
+         uS8KUBxM3KVSFS0lR6KE2GDYYwRkoQEGDni84cin/YtlKCWTVjwUAXZXqPUiLylS+H+i
+         bC6Jcw5BpNU7+o2WpmOfAewMMSul8DxVP6h2P62lVRiuMfpYYA4A+wcm/zggNPUwyjFz
+         wXNYHok+scYd1I2Pa/4FUGASakp2VL0PN2V2076H5d5ZaTblfhYnx574J3C1A/YY3xLN
+         6PNLMA6r/7syigZY07UgLyKkpebJALOxzuVg3N6STz1oP1Mse6IhjRzdTdOjv6vv2tXA
+         CxWA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:message-id:date:subject:cc:to:from
+         :dkim-signature;
+        bh=VbmEdIuEIA9ybwXGCX07AKAZ20ka2v+T8tbrdFNYvXE=;
+        b=aLpjoao4Dkmv+5Cf35vAM8xVPrW4qYJ/ptwzlXvOdNlHc9R3EOYY4BBZcu4Gq6xWIT
+         0q9+WB21SaxeGKA3dkMtNa2xU1lmrz34rAUZR+Q/5uEr0fuOl7yRphoXBHmTLHTKH7rq
+         9JI5urSr794xJPZDnH16xO3fVnhCNJrQMkYTfBavqlKf+7LUAoetIaN6Os2NXTouKQXV
+         YwjOWJ+sWSJqqoiiRUOiSjg57uztGNQaqDwtGIXZjnsoHtW7Op/GyaVo//AygiouM/il
+         RuglYCblpwNKtXPfPrSw6b0EB5tw5cyBiymQ16br3/sF4IMEDykdxLqhEPNVeI9zEnKr
+         +/EQ==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@oracle.com header.s=corp-2018-07-02 header.b=mgU0qNAi;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;
+       dmarc=pass (p=NONE sp=NONE dis=NONE) header.from=oracle.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id 84-v6si3822730pfq.180.2018.11.08.01.52.20;
+        Thu, 08 Nov 2018 01:52:34 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1727068AbeKHT0y (ORCPT <rfc822;fanshuming2011@gmail.com>
+        + 99 others); Thu, 8 Nov 2018 14:26:54 -0500
+Received: from userp2130.oracle.com ([156.151.31.86]:60306 "EHLO
+        userp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726517AbeKHT0y (ORCPT <rfc822;kvm@vger.kernel.org>);
+        Thu, 8 Nov 2018 14:26:54 -0500
+Received: from pps.filterd (userp2130.oracle.com [127.0.0.1])
+        by userp2130.oracle.com (8.16.0.22/8.16.0.22) with SMTP id wA89kcVA018034;
+        Thu, 8 Nov 2018 09:52:11 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
+ subject : date : message-id; s=corp-2018-07-02;
+ bh=VbmEdIuEIA9ybwXGCX07AKAZ20ka2v+T8tbrdFNYvXE=;
+ b=mgU0qNAibVOnczKEN7k2uzlRopqUpnFoyF83lLBTE+vRn3z+FRy/Bj1g+RHa6uOrlM1J
+ vC5cQ/WeGaL4fokaZjbopWCCIkmG8DlsghjKJseY0CKQa/VuaOVPBXwlMYyyRBFw6otu
+ Mt94sfDWt7un9rDfDbZy6y8R8hDUo2B18r34ThRFsiB0gBJZ3uUd3iu8N/Sx+wtBoCFR
+ mg0K+FM+LN6k3iBnOHn2SdrirGHVilLd5Db02WME14wktcBmAzpGn3ktyriLm8SUND+C
+ ap7clPIbvt5AQ+h5hmQ/h4a/79smKV8hki3kjK/1ZzkunE/iLjy2CYeqApGdTRaTmIOL 2Q== 
+Received: from userv0021.oracle.com (userv0021.oracle.com [156.151.31.71])
+        by userp2130.oracle.com with ESMTP id 2nh33u8f4v-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 08 Nov 2018 09:52:10 +0000
+Received: from userv0122.oracle.com (userv0122.oracle.com [156.151.31.75])
+        by userv0021.oracle.com (8.14.4/8.14.4) with ESMTP id wA89qARF017188
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 8 Nov 2018 09:52:10 GMT
+Received: from abhmp0020.oracle.com (abhmp0020.oracle.com [141.146.116.26])
+        by userv0122.oracle.com (8.14.4/8.14.4) with ESMTP id wA89qACh008591;
+        Thu, 8 Nov 2018 09:52:10 GMT
+Received: from spark.ravello.local (/213.57.127.2)
+        by default (Oracle Beehive Gateway v4.0)
+        with ESMTP ; Thu, 08 Nov 2018 01:51:52 -0800
+From: Liran Alon <liran.alon@oracle.com>
+To: pbonzini@redhat.com, rkrcmar@redhat.com, kvm@vger.kernel.org
+Cc: idan.brown@oracle.com, Leonid Shatz <leonid.shatz@oracle.com>
+Subject: [PATCH v2 1/2] KVM: nVMX/nSVM: Fix bug which sets vcpu->arch.tsc_offset to L1 tsc_offset
+Date: Thu,  8 Nov 2018 11:51:29 +0200
+Message-Id: <20181108095130.64904-1-liran.alon@oracle.com>
+X-Mailer: git-send-email 2.16.1
+X-Proofpoint-Virus-Version: vendor=nai engine=5900 definitions=9070 signatures=668683
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 malwarescore=0
+ phishscore=0 bulkscore=0 spamscore=0 mlxscore=0 mlxlogscore=999
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.0.1-1807170000 definitions=main-1811080085
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwAH5UBkB+RbvB4cAA--.814S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW3XF47Xw1xXFy5Xw1rtFWUurg_yoWxGrWfpF
+	97Zr1kXw4ftr95JayDXF1v9r1S9a97KFySqrWDCrn8X34Utw18tayvk3yUCwn8GrykZF1f
+	Z3WFyw1xur18JF7anT9S1TB71UUUUUUqnTZGkaVYY2UrUUUU0bIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUPIb7Iv0xC_Kw4lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2
+	z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s0DM2AIxVAIcxkEcV
+	Aq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1j
+	6r18McIj6I8E87Iv67AKxVW8JVWxJwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IYc2Ij64
+	vIr41l7I0Y6sxI4wCY1x0264kExVAvwVAq07x20xylc7Ca8VAvwVCFzxkY4VCF77xAMxkI
+	ecxEwVCI4VW8uwCY0x0Ix7I2Y4AK64vIr41lcIIF0xvE2Ix0cI8IcVAFwI0_JFI_Gr1lcI
+	IF0xvE2Ix0cI8IcVCY1x0267AKxVWUJVW8JwCYIxAIcVC2z280aVAFwI0_Cr1j6rxdMxvI
+	42IY6I8E87Iv6xkF7I0E14v26F4UJVW0owCF04k20xvY0x0EwIxGrwCF04k20xvEw4C26c
+	xK6c8Ij28IcwCF72vE77IF4wCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v2
+	6r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_JF0_Jw1lIxkGc2
+	Ij64vIr41lIxAIcVCF04k26cxKx2IYs7xG6r1j6r1xYxBIdaVFxhVjvjDU0xZFpf9x07bH
+	gA7UUUUU=
+
+From: Leonid Shatz <leonid.shatz@oracle.com>
+
+Since commit e79f245ddec1 ("X86/KVM: Properly update 'tsc_offset' to
+represent the running guest"), vcpu->arch.tsc_offset meaning was
+changed to always reflect the tsc_offset value set on active VMCS.
+Regardless if vCPU is currently running L1 or L2.
+
+However, above mentioned commit failed to also change
+kvm_vcpu_write_tsc_offset() to set vcpu->arch.tsc_offset correctly.
+This is because vmx_write_tsc_offset() could set the tsc_offset value
+in active VMCS to given offset parameter *plus vmcs12->tsc_offset*.
+However, kvm_vcpu_write_tsc_offset() just sets vcpu->arch.tsc_offset
+to given offset parameter. Without taking into account the possible
+addition of vmcs12->tsc_offset. (Same is true for SVM case).
+
+Fix this issue by changing kvm_x86_ops->write_tsc_offset() to return
+actually set tsc_offset in active VMCS and modify
+kvm_vcpu_write_tsc_offset() to set returned value in
+vcpu->arch.tsc_offset.
+In addition, rename write_tsc_offset() argument to clearly indicate
+it specifies a L1 TSC offset.
+
+Fixes: e79f245ddec1 ("X86/KVM: Properly update 'tsc_offset' to represent the running guest")
+
+Reviewed-by: Liran Alon <liran.alon@oracle.com>
+Reviewed-by: Mihai Carabas <mihai.carabas@oracle.com>
+Reviewed-by: Krish Sadhukhan <krish.sadhukhan@oracle.com>
+Signed-off-by: Leonid Shatz <leonid.shatz@oracle.com>
+---
+ arch/x86/include/asm/kvm_host.h |  6 +++++-
+ arch/x86/kvm/svm.c              |  9 +++++----
+ arch/x86/kvm/vmx.c              | 21 +++++++++------------
+ arch/x86/kvm/x86.c              |  8 ++++----
+ 4 files changed, 23 insertions(+), 21 deletions(-)
+
+diff --git a/arch/x86/include/asm/kvm_host.h b/arch/x86/include/asm/kvm_host.h
+index 55e51ff7e421..cc9df79b1016 100644
+--- a/arch/x86/include/asm/kvm_host.h
++++ b/arch/x86/include/asm/kvm_host.h
+@@ -1094,7 +1094,11 @@ struct kvm_x86_ops {
+ 	bool (*has_wbinvd_exit)(void);
+ 
+ 	u64 (*read_l1_tsc_offset)(struct kvm_vcpu *vcpu);
+-	void (*write_tsc_offset)(struct kvm_vcpu *vcpu, u64 offset);
++	/*
++	 * Updates active guest TSC offset based on given L1 TSC offset
++	 * and returns actual TSC offset set for the active guest
++	 */
++	u64 (*write_tsc_offset)(struct kvm_vcpu *vcpu, u64 l1_offset);
+ 
+ 	void (*get_exit_info)(struct kvm_vcpu *vcpu, u64 *info1, u64 *info2);
+ 
+diff --git a/arch/x86/kvm/svm.c b/arch/x86/kvm/svm.c
+index 0e21ccc46792..842d4bb053d1 100644
+--- a/arch/x86/kvm/svm.c
++++ b/arch/x86/kvm/svm.c
+@@ -1446,7 +1446,7 @@ static u64 svm_read_l1_tsc_offset(struct kvm_vcpu *vcpu)
+ 	return vcpu->arch.tsc_offset;
+ }
+ 
+-static void svm_write_tsc_offset(struct kvm_vcpu *vcpu, u64 offset)
++static u64 svm_write_tsc_offset(struct kvm_vcpu *vcpu, u64 l1_offset)
+ {
+ 	struct vcpu_svm *svm = to_svm(vcpu);
+ 	u64 g_tsc_offset = 0;
+@@ -1455,15 +1455,16 @@ static void svm_write_tsc_offset(struct kvm_vcpu *vcpu, u64 offset)
+ 		/* Write L1's TSC offset.  */
+ 		g_tsc_offset = svm->vmcb->control.tsc_offset -
+ 			       svm->nested.hsave->control.tsc_offset;
+-		svm->nested.hsave->control.tsc_offset = offset;
++		svm->nested.hsave->control.tsc_offset = l1_offset;
+ 	} else
+ 		trace_kvm_write_tsc_offset(vcpu->vcpu_id,
+ 					   svm->vmcb->control.tsc_offset,
+-					   offset);
++					   l1_offset);
+ 
+-	svm->vmcb->control.tsc_offset = offset + g_tsc_offset;
++	svm->vmcb->control.tsc_offset = l1_offset + g_tsc_offset;
+ 
+ 	mark_dirty(svm->vmcb, VMCB_INTERCEPTS);
++	return svm->vmcb->control.tsc_offset;
+ }
+ 
+ static void avic_init_vmcb(struct vcpu_svm *svm)
+diff --git a/arch/x86/kvm/vmx.c b/arch/x86/kvm/vmx.c
+index 4555077d69ce..20d90ebd6cc8 100644
+--- a/arch/x86/kvm/vmx.c
++++ b/arch/x86/kvm/vmx.c
+@@ -3452,11 +3452,9 @@ static u64 vmx_read_l1_tsc_offset(struct kvm_vcpu *vcpu)
+ 	return vcpu->arch.tsc_offset;
+ }
+ 
+-/*
+- * writes 'offset' into guest's timestamp counter offset register
+- */
+-static void vmx_write_tsc_offset(struct kvm_vcpu *vcpu, u64 offset)
++static u64 vmx_write_tsc_offset(struct kvm_vcpu *vcpu, u64 l1_offset)
+ {
++	u64 active_offset = l1_offset;
+ 	if (is_guest_mode(vcpu)) {
+ 		/*
+ 		 * We're here if L1 chose not to trap WRMSR to TSC. According
+@@ -3464,17 +3462,16 @@ static void vmx_write_tsc_offset(struct kvm_vcpu *vcpu, u64 offset)
+ 		 * set for L2 remains unchanged, and still needs to be added
+ 		 * to the newly set TSC to get L2's TSC.
+ 		 */
+-		struct vmcs12 *vmcs12;
+-		/* recalculate vmcs02.TSC_OFFSET: */
+-		vmcs12 = get_vmcs12(vcpu);
+-		vmcs_write64(TSC_OFFSET, offset +
+-			(nested_cpu_has(vmcs12, CPU_BASED_USE_TSC_OFFSETING) ?
+-			 vmcs12->tsc_offset : 0));
++		struct vmcs12 *vmcs12 = get_vmcs12(vcpu);
++		if (nested_cpu_has(vmcs12, CPU_BASED_USE_TSC_OFFSETING))
++			active_offset += vmcs12->tsc_offset;
+ 	} else {
+ 		trace_kvm_write_tsc_offset(vcpu->vcpu_id,
+-					   vmcs_read64(TSC_OFFSET), offset);
+-		vmcs_write64(TSC_OFFSET, offset);
++					   vmcs_read64(TSC_OFFSET), l1_offset);
+ 	}
++
++	vmcs_write64(TSC_OFFSET, active_offset);
++	return active_offset;
+ }
+ 
+ /*
+diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+index 8525dc75a79a..c4e80af1a54e 100644
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -1766,10 +1766,9 @@ u64 kvm_read_l1_tsc(struct kvm_vcpu *vcpu, u64 host_tsc)
+ }
+ EXPORT_SYMBOL_GPL(kvm_read_l1_tsc);
+ 
+-static void kvm_vcpu_write_tsc_offset(struct kvm_vcpu *vcpu, u64 offset)
++static void kvm_vcpu_write_tsc_offset(struct kvm_vcpu *vcpu, u64 l1_offset)
+ {
+-	kvm_x86_ops->write_tsc_offset(vcpu, offset);
+-	vcpu->arch.tsc_offset = offset;
++	vcpu->arch.tsc_offset = kvm_x86_ops->write_tsc_offset(vcpu, l1_offset);
+ }
+ 
+ static inline bool kvm_check_tsc_unstable(void)
+@@ -1897,7 +1896,8 @@ EXPORT_SYMBOL_GPL(kvm_write_tsc);
+ static inline void adjust_tsc_offset_guest(struct kvm_vcpu *vcpu,
+ 					   s64 adjustment)
+ {
+-	kvm_vcpu_write_tsc_offset(vcpu, vcpu->arch.tsc_offset + adjustment);
++	u64 l1_tsc_offset = kvm_x86_ops->read_l1_tsc_offset(vcpu);
++	kvm_vcpu_write_tsc_offset(vcpu, l1_tsc_offset + adjustment);
+ }
+ 
+ static inline void adjust_tsc_offset_host(struct kvm_vcpu *vcpu, s64 adjustment)
+-- 
+2.16.1

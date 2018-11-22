@@ -1,0 +1,310 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 09 Nov 2018 05:30:35 -0000
+Received: from icoremail.net (unknown [209.85.215.170])
+	by mail-app2 (Coremail) with SMTP id by_KCgC3f_mv8+RbZFJkAQ--.30359S3;
+	Fri, 09 Nov 2018 10:40:48 +0800 (CST)
+Received: from mail-pg1-f170.google.com (unknown [209.85.215.170])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwB3Uz+q8+RbZwQgAA--.354S3;
+	Fri, 09 Nov 2018 10:40:42 +0800 (CST)
+Received: by mail-pg1-f170.google.com with SMTP id i4-v6so195925pgq.9
+        for <xuliker@zju.edu.cn>; Thu, 08 Nov 2018 18:40:42 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :from:to:cc:subject:date:in-reply-to:references:message-id:sender
+         :precedence:list-id;
+        bh=K0sgq6JW1JKuL3kcb7vOKWlC61im/Bw2hmQ0NC4z+uE=;
+        b=OkadtcOjysaiqZ6wPB4yiEJp0LFPm6tRxJqeF6XpHvlo9LTGGes4EdHN/zasr2uDDK
+         tUXzxhwUi2PzbFNB6rLl6rieKC4Oi9lg1w8uOsSA0k/btdecmXPvyqKHcWa61VfGyuto
+         b0K695EGk8cxYCOMre4/0J013BvUW2URDaoJLLeHinG2TM70zl/dC3/LdWRE2/MX9VgT
+         kCP7NRFN7d3dE3XPOKFoA6Uvo2XYSFJvnJawXlkZEhU3l9kJN3BUWR1/qBaQP2s9myDC
+         he3TF6Y+eh85CZGaRoZ2w/Wd2O/UW9EBKwZRmBkU2sZhBi35MuiEJ6xzOgnOq2BoxHrN
+         Kp4Q==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=ibm.com
+X-Gm-Message-State: AGRZ1gJhm/IZKK/9wt99z+yG8XyWrNDi5w7ZAGVZbO80YwAFbwzSy8YW
+	ZlZinXIm4RFNjEbez0/RnjSUp78Mjk0uhykPuUaQKEJWEhXRyzpgzw==
+X-Received: by 2002:a65:66ce:: with SMTP id c14mr5919727pgw.450.1541731242370;
+        Thu, 08 Nov 2018 18:40:42 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp999820pjt;
+        Thu, 8 Nov 2018 18:40:41 -0800 (PST)
+X-Google-Smtp-Source: AJdET5fxo8s+FY/GYvmLUkJv/Kv0DrsW0WrN0QgGgVD6J/+C+Y2bIG2iS1ac9mBzfX/LxdiqC6Yr
+X-Received: by 2002:a63:ee0e:: with SMTP id e14mr5798960pgi.8.1541731241430;
+        Thu, 08 Nov 2018 18:40:41 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1541731241; cv=none;
+        d=google.com; s=arc-20160816;
+        b=Dlkc7UqUJcDIGpGm74f9FKis7rI7l/MJk8HJDP0xTrwVAaED3B2CSl1XjYBF5+WQhI
+         sSsbJ1/HCViaz+k8J+2SL7UEB+a3hHK1cT2TCATMvWRkMcZVwgJ15UMIlREfVJiAnW5s
+         1aliFRISBfmePGllwJ9FyZrrcoeoUY7h2F6BviAQQOLd5FzxXldABYznpTzE6tvW6BL/
+         Xtwm8XP7R760cdwx05O8i3lGCvLhRYsJ62HoNI8QEmI5LcVPCcePu6OCWk7jQ0j7/alI
+         Ex7HyYO26UYPU9GUK6cYigi2IinNuu6GI7YjXI6EIg5AnD5LDX488+j7xKpIenU6Gqun
+         N+iw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:message-id:references:in-reply-to:date
+         :subject:cc:to:from;
+        bh=K0sgq6JW1JKuL3kcb7vOKWlC61im/Bw2hmQ0NC4z+uE=;
+        b=CbGQzlT/8rbOrpYgF7pnmq0OwU3w0X9p8lurm2R9nCVyTCi7ABWxyki/moJd2+xk68
+         K5sUGYsqeSp2xMJGRTHPMK4U/G85GeuYAQRHPTXBuzPcteTU+A5HmvNlb1fzizvdCcIU
+         xDXNocwVjarvXkg8g7LEH0Nj/2zYKlujDXAV8ab+Ir1i8OzzSh4h3LOvVgDGfyEdZXrP
+         0tqbyKGqd7u5AxVXASMFYvguFq3ImKd2+mxaqvEiSREWB9sWWxK9fqJA9XiSYgY6FyN0
+         q8rx3rNqX+HkMRyU7VmtroTvh46iYBs4WRNgizpjK2Dixm5mh+Md5oNbEml9p8P885uY
+         0anw==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=ibm.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id d10-v6si6283837plo.184.2018.11.08.18.40.17;
+        Thu, 08 Nov 2018 18:40:41 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1727634AbeKIMSm (ORCPT <rfc822;fanshuming2011@gmail.com>
+        + 99 others); Fri, 9 Nov 2018 07:18:42 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:51220 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727544AbeKIMSm (ORCPT
+        <rfc822;kvm@vger.kernel.org>); Fri, 9 Nov 2018 07:18:42 -0500
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.22/8.16.0.22) with SMTP id wA92XWas053463
+        for <kvm@vger.kernel.org>; Thu, 8 Nov 2018 21:40:10 -0500
+Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2nmwmd8aem-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <kvm@vger.kernel.org>; Thu, 08 Nov 2018 21:40:10 -0500
+Received: from localhost
+        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <kvm@vger.kernel.org> from <farman@linux.ibm.com>;
+        Fri, 9 Nov 2018 02:40:08 -0000
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (9.149.109.196)
+        by e06smtp04.uk.ibm.com (192.168.101.134) with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted;
+        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256/256)
+        Fri, 9 Nov 2018 02:40:05 -0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id wA92e3qG9371918
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
+        Fri, 9 Nov 2018 02:40:03 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 868DA52052;
+        Fri,  9 Nov 2018 02:40:03 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTPS id 700FD5204E;
+        Fri,  9 Nov 2018 02:40:03 +0000 (GMT)
+Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 4958)
+        id F321820F64C; Fri,  9 Nov 2018 03:40:02 +0100 (CET)
+From: Eric Farman <farman@linux.ibm.com>
+To: Cornelia Huck <cohuck@redhat.com>,
+        Pierre Morel <pmorel@linux.ibm.com>
+Cc: Eric Farman <farman@linux.ibm.com>, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org, Halil Pasic <pasic@linux.ibm.com>,
+        Farhan Ali <alifm@linux.ibm.com>,
+        "Jason J . Herne" <jjherne@linux.ibm.com>
+Subject: [RFC PATCH v1 06/10] s390/cio: Combine ccwchain_fetch _idal and _direct
+Date: Fri,  9 Nov 2018 03:39:33 +0100
+X-Mailer: git-send-email 2.16.4
+In-Reply-To: <20181109023937.96105-1-farman@linux.ibm.com>
+References: <20181109023937.96105-1-farman@linux.ibm.com>
+X-TM-AS-GCONF: 00
+x-cbid: 18110902-0016-0000-0000-000002241CDD
+X-IBM-AV-DETECTION: SAVI=unused REMOTE=unused XFE=unused
+x-cbparentid: 18110902-0017-0000-0000-0000327C1DF3
+Message-Id: <20181109023937.96105-7-farman@linux.ibm.com>
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2018-11-08_13:,,
+ signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ malwarescore=0 suspectscore=2 phishscore=0 bulkscore=0 spamscore=0
+ clxscore=1015 lowpriorityscore=0 mlxscore=0 impostorscore=0
+ mlxlogscore=899 adultscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.0.1-1807170000 definitions=main-1811090022
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwB3Uz+q8+RbZwQgAA--.354S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoWxCF48tr4kGFyxKrWUKFWfXwb_yoWrurW8pF
+	WSkry7Wrs5Jw18ZrZ3K34FqFySyr4kAa45Xr48Cw1fAF13Zr98tF4fta4avrZ5ArWxCF1S
+	gF4YqFyDuF17JFJanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUU0bIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUPFb7Iv0xC_Kw4lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Xr0_Ar1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1l84ACjcxK6I8E
+	87Iv67AKxVW0oVCq3wA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_GcCE3s1le2I262IYc4CY6c
+	8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_JrI_
+	JrylYx0Ex4A2jsIE14v26r4j6F4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvY0x0EwI
+	xGrwCjxxvEa2IrMxkF7I0Ew4C26cxK6c8Ij28IcwCY1Ik26cxK6xAEc7vF6xCjj44lc2xS
+	Y4AK6IIF6r4UMxkI7II2jI8vz4vEwIxGrwCYIxAIcVC0I7IYx2IY67AKxVW8JVW5JwCYIx
+	AIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMxvI42IY6I8E87Iv67AKxVW0oVCq3wCYIxAI
+	cVC2z280aVCY1x0267AKxVW0oVCq3wCF04k20xvY0x0EwIxGrwCF04k20xvEw4C26cxK6c
+	8Ij28IcwCF72vE77IF4wCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v26r1j
+	6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_Jw0_GFylIxkGc2Ij64
+	vIr41lIxAIcVCF04k26cxKx2IYs7xG6Fyj6rWUJbIYCTnIWIevJa73UjIFyTuYvjxUHVMN
+	UUUUU
+
+There's so much overlap between these functions, and the only
+difference is whether or not the input CCW is a direct-address
+or an Indirect Data Address (IDA) List or not.  Since the output
+is an IDAL for both, let's combine the two routines.
+
+We rename the resulting function ccwchain_fetch_ccw to express
+its combined purpose.
+
+Signed-off-by: Eric Farman <farman@linux.ibm.com>
+---
+ drivers/s390/cio/vfio_ccw_cp.c | 98 ++++++++++++++----------------------------
+ 1 file changed, 33 insertions(+), 65 deletions(-)
+
+diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
+index 3957c46bdaea..efc30152a89a 100644
+--- a/drivers/s390/cio/vfio_ccw_cp.c
++++ b/drivers/s390/cio/vfio_ccw_cp.c
+@@ -450,14 +450,16 @@ static int ccwchain_fetch_tic(struct ccwchain *chain,
+ 	return -EFAULT;
+ }
+ 
+-static int ccwchain_fetch_direct(struct ccwchain *chain,
+-				 int idx,
+-				 struct channel_program *cp)
++static int ccwchain_fetch_ccw(struct ccwchain *chain,
++			      int idx,
++			      struct channel_program *cp)
+ {
+ 	struct ccw1 *ccw;
+ 	struct pfn_array_table *pat;
+ 	unsigned long *idaws;
+-	int ret;
++	u64 idaw_iova;
++	unsigned int idaw_nr, idaw_len;
++	int i, ret;
+ 
+ 	ccw = chain->ch_ccw + idx;
+ 
+@@ -471,60 +473,17 @@ static int ccwchain_fetch_direct(struct ccwchain *chain,
+ 		return 0;
+ 	}
+ 
+-	/*
+-	 * Pin data page(s) in memory.
+-	 * The number of pages actually is the count of the idaws which will be
+-	 * needed when translating a direct ccw to a idal ccw.
+-	 */
+-	pat = chain->ch_pat + idx;
+-	ret = pfn_array_table_init(pat, 1);
+-	if (ret)
+-		goto out_init;
+-
+-	ret = pfn_array_alloc_pin(pat->pat_pa, cp->mdev, ccw->cda, ccw->count);
+-	if (ret < 0)
+-		goto out_unpin;
+-
+-	/* Translate this direct ccw to a idal ccw. */
+-	idaws = kcalloc(ret, sizeof(*idaws), GFP_DMA | GFP_KERNEL);
+-	if (!idaws) {
+-		ret = -ENOMEM;
+-		goto out_unpin;
++	if (ccw_is_idal(ccw)) {
++		/* Read first IDAW to see if it's 4K-aligned or not. */
++		/* All subsequent IDAws will be 4K-aligned. */
++		ret = copy_from_iova(cp->mdev, &idaw_iova, ccw->cda,
++				     sizeof(idaw_iova));
++		if (ret)
++			return ret;
++	} else {
++		idaw_iova = ccw->cda;
+ 	}
+-	ccw->cda = (__u32) virt_to_phys(idaws);
+-	ccw->flags |= CCW_FLAG_IDA;
+-
+-	pfn_array_table_idal_create_words(pat, idaws);
+ 
+-	return 0;
+-
+-out_unpin:
+-	pfn_array_table_unpin_free(pat, cp->mdev);
+-out_init:
+-	ccw->cda = 0;
+-	return ret;
+-}
+-
+-static int ccwchain_fetch_idal(struct ccwchain *chain,
+-			       int idx,
+-			       struct channel_program *cp)
+-{
+-	struct ccw1 *ccw;
+-	struct pfn_array_table *pat;
+-	unsigned long *idaws;
+-	u64 idaw_iova;
+-	unsigned int idaw_nr, idaw_len;
+-	int i, ret;
+-
+-	ccw = chain->ch_ccw + idx;
+-
+-	if (!ccw->count)
+-		return 0;
+-
+-	/* Calculate size of idaws. */
+-	ret = copy_from_iova(cp->mdev, &idaw_iova, ccw->cda, sizeof(idaw_iova));
+-	if (ret)
+-		return ret;
+ 	idaw_nr = idal_nr_words((void *)(idaw_iova), ccw->count);
+ 	idaw_len = idaw_nr * sizeof(*idaws);
+ 
+@@ -534,18 +493,27 @@ static int ccwchain_fetch_idal(struct ccwchain *chain,
+ 	if (ret)
+ 		goto out_init;
+ 
+-	/* Translate idal ccw to use new allocated idaws. */
+ 	idaws = kzalloc(idaw_len, GFP_DMA | GFP_KERNEL);
+ 	if (!idaws) {
+ 		ret = -ENOMEM;
+ 		goto out_unpin;
+ 	}
+ 
+-	ret = copy_from_iova(cp->mdev, idaws, ccw->cda, idaw_len);
+-	if (ret)
+-		goto out_free_idaws;
++	if (ccw_is_idal(ccw)) {
++		/* Copy the IDAL to our storage */
++		ret = copy_from_iova(cp->mdev, idaws, ccw->cda, idaw_len);
++		if (ret)
++			goto out_free_idaws;
++	} else {
++		/* Build an IDAL based off the cda and subsequent pages */
++		idal_create_words(idaws, (void *)(u64)ccw->cda, ccw->count);
++	}
+ 
+-	ccw->cda = virt_to_phys(idaws);
++	/*
++	 * We now have an IDAL of guest addresses, either because the CCW we
++	 * are processing provided an IDA, or we built one from the CDA.
++	 * Build the pfn structure so we can pin the associated pages.
++	 */
+ 
+ 	for (i = 0; i < idaw_nr; i++) {
+ 		idaw_iova = *(idaws + i);
+@@ -556,6 +524,9 @@ static int ccwchain_fetch_idal(struct ccwchain *chain,
+ 			goto out_free_idaws;
+ 	}
+ 
++	ccw->cda = virt_to_phys(idaws);
++	ccw->flags |= CCW_FLAG_IDA;
++
+ 	pfn_array_table_idal_create_words(pat, idaws);
+ 
+ 	return 0;
+@@ -587,10 +558,7 @@ static int ccwchain_fetch_one(struct ccwchain *chain,
+ 	if (ccw_is_tic(ccw))
+ 		return ccwchain_fetch_tic(chain, idx, cp);
+ 
+-	if (ccw_is_idal(ccw))
+-		return ccwchain_fetch_idal(chain, idx, cp);
+-
+-	return ccwchain_fetch_direct(chain, idx, cp);
++	return ccwchain_fetch_ccw(chain, idx, cp);
+ }
+ 
+ int process_channel_program(struct channel_program *cp, u32 iova)
+-- 
+2.16.4

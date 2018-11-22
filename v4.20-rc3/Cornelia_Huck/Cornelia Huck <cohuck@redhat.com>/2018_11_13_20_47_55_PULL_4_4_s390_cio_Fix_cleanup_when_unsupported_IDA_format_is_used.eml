@@ -1,0 +1,148 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (61.164.42.155:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 13 Nov 2018 15:24:18 -0000
+Received: from icoremail.net (unknown [209.85.210.169])
+	by mail-app2 (Coremail) with SMTP id by_KCgC3f7VPyOpb20CGAQ--.40293S3;
+	Tue, 13 Nov 2018 20:49:20 +0800 (CST)
+Received: from mail-pf1-f169.google.com (unknown [209.85.210.169])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwAnBkJLyOpbYWY4AA--.7572S3;
+	Tue, 13 Nov 2018 20:49:16 +0800 (CST)
+Received: by mail-pf1-f169.google.com with SMTP id 64so1531626pfr.9
+        for <xuliker@zju.edu.cn>; Tue, 13 Nov 2018 04:49:15 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :from:to:cc:subject:date:message-id:in-reply-to:references:sender
+         :precedence:list-id;
+        bh=2cNYEemds1jw9TJxsWrBCed0hJSwQnAy4YIGf8Wg5kk=;
+        b=ov4cUhbKTc0VAINnA55C24aZXA7y9A0YtzSkpiMixCEj7xGYAyUiNza3C6rSjsAPWr
+         bGkr9T7DGtElRoxvdiGmES0pbbOVrkg0cAIcr/L8Xqxb0iP/cqXmGdkHi/K6Wf/ep17z
+         ztCqthieI/DgRaJ1UhImEJuW1YpacElXWLgj3Mq+80ZZWAT6V3jQvupAJ2SShYa9wyX6
+         SUIsaPPw7y12imeujcQ7EdLWuhfPJC7TPYOnUf+k3/zSgm/YC9q3GXFTSrNd5FKJ9+dm
+         aLmsQo/mP0Ul2SaD6HoTuEG/QITjLf+toD4Kmp9L/fUBH++RKGB54ZPK/Wbpg0RmATPs
+         kiKw==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=redhat.com
+X-Gm-Message-State: AGRZ1gKO9/xR8/yPV7E1oCYrq4hRuyenFBWtP7tuEwF6CUYdwIlQ7+BK
+	JsUL3enPjtBbgasgRR3Z2y1V6byM/LqDS9nBGdkhzsDVMEAhA0pFiQ==
+X-Received: by 2002:a65:66ce:: with SMTP id c14mr4584024pgw.450.1542113355445;
+        Tue, 13 Nov 2018 04:49:15 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp4421466pjt;
+        Tue, 13 Nov 2018 04:49:14 -0800 (PST)
+X-Google-Smtp-Source: AJdET5f6DX7AXh/CfumZRGJZUdJY6XUZvY5IeM/X/Nw868ZBkVcdkaTaua8Rnql+2msXCEv5mL3v
+X-Received: by 2002:a62:4e88:: with SMTP id c130-v6mr4954621pfb.141.1542113354420;
+        Tue, 13 Nov 2018 04:49:14 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542113354; cv=none;
+        d=google.com; s=arc-20160816;
+        b=j1Guhs3wDrQlj3gF3iV/F0kEgrPwTNki+tKYbkQKuHhTlYpzXxZc9D8upKSckyfnPT
+         qpwxeQWkGN8dxGUhEDDc8M3Q0Rclw5rm0KZZwtJEYP8M792hkE+uXzpCWfstCrClRUWg
+         BWZD0pQbvdVY75d1zD+yLREbWLGa4OhCWUwYcar7LCHL6oNSKxTKK2Z7eHzNTtb2bs+M
+         INXDDTb8OcICJ28MYSXowy3LIUCD00kbLdD10+dO1c6NWf3lbAVSk+6HfW11djWhMvHK
+         Sp6MGEKa/DFkvmglfeWUOLlYruNoG6+VrPQSSa3+VQw/bvAcIBjjK/uFTWI3H73pQGe3
+         aUKQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:references:in-reply-to:message-id:date
+         :subject:cc:to:from;
+        bh=2cNYEemds1jw9TJxsWrBCed0hJSwQnAy4YIGf8Wg5kk=;
+        b=W+5Z6KwlER0fZRo3KI5NtXAJA6KvXGWRg7EJjtUH/erHqV/Lfe6mJ0SA5Qfsblhiu+
+         ivLx7Od5tfJQvW2yy2fJFEMu/DoHgm6//nIBYOowGTvO1DtDayKHjpNUu3IazPpDod7x
+         SiEQjI6/mhgRwycseqAYOEhJkTrVXIFkkVErV87wvM05v7n2NY/beC1Y5fai88lPz1m2
+         FjVkzF2YOU0LuICrnld+Ckw5YIP8UmG4kjZJFTdSON530wGUJjTJGJOBX6plL698GfXP
+         +lHUt+AB+4PlNCcaLScPMNiyldHLuJhf81VhXOb2NUDvYQcqQTlqPHARwSmnxuIJP6pc
+         8N2Q==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=redhat.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id q61-v6si20345349plb.418.2018.11.13.04.49.00;
+        Tue, 13 Nov 2018 04:49:14 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1733137AbeKMWqJ (ORCPT <rfc822;fanshuming2011@gmail.com>
+        + 99 others); Tue, 13 Nov 2018 17:46:09 -0500
+Received: from mx1.redhat.com ([209.132.183.28]:50638 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1733060AbeKMWqJ (ORCPT <rfc822;kvm@vger.kernel.org>);
+        Tue, 13 Nov 2018 17:46:09 -0500
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id A437630013B7;
+        Tue, 13 Nov 2018 12:48:09 +0000 (UTC)
+Received: from localhost (dhcp-192-222.str.redhat.com [10.33.192.222])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 0BFC71054FD7;
+        Tue, 13 Nov 2018 12:48:04 +0000 (UTC)
+From: Cornelia Huck <cohuck@redhat.com>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>,
+        Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org, Eric Farman <farman@linux.ibm.com>,
+        Cornelia Huck <cohuck@redhat.com>
+Subject: [PULL 4/4] s390/cio: Fix cleanup when unsupported IDA format is used
+Date: Tue, 13 Nov 2018 13:47:55 +0100
+Message-Id: <20181113124755.4798-5-cohuck@redhat.com>
+In-Reply-To: <20181113124755.4798-1-cohuck@redhat.com>
+References: <20181113124755.4798-1-cohuck@redhat.com>
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.44]); Tue, 13 Nov 2018 12:48:09 +0000 (UTC)
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwAnBkJLyOpbYWY4AA--.7572S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW7XF1fXrWrWw17KFW5WF13twb_yoW8JF4Upr
+	WxuryUCas5KryYyayvk3yFvFyYkas7GrZ2qay7Zw1avry5JFn5WrWag3WFgwn5CryrJFWY
+	vrWj9rWUWa1DArJanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUBEb7Iv0xC_Zr1lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1l84ACjcxK6I8E
+	87Iv67AKxVW0oVCq3wA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_GcCE3s1le2I262IYc4CY6c
+	8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_JrI_
+	JrylYx0Ex4A2jsIE14v26r4j6F4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvEwIxGrw
+	CjxxvEa2IrMxkF7I0Ew4C26cxK6c8Ij28IcwCY1Ik26cxK6xAEc7vF6xCjj44lc2xSY4AK
+	6IIF6ryUMxkI7II2jI8vz4vEwIxGrwCYIxAIcVC0I7IYx2IY67AKxVWUCVW8JwCYIxAIcV
+	C0I7IYx2IY6xkF7I0E14v26r1j6r4UMxvI42IY6I8E87Iv67AKxVW0oVCq3wCYIxAIcVC2
+	z280aVCY1x0267AKxVW0oVCq3wCF04k20xvY0x0EwIxGrwCF04k20xvEw4C26cxK6c8Ij2
+	8IcwCF72vE77IF4wCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v26r1j6r18
+	MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_Jw0_GFylIxkGc2Ij64vIr4
+	1lIxAIcVCF04k26cxKx2IYs7xG6r4j6FyUYxBIdaVFxhVjvjDU0xZFpf9x07b173kUUUUU
+	=
+
+From: Eric Farman <farman@linux.ibm.com>
+
+Direct returns from within a loop are rude, but it doesn't mean it gets
+to avoid releasing the memory acquired beforehand.
+
+Signed-off-by: Eric Farman <farman@linux.ibm.com>
+Message-Id: <20181109023937.96105-3-farman@linux.ibm.com>
+Reviewed-by: Farhan Ali <alifm@linux.ibm.com>
+Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
+Acked-by: Halil Pasic <pasic@linux.ibm.com>
+Signed-off-by: Cornelia Huck <cohuck@redhat.com>
+---
+ drivers/s390/cio/vfio_ccw_cp.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
+index ef5ab45d94b3..70a006ba4d05 100644
+--- a/drivers/s390/cio/vfio_ccw_cp.c
++++ b/drivers/s390/cio/vfio_ccw_cp.c
+@@ -387,8 +387,10 @@ static int ccwchain_calc_length(u64 iova, struct channel_program *cp)
+ 		 * orb specified one of the unsupported formats, we defer
+ 		 * checking for IDAWs in unsupported formats to here.
+ 		 */
+-		if ((!cp->orb.cmd.c64 || cp->orb.cmd.i2k) && ccw_is_idal(ccw))
++		if ((!cp->orb.cmd.c64 || cp->orb.cmd.i2k) && ccw_is_idal(ccw)) {
++			kfree(p);
+ 			return -EOPNOTSUPP;
++		}
+ 
+ 		if ((!ccw_is_chain(ccw)) && (!ccw_is_tic(ccw)))
+ 			break;
+-- 
+2.17.2

@@ -1,0 +1,243 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (61.164.42.155:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 08 Nov 2018 11:14:37 -0000
+Received: from icoremail.net (unknown [209.85.210.180])
+	by mail-app2 (Coremail) with SMTP id by_KCgDnX9NUEeRbOlNfAQ--.28689S3;
+	Thu, 08 Nov 2018 18:35:02 +0800 (CST)
+Received: from mail-pf1-f180.google.com (unknown [209.85.210.180])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwAX_klREeRbFEkcAA--.8030S3;
+	Thu, 08 Nov 2018 18:34:57 +0800 (CST)
+Received: by mail-pf1-f180.google.com with SMTP id v68-v6so5539055pfk.0
+        for <xuliker@zju.edu.cn>; Thu, 08 Nov 2018 02:34:57 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :from:to:subject:date:message-id:in-reply-to:references:mime-version
+         :sender:precedence:list-id;
+        bh=KTEWe1Vex7c8TedMPilDro560EOdW2C5EHdqbNliJzU=;
+        b=TmE0AzFiIz70NHh/7WoGiU/9tzIHD0Vwi3yWGA6/jonHjq93eWBifc3mwdJ9tfbdJ8
+         SSrUKKCKSHy4BI5kQTOAu/WEfQNfy1tZQOiqvwTgXk2wJ3tJldd9/WbpTPQWjCRTBRKK
+         FPcwMj8di8D+tZqic4jN5n3sO581EqrOwEX/xyCLtcoy+F899RDWgS7AswsgXSOnytoW
+         32WzobPKYjQsxjymHJ/XpaPNy6h0nCI7sAJrBP9SdSKqbBqPSrrnBReWMQbOv4iV9UK7
+         VN4usqMz8CTQTIlk26bJ6WiTwOaEroGJdbO0QwoK2dfaHjvBqtfVG4eaL/yK7wrqzJMV
+         /dzA==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org
+X-Gm-Message-State: AGRZ1gKdAy21nSqa+Q7wkd1QfH6v6lkaSitGeuDXqFJ1JEglG1IsscIa
+	ABMeOmQzmtT1TsiZuPD83TIn+nCX/yqFaKF1I1bA649Dlxu18PadQQ==
+X-Received: by 2002:a63:4044:: with SMTP id n65mr3272466pga.90.1541673296885;
+        Thu, 08 Nov 2018 02:34:56 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp20358pjt;
+        Thu, 8 Nov 2018 02:34:56 -0800 (PST)
+X-Google-Smtp-Source: AJdET5fqufrfNs5P8POLIu6UT7DSNPN/DS+08krYhD0r84rLucc7BsFZqMB0XEOEcM42oHLBruQ/
+X-Received: by 2002:a62:5547:: with SMTP id j68-v6mr4028848pfb.166.1541673296058;
+        Thu, 08 Nov 2018 02:34:56 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1541673296; cv=none;
+        d=google.com; s=arc-20160816;
+        b=Ljs3zJtIQMl4Y82IQixi+pE9pNhKnGTFUHOSj1wQtbglvUF4g4JjH6R4NzOjKAQJpj
+         TNjU6vinDggZHgKzEEylQoBKvwPToTWzkrGQXwDcl05brcFprxy1zXsdY5NR7ZQvdXeg
+         L0eo9RBNhasLxM2g9Dzcb5EAX5Kpv0H5rH7yYMhJ6rutFlz/KxfoK8tTyD+UrjtQ39WR
+         2lVpbHRIVYUCoPdRu5mG9cTHlfSJgVsRTlo32psZ6TWR4zcjDuhBWuzA9U96E+JLStaB
+         BfHb3tSLmZrioydzMHI8I9xMl/CS7GQu/Px1wiqB8SjHLUci/xAJzCjsisIQmSbegfZA
+         nmFw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:mime-version:references:in-reply-to
+         :message-id:date:subject:to:from;
+        bh=KTEWe1Vex7c8TedMPilDro560EOdW2C5EHdqbNliJzU=;
+        b=LusUSrn26OBJBTCYctyK1JwPs8nOMoQteUorgwnh9LmGoIvuSkVrcJ2h6yAp5YQzEn
+         SB+UYxU1UbSfH3Jws1oSI4iSZj3QmP1HkSsb0RAZuVYYhBBH8NlIkQaL01MzeaG53At/
+         tITbqnFgBgY4SI3lmP87CaOlWzdJ++D24FPzL++PqgxbOa93uQoHXm0mAet42Gmou2ge
+         nU+MrLITtqgcNU3L1AMD+PwNGIcbu2gy3kt918qmlYX6tV+cI7bCRniy781ejTFSmNdU
+         EMmlvwT4kJyjX0gOTMfgk1+E0co6JS9cnZNWRTE/64ytbh9nFNBwHa1VJeBXV5EwBosR
+         rXqw==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id u8-v6si3412053pgl.59.2018.11.08.02.34.42;
+        Thu, 08 Nov 2018 02:34:56 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1726931AbeKHUHh (ORCPT <rfc822;fanshuming2011@gmail.com>
+        + 99 others); Thu, 8 Nov 2018 15:07:37 -0500
+Received: from szxga06-in.huawei.com ([45.249.212.32]:38303 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1727074AbeKHUHe (ORCPT <rfc822;kvm@vger.kernel.org>);
+        Thu, 8 Nov 2018 15:07:34 -0500
+Received: from DGGEMS403-HUB.china.huawei.com (unknown [172.30.72.58])
+        by Forcepoint Email with ESMTP id 288591C0281A;
+        Thu,  8 Nov 2018 18:32:41 +0800 (CST)
+Received: from ros.huawei.com (10.143.28.118) by
+ DGGEMS403-HUB.china.huawei.com (10.3.19.203) with Microsoft SMTP Server id
+ 14.3.408.0; Thu, 8 Nov 2018 18:32:33 +0800
+From: Dongjiu Geng <gengdongjiu@huawei.com>
+To: <imammedo@redhat.com>, <mst@redhat.com>,
+        <peter.maydell@linaro.org>, <lersek@redhat.com>,
+        <marc.zyngier@arm.com>, <james.morse@arm.com>,
+        <pbonzini@redhat.com>, <mtosatti@redhat.com>, <rth@twiddle.net>,
+        <zhengxiang9@huawei.com>, <ehabkost@redhat.com>,
+        <kvm@vger.kernel.org>, <shannon.zhaosl@gmail.com>,
+        <qemu-devel@nongnu.org>, <qemu-arm@nongnu.org>,
+        <gengdongjiu@huawei.com>
+Subject: [PATCH RESEND v15 07/10] KVM: Move related hwpoison page functions to accel/kvm/ folder
+Date: Thu, 8 Nov 2018 02:29:46 -0800
+Message-ID: <1541672989-15967-8-git-send-email-gengdongjiu@huawei.com>
+X-Mailer: git-send-email 2.7.4
+In-Reply-To: <1541672989-15967-1-git-send-email-gengdongjiu@huawei.com>
+References: <1541672989-15967-1-git-send-email-gengdongjiu@huawei.com>
+MIME-Version: 1.0
+Content-Type: text/plain
+X-Originating-IP: [10.143.28.118]
+X-CFilter-Loop: Reflected
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwAX_klREeRbFEkcAA--.8030S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoWxWrWrXFyrAF4rtryDGw1UAwb_yoWrGw4xpa
+	n3A3s3JF4rJ34ayFW3Jrs7ArW5Aws3X3y7G342kw1F9a9rZr4UKr4j9as5Jas0grWDCFsa
+	yF4UWF43Ca1YqrDanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUBYb7Iv0xC_Cr1lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2
+	z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s0DM2AIxVAIcxkEcV
+	Aq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1j
+	6r18McIj6I8E87Iv67AKxVW8JVWxJwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IYc2Ij64
+	vIr41l7I0Y6sxI4wCY1x0264kExVAvwVAq07x20xylc2xSY4AK6IIF6r4DMxkI7II2jI8v
+	z4vEwIxGrwCYIxAIcVC0I7IYx2IY67AKxVW5JVW7JwCYIxAIcVC0I7IYx2IY6xkF7I0E14
+	v26r4j6F4UMxvI42IY6I8E87Iv67AKxVWxJr0_GcWlcIIF0xvEx4A2jsIEc7CjxVAFwI0_
+	Cr1j6rxdMxAIw28IcxkI7VAKI48JMxAIw28IcVAKzI0EY4vE52x082I5MxCjnVCjjxCrMx
+	C20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxVCjr7xvwVAF
+	wI0_JrI_JrWlx4CE17CEb7AF67AKxVW8ZVWrXwCIc40Y0x0EwIxGrwCI42IY6xAIw20EY4
+	v20xvaj40_JFI_GrUvcSsGvfC2KfnxnUUI43ZEXa7IU5jZX5UUUUU==
+
+kvm_hwpoison_page_add() and kvm_unpoison_all() will be used both
+by X86 and ARM platforms, so move these functions to a common
+accel/kvm/ folder to avoid duplicate code.
+
+Signed-off-by: Dongjiu Geng <gengdongjiu@huawei.com>
+---
+Address Peter's comments to move related hwpoison page function to
+accel/kvm folder in [1]
+Address Paolo's comments to move HWPoisonPage definition back to
+accel/kvm/kvm-all.c
+
+[1]:
+https://lists.gnu.org/archive/html/qemu-arm/2017-09/msg00077.html
+https://lists.gnu.org/archive/html/qemu-arm/2017-09/msg00152.html
+---
+ accel/kvm/kvm-all.c     | 33 +++++++++++++++++++++++++++++++++
+ include/exec/ram_addr.h |  5 +++++
+ target/i386/kvm.c       | 33 ---------------------------------
+ 3 files changed, 38 insertions(+), 33 deletions(-)
+
+diff --git a/accel/kvm/kvm-all.c b/accel/kvm/kvm-all.c
+index 4880a05..003deac 100644
+--- a/accel/kvm/kvm-all.c
++++ b/accel/kvm/kvm-all.c
+@@ -625,6 +625,39 @@ int kvm_vm_check_extension(KVMState *s, unsigned int extension)
+     return ret;
+ }
+ 
++typedef struct HWPoisonPage {
++    ram_addr_t ram_addr;
++    QLIST_ENTRY(HWPoisonPage) list;
++} HWPoisonPage;
++
++static QLIST_HEAD(, HWPoisonPage) hwpoison_page_list =
++    QLIST_HEAD_INITIALIZER(hwpoison_page_list);
++
++void kvm_unpoison_all(void *param)
++{
++    HWPoisonPage *page, *next_page;
++
++    QLIST_FOREACH_SAFE(page, &hwpoison_page_list, list, next_page) {
++        QLIST_REMOVE(page, list);
++        qemu_ram_remap(page->ram_addr, TARGET_PAGE_SIZE);
++        g_free(page);
++    }
++}
++
++void kvm_hwpoison_page_add(ram_addr_t ram_addr)
++{
++    HWPoisonPage *page;
++
++    QLIST_FOREACH(page, &hwpoison_page_list, list) {
++        if (page->ram_addr == ram_addr) {
++            return;
++        }
++    }
++    page = g_new(HWPoisonPage, 1);
++    page->ram_addr = ram_addr;
++    QLIST_INSERT_HEAD(&hwpoison_page_list, page, list);
++}
++
+ static uint32_t adjust_ioeventfd_endianness(uint32_t val, uint32_t size)
+ {
+ #if defined(HOST_WORDS_BIGENDIAN) != defined(TARGET_WORDS_BIGENDIAN)
+diff --git a/include/exec/ram_addr.h b/include/exec/ram_addr.h
+index 9ecd911..1e02fb9 100644
+--- a/include/exec/ram_addr.h
++++ b/include/exec/ram_addr.h
+@@ -115,6 +115,11 @@ void qemu_ram_free(RAMBlock *block);
+ 
+ int qemu_ram_resize(RAMBlock *block, ram_addr_t newsize, Error **errp);
+ 
++/* Add a poisoned page to the list */
++void kvm_hwpoison_page_add(ram_addr_t ram_addr);
++/* Free and remove all the poisoned pages in the list */
++void kvm_unpoison_all(void *param);
++
+ #define DIRTY_CLIENTS_ALL     ((1 << DIRTY_MEMORY_NUM) - 1)
+ #define DIRTY_CLIENTS_NOCODE  (DIRTY_CLIENTS_ALL & ~(1 << DIRTY_MEMORY_CODE))
+ 
+diff --git a/target/i386/kvm.c b/target/i386/kvm.c
+index 796a049..08b3feb 100644
+--- a/target/i386/kvm.c
++++ b/target/i386/kvm.c
+@@ -457,39 +457,6 @@ uint32_t kvm_arch_get_supported_msr_feature(KVMState *s, uint32_t index)
+ }
+ 
+ 
+-typedef struct HWPoisonPage {
+-    ram_addr_t ram_addr;
+-    QLIST_ENTRY(HWPoisonPage) list;
+-} HWPoisonPage;
+-
+-static QLIST_HEAD(, HWPoisonPage) hwpoison_page_list =
+-    QLIST_HEAD_INITIALIZER(hwpoison_page_list);
+-
+-static void kvm_unpoison_all(void *param)
+-{
+-    HWPoisonPage *page, *next_page;
+-
+-    QLIST_FOREACH_SAFE(page, &hwpoison_page_list, list, next_page) {
+-        QLIST_REMOVE(page, list);
+-        qemu_ram_remap(page->ram_addr, TARGET_PAGE_SIZE);
+-        g_free(page);
+-    }
+-}
+-
+-static void kvm_hwpoison_page_add(ram_addr_t ram_addr)
+-{
+-    HWPoisonPage *page;
+-
+-    QLIST_FOREACH(page, &hwpoison_page_list, list) {
+-        if (page->ram_addr == ram_addr) {
+-            return;
+-        }
+-    }
+-    page = g_new(HWPoisonPage, 1);
+-    page->ram_addr = ram_addr;
+-    QLIST_INSERT_HEAD(&hwpoison_page_list, page, list);
+-}
+-
+ static int kvm_get_mce_cap_supported(KVMState *s, uint64_t *mce_cap,
+                                      int *max_banks)
+ {
+-- 
+1.8.3.1

@@ -1,0 +1,585 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (61.164.42.155:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 12 Nov 2018 15:13:42 -0000
+Received: from icoremail.net (unknown [209.85.214.180])
+	by mail-app2 (Coremail) with SMTP id by_KCgC3f_lwM+lb7dp7AQ--.37188S3;
+	Mon, 12 Nov 2018 16:01:53 +0800 (CST)
+Received: from mail-pl1-f180.google.com (unknown [209.85.214.180])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwBHHTlsM+lbvYkwAA--.1047S3;
+	Mon, 12 Nov 2018 16:01:49 +0800 (CST)
+Received: by mail-pl1-f180.google.com with SMTP id r3-v6so3201021pls.12
+        for <xuliker@zju.edu.cn>; Mon, 12 Nov 2018 00:01:49 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:delivered-to:dkim-signature:from:to:cc:subject
+         :date:message-id:in-reply-to:references:sender:precedence:list-id;
+        bh=1WrMNdKTpLJsrFqw3n6LcIYm1w1XcLy3KjEkH2mAfoI=;
+        b=eIZGbkDi6wNJtzl3Pe/0Fuk00s206ksubQRUUGjpxMQVXdh0IyXvSCjc93i2xtQtbS
+         sF2+PLiwdC3QFYjzgU9dP/jUYjMndw1x5zrLFYX7ENZ3NEuVWNAOWQnf1/kdWNzHZfct
+         z7jAZDNHji3jS9hyacjvFXxQnt0wI+rsS0Efgedgsma7RrsozzKOsJ2PMtR2voPcdNBa
+         iKTxfhwQ+LWec8dcbOkz6eFRJl4p/vOlcCXwGOGB+Mr1/cyL051dDCBhGK53W45pZF/y
+         vub8D/ZQeIlwT1rCYDGsIp0pFufmHlSFI7/J4695BYwWks7Xeb4GA6acXUI7/lky999J
+         219A==
+X-Gm-Message-State: AGRZ1gKr/SVmL7BC6elS/eSgEU7NSRhbU1+LxhJowWXr21pk8wUtGMfH
+	zF9z6Wru9Y2+G9Rc3b7GzvJ1M5PQqWKhVXauw3PWPVF6z8mQhLGDpw==
+X-Received: by 2002:a17:902:a5cc:: with SMTP id t12-v6mr19008321plq.298.1542009708717;
+        Mon, 12 Nov 2018 00:01:48 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp2901459pjt;
+        Mon, 12 Nov 2018 00:01:47 -0800 (PST)
+X-Google-Smtp-Source: AJdET5cVxYq1ValWBReqJeT0o34iF31JJl3LEh4QaUn3lt2MSsgQ/flIJLXwnLw7vAmMU+u48LPu
+X-Received: by 2002:a62:9989:: with SMTP id t9-v6mr18909735pfk.179.1542009707463;
+        Mon, 12 Nov 2018 00:01:47 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542009707; cv=none;
+        d=google.com; s=arc-20160816;
+        b=wRzgOLypsUX823X98IQmsAFq16GA0roP/iqQgut3BPWEUNVUdZRR9lP7yf/lG0CTo+
+         x1t1nBQr2GItsN6ojTjzujav+N9zWlX0ylB/pjU9+UOjb+5PIf4h/VxnBoD5DbSG5uiD
+         0EpqJGLWcx0dcfmubLna4mD5gBrt1QC3nO66qlW4x3PXudUUa6in1TOjUoQUaqsI7Rcs
+         pAdKDFxLFDZH7/ldXzOzwuifIdf+mU5GIAIXOs9u9V7RDZ/ukakLgeZEgiglxm2/QoIv
+         t71V2u18tQWmfQyuxTagC8pkieFnIaL47BloLQyw0Io0dNnjsTFDFGGyAqlfyiDdOBx2
+         oxIw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:references:in-reply-to:message-id:date
+         :subject:cc:to:from:dkim-signature;
+        bh=1WrMNdKTpLJsrFqw3n6LcIYm1w1XcLy3KjEkH2mAfoI=;
+        b=ChZD9rbqUcEplh/5m1fc2zL9Pfm92Fn7jR/jFAC4AZr14FQof64YBgBTj0XKoLw/mk
+         T9rI2rY4Ce+Qdnb1rOP1qe0AZ5jV5eG6KoZezU66YQQZGINR06hJnvf7979eBu9QK34E
+         SJv0NllU7tUn+PbNnm+P/D+pRA2pF6FdBFLVg25ufZURPIeQb2z+lO2gomKdzEvRodR7
+         x6bhbv2BQ/C6EGUsRbV7JYlNDwdYUpUxa5N+NOEZM/qS2Y27UrrN8cOmigmI+XXuaSKT
+         7XV1tkBCHHnIN4Dit6ITiMW+LTWtb2NpQBDbBIrSKGEnULqsffVoUVnDRNPKIPmKaQn1
+         X2QA==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@gmail.com header.s=20161025 header.b=MXoQ8og4;
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;
+       dmarc=pass (p=NONE sp=QUARANTINE dis=NONE) header.from=gmail.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id 62-v6si17144793pla.217.2018.11.12.00.01.32;
+        Mon, 12 Nov 2018 00:01:47 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1728557AbeKLRw6 (ORCPT <rfc822;tomnomnom1@gmail.com>
+        + 99 others); Mon, 12 Nov 2018 12:52:58 -0500
+Received: from mail-pg1-f194.google.com ([209.85.215.194]:42355 "EHLO
+        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728196AbeKLRw5 (ORCPT
+        <rfc822;linux-kernel@vger.kernel.org>);
+        Mon, 12 Nov 2018 12:52:57 -0500
+Received: by mail-pg1-f194.google.com with SMTP id d72so254091pga.9;
+        Mon, 12 Nov 2018 00:00:54 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references;
+        bh=1WrMNdKTpLJsrFqw3n6LcIYm1w1XcLy3KjEkH2mAfoI=;
+        b=MXoQ8og47Kb9m4W7yvsFsck9G7d+kyO2d+kb6Xwhi/FIWtP7C0PXI613mPZ3eGGW7q
+         EksREfMFP+Y051ZC4QqBf8zTDvz9SXOoEbd2ixZ2OMbOnmyX+J9t/Mnhe0tF/AIbwb3a
+         HvgXgfW/vwu8z7w/vho4fn0p5HvoDJYcwGr694R5k+4zniuKGG9tPM58ou2PVjPJBKzU
+         LsMc9DBsH4QRY2v5Tq9ebkZhKB/YSHdN7mP0NpM6O+PEr01fOgznHSu+F2KHlUKVpuSt
+         YofqBLaz4kY2NHj4o7JRPC0DC1IteHONGfMe3cLogItJ0Ip5uPc/DXQt+jkabJVbxbjL
+         sRig==
+X-Received: by 2002:a62:500c:: with SMTP id e12-v6mr19423825pfb.30.1542009653610;
+        Mon, 12 Nov 2018 00:00:53 -0800 (PST)
+Received: from localhost.localdomain ([45.41.180.77])
+        by smtp.gmail.com with ESMTPSA id u2-v6sm17050816pfn.50.2018.11.12.00.00.35
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 12 Nov 2018 00:00:52 -0800 (PST)
+From: Kenneth Lee <nek.in.cn@gmail.com>
+To: Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Tim Sell <timothy.sell@unisys.com>,
+        Sanyog Kale <sanyog.r.kale@intel.com>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>, Vinod Koul <vkoul@kernel.org>,
+        David Kershner <david.kershner@unisys.com>,
+        Sagar Dharia <sdharia@codeaurora.org>,
+        Gavin Schenk <g.schenk@eckelmann.de>,
+        Jens Axboe <axboe@kernel.dk>,
+        Philippe Ombredanne <pombredanne@nexb.com>,
+        Cyrille Pitchen <cyrille.pitchen@free-electrons.com>,
+        Johan Hovold <johan@kernel.org>,
+        Zhou Wang <wangzhou1@hisilicon.com>,
+        Hao Fang <fanghao11@huawei.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Zaibo Xu <xuzaibo@huawei.com>, linux-doc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org,
+        linux-accelerators@lists.ozlabs.org
+Cc: linuxarm@huawei.com, guodong.xu@linaro.org,
+        zhangfei.gao@foxmail.com, haojian.zhuang@linaro.org,
+        Kenneth Lee <liguozhu@hisilicon.com>
+Subject: [RFCv3 PATCH 5/6] crypto: add uacce support to Hisilicon qm
+Date: Mon, 12 Nov 2018 15:58:06 +0800
+Message-Id: <20181112075807.9291-6-nek.in.cn@gmail.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20181112075807.9291-1-nek.in.cn@gmail.com>
+References: <20181112075807.9291-1-nek.in.cn@gmail.com>
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwBHHTlsM+lbvYkwAA--.1047S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvAXoW3tFW3Cr4UAr48tr48ZF1UWrg_yoW8JryDto
+	WfWF1xJF1kJw18urWUC3W8Ca4Sq39Fkry3Ars5JFnxCF90v3W5W34xCa13GFySgFs8KFWf
+	A3WfGw18WFZ8J3s3n29KB7ZKAUJUUUUU529EdanIXcx71UUUUU7v73VFW2AGmfu7jjvjm3
+	AaLaJ3UjIYCTnIWjp_UUUO17k0a2IF6FyUM7kC6x804xWl14x267AKxVWUJVW8JwAFIxvE
+	14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK021l84ACjcxK6xIIjx
+	v20xvE14v26F1j6w1UM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26F4j6r4UJwA2z4x0Y4vE
+	x4A2jsIE14v26rxl6s0DM28EF7xvwVC2z280aVCY1x0267AKxVW0oVCq3wAS0I0E0xvYzx
+	vE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AKxVWU
+	JVWUGwAv7VC2z280aVAFwI0_Gr0_Cr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcxkI7V
+	AKI48JMx02cVCv0xWlc7CjxVAKzI0EY4vE52x082I5MxkFs20EY4vE44CYbxCE4x80FwCY
+	02Avz4vEIxC_GFylc2IjII80xcxEwVAKI48JMxvI42IY6xIIjxv20xvE14v26r4j6ryUMx
+	vI42IY6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1lcIIF0xvEx4A2jsIE14v26rxl6s0DMxvI
+	42IY6I8E87Iv6xkF7I0E14v26rxl6s0DMxAIw28IcxkI7VAKI48JMxAIw28IcVAKzI0EY4
+	vE52x082I5MxCjnVCjjxCrMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_
+	Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVW8ZVWrXwCIc40Y0x
+	0EwIxGrwCI42IY6xAIw20EY4v20xvaj40_Gr0_ZrUvcSsGvfC2KfnxnUUI43ZEXa7IU5Lq
+	XPUUUUU==
+
+From: Kenneth Lee <liguozhu@hisilicon.com>
+
+This patch add uacce support to the Hislicon QM driver, any accelerator
+that use QM can share its queues to the user space.
+
+Signed-off-by: Kenneth Lee <liguozhu@hisilicon.com>
+Signed-off-by: Zhou Wang <wangzhou1@hisilicon.com>
+Signed-off-by: Hao Fang <fanghao11@huawei.com>
+Signed-off-by: Zaibo Xu <xuzaibo@huawei.com>
+---
+ drivers/crypto/hisilicon/Kconfig        |   7 +
+ drivers/crypto/hisilicon/qm.c           | 227 +++++++++++++++++++++---
+ drivers/crypto/hisilicon/qm.h           |  16 +-
+ drivers/crypto/hisilicon/zip/zip_main.c |  27 ++-
+ 4 files changed, 249 insertions(+), 28 deletions(-)
+
+diff --git a/drivers/crypto/hisilicon/Kconfig b/drivers/crypto/hisilicon/Kconfig
+index ce9deefbf037..819e4995f361 100644
+--- a/drivers/crypto/hisilicon/Kconfig
++++ b/drivers/crypto/hisilicon/Kconfig
+@@ -16,6 +16,13 @@ config CRYPTO_DEV_HISI_QM
+ 	tristate
+ 	depends on ARM64 && PCI
+ 
++config CRYPTO_QM_UACCE
++	bool "enable UACCE support for all acceleartor with Hisi QM"
++	depends on CRYPTO_DEV_HISI_QM
++	select UACCE
++	help
++	  Support UACCE interface in Hisi QM.
++
+ config CRYPTO_DEV_HISI_ZIP
+ 	tristate "Support for HISI ZIP Driver"
+ 	depends on ARM64
+diff --git a/drivers/crypto/hisilicon/qm.c b/drivers/crypto/hisilicon/qm.c
+index 5b810a6f4dd5..750d8c069d92 100644
+--- a/drivers/crypto/hisilicon/qm.c
++++ b/drivers/crypto/hisilicon/qm.c
+@@ -5,6 +5,7 @@
+ #include <linux/io.h>
+ #include <linux/irqreturn.h>
+ #include <linux/log2.h>
++#include <linux/uacce.h>
+ #include "qm.h"
+ 
+ #define QM_DEF_Q_NUM			128
+@@ -435,17 +436,29 @@ int hisi_qm_start_qp(struct hisi_qp *qp, unsigned long arg)
+ 	qp->sqc_dma = qm->sqc_dma + qp_index * sizeof(struct sqc);
+ 	qp->cqc_dma = qm->cqc_dma + qp_index * sizeof(struct cqc);
+ 
+-	qp->qdma.size = qm->sqe_size * QM_Q_DEPTH +
+-			sizeof(struct cqe) * QM_Q_DEPTH,
+-	qp->qdma.va = dma_alloc_coherent(dev, qp->qdma.size,
+-					 &qp->qdma.dma,
+-					 GFP_KERNEL | __GFP_ZERO);
+-	dev_dbg(dev, "allocate qp dma buf(va=%p, dma=%pad, size=%lx)\n",
+-		qp->qdma.va, &qp->qdma.dma, qp->qdma.size);
++	if (qm->uacce_mode) {
++		dev_dbg(dev, "User shared DMA Buffer used: (%lx/%x)\n",
++			off, QM_DUS_PAGE_NR << PAGE_SHIFT);
++		if (off > (QM_DUS_PAGE_NR << PAGE_SHIFT))
++			return -EINVAL;
++	} else {
++
++		/*
++		 * todo: we are using dma api here. it should be updated to
++		 * uacce api for user and kernel mode working at the same time
++		 */
++		qp->qdma.size = qm->sqe_size * QM_Q_DEPTH +
++				sizeof(struct cqe) * QM_Q_DEPTH,
++		qp->qdma.va = dma_alloc_coherent(dev, qp->qdma.size,
++						 &qp->qdma.dma,
++						 GFP_KERNEL | __GFP_ZERO);
++		dev_dbg(dev, "allocate qp dma buf(va=%p, dma=%pad, size=%lx)\n",
++			qp->qdma.va, &qp->qdma.dma, qp->qdma.size);
++	}
+ 
+ 	if (!qp->qdma.va) {
+ 		dev_err(dev, "cannot get qm dma buffer\n");
+-		return -ENOMEM;
++		return qm->uacce_mode ? -EINVAL : -ENOMEM;
+ 	}
+ 
+ 	QP_INIT_BUF(qp, sqe, qm->sqe_size * QM_Q_DEPTH);
+@@ -491,7 +504,8 @@ void hisi_qm_release_qp(struct hisi_qp *qp)
+ 	bitmap_clear(qm->qp_bitmap, qid, 1);
+ 	write_unlock(&qm->qps_lock);
+ 
+-	dma_free_coherent(dev, qdma->size, qdma->va, qdma->dma);
++	if (!qm->uacce_mode)
++		dma_free_coherent(dev, qdma->size, qdma->va, qdma->dma);
+ 
+ 	kfree(qp);
+ }
+@@ -535,6 +549,149 @@ int hisi_qp_send(struct hisi_qp *qp, void *msg)
+ }
+ EXPORT_SYMBOL_GPL(hisi_qp_send);
+ 
++#ifdef CONFIG_CRYPTO_QM_UACCE
++static void qm_qp_event_notifier(struct hisi_qp *qp)
++{
++	uacce_wake_up(qp->uacce_q);
++}
++
++static int hisi_qm_get_queue(struct uacce *uacce, unsigned long arg,
++			     struct uacce_queue **q)
++{
++	struct qm_info *qm = uacce->priv;
++	struct hisi_qp *qp = NULL;
++	struct uacce_queue *wd_q;
++	u8 alg_type = 0; /* fix me here */
++	int ret;
++
++	qp = hisi_qm_create_qp(qm, alg_type);
++	if (IS_ERR(qp))
++		return PTR_ERR(qp);
++
++	wd_q = kzalloc(sizeof(struct uacce_queue), GFP_KERNEL);
++	if (!wd_q) {
++		ret = -ENOMEM;
++		goto err_with_qp;
++	}
++
++	wd_q->priv = qp;
++	wd_q->uacce = uacce;
++	*q = wd_q;
++	qp->uacce_q = wd_q;
++	qp->event_cb = qm_qp_event_notifier;
++	qp->pasid = arg;
++
++	return 0;
++
++err_with_qp:
++	hisi_qm_release_qp(qp);
++	return ret;
++}
++
++static void hisi_qm_put_queue(struct uacce_queue *q)
++{
++	struct hisi_qp *qp = q->priv;
++
++	/* need to stop hardware, but can not support in v1 */
++	hisi_qm_release_qp(qp);
++	kfree(q);
++}
++
++/* map sq/cq/doorbell to user space */
++static int hisi_qm_mmap(struct uacce_queue *q,
++			struct vm_area_struct *vma)
++{
++	struct hisi_qp *qp = (struct hisi_qp *)q->priv;
++	struct qm_info *qm = qp->qm;
++	size_t sz = vma->vm_end - vma->vm_start;
++	u8 region;
++
++	region = vma->vm_pgoff;
++
++	switch (region) {
++	case 0:
++		if (sz > PAGE_SIZE)
++			return -EINVAL;
++
++		vma->vm_flags |= VM_IO;
++		/*
++		 * Warning: This is not safe as multiple queues use the same
++		 * doorbell, v1 hardware interface problem. will fix it in v2
++		 */
++		return remap_pfn_range(vma, vma->vm_start,
++				       qm->phys_base >> PAGE_SHIFT,
++				       sz, pgprot_noncached(vma->vm_page_prot));
++
++	default:
++		return -EINVAL;
++	}
++}
++
++static int hisi_qm_start_queue(struct uacce_queue *q)
++{
++	int ret;
++	struct qm_info *qm = q->uacce->priv;
++	struct hisi_qp *qp = (struct hisi_qp *)q->priv;
++
++	/* todo: we don't need to start qm here in SVA version */
++	qm->qdma.dma = q->qfrs[UACCE_QFRT_DKO]->iova;
++	qm->qdma.va = q->qfrs[UACCE_QFRT_DKO]->kaddr;
++
++	ret = hisi_qm_start(qm);
++	if (ret)
++		return ret;
++
++	qp->qdma.dma = q->qfrs[UACCE_QFRT_DUS]->iova;
++	qp->qdma.va = q->qfrs[UACCE_QFRT_DUS]->kaddr;
++	ret = hisi_qm_start_qp(qp, qp->pasid);
++	if (ret)
++		hisi_qm_stop(qm);
++
++	return 0;
++}
++
++static void hisi_qm_stop_queue(struct uacce_queue *q)
++{
++	struct qm_info *qm = q->uacce->priv;
++
++	/* todo: we don't need to stop qm in SVA version */
++	hisi_qm_stop(qm);
++}
++
++/*
++ * the device is set the UACCE_DEV_SVA, but it will be cut if SVA patch is not
++ * available
++ */
++static struct uacce_ops uacce_qm_ops = {
++	.owner = THIS_MODULE,
++	.flags = UACCE_DEV_SVA | UACCE_DEV_KMAP_DUS,
++	.api_ver = "hisi_qm_v1",
++	.qf_pg_start = {QM_DOORBELL_PAGE_NR,
++			QM_DOORBELL_PAGE_NR + QM_DKO_PAGE_NR,
++			QM_DOORBELL_PAGE_NR + QM_DKO_PAGE_NR + QM_DUS_PAGE_NR},
++
++	.get_queue = hisi_qm_get_queue,
++	.put_queue = hisi_qm_put_queue,
++	.start_queue = hisi_qm_start_queue,
++	.stop_queue = hisi_qm_stop_queue,
++	.mmap = hisi_qm_mmap,
++};
++
++static int qm_register_uacce(struct qm_info *qm)
++{
++	struct pci_dev *pdev = qm->pdev;
++	struct uacce *uacce = &qm->uacce;
++
++	uacce->name = dev_name(&pdev->dev);
++	uacce->dev = &pdev->dev;
++	uacce->is_vf = pdev->is_virtfn;
++	uacce->priv = qm;
++	uacce->ops = &uacce_qm_ops;
++
++	return uacce_register(uacce);
++}
++#endif
++
+ static irqreturn_t qm_irq(int irq, void *data)
+ {
+ 	struct qm_info *qm = data;
+@@ -635,21 +792,34 @@ int hisi_qm_init(struct qm_info *qm)
+ 		}
+ 	}
+ 
+-	qm->qdma.size = max_t(size_t, sizeof(struct eqc),
+-			      sizeof(struct aeqc)) +
+-			sizeof(struct eqe) * QM_Q_DEPTH +
+-			sizeof(struct sqc) * qm->qp_num +
+-			sizeof(struct cqc) * qm->qp_num;
+-	qm->qdma.va = dma_alloc_coherent(dev, qm->qdma.size,
+-					 &qm->qdma.dma,
+-					 GFP_KERNEL | __GFP_ZERO);
+-	dev_dbg(dev, "allocate qm dma buf(va=%p, dma=%pad, size=%lx)\n",
+-		qm->qdma.va, &qm->qdma.dma, qm->qdma.size);
+-	ret = qm->qdma.va ? 0 : -ENOMEM;
++	if (qm->uacce_mode) {
++#ifdef CONFIG_CRYPTO_QM_UACCE
++		ret = qm_register_uacce(qm);
++#else
++		dev_err(dev, "qm uacce feature is not enabled\n");
++		ret = -EINVAL;
++#endif
++
++	} else {
++		qm->qdma.size = max_t(size_t, sizeof(struct eqc),
++				      sizeof(struct aeqc)) +
++				sizeof(struct eqe) * QM_Q_DEPTH +
++				sizeof(struct sqc) * qm->qp_num +
++				sizeof(struct cqc) * qm->qp_num;
++		qm->qdma.va = dma_alloc_coherent(dev, qm->qdma.size,
++						 &qm->qdma.dma,
++						 GFP_KERNEL | __GFP_ZERO);
++		dev_dbg(dev, "allocate qm dma buf(va=%p, dma=%pad, size=%lx)\n",
++			qm->qdma.va, &qm->qdma.dma, qm->qdma.size);
++		ret = qm->qdma.va ? 0 : -ENOMEM;
++	}
+ 
+ 	if (ret)
+ 		goto err_with_irq;
+ 
++	dev_dbg(dev, "init qm %s to %s mode\n", pdev->is_physfn ? "pf" : "vf",
++		qm->uacce_mode ? "uacce" : "crypto");
++
+ 	return 0;
+ 
+ err_with_irq:
+@@ -669,7 +839,13 @@ void hisi_qm_uninit(struct qm_info *qm)
+ {
+ 	struct pci_dev *pdev = qm->pdev;
+ 
+-	dma_free_coherent(&pdev->dev, qm->qdma.size, qm->qdma.va, qm->qdma.dma);
++	if (qm->uacce_mode) {
++#ifdef CONFIG_CRYPTO_QM_UACCE
++		uacce_unregister(&qm->uacce);
++#endif
++	} else
++		dma_free_coherent(&pdev->dev, qm->qdma.size, qm->qdma.va,
++				  qm->qdma.dma);
+ 
+ 	devm_free_irq(&pdev->dev, pci_irq_vector(pdev, 0), qm);
+ 	pci_free_irq_vectors(pdev);
+@@ -690,7 +866,7 @@ int hisi_qm_start(struct qm_info *qm)
+ } while (0)
+ 
+ 	if (!qm->qdma.va)
+-		return -EINVAL;
++		return qm->uacce_mode ? 0 : -EINVAL;
+ 
+ 	if (qm->pdev->is_physfn)
+ 		qm->ops->vft_config(qm, qm->qp_base, qm->qp_num);
+@@ -705,6 +881,13 @@ int hisi_qm_start(struct qm_info *qm)
+ 	QM_INIT_BUF(qm, eqc,
+ 		    max_t(size_t, sizeof(struct eqc), sizeof(struct aeqc)));
+ 
++	if (qm->uacce_mode) {
++		dev_dbg(&qm->pdev->dev, "kernel-only buffer used (0x%lx/0x%x)\n",
++			off, QM_DKO_PAGE_NR << PAGE_SHIFT);
++		if (off > (QM_DKO_PAGE_NR << PAGE_SHIFT))
++			return -EINVAL;
++	}
++
+ 	qm->eqc->base_l = lower_32_bits(qm->eqe_dma);
+ 	qm->eqc->base_h = upper_32_bits(qm->eqe_dma);
+ 	qm->eqc->dw3 = 2 << MB_EQC_EQE_SHIFT;
+diff --git a/drivers/crypto/hisilicon/qm.h b/drivers/crypto/hisilicon/qm.h
+index 6d124d948738..81b0b8c1f0b0 100644
+--- a/drivers/crypto/hisilicon/qm.h
++++ b/drivers/crypto/hisilicon/qm.h
+@@ -9,6 +9,10 @@
+ #include <linux/slab.h>
+ #include "qm_usr_if.h"
+ 
++#ifdef CONFIG_CRYPTO_QM_UACCE
++#include <linux/uacce.h>
++#endif
++
+ /* qm user domain */
+ #define QM_ARUSER_M_CFG_1		0x100088
+ #define QM_ARUSER_M_CFG_ENABLE		0x100090
+@@ -146,6 +150,12 @@ struct qm_info {
+ 	struct mutex mailbox_lock;
+ 
+ 	struct hisi_acc_qm_hw_ops *ops;
++
++	bool uacce_mode;
++
++#ifdef CONFIG_CRYPTO_QM_UACCE
++	struct uacce uacce;
++#endif
+ };
+ #define QM_ADDR(qm, off) ((qm)->io_base + off)
+ 
+@@ -186,6 +196,10 @@ struct hisi_qp {
+ 
+ 	struct qm_info *qm;
+ 
++#ifdef CONFIG_CRYPTO_QM_UACCE
++	struct uacce_queue *uacce_q;
++#endif
++
+ 	/* for crypto sync API */
+ 	struct completion completion;
+ 
+@@ -197,7 +211,7 @@ struct hisi_qp {
+ 
+ /* QM external interface for accelerator driver.
+  * To use qm:
+- * 1. Set qm with pdev, and sqe_size set accordingly
++ * 1. Set qm with pdev, uacce_mode, and sqe_size set accordingly
+  * 2. hisi_qm_init()
+  * 3. config the accelerator hardware
+  * 4. hisi_qm_start()
+diff --git a/drivers/crypto/hisilicon/zip/zip_main.c b/drivers/crypto/hisilicon/zip/zip_main.c
+index f4f3b6d89340..f5fcd0f4b836 100644
+--- a/drivers/crypto/hisilicon/zip/zip_main.c
++++ b/drivers/crypto/hisilicon/zip/zip_main.c
+@@ -5,6 +5,7 @@
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+ #include <linux/pci.h>
++#include <linux/uacce.h>
+ #include "zip.h"
+ #include "zip_crypto.h"
+ 
+@@ -28,6 +29,9 @@
+ LIST_HEAD(hisi_zip_list);
+ DEFINE_MUTEX(hisi_zip_list_lock);
+ 
++static bool uacce_mode;
++module_param(uacce_mode, bool, 0);
++
+ static const char hisi_zip_name[] = "hisi_zip";
+ 
+ static const struct pci_device_id hisi_zip_dev_ids[] = {
+@@ -96,6 +100,7 @@ static int hisi_zip_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+ 
+ 	qm = &hisi_zip->qm;
+ 	qm->pdev = pdev;
++	qm->uacce_mode = uacce_mode;
+ 	qm->qp_base = HZIP_PF_DEF_Q_BASE;
+ 	qm->qp_num = HZIP_PF_DEF_Q_NUM;
+ 	qm->sqe_size = HZIP_SQE_SIZE;
+@@ -150,10 +155,21 @@ static int __init hisi_zip_init(void)
+ 		return ret;
+ 	}
+ 
+-	ret = hisi_zip_register_to_crypto();
+-	if (ret < 0) {
+-		pci_unregister_driver(&hisi_zip_pci_driver);
+-		return ret;
++	/* todo:
++	 *
++	 * Before JPB's SVA patch is enabled, SMMU/IOMMU cannot support PASID.
++	 * When it is accepted in the mainline kernel, we can add a
++	 * IOMMU_DOMAIN_DAUL mode to IOMMU, then the dma and iommu API can
++	 * work together. We then can let crypto and uacce mode works at the
++	 * same time.
++	 */
++	if (!uacce_mode) {
++		pr_debug("hisi_zip: init crypto mode\n");
++		ret = hisi_zip_register_to_crypto();
++		if (ret < 0) {
++			pci_unregister_driver(&hisi_zip_pci_driver);
++			return ret;
++		}
+ 	}
+ 
+ 	return 0;
+@@ -161,7 +177,8 @@ static int __init hisi_zip_init(void)
+ 
+ static void __exit hisi_zip_exit(void)
+ {
+-	hisi_zip_unregister_from_crypto();
++	if (!uacce_mode)
++		hisi_zip_unregister_from_crypto();
+ 	pci_unregister_driver(&hisi_zip_pci_driver);
+ }
+ 
+-- 
+2.17.1

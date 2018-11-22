@@ -1,0 +1,256 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 09 Nov 2018 05:30:38 -0000
+Received: from icoremail.net (unknown [209.85.210.177])
+	by mail-app2 (Coremail) with SMTP id by_KCgCn39wc9ORb7lVkAQ--.30136S3;
+	Fri, 09 Nov 2018 10:42:37 +0800 (CST)
+Received: from mail-pf1-f177.google.com (unknown [209.85.210.177])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwCXdUEY9ORbxwcgAA--.4791S3;
+	Fri, 09 Nov 2018 10:42:32 +0800 (CST)
+Received: by mail-pf1-f177.google.com with SMTP id u13-v6so228005pfm.4
+        for <xuliker@zju.edu.cn>; Thu, 08 Nov 2018 18:42:32 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :from:to:cc:subject:date:in-reply-to:references:message-id:sender
+         :precedence:list-id;
+        bh=rSVc8xfMEEAWQ9F09uvWChCxwTpiuWMV3XlrWsqXwpM=;
+        b=XGuSWxlZB0vHH7+rii+ezotHPwPlu6+GO1fiGVLRY2USKORen2mDt2arSoYZjXVRT0
+         GWUbsttjMPSLEsgqGOgWDX3b1Aq+4JkagsyBKGqhsrN45pTfYHV9OCWycmy+Y7rqjDo5
+         j+HL0VK+/A1StNGLqwGiRugMyfwZM/yg90BFBIXWXvO6Y0JGB2fB8aG7m1E0ng2/hx2Q
+         OTJYL26oUdTPYqd73NtTBE9ieobO0TP3SowJLkS/9tloODAE2Ce7NYCx4tqz6fsLFhYC
+         Q61c4v1RnGFEt/z8y+BIZF+kMvj0acbGEgIv7tILdj3zOJNxJGOQ3tMc+psZgyAdx78y
+         aESw==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=ibm.com
+X-Gm-Message-State: AGRZ1gKzJ/addu8EDMszpqrHe8cksF/NwBhefmmF4mmxnl1+zKM4cqX+
+	2Jjm1s+Dfpeob4lv8mxCDs++fP02nT52aNCKXBJ0N52bVBZmY2p1uw==
+X-Received: by 2002:a63:1d10:: with SMTP id d16-v6mr5774466pgd.228.1541731352155;
+        Thu, 08 Nov 2018 18:42:32 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp1000971pjt;
+        Thu, 8 Nov 2018 18:42:31 -0800 (PST)
+X-Google-Smtp-Source: AJdET5cUGl1u5wbmUZ6l6yQOVvSMBhVMwTTriwW1yRp4jb8fSTWnAjR+ewA+TPhT6zXYxZUrCmm+
+X-Received: by 2002:a63:b34f:: with SMTP id x15mr5990904pgt.243.1541731351375;
+        Thu, 08 Nov 2018 18:42:31 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1541731351; cv=none;
+        d=google.com; s=arc-20160816;
+        b=T0U1btn3fWytgKqdMmZ9OAptnEpQZkIGluIN2TBT6Kx0Q25tbRKDYbOMIYO+56UAQ3
+         MDFFFmcnaHuv6GjJNSTD0mh1KICKto33Pk2lBzo19ns3SgtXsUyv6mMhysgXLI+zKe2P
+         UAGboATKrG95O+MLpD83/XvTd8VgdMVSWh1CkG4RfCEh893jVr3PuX4vwKUklnijNUoK
+         Sv9LUXxGmwDvVUAxlDQzLdUg17SPk+Da38o4OpeC+ucEdoZAoCA9YY/gNtFpMnaDxl/1
+         bhNMGMVh8Vop24l1EEpqq38FiERI7BHOYnbq1lFE88o4bfcz8i915C6ZfaRNrQ7YXFsm
+         /Ryg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:message-id:references:in-reply-to:date
+         :subject:cc:to:from;
+        bh=rSVc8xfMEEAWQ9F09uvWChCxwTpiuWMV3XlrWsqXwpM=;
+        b=oow3AhiSPtalZH2+MWwmQHnFr+HtuzmmG7WGZxJJp2QwIn1eIzcOe3iOu8VC9OymHx
+         DGyUShmKEHA9zh9tDO+BriXXty6zRNMl9VcNtuDVgEgzvZQVLuawdzdcBC4rkQ6UKr0i
+         GrStV+VmNBvxK3XNRwE7HWVxj1N+zvXFIy+iPkT1zou2lcch0HrT3kq3exjinSzsJL5t
+         7KxN6p78qvZigKEWKwlxC+BVRmBXCun+uFElSlPGAqtLCBYREe9LgaVfpoEmJ8LodvR8
+         FD/eLO1hFw7UYP76eau3TEqXUmg8hRNzladJvX/5lo8REk9mcqsaPO2z75ZANLGpJ68U
+         EiWw==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=ibm.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id q70-v6si7213319pfc.17.2018.11.08.18.42.18;
+        Thu, 08 Nov 2018 18:42:31 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1727808AbeKIMSp (ORCPT <rfc822;fanshuming2011@gmail.com>
+        + 99 others); Fri, 9 Nov 2018 07:18:45 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:41640 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727656AbeKIMSl (ORCPT
+        <rfc822;kvm@vger.kernel.org>); Fri, 9 Nov 2018 07:18:41 -0500
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.22/8.16.0.22) with SMTP id wA92XWbb002299
+        for <kvm@vger.kernel.org>; Thu, 8 Nov 2018 21:40:10 -0500
+Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2nmv9ekqsf-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <kvm@vger.kernel.org>; Thu, 08 Nov 2018 21:40:09 -0500
+Received: from localhost
+        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <kvm@vger.kernel.org> from <farman@linux.ibm.com>;
+        Fri, 9 Nov 2018 02:40:07 -0000
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (9.149.109.194)
+        by e06smtp03.uk.ibm.com (192.168.101.133) with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted;
+        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256/256)
+        Fri, 9 Nov 2018 02:40:04 -0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id wA92e3BY32505892
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
+        Fri, 9 Nov 2018 02:40:03 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 4DA1711C05E;
+        Fri,  9 Nov 2018 02:40:03 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 395F711C052;
+        Fri,  9 Nov 2018 02:40:03 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Fri,  9 Nov 2018 02:40:03 +0000 (GMT)
+Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 4958)
+        id EF08A20F64A; Fri,  9 Nov 2018 03:40:02 +0100 (CET)
+From: Eric Farman <farman@linux.ibm.com>
+To: Cornelia Huck <cohuck@redhat.com>,
+        Pierre Morel <pmorel@linux.ibm.com>
+Cc: Eric Farman <farman@linux.ibm.com>, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org, Halil Pasic <pasic@linux.ibm.com>,
+        Farhan Ali <alifm@linux.ibm.com>,
+        "Jason J . Herne" <jjherne@linux.ibm.com>
+Subject: [RFC PATCH v1 04/10] s390/cio: Breakout the processing of a channel program
+Date: Fri,  9 Nov 2018 03:39:31 +0100
+X-Mailer: git-send-email 2.16.4
+In-Reply-To: <20181109023937.96105-1-farman@linux.ibm.com>
+References: <20181109023937.96105-1-farman@linux.ibm.com>
+X-TM-AS-GCONF: 00
+x-cbid: 18110902-0012-0000-0000-000002C7815F
+X-IBM-AV-DETECTION: SAVI=unused REMOTE=unused XFE=unused
+x-cbparentid: 18110902-0013-0000-0000-000020FBD300
+Message-Id: <20181109023937.96105-5-farman@linux.ibm.com>
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2018-11-08_13:,,
+ signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ malwarescore=0 suspectscore=2 phishscore=0 bulkscore=0 spamscore=0
+ clxscore=1015 lowpriorityscore=0 mlxscore=0 impostorscore=0
+ mlxlogscore=999 adultscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.0.1-1807170000 definitions=main-1811090022
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwCXdUEY9ORbxwcgAA--.4791S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoWxAr4fAw4DtF4xAr1fCrW3ZFb_yoW5AFyxpF
+	WfCrW5Ww4kJrZa9FWfG3yjqF95trn5W3y2q3yUAw4Fyr13Zr95Cry5G3W29rZ5JrWUCry5
+	JFWYgFyUu3W5AFJanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUPYb7Iv0xC_Zr1lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1l84ACjcxK6I8E
+	87Iv67AKxVW0oVCq3wA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_GcCE3s1le2I262IYc4CY6c
+	8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_JrI_
+	JrylYx0Ex4A2jsIE14v26r4j6F4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvY0x0EwI
+	xGrwCjxxvEa2IrMxkF7I0Ew4C26cxK6c8Ij28IcwCY1Ik26cxK6xAEc7vF6xCjj44lc2xS
+	Y4AK6IIF6r4UMxkI7II2jI8vz4vEwIxGrwCYIxAIcVC0I7IYx2IY67AKxVW8JVW5JwCYIx
+	AIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMxvI42IY6I8E87Iv67AKxVW0oVCq3wCYIxAI
+	cVC2z280aVCY1x0267AKxVW0oVCq3wCF04k20xvY0x0EwIxGrwCF04k20xvEw4C26cxK6c
+	8Ij28IcwCF72vE77IF4wCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v26r1j
+	6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_Jw0_GFylIxkGc2Ij64
+	vIr41lIxAIcVCF04k26cxKx2IYs7xG6r1I6r4UYxBIdaVFxhVjvjDU0xZFpf9x07bYrWrU
+	UUUU=
+
+Handle the things that are specific to one or more CCWs
+outside of the mainline of the cp_init function.
+
+Signed-off-by: Eric Farman <farman@linux.ibm.com>
+---
+ drivers/s390/cio/vfio_ccw_cp.c | 58 +++++++++++++++++++++++++-----------------
+ drivers/s390/cio/vfio_ccw_cp.h |  1 +
+ 2 files changed, 36 insertions(+), 23 deletions(-)
+
+diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
+index a5a701451ef8..383f810ef389 100644
+--- a/drivers/s390/cio/vfio_ccw_cp.c
++++ b/drivers/s390/cio/vfio_ccw_cp.c
+@@ -624,6 +624,37 @@ static int ccwchain_fetch_one(struct ccwchain *chain,
+ 	return ccwchain_fetch_direct(chain, idx, cp);
+ }
+ 
++int process_channel_program(struct channel_program *cp, u32 iova)
++{
++	struct ccwchain *chain;
++	int len, ret;
++
++	/* Get chain length. */
++	len = ccwchain_calc_length(iova, cp);
++	if (len < 0)
++		return len;
++
++	/* Alloc mem for the head chain. */
++	chain = ccwchain_alloc(cp, len);
++	if (!chain)
++		return -ENOMEM;
++	chain->ch_iova = iova;
++
++	/* Copy the head chain from guest. */
++	ret = copy_ccw_from_iova(cp, chain->ch_ccw, iova, len);
++	if (ret) {
++		ccwchain_free(chain);
++		return ret;
++	}
++
++	/* Now loop for its TICs. */
++	ret = ccwchain_loop_tic(chain, cp);
++	if (ret)
++		cp_free(cp);
++
++	return ret;
++}
++
+ /**
+  * cp_init() - allocate ccwchains for a channel program.
+  * @cp: channel_program on which to perform the operation
+@@ -643,9 +674,8 @@ static int ccwchain_fetch_one(struct ccwchain *chain,
+  */
+ int cp_init(struct channel_program *cp, struct device *mdev, union orb *orb)
+ {
+-	u64 iova = orb->cmd.cpa;
+-	struct ccwchain *chain;
+-	int len, ret;
++	u32 cpa = orb->cmd.cpa;
++	int ret;
+ 
+ 	/*
+ 	 * XXX:
+@@ -658,28 +688,10 @@ int cp_init(struct channel_program *cp, struct device *mdev, union orb *orb)
+ 	memcpy(&cp->orb, orb, sizeof(*orb));
+ 	cp->mdev = mdev;
+ 
+-	/* Get chain length. */
+-	len = ccwchain_calc_length(iova, cp);
+-	if (len < 0)
+-		return len;
+-
+-	/* Alloc mem for the head chain. */
+-	chain = ccwchain_alloc(cp, len);
+-	if (!chain)
+-		return -ENOMEM;
+-	chain->ch_iova = iova;
+-
+-	/* Copy the head chain from guest. */
+-	ret = copy_ccw_from_iova(cp, chain->ch_ccw, iova, len);
+-	if (ret) {
+-		ccwchain_free(chain);
++	ret = process_channel_program(cp, cpa);
++	if (ret)
+ 		return ret;
+-	}
+ 
+-	/* Now loop for its TICs. */
+-	ret = ccwchain_loop_tic(chain, cp);
+-	if (ret)
+-		cp_free(cp);
+ 	/* It is safe to force: if not set but idals used
+ 	 * ccwchain_calc_length returns an error.
+ 	 */
+diff --git a/drivers/s390/cio/vfio_ccw_cp.h b/drivers/s390/cio/vfio_ccw_cp.h
+index a4b74fb1aa57..d2e47a12f944 100644
+--- a/drivers/s390/cio/vfio_ccw_cp.h
++++ b/drivers/s390/cio/vfio_ccw_cp.h
+@@ -32,6 +32,7 @@ struct channel_program {
+ 	struct device *mdev;
+ };
+ 
++int process_channel_program(struct channel_program *cp, u32 cpa);
+ extern int cp_init(struct channel_program *cp, struct device *mdev,
+ 		   union orb *orb);
+ extern void cp_free(struct channel_program *cp);
+-- 
+2.16.4

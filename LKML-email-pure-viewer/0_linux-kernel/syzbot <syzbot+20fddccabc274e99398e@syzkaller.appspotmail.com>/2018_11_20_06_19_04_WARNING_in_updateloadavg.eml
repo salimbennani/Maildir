@@ -1,0 +1,411 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 20 Nov 2018 00:36:02 -0000
+Received: from icoremail.net (unknown [209.85.214.179])
+	by mail-app4 (Coremail) with SMTP id cS_KCgDHH+YXN_NbDtnaAQ--.32166S3;
+	Tue, 20 Nov 2018 06:20:07 +0800 (CST)
+Received: from mail-pl1-f179.google.com (unknown [209.85.214.179])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwAnB0MTN_Nb729aAA--.14196S3;
+	Tue, 20 Nov 2018 06:20:03 +0800 (CST)
+Received: by mail-pl1-f179.google.com with SMTP id e5so5205489plb.5
+        for <xuliker@zju.edu.cn>; Mon, 19 Nov 2018 14:20:03 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :mime-version:date:message-id:subject:from:to:sender:precedence
+         :list-id;
+        bh=lKAtMnR6VuTYuTcCMM2aGPupN2Ipjircn7xyei6Tq9o=;
+        b=uBBnZWBJj9d5GZyPFNo8N52hmmokiXucwpSxcNFmLjP9DH8QKbYN5L4JoW72y+9F/K
+         +hcAz+iIxVj/DDWgZtJWlA/AtKMCbucPKGi2iX4LMf7ygUqrN3piw5ebiyC7gkjSREKk
+         D+PpgO3IaFtbFEbtEMBGWHfKa0XDR1qpVW1Xobj+x7s5p3AXZ+TI5Uz4hlY66gbhyPiO
+         JKA9+gidWZfAJt4ooiCJRFszGT0GlnAK9MAkbr/aYFZr1WAJmJsXUC6Q2XPlkOzSfXyA
+         VCIEV+VKUZD5wOqUeWy5Yyy20nxWRaIl7T3LCDVYXX6LD8onx2kPRoKYE+nFtY1gmnvp
+         FUpQ==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=appspotmail.com
+X-Gm-Message-State: AGRZ1gLNw5pwBM3/YaHt1SDOM4RjsUh1y1SISjT7Ax2D57p+A5imNUJK
+	06ibVYQWEhW2vByd0ekdZV7MkAR5r3oq84qavUBVTsze21HmCyw=
+X-Received: by 2002:a17:902:a9:: with SMTP id a38-v6mr24388471pla.7.1542666003266;
+        Mon, 19 Nov 2018 14:20:03 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:d106:0:0:0:0 with SMTP id l6-v6csp3259404pju;
+        Mon, 19 Nov 2018 14:20:02 -0800 (PST)
+X-Google-Smtp-Source: AFSGD/Vi6KJS3vTU1tFSBj1GnO09SuoU12FPGsSmF8mncHZ9wMY1AgIm/FnQT9E2Tu2RKQsUbHQ1
+X-Received: by 2002:a17:902:b217:: with SMTP id t23mr2147489plr.1.1542666002093;
+        Mon, 19 Nov 2018 14:20:02 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542666002; cv=none;
+        d=google.com; s=arc-20160816;
+        b=VXHrfoFYyQo8OlnJUbkOGM1sGfoNVfSMGvvSuyGCeJGxr67agxFjObeuLgzqW6iZ+V
+         eviIHjROz3PcDQGWjdJF9iF5j8FdYLRzUTPKGvLiOTm38QnI06i02zqS71mXh2DU93/X
+         N0/oPW50LpaAhuu5bZ/Ml31ebBTzO09NZJbxXTui4wMNjXQF1qT1CpsRy7SP5zDHUZ9s
+         +VnBuHo5ab9bOWyOOajLN+16GqT+FrKqiymQtRSkF73Vyt11sz9amkgzWeh2FDFFuWTk
+         aPLfhmHC/lB2MSTPHvf0vVBR6gXmvA/9/FwOCYzSVoCykrFTYKftb7vbWFI2/gzzAoAa
+         Pm2g==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:to:from:subject:message-id:date
+         :mime-version;
+        bh=lKAtMnR6VuTYuTcCMM2aGPupN2Ipjircn7xyei6Tq9o=;
+        b=HWy9IntNnMvV7hjN36I9O20JO0VQMAqOAM7+JNqPxMsoYStPy2ip2c6cw5En7CtKam
+         ee/wIfA31S3d8Jgs8mRHZewCmRftZsrps0wRJ7o0+LGWdNwxyFLwUcDcsrLbYkOmgf9Q
+         EU3ow2XtePGRkkau9IhOhaWUJYHZzDg/VFuK18BY7yurDVfEflJ0T8CIKz66MbKPkwEy
+         W43ttPRYs5zJYlX9NkNmQj13CC5JABvZzuBsvY5RjK6C/GpYxJPGJB+cHlfNvPbhVvzv
+         p+O/Go3CXzRkmLBffegB90y6/V/kTrpaa1OngyH59hg0c41ZxhgHlaBqP8d6aCmRuO+f
+         6VgQ==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=appspotmail.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id v5si27694087ply.74.2018.11.19.14.19.47;
+        Mon, 19 Nov 2018 14:20:02 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1730342AbeKTIow (ORCPT <rfc822;nullbytes00@gmail.com>
+        + 99 others); Tue, 20 Nov 2018 03:44:52 -0500
+Received: from mail-io1-f69.google.com ([209.85.166.69]:51978 "EHLO
+        mail-io1-f69.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725722AbeKTIow (ORCPT
+        <rfc822;linux-kernel@vger.kernel.org>);
+        Tue, 20 Nov 2018 03:44:52 -0500
+Received: by mail-io1-f69.google.com with SMTP id x10so5810058ioj.18
+        for <linux-kernel@vger.kernel.org>; Mon, 19 Nov 2018 14:19:04 -0800 (PST)
+MIME-Version: 1.0
+X-Received: by 2002:a24:153:: with SMTP id 80-v6mr8262938itk.19.1542665944225;
+ Mon, 19 Nov 2018 14:19:04 -0800 (PST)
+Date: Mon, 19 Nov 2018 14:19:04 -0800
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <0000000000009ce9ee057b0be7f8@google.com>
+Subject: WARNING in update_load_avg
+From: syzbot <syzbot+20fddccabc274e99398e@syzkaller.appspotmail.com>
+To: andy.shevchenko@gmail.com, bp@alien8.de, douly.fnst@cn.fujitsu.com,
+        hpa@zytor.com, konrad.wilk@oracle.com, len.brown@intel.com,
+        linux-kernel@vger.kernel.org, mingo@redhat.com, puwen@hygon.cn,
+        rppt@linux.vnet.ibm.com, syzkaller-bugs@googlegroups.com,
+        tglx@linutronix.de, ville.syrjala@linux.intel.com, x86@kernel.org
+Content-Type: text/plain; charset="UTF-8"; format=flowed; delsp=yes
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwAnB0MTN_Nb729aAA--.14196S3
+Authentication-Results: mail-app4; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvAXoWfJrW7Xr43tFy3tFy7Kw4Uurg_yoW8XFyxWo
+	ZYvr4FkF48Kr98JryrGr1UGa1rJFyDZFsrZrW2kr48Wr17Zw4DJw1qy347ArWrtw4UWa15
+	ZwnrtF95Jw1DKr97n29KB7ZKAUJUUUUU529EdanIXcx71UUUUj7v73VFW2AGmfu7jjvjm3
+	AaLaJ3UjIYCTnIWjp_UUUOc7k0a2IF6w4kM7kC6x804xWl14x267AKxVWUJVW8JwAFIxvE
+	14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK021l84ACjcxK6xIIjx
+	v20xvE14v26F1j6w1UM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26r4j6F4UM28EF7xvwVC2
+	z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s0DM2vYz4IE57IF64
+	xv32x264vIFxWle2I262IYc4CY6c8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2
+	j2WlYx0E2Ix0cI8IcVAFwI0_Jr0_Jr4lYx0Ex4A2jsIE14v26r4j6F4UMcvjeVCFs4IE7x
+	kEbVWUJVW8JwACjcxG0xvEwIxGrwCjxxvEa2IrMxkF7I0Ew4C26cxK6c8Ij28IcwCY1Ik2
+	6cxK6xAEc7vF6xCjj44lc2xSY4AK6IIF6Fylc2IjII80xcxEwVAKI48JMxvI42IY6xIIjx
+	v20xvE14v26r4j6ryUMxvI42IY6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1lcIIF0xvEx4A2
+	jsIE14v26rxl6s0DMxvI42IY6I8E87Iv6xkF7I0E14v26rxl6s0DMxAIw28IcxkI7VAKI4
+	8JMxAIw28IcVAKzI0EY4vE52x082I5MxCjnVCjjxCrMxC20s026xCaFVCjc4AY6r1j6r4U
+	MI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67
+	AKxVWUtVW8ZwCIc40Y0x0EwIxGrwCI42IY6xAIw20EY4v20xvaj40_Gr0_ZrUvcSsGvfC2
+	KfnxnUUI43ZEXa7IUofrc3UUUUU==
+
+Hello,
+
+syzbot found the following crash on:
+
+HEAD commit:    cddaf02bcb73 tg3: optionally use eth_platform_get_mac_addr..
+git tree:       net-next
+console output: https://syzkaller.appspot.com/x/log.txt?x=15810d33400000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=d86f24333880b605
+dashboard link: https://syzkaller.appspot.com/bug?extid=20fddccabc274e99398e
+compiler:       gcc (GCC) 8.0.1 20180413 (experimental)
+syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=10272c5d400000
+C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=157bd093400000
+
+IMPORTANT: if you fix the bug, please add the following tag to the commit:
+Reported-by: syzbot+20fddccabc274e99398e@syzkaller.appspotmail.com
+
+IPv6: ADDRCONF(NETDEV_UP): veth1: link is not ready
+IPv6: ADDRCONF(NETDEV_CHANGE): veth1: link becomes ready
+IPv6: ADDRCONF(NETDEV_CHANGE): veth0: link becomes ready
+8021q: adding VLAN 0 to HW filter on device team0
+syz-executor496 (6238) used greatest stack depth: 15648 bytes left
+WARNING: CPU: 1 PID: 0 at kernel/sched/sched.h:1015 rq_clock_task  
+kernel/sched/sched.h:1015 [inline]
+WARNING: CPU: 1 PID: 0 at kernel/sched/sched.h:1015 cfs_rq_clock_task  
+kernel/sched/fair.c:4283 [inline]
+WARNING: CPU: 1 PID: 0 at kernel/sched/sched.h:1015  
+update_load_avg+0x1539/0x2470 kernel/sched/fair.c:3492
+==================================================================
+BUG: KASAN: stack-out-of-bounds in lookup_object lib/debugobjects.c:157  
+[inline]
+BUG: KASAN: stack-out-of-bounds in debug_object_deactivate+0x3a8/0x450  
+lib/debugobjects.c:543
+Kernel panic - not syncing: panic_on_warn set ...
+Read of size 8 at addr ffff8881dae000e0 by task syz-executor496/6371
+CPU: 1 PID: 0 Comm: swapper/1 Not tainted 4.20.0-rc2+ #302
+
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS  
+Google 01/01/2011
+Call Trace:
+  <IRQ>
+  __dump_stack lib/dump_stack.c:77 [inline]
+  dump_stack+0x244/0x39d lib/dump_stack.c:113
+  panic+0x2ad/0x55c kernel/panic.c:188
+  __warn.cold.8+0x20/0x45 kernel/panic.c:540
+  report_bug+0x254/0x2d0 lib/bug.c:186
+  fixup_bug arch/x86/kernel/traps.c:178 [inline]
+  do_error_trap+0x11b/0x200 arch/x86/kernel/traps.c:271
+  do_invalid_op+0x36/0x40 arch/x86/kernel/traps.c:290
+  invalid_op+0x14/0x20 arch/x86/entry/entry_64.S:969
+RIP: 0010:rq_clock_task kernel/sched/sched.h:1015 [inline]
+RIP: 0010:cfs_rq_clock_task kernel/sched/fair.c:4283 [inline]
+RIP: 0010:update_load_avg+0x1539/0x2470 kernel/sched/fair.c:3492
+Code: e8 fc e1 69 00 e9 8b f8 ff ff 48 8d 7a 18 be ff ff ff ff 48 89 95 30  
+fb ff ff e8 52 e5 07 00 48 8b 95 30 fb ff ff 85 c0 75 29 <0f> 0b 48 b8 00  
+00 00 00 00 fc ff df 4c 89 f9 48 c1 e9 03 80 3c 01
+RSP: 0018:ffff8881daf07238 EFLAGS: 00010046
+RAX: 0000000000000000 RBX: ffff8881b3b487c0 RCX: 0000000000000000
+RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000086
+RBP: ffff8881daf07750 R08: 0000000000000000 R09: 0000000000000001
+R10: 0000000000000000 R11: ffff8881daf2d850 R12: ffff8881bf344bc0
+R13: ffff8881daf07728 R14: 0000000000000000 R15: ffff8881b3b48930
+  update_blocked_averages+0xcc7/0x1e00 kernel/sched/fair.c:7401
+  run_rebalance_domains+0x37c/0x500 kernel/sched/fair.c:9696
+  __do_softirq+0x308/0xb7e kernel/softirq.c:292
+  invoke_softirq kernel/softirq.c:373 [inline]
+  irq_exit+0x17f/0x1c0 kernel/softirq.c:413
+  exiting_irq arch/x86/include/asm/apic.h:536 [inline]
+  smp_apic_timer_interrupt+0x1cb/0x760 arch/x86/kernel/apic/apic.c:1061
+  apic_timer_interrupt+0xf/0x20 arch/x86/entry/entry_64.S:804
+  </IRQ>
+RIP: 0010:native_safe_halt+0x6/0x10 arch/x86/include/asm/irqflags.h:57
+Code: e9 2c ff ff ff 48 89 c7 48 89 45 d8 e8 33 22 e6 f9 48 8b 45 d8 e9 ca  
+fe ff ff 48 89 df e8 22 22 e6 f9 eb 82 55 48 89 e5 fb f4 <5d> c3 0f 1f 84  
+00 00 00 00 00 55 48 89 e5 f4 5d c3 90 90 90 90 90
+RSP: 0018:ffff8881d9b27cb8 EFLAGS: 00000286 ORIG_RAX: ffffffffffffff13
+RAX: dffffc0000000000 RBX: 1ffff1103b364f9b RCX: 0000000000000000
+RDX: 1ffffffff12a3f71 RSI: 0000000000000001 RDI: ffffffff8951fb88
+RBP: ffff8881d9b27cb8 R08: ffff8881d9b14340 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000000 R12: ffff8881d9b27d78
+R13: ffffffff8a1640e0 R14: 0000000000000000 R15: 0000000000000001
+  arch_safe_halt arch/x86/include/asm/paravirt.h:151 [inline]
+  default_idle+0xbf/0x490 arch/x86/kernel/process.c:498
+  arch_cpu_idle+0x10/0x20 arch/x86/kernel/process.c:489
+  default_idle_call+0x6d/0x90 kernel/sched/idle.c:93
+  cpuidle_idle_call kernel/sched/idle.c:153 [inline]
+  do_idle+0x49b/0x5c0 kernel/sched/idle.c:262
+  cpu_startup_entry+0x18/0x20 kernel/sched/idle.c:353
+  start_secondary+0x487/0x5f0 arch/x86/kernel/smpboot.c:271
+  secondary_startup_64+0xa4/0xb0 arch/x86/kernel/head_64.S:243
+CPU: 0 PID: 6371 Comm: syz-executor496 Not tainted 4.20.0-rc2+ #302
+
+======================================================
+WARNING: possible circular locking dependency detected
+4.20.0-rc2+ #302 Not tainted
+------------------------------------------------------
+swapper/1/0 is trying to acquire lock:
+00000000cee8b2f6 ((console_sem).lock){-.-.}, at: down_trylock+0x13/0x70  
+kernel/locking/semaphore.c:136
+
+but task is already holding lock:
+000000008d358a10 (&rq->lock){-.-.}, at: rq_lock_irqsave  
+kernel/sched/sched.h:1110 [inline]
+000000008d358a10 (&rq->lock){-.-.}, at:  
+update_blocked_averages+0x156/0x1e00 kernel/sched/fair.c:7381
+
+which lock already depends on the new lock.
+
+
+the existing dependency chain (in reverse order) is:
+
+-> #2 (&rq->lock){-.-.}:
+        __raw_spin_lock include/linux/spinlock_api_smp.h:142 [inline]
+        _raw_spin_lock+0x2d/0x40 kernel/locking/spinlock.c:144
+        rq_lock kernel/sched/sched.h:1126 [inline]
+        task_fork_fair+0xb0/0x6d0 kernel/sched/fair.c:9768
+        sched_fork+0x443/0xba0 kernel/sched/core.c:2359
+        copy_process+0x25b8/0x87a0 kernel/fork.c:1887
+        _do_fork+0x1cb/0x11d0 kernel/fork.c:2216
+        kernel_thread+0x34/0x40 kernel/fork.c:2275
+        rest_init+0x28/0x372 init/main.c:409
+        arch_call_rest_init+0xe/0x1b
+        start_kernel+0x9f0/0xa2b init/main.c:745
+        x86_64_start_reservations+0x2e/0x30 arch/x86/kernel/head64.c:472
+        x86_64_start_kernel+0x76/0x79 arch/x86/kernel/head64.c:451
+        secondary_startup_64+0xa4/0xb0 arch/x86/kernel/head_64.S:243
+
+-> #1 (&p->pi_lock){-.-.}:
+        __raw_spin_lock_irqsave include/linux/spinlock_api_smp.h:110 [inline]
+        _raw_spin_lock_irqsave+0x99/0xd0 kernel/locking/spinlock.c:152
+        try_to_wake_up+0xdc/0x1490 kernel/sched/core.c:1965
+        wake_up_process+0x10/0x20 kernel/sched/core.c:2129
+        __up.isra.1+0x1c0/0x2a0 kernel/locking/semaphore.c:262
+        up+0x13c/0x1c0 kernel/locking/semaphore.c:187
+        __up_console_sem+0xbe/0x1b0 kernel/printk/printk.c:236
+        console_unlock+0x811/0x1190 kernel/printk/printk.c:2432
+        vprintk_emit+0x391/0x990 kernel/printk/printk.c:1922
+        vprintk_default+0x28/0x30 kernel/printk/printk.c:1964
+        vprintk_func+0x7e/0x181 kernel/printk/printk_safe.c:398
+        printk+0xa7/0xcf kernel/printk/printk.c:1997
+        check_stack_usage kernel/exit.c:755 [inline]
+        do_exit.cold.18+0x57/0x16f kernel/exit.c:916
+        do_group_exit+0x177/0x440 kernel/exit.c:970
+        __do_sys_exit_group kernel/exit.c:981 [inline]
+        __se_sys_exit_group kernel/exit.c:979 [inline]
+        __x64_sys_exit_group+0x3e/0x50 kernel/exit.c:979
+        do_syscall_64+0x1b9/0x820 arch/x86/entry/common.c:290
+        entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+-> #0 ((console_sem).lock){-.-.}:
+        lock_acquire+0x1ed/0x520 kernel/locking/lockdep.c:3844
+        __raw_spin_lock_irqsave include/linux/spinlock_api_smp.h:110 [inline]
+        _raw_spin_lock_irqsave+0x99/0xd0 kernel/locking/spinlock.c:152
+        down_trylock+0x13/0x70 kernel/locking/semaphore.c:136
+        __down_trylock_console_sem+0xae/0x1f0 kernel/printk/printk.c:219
+        console_trylock+0x15/0xa0 kernel/printk/printk.c:2247
+        console_trylock_spinning kernel/printk/printk.c:1653 [inline]
+        vprintk_emit+0x372/0x990 kernel/printk/printk.c:1921
+        vprintk_default+0x28/0x30 kernel/printk/printk.c:1964
+        vprintk_func+0x7e/0x181 kernel/printk/printk_safe.c:398
+        printk+0xa7/0xcf kernel/printk/printk.c:1997
+        __warn+0x9e/0x1d0 kernel/panic.c:522
+        report_bug+0x254/0x2d0 lib/bug.c:186
+        fixup_bug arch/x86/kernel/traps.c:178 [inline]
+        do_error_trap+0x11b/0x200 arch/x86/kernel/traps.c:271
+        do_invalid_op+0x36/0x40 arch/x86/kernel/traps.c:290
+        invalid_op+0x14/0x20 arch/x86/entry/entry_64.S:969
+        rq_clock_task kernel/sched/sched.h:1015 [inline]
+        cfs_rq_clock_task kernel/sched/fair.c:4283 [inline]
+        update_load_avg+0x1539/0x2470 kernel/sched/fair.c:3492
+        update_blocked_averages+0xcc7/0x1e00 kernel/sched/fair.c:7401
+        run_rebalance_domains+0x37c/0x500 kernel/sched/fair.c:9696
+        __do_softirq+0x308/0xb7e kernel/softirq.c:292
+        invoke_softirq kernel/softirq.c:373 [inline]
+        irq_exit+0x17f/0x1c0 kernel/softirq.c:413
+        exiting_irq arch/x86/include/asm/apic.h:536 [inline]
+        smp_apic_timer_interrupt+0x1cb/0x760 arch/x86/kernel/apic/apic.c:1061
+        apic_timer_interrupt+0xf/0x20 arch/x86/entry/entry_64.S:804
+        native_safe_halt+0x6/0x10 arch/x86/include/asm/irqflags.h:57
+        arch_safe_halt arch/x86/include/asm/paravirt.h:151 [inline]
+        default_idle+0xbf/0x490 arch/x86/kernel/process.c:498
+        arch_cpu_idle+0x10/0x20 arch/x86/kernel/process.c:489
+        default_idle_call+0x6d/0x90 kernel/sched/idle.c:93
+        cpuidle_idle_call kernel/sched/idle.c:153 [inline]
+        do_idle+0x49b/0x5c0 kernel/sched/idle.c:262
+        cpu_startup_entry+0x18/0x20 kernel/sched/idle.c:353
+        start_secondary+0x487/0x5f0 arch/x86/kernel/smpboot.c:271
+        secondary_startup_64+0xa4/0xb0 arch/x86/kernel/head_64.S:243
+
+other info that might help us debug this:
+
+Chain exists of:
+   (console_sem).lock --> &p->pi_lock --> &rq->lock
+
+  Possible unsafe locking scenario:
+
+        CPU0                    CPU1
+        ----                    ----
+   lock(&rq->lock);
+                                lock(&p->pi_lock);
+                                lock(&rq->lock);
+   lock((console_sem).lock);
+
+  *** DEADLOCK ***
+
+1 lock held by swapper/1/0:
+  #0: 000000008d358a10 (&rq->lock){-.-.}, at: rq_lock_irqsave  
+kernel/sched/sched.h:1110 [inline]
+  #0: 000000008d358a10 (&rq->lock){-.-.}, at:  
+update_blocked_averages+0x156/0x1e00 kernel/sched/fair.c:7381
+
+stack backtrace:
+CPU: 1 PID: 0 Comm: swapper/1 Not tainted 4.20.0-rc2+ #302
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS  
+Google 01/01/2011
+Call Trace:
+  <IRQ>
+  __dump_stack lib/dump_stack.c:77 [inline]
+  dump_stack+0x244/0x39d lib/dump_stack.c:113
+  print_circular_bug.isra.35.cold.54+0x1bd/0x27d  
+kernel/locking/lockdep.c:1221
+  check_prev_add kernel/locking/lockdep.c:1863 [inline]
+  check_prevs_add kernel/locking/lockdep.c:1976 [inline]
+  validate_chain kernel/locking/lockdep.c:2347 [inline]
+  __lock_acquire+0x3399/0x4c20 kernel/locking/lockdep.c:3341
+  lock_acquire+0x1ed/0x520 kernel/locking/lockdep.c:3844
+  __raw_spin_lock_irqsave include/linux/spinlock_api_smp.h:110 [inline]
+  _raw_spin_lock_irqsave+0x99/0xd0 kernel/locking/spinlock.c:152
+  down_trylock+0x13/0x70 kernel/locking/semaphore.c:136
+  __down_trylock_console_sem+0xae/0x1f0 kernel/printk/printk.c:219
+  console_trylock+0x15/0xa0 kernel/printk/printk.c:2247
+  console_trylock_spinning kernel/printk/printk.c:1653 [inline]
+  vprintk_emit+0x372/0x990 kernel/printk/printk.c:1921
+  vprintk_default+0x28/0x30 kernel/printk/printk.c:1964
+  vprintk_func+0x7e/0x181 kernel/printk/printk_safe.c:398
+  printk+0xa7/0xcf kernel/printk/printk.c:1997
+  __warn+0x9e/0x1d0 kernel/panic.c:522
+  report_bug+0x254/0x2d0 lib/bug.c:186
+  fixup_bug arch/x86/kernel/traps.c:178 [inline]
+  do_error_trap+0x11b/0x200 arch/x86/kernel/traps.c:271
+  do_invalid_op+0x36/0x40 arch/x86/kernel/traps.c:290
+  invalid_op+0x14/0x20 arch/x86/entry/entry_64.S:969
+RIP: 0010:rq_clock_task kernel/sched/sched.h:1015 [inline]
+RIP: 0010:cfs_rq_clock_task kernel/sched/fair.c:4283 [inline]
+RIP: 0010:update_load_avg+0x1539/0x2470 kernel/sched/fair.c:3492
+Code: e8 fc e1 69 00 e9 8b f8 ff ff 48 8d 7a 18 be ff ff ff ff 48 89 95 30  
+fb ff ff e8 52 e5 07 00 48 8b 95 30 fb ff ff 85 c0 75 29 <0f> 0b 48 b8 00  
+00 00 00 00 fc ff df 4c 89 f9 48 c1 e9 03 80 3c 01
+RSP: 0018:ffff8881daf07238 EFLAGS: 00010046
+RAX: 0000000000000000 RBX: ffff8881b3b487c0 RCX: 0000000000000000
+RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000086
+RBP: ffff8881daf07750 R08: 0000000000000000 R09: 0000000000000001
+R10: 0000000000000000 R11: ffff8881daf2d850 R12: ffff8881bf344bc0
+R13: ffff8881daf07728 R14: 0000000000000000 R15: ffff8881b3b48930
+  update_blocked_averages+0xcc7/0x1e00 kernel/sched/fair.c:7401
+  run_rebalance_domains+0x37c/0x500 kernel/sched/fair.c:9696
+  __do_softirq+0x308/0xb7e kernel/softirq.c:292
+  invoke_softirq kernel/softirq.c:373 [inline]
+  irq_exit+0x17f/0x1c0 kernel/softirq.c:413
+  exiting_irq arch/x86/include/asm/apic.h:536 [inline]
+  smp_apic_timer_interrupt+0x1cb/0x760 arch/x86/kernel/apic/apic.c:1061
+  ? inte
+Lost 38 message(s)!
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS  
+Google 01/01/2011
+Call Trace:
+
+The buggy address belongs to the page:
+page:ffffea00076b8000 count:1 mapcount:0 mapping:0000000000000000 index:0x0
+flags: 0x2fffc0000001000(reserved)
+raw: 02fffc0000001000 ffffea00076b8008 ffffea00076b8008 0000000000000000
+raw: 0000000000000000 0000000000000000 00000001ffffffff 0000000000000000
+page dumped because: kasan: bad access detected
+
+Memory state around the buggy address:
+  ffff8881dadfff80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  ffff8881dae00000: 00 00 00 00 00 00 00 00 00 00 00 00 00 f1 f1 f1
+> ffff8881dae00080: f1 00 f2 f2 f2 f2 f2 f2 f2 f8 f2 f2 f2 00 00 00
+                                                        ^
+  ffff8881dae00100: 00 00 00 00 00 00 00 00 00 00 00 00 00 f1 f1 f1
+  ffff8881dae00180: f1 f8 f2 f2 f2 00 00 00 00 00 00 00 00 00 00 00
+==================================================================
+kasan: CONFIG_KASAN_INLINE enabled
+kasan: GPF could be caused by NULL-ptr deref or user memory access
+general protection fault: 0000 [#1] PREEMPT SMP KASAN
+CPU: 0 PID: 6371 Comm: syz-executor496 Tainted: G    B              
+4.20.0-rc2+ #302
+Shutting down cpus with NMI
+
+
+---
+This bug is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
+
+syzbot will keep track of this bug report. See:
+https://goo.gl/tpsmEJ#bug-status-tracking for how to communicate with  
+syzbot.
+syzbot can test patches for this bug, for details see:
+https://goo.gl/tpsmEJ#testing-patches

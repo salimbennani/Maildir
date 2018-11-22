@@ -1,0 +1,283 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 15 Nov 2018 08:32:10 -0000
+Received: from icoremail.net (unknown [209.85.214.171])
+	by mail-app2 (Coremail) with SMTP id by_KCgCHv+QsLO1bZkyYAQ--.45038S3;
+	Thu, 15 Nov 2018 16:19:57 +0800 (CST)
+Received: from mail-pl1-f171.google.com (unknown [209.85.214.171])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwCnjkoqLO1b37VCAA--.7223S3;
+	Thu, 15 Nov 2018 16:19:54 +0800 (CST)
+Received: by mail-pl1-f171.google.com with SMTP id g59-v6so9116990plb.10
+        for <xuliker@zju.edu.cn>; Thu, 15 Nov 2018 00:19:54 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-transfer-encoding:content-language
+         :sender:precedence:list-id;
+        bh=q2KMV63G8HKje5kBUtlNTMZXi+wgbJ7D67NQR1zkqio=;
+        b=PuWz8DcMfbngct2qdEBf2fy7efYyOT8Y//g/zncr+rhY1dff21vxWTaP7ZCQIZ5vX3
+         XOR0fSAiAbFc6PLR0oGBVkiUpmvt7B3YUmfVduglaTaKo8DAATOBuXxvwcm6wh3oitVl
+         YtQtieT+Edhw8E8leZN6x5vZ3ZTxgtOoqTffaXkC+U3ja6GKK/f/D+PaoUKe6LTugqc6
+         VypsUp1VUWPCGLDgF3zhkCcial26PSHTnZU0Vrr5mb855mrNpzvGkKuv9BhbEeYfJdQP
+         RIimHole8T3voN2mCGyTXsqFFH27XEoY3FQLY14g4ok4aYt4+2SMEjOFkTYIWJ8fSsmI
+         9Ykw==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=redhat.com
+X-Gm-Message-State: AGRZ1gLgQtHyU7PXZdt50aenZW3lt1kxEsSNAvY4SU9c6/vKpodJyUTW
+	FP84FG05PDCe3TYJsbYSQdN5R+I+IxlhuRbfeEGqVwYOHoBTmEzOjw==
+X-Received: by 2002:a17:902:560f:: with SMTP id h15-v6mr5460369pli.160.1542269994449;
+        Thu, 15 Nov 2018 00:19:54 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:d106:0:0:0:0 with SMTP id l6-v6csp270833pju;
+        Thu, 15 Nov 2018 00:19:53 -0800 (PST)
+X-Google-Smtp-Source: AJdET5cwPVyAf+r0XI7qcvyBdqA1fDoAagi4sR+ui/UNM+6fD492axXSfa/jr/MoURUY4kyY04Kz
+X-Received: by 2002:a63:6b08:: with SMTP id g8mr4873098pgc.119.1542269993184;
+        Thu, 15 Nov 2018 00:19:53 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542269993; cv=none;
+        d=google.com; s=arc-20160816;
+        b=XMpqfgRR99jHbO1mkYp4bGxp1cwnxaom8D/ykrNTLDvmpIvtUJpy32YII2IO4APmAV
+         mdG7C3yfUcFM4eXvSuV2WN7tvePIkGAfNRzaSZEEK9OWDKwcnsBBQds9D8u9jCyBl5xI
+         hOcDfjqalr/Kt7/0uBJ/gmR6h0ZLhjE/qqdREBj7/Ye9I66u5QNLj4MVkRJbTc3V1pKh
+         H2kTjfNkjpfDW36SVsqCQn4yDUYn6ABLP1cv0mHcnpRIixHmuAMgo1Bvc62LQh/Bi9jl
+         72ksZTp/+bEUp/Vo6iRYJU5sv5yibTFh0hk+qIY6MOiPMRbGqpdTpe8AYXqXMsE6JdMd
+         jKbw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:content-language
+         :content-transfer-encoding:in-reply-to:mime-version:user-agent:date
+         :message-id:from:references:cc:to:subject;
+        bh=q2KMV63G8HKje5kBUtlNTMZXi+wgbJ7D67NQR1zkqio=;
+        b=GP4JsfxhihxaHNtscmQYQ96DjOO91cf+x9qy86SslYqlFD12yMU11u1tfU0qtLsUuA
+         iGGk4cDbhVWl22Cx2C1T6vBVkvdDAmSBhbY0C0T4ZMMInRn5eHLRNgvIOUggBskymYPO
+         zcQqFxRstmH95W5zE/9b7jl7DjJ316JIxrER+huWqVD3FAWKQ9coMAQmWDr8h7fgyY4k
+         DC+xVE/Yyl0VjaetJjIYLALUY6NwUPNHJjugMfdhfssZi+5CbPNAxQvKP0DTXtvHoYky
+         pw5zMiFTGesHo402+vO9OgecSpKC5ekcA+O4G0V6p3UmkaeA6bAg7KZe3LaloqmP3tF0
+         0/kg==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=redhat.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id w17-v6si25975542pgk.497.2018.11.15.00.19.38;
+        Thu, 15 Nov 2018 00:19:53 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1728419AbeKOS0Z (ORCPT <rfc822;nodee764@gmail.com> + 99 others);
+        Thu, 15 Nov 2018 13:26:25 -0500
+Received: from mx1.redhat.com ([209.132.183.28]:45466 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728280AbeKOS0Z (ORCPT <rfc822;kvm@vger.kernel.org>);
+        Thu, 15 Nov 2018 13:26:25 -0500
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id AD27C308428D;
+        Thu, 15 Nov 2018 08:19:35 +0000 (UTC)
+Received: from [10.72.12.185] (ovpn-12-185.pek2.redhat.com [10.72.12.185])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 65F7160BF7;
+        Thu, 15 Nov 2018 08:19:22 +0000 (UTC)
+Subject: Re: [RFC] Discuss about an new idea "Vsock over Virtio-net"
+To: jiangyiwen <jiangyiwen@huawei.com>, stefanha@redhat.com,
+        stefanha@gmail.com, mst@redhat.com
+Cc: netdev@vger.kernel.org, kvm@vger.kernel.org,
+        virtualization@lists.linux-foundation.org
+References: <5BECEE53.7090408@huawei.com>
+ <88eaf53b-b148-7b27-491a-30706398ae06@redhat.com>
+ <5BED162C.5070902@huawei.com>
+From: Jason Wang <jasowang@redhat.com>
+Message-ID: <015e1638-525f-7236-dbd9-38cced6b75db@redhat.com>
+Date: Thu, 15 Nov 2018 16:19:19 +0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.2.1
+MIME-Version: 1.0
+In-Reply-To: <5BED162C.5070902@huawei.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+Content-Language: en-US
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.40]); Thu, 15 Nov 2018 08:19:35 +0000 (UTC)
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwCnjkoqLO1b37VCAA--.7223S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW3Ar1furykWFW7JFWfGw43trb_yoW7trykpF
+	W3JF17tr1UJr1UJF1xJr15Jr1jyr18Jr1UWr1UJry8Xr1qyr1DJr1UJrW8Gry7Jry7Jr1U
+	XryUJF1UAr1UArUanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUQvb7Iv0xC_tr1lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_tr0E3s1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2
+	z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s0DM2AIxVAIcxkEcV
+	Aq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1j
+	6r18McIj6I8E87Iv67AKxVW8JVWxJwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IY64vIr4
+	1l7I0Y6sxI4wCYjI0SjxkI62AI1cAE67vIY487MxkF7I0Ew4C26cxK6c8Ij28IcwCY1Ik2
+	6cxK6xAEc7vF6xCjj44lc2xSY4AK6IIF6r43MxkI7II2jI8vz4vEwIxGrwCYIxAIcVC0I7
+	IYx2IY67AKxVWUCVW8JwCYIxAIcVC0I7IYx2IY6xkF7I0E14v26r1j6r4UMxvI42IY6I8E
+	87Iv67AKxVWxJr0_GcWlcIIF0xvEx4A2jsIEc7CjxVAFwI0_Cr1j6rxdMxAIw28IcxkI7V
+	AKI48JMxAIw28IcVAKzI0EY4vE52x082I5MxCjnVCjjxCrMxC20s026xCaFVCjc4AY6r1j
+	6r4UMxCIbckI1I0E14v26r126r1DMI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxVCjr7xvwV
+	AFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWUtVW8ZwCIc40Y0x0EwIxGrwCI42IY6xAIw20E
+	Y4v20xvaj40_Zr0_Wr1UYxBIdaVFxhVjvjDU0xZFpf9x07bO6wZUUUUU=
+
+
+On 2018/11/15 下午2:46, jiangyiwen wrote:
+> On 2018/11/15 12:19, Jason Wang wrote:
+>> On 2018/11/15 上午11:56, jiangyiwen wrote:
+>>> Hi Stefan, Michael, Jason and everyone,
+>>>
+>>> Several days ago, I discussed with jason about "Vsock over Virtio-net".
+>>> This idea has two advantages:
+>>> First, it can use many great features of virtio-net, like batching,
+>>> mergeable rx buffer and multiqueue, etc.
+>>> Second, it can reduce many duplicate codes and make it easy to be
+>>> maintained.
+>>>
+>>> Before the implement, I want to discuss with everyone again, and
+>>> want to know everyone's suggestions.
+>>>
+>>> After the discussion, based on this point I will try to implement
+>>> this idea, but I am not familiar with the virtio-net, that is a
+>>> pity. :(
+>>
+>> I think we should have a new feature flag for this. E.g VIRTIO_NET_F_VSOCK. And host should fail the negotiation if guest doesn't support this to avoid confusion. When this feature is negotiated, we will use it only for VOSCK transport. This can simplify things somehow.
+>>
+>>
+>>> -------------------------Simple idea------------------------------
+>>>
+>>> 1. The packet layout will become as follows:
+>>>
+>>> +---------------------------------+
+>>> |        Virtio-net header        |
+>>> |(struct virtio_net_hdr_mrg_rxbuf)|
+>>> +---------------------------------+
+>>> |          Vsock header           |
+>>> |    (struct virtio_vsock_hdr)    |
+>>> +---------------------------------+
+>>> |             payload             |
+>>> |      (until end of packet)      |
+>>> +---------------------------------+
+>>>
+>>> 2. The Guest->Host basic code flow as follow:
+>>>                               +------------+
+>>>                               |   Client   |
+>>>                               +------------+
+>>>                                     |
+>>>                                     |
+>>> +------------------------------------------------------------------+
+>>> |VSOCK Core Module                                                 |
+>>> |ops->sendmsg; (vsock_stream_sendmsg)                              |
+>>> |  -> alloc_skb; /* it will packet a skb buffer, and include vsock |
+>>> |                 * hdr and payload */                             |
+>>> |  -> dev_queue_xmit(); /* it will call start_xmit(virtio-net.c) */|
+>>> |vsock hdr and payload, and then call                              |
+>>> +------------------------------------------------------------------+
+>>
+>> Note, if we've negotiated the feature, virtio-net driver must not use register_netdev to register it to network core. This can avoid lots of confusion.
+> Hi Jason,
+>
+> You mean we should not register netdev if use vsock, and in order to
+> avoid confusion, then I think whether we should keep vsock and export
+> some virtio-net's functions that can be shared. In this way, first, vsock
+> may keep existing architecture and will not affect virtio-net.
+
+
+At least it needs new feature bits which will be a functional 
+duplication of virtio-net (e.g mrg_rxbuf).
+
+
+> In addition,
+> vsock doesn't need to use virtio_net header too, then it don't need to pack
+> skb structure.
+
+
+For mergeable rx buffer it need I think?
+
+
+>
+> Thanks,
+> Yiwen.
+>
+>>
+>>>                                     |
+>>>                                     |
+>>> +------------------------------------------------------------------+
+>>> |Virtio-net Module                                                 |
+>>> |start_xmit                                                        |
+>>> |  -> add virtio_net_hdr and pack sg in ring desc, notify Host     |
+>>> +------------------------------------------------------------------+
+>>>                                     |
+>>>                                     |
+>>> +------------------------------------------------------------------+
+>>> |Vhost-net Module                                                  |
+>>> |handle_tx                                                         |
+>>> |  -> get tx buffer, skip virtio_net_hdr and call Vsock function.  |
+>>> | /* This point has some differences, vhost-net use ->sendmsg to   |
+>>> |  * forward information, however vsock only need to notify server |
+>>> |  * that data ready. */                                           |
+>>> +------------------------------------------------------------------+
+>>
+>> When VIRTIO_NET_F_VOSCK is negotiated, we know that it's a vsock transport, we can then forward it to vsock core.
+>>
+>>
+>>>                                     |
+>>>                                     |
+>>> +------------------------------------------------------------------+
+>>> |VSOCK Core Module                                                 |
+>>> |alloc_pkt, copy skb data to pkt.                                  |
+>>> |add pkt to rx_queue and notify server to get data.                |
+>>> +------------------------------------------------------------------+
+>>>
+>>> 3. To Host->Guest
+>>> I have a problem and difficult, mainly I know about virtio-net a little),
+>>> because I have been doing work related with storage and file system.
+>>>
+>>> The problem as follows:
+>>> we should monitor all of socket of vsock in handle_rx, when there are
+>>> data coming, and copy data to vq desc. Vhost-net use ->recvmsg to
+>>> get data, it is different with socket. To vsock, I think host will
+>>> not call ->recvmsg when it need to send message to guest. To net,
+>>> vhost-net only as forwarding layer.
+>> Know not much here, but is it possible to have a vsock(tap) to be passed to vhost_net and let vhost call its recvmgs()? Bascially it was a socket on host as well I believe?
+> For vsock, Host->Guest, it's code flow as follows:
+> Server call send()
+>    -> sendmsg(); (vsock_stream_sendmsg)
+>      -> virtio_trasnport_send_pkt_info
+>        -> alloc pkt, add pkt to send_pkt_list, wake up vhost_worker
+>
+> Vhost_worker
+>    -> vhost_transport_send_pkt_work
+>      -> get pkt from send_pkt_list
+>      -> get vq input desc and then fill data to desc addr
+>      -> update used ring and then signal guest
+>
+> In the whole process, host don't call recvmsg() because it is a net device, and
+> it also receives any messages.
+
+
+If I understand this correctly, there's no a socket object on host that 
+represent vosck in guest? If yes, maybe we can invent one.
+
+Thanks
+
+
+>
+> For vhost-net, I understand it is a tap device, so it can receive messages
+> from other net device.
+>
+> This is my understanding, it may have some errors.
+>
+> Thanks.
+>
+>> If this doesn't work, we can have vsock specific receiving routine in vhost_net if VIRTIO_NET_F_VOSCK is negotiated.
+>>
+>> Generally, I think we should try out best to keep the exist sendmsg()/recvmsg() interfaces and only consider the alternatives if we meet some real blocker.
+>>
+>> Thanks
+>>
+>>
+>> .
+>>
+>

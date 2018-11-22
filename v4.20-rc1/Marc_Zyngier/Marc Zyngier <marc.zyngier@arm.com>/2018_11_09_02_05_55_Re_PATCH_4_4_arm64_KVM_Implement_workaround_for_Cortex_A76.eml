@@ -1,0 +1,374 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 09 Nov 2018 00:37:05 -0000
+Received: from icoremail.net (unknown [209.85.215.172])
+	by mail-app2 (Coremail) with SMTP id by_KCgC3f+1ee+RbxshhAQ--.29276S3;
+	Fri, 09 Nov 2018 02:07:27 +0800 (CST)
+Received: from mail-pg1-f172.google.com (unknown [209.85.215.172])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwCXeERXe+RbbwYeAA--.818S3;
+	Fri, 09 Nov 2018 02:07:19 +0800 (CST)
+Received: by mail-pg1-f172.google.com with SMTP id 80so1233941pge.4
+        for <xuliker@zju.edu.cn>; Thu, 08 Nov 2018 10:07:19 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :subject:to:cc:references:from:openpgp:autocrypt:organization
+         :message-id:date:user-agent:mime-version:in-reply-to
+         :content-language:content-transfer-encoding:sender:precedence
+         :list-id;
+        bh=vnhj/YvKJ0kwGIW9bzB+SsFcOcyWrr/n9NW3J/m3t+Y=;
+        b=sOUJO90JGcvBKhP9XQm8YgEfppYUXLerNvlEFPXSQZ1WE2ln85iCd7WUOwv6X+olZR
+         RNPVTuQLuoI7jX5cOlCT0feI/IIvV4XO4Cd3egC8BrsXLDWeu2fcrnFvTYJVLRfYrGr7
+         6YPdg0gswaPo1jvcPJbECSVlSkzJ8BhC+/lCWbKOqIq/6PeyttdJeQXzvwn+GJGog+/e
+         XIw9GhH3BeKdRJX3yjRyD455qGZyMJ51RT2Y5tcsHUEokj+1wzVAJarq/abO77lCZ5/X
+         td3NqUIOYYQDEVqIMnnbG3VeUi48ko9nkkCx5fACV+uan9DVrNmgZXkVzhXPP1uchfgG
+         WJ5w==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org
+X-Gm-Message-State: AGRZ1gL7iTAjPvYjZ4Ogngr3zZcx+U/CDGKEDbEueKWc5ZrfvLL+TtVm
+	zRuASDc8R6Gg7WrjMMd+ZILXXkNmswLgq2x2ezckNhAt4xq9KRifvQ==
+X-Received: by 2002:a62:ce8e:: with SMTP id y136-v6mr5541027pfg.201.1541700439055;
+        Thu, 08 Nov 2018 10:07:19 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp528731pjt;
+        Thu, 8 Nov 2018 10:07:17 -0800 (PST)
+X-Google-Smtp-Source: AJdET5fWiLjNkISUECVxa/10YAw5NYkO1FFSxFFa2LCR0yRsbIib25GafF3iSvNXNiQ6UNncLWvf
+X-Received: by 2002:aa7:858b:: with SMTP id w11-v6mr5687013pfn.77.1541700437790;
+        Thu, 08 Nov 2018 10:07:17 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1541700437; cv=none;
+        d=google.com; s=arc-20160816;
+        b=E8WgV2y7DrW+sdjJzUOxptqT/16Hx96Hwd/PWsibu0g9E7iYSI89LCC8CWM/FjQAVS
+         II+VaPdBBpo8kaba9uXtfO6z3EiV4a4e/A/SPQ0NcYtFlGwJ7oxp3PWLt1lIXdpraOgX
+         VSvh50QNW/hlQS+LEJIXF6ERmcCHsDs+JPb2bmXGznqH2azSxxnCJnow6D1Pjuk4zHMS
+         15GjACFPeYMoWrdQkjQDO3VQ/NzPapYXhxFxsWUaLBPdhq3wydwPKBrlZH/5kvw/Bz6j
+         eoCBupIFsKHO1wAKCShLTQAsiRzK+VmBoBE5QybCRSgxb8yTNooynbUHSqixgZsw0LkC
+         QofQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:content-transfer-encoding
+         :content-language:in-reply-to:mime-version:user-agent:date
+         :message-id:organization:autocrypt:openpgp:from:references:cc:to
+         :subject;
+        bh=vnhj/YvKJ0kwGIW9bzB+SsFcOcyWrr/n9NW3J/m3t+Y=;
+        b=YfpDEppL5Ea3jC8h2OGd9cvmGU5X5pT8tMJTTg9gIIAagElzsw3ZXtP4nGUtVIwJcg
+         ucf2DNVi5oBGmiUTq1oDU3oOthT9z/YE6/e0m1QNC8438vf8kOHVOSfhy+cY99J+mM2q
+         d1m4/6Z4mo11c5JoACub5VqzuAy1TXUkOfwHtTXGI5JVH6em14/EvlSwjHkaDQDd+DSU
+         q4v+KWbazZEvR4ruQm7TYtQu5IjcYRpza0Cu0yW3gvOWnqh6tkXKKjt3mjVQMES6CaqD
+         bLUrirRGtu3dAC0EhpCrPT2Ohfe+lAkQsKHMKWbcttL5Ha+THCH1xPvJhj5c7fJemSwW
+         Qr5g==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id p15-v6si4980725plo.26.2018.11.08.10.06.56;
+        Thu, 08 Nov 2018 10:07:17 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1727328AbeKIDmj (ORCPT <rfc822;fanshuming2011@gmail.com>
+        + 99 others); Thu, 8 Nov 2018 22:42:39 -0500
+Received: from usa-sjc-mx-foss1.foss.arm.com ([217.140.101.70]:46924 "EHLO
+        foss.arm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726801AbeKIDmj (ORCPT <rfc822;kvm@vger.kernel.org>);
+        Thu, 8 Nov 2018 22:42:39 -0500
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.72.51.249])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id D4F55EBD;
+        Thu,  8 Nov 2018 10:05:58 -0800 (PST)
+Received: from [10.1.196.62] (usa-sjc-imap-foss1.foss.arm.com [10.72.51.249])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 54AA33F5CF;
+        Thu,  8 Nov 2018 10:05:57 -0800 (PST)
+Subject: Re: [PATCH 4/4] arm64: KVM: Implement workaround for Cortex-A76
+ erratum 1165522
+To: Christoffer Dall <christoffer.dall@arm.com>
+Cc: linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu,
+        kvm@vger.kernel.org, Will Deacon <will.deacon@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>
+References: <20181105143617.120602-1-marc.zyngier@arm.com>
+ <20181105143617.120602-5-marc.zyngier@arm.com>
+ <20181106081546.GH12057@e113682-lin.lund.arm.com>
+From: Marc Zyngier <marc.zyngier@arm.com>
+Openpgp: preference=signencrypt
+Autocrypt: addr=marc.zyngier@arm.com; prefer-encrypt=mutual; keydata=
+ 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
+Organization: ARM Ltd
+Message-ID: <ec7d0e34-022f-125e-00b4-b06be23ee2a8@arm.com>
+Date: Thu, 8 Nov 2018 18:05:55 +0000
+User-Agent: Mozilla/5.0 (X11; Linux aarch64; rv:52.0) Gecko/20100101
+ Thunderbird/52.9.1
+MIME-Version: 1.0
+In-Reply-To: <20181106081546.GH12057@e113682-lin.lund.arm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-GB
+Content-Transfer-Encoding: 7bit
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwCXeERXe+RbbwYeAA--.818S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW3Wry7XF1UXr1UCF4UAryrJFb_yoW3AF1Dpa
+	4qkF1rJF4UKF1Yk3y2qw15ury5Gws3Gr13Cryqgr1rtrn0v34jyr1rKr9I9Fs7Xr1kWa1F
+	vFyY9F15GFs0vrDanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUU0bIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUmlb7Iv0xC_Kw4lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2
+	z280aVAFwI0_Gr1j6F4UJwA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_Gr1j6F4UJwAS0I0E0x
+	vYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AK
+	xVWUGVWUXwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcV
+	AKI48JMx02cVCv0xWlc7I2V7IY0VAS07AlzVAYIcxG8wCY1x0264kExVAvwVAq07x20xyl
+	c7Ca8VAvwVCFzxkY4VCF77xAMxkIecxEwVCI4VW5MxkI7II2jI8vz4vEwIxGrwCYIxAIcV
+	C0I7IYx2IY67AKxVW5JVW7JwCYIxAIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMxvI42IY
+	6I8E87Iv67AKxVW8Jr0_Cr1UMxvI42IY6I8E87Iv6xkF7I0E14v26r4UJVWxJr1l42xK82
+	IYc2Ij64vIr41l42xK82IY64kExVAvwVAq07x20xyl4x8a6x804xWl4I8I3I0E4IkC6x0Y
+	z7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zV
+	AF1VAY17CE14v26r1q6r43MIIYrxkI7VAKI48JMIIF0xvE42xK8VAvwI8IcIk0rVW8JVW3
+	JbIYCTnIWIevJa73UjIFyTuYvjxUm92TUUUUU
+
+On 06/11/18 08:15, Christoffer Dall wrote:
+> On Mon, Nov 05, 2018 at 02:36:16PM +0000, Marc Zyngier wrote:
+>> Early versions of Cortex-A76 can end-up with corrupt TLBs if they
+>> speculate an AT instruction in during a guest switch while the
+>> S1/S2 system registers are in an inconsistent state.
+>>
+>> Work around it by:
+>> - Mandating VHE
+>> - Make sure that S1 and S2 system registers are consistent before
+>>   clearing HCR_EL2.TGE, which allows AT to target the EL1 translation
+>>   regime
+>>
+>> These two things together ensure that we cannot hit this erratum.
+>>
+>> Signed-off-by: Marc Zyngier <marc.zyngier@arm.com>
+>> ---
+>>  Documentation/arm64/silicon-errata.txt |  1 +
+>>  arch/arm64/Kconfig                     | 12 ++++++++++++
+>>  arch/arm64/include/asm/cpucaps.h       |  3 ++-
+>>  arch/arm64/include/asm/kvm_host.h      |  3 +++
+>>  arch/arm64/include/asm/kvm_hyp.h       |  6 ++++++
+>>  arch/arm64/kernel/cpu_errata.c         |  8 ++++++++
+>>  arch/arm64/kvm/hyp/switch.c            | 14 ++++++++++++++
+>>  7 files changed, 46 insertions(+), 1 deletion(-)
+>>
+>> diff --git a/Documentation/arm64/silicon-errata.txt b/Documentation/arm64/silicon-errata.txt
+>> index 76ccded8b74c..04f0bc4690c6 100644
+>> --- a/Documentation/arm64/silicon-errata.txt
+>> +++ b/Documentation/arm64/silicon-errata.txt
+>> @@ -57,6 +57,7 @@ stable kernels.
+>>  | ARM            | Cortex-A73      | #858921         | ARM64_ERRATUM_858921        |
+>>  | ARM            | Cortex-A55      | #1024718        | ARM64_ERRATUM_1024718       |
+>>  | ARM            | Cortex-A76      | #1188873        | ARM64_ERRATUM_1188873       |
+>> +| ARM            | Cortex-A76      | #1165522        | ARM64_ERRATUM_1165522       |
+>>  | ARM            | MMU-500         | #841119,#826419 | N/A                         |
+>>  |                |                 |                 |                             |
+>>  | Cavium         | ThunderX ITS    | #22375, #24313  | CAVIUM_ERRATUM_22375        |
+>> diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
+>> index 787d7850e064..a68bc6cc2167 100644
+>> --- a/arch/arm64/Kconfig
+>> +++ b/arch/arm64/Kconfig
+>> @@ -497,6 +497,18 @@ config ARM64_ERRATUM_1188873
+>>  
+>>  	  If unsure, say Y.
+>>  
+>> +config ARM64_ERRATUM_1165522
+>> +	bool "Cortex-A76: Speculative AT instruction using out-of-context translation regime could cause subsequent request to generate an incorrect translation"
+>> +	default y
+>> +	help
+>> +	  This option adds work arounds for ARM Cortex-A76 erratum 1165522
+>> +
+>> +	  Affected Cortex-A76 cores (r0p0, r1p0, r2p0) could end-up with
+>> +	  corrupted TLBs by speculating an AT instruction during a guest
+>> +	  context switch.
+>> +
+>> +	  If unsure, say Y.
+>> +
+>>  config CAVIUM_ERRATUM_22375
+>>  	bool "Cavium erratum 22375, 24313"
+>>  	default y
+>> diff --git a/arch/arm64/include/asm/cpucaps.h b/arch/arm64/include/asm/cpucaps.h
+>> index 6e2d254c09eb..62d8cd15fdf2 100644
+>> --- a/arch/arm64/include/asm/cpucaps.h
+>> +++ b/arch/arm64/include/asm/cpucaps.h
+>> @@ -54,7 +54,8 @@
+>>  #define ARM64_HAS_CRC32				33
+>>  #define ARM64_SSBS				34
+>>  #define ARM64_WORKAROUND_1188873		35
+>> +#define ARM64_WORKAROUND_1165522		36
+>>  
+>> -#define ARM64_NCAPS				36
+>> +#define ARM64_NCAPS				37
+>>  
+>>  #endif /* __ASM_CPUCAPS_H */
+>> diff --git a/arch/arm64/include/asm/kvm_host.h b/arch/arm64/include/asm/kvm_host.h
+>> index 7d6e974d024a..8f486026ac87 100644
+>> --- a/arch/arm64/include/asm/kvm_host.h
+>> +++ b/arch/arm64/include/asm/kvm_host.h
+>> @@ -435,6 +435,9 @@ static inline bool kvm_arch_sve_requires_vhe(void)
+>>  static inline bool kvm_arch_impl_requires_vhe(void)
+>>  {
+>>  	/* Some implementations have defects that confine them to VHE */
+>> +	if (cpus_have_cap(ARM64_WORKAROUND_1165522))
+>> +		return true;
+>> +
+>>  	return false;
+>>  }
+>>  
+>> diff --git a/arch/arm64/include/asm/kvm_hyp.h b/arch/arm64/include/asm/kvm_hyp.h
+>> index 23aca66767f9..9681360d0959 100644
+>> --- a/arch/arm64/include/asm/kvm_hyp.h
+>> +++ b/arch/arm64/include/asm/kvm_hyp.h
+>> @@ -163,6 +163,12 @@ static __always_inline void __hyp_text __load_guest_stage2(struct kvm *kvm)
+>>  {
+>>  	write_sysreg(kvm->arch.vtcr, vtcr_el2);
+>>  	write_sysreg(kvm->arch.vttbr, vttbr_el2);
+>> +
+>> +	/*
+>> +	 * ARM erratum 1165522 requires the actual execution of the
+>> +	 * above before we can switch to the guest translation regime.
+>> +	 */
+> 
+> Is it about a guest translation 'regime' or should this just say before
+> we can enable stage 2 translation?
+
+No, this isn't strictly about enabling stage-2 translation. This is
+about making sure that anything that impacts the guest translations is
+actually executed.
+
+I wonder if it would be clearer to move this outside of
+__load_guest_stage2 and make it explicit in the callers of this helper...
+
+Thoughts?
+
+> 
+>> +	asm(ALTERNATIVE("nop", "isb", ARM64_WORKAROUND_1165522));
+>>  }
+>>  
+>>  #endif /* __ARM64_KVM_HYP_H__ */
+>> diff --git a/arch/arm64/kernel/cpu_errata.c b/arch/arm64/kernel/cpu_errata.c
+>> index a509e35132d2..476e738e6c46 100644
+>> --- a/arch/arm64/kernel/cpu_errata.c
+>> +++ b/arch/arm64/kernel/cpu_errata.c
+>> @@ -739,6 +739,14 @@ const struct arm64_cpu_capabilities arm64_errata[] = {
+>>  		.capability = ARM64_WORKAROUND_1188873,
+>>  		ERRATA_MIDR_RANGE(MIDR_CORTEX_A76, 0, 0, 2, 0),
+>>  	},
+>> +#endif
+>> +#ifdef CONFIG_ARM64_ERRATUM_1165522
+>> +	{
+>> +		/* Cortex-A76 r0p0 to r2p0 */
+>> +		.desc = "ARM erratum 1165522",
+>> +		.capability = ARM64_WORKAROUND_1165522,
+>> +		ERRATA_MIDR_RANGE(MIDR_CORTEX_A76, 0, 0, 2, 0),
+>> +	},
+>>  #endif
+>>  	{
+>>  	}
+>> diff --git a/arch/arm64/kvm/hyp/switch.c b/arch/arm64/kvm/hyp/switch.c
+>> index 51d5d966d9e5..322109183853 100644
+>> --- a/arch/arm64/kvm/hyp/switch.c
+>> +++ b/arch/arm64/kvm/hyp/switch.c
+>> @@ -143,6 +143,13 @@ static void deactivate_traps_vhe(void)
+>>  {
+>>  	extern char vectors[];	/* kernel exception vectors */
+>>  	write_sysreg(HCR_HOST_VHE_FLAGS, hcr_el2);
+>> +
+>> +	/*
+>> +	 * ARM erratum 1165522 requires the actual execution of the
+>> +	 * above before we can switch to the host translation regime.
+>> +	 */
+> 
+> same here, is it not rather about disabling stage 2 translation than
+> about the host (EL2 and EL0 stage 1) translation regimes?
+> 
+>> +	asm(ALTERNATIVE("nop", "isb", ARM64_WORKAROUND_1165522));
+>> +
+>>  	write_sysreg(CPACR_EL1_DEFAULT, cpacr_el1);
+>>  	write_sysreg(vectors, vbar_el1);
+>>  }
+>> @@ -499,6 +506,13 @@ int kvm_vcpu_run_vhe(struct kvm_vcpu *vcpu)
+>>  
+>>  	sysreg_save_host_state_vhe(host_ctxt);
+>>  
+>> +	/*
+>> +	 * ARM erratum 1165522 requires us to have all the translation
+>> +	 * context in place before we clear HCR_TGE. All the offending
+>> +	 * guest sysregs are loaded in kvm_vcpu_load_sysregs, and
+>> +	 * __activate_vm has the stage-2 configuration. Once this is
+>> +	 * done, __activate_trap clears HCR_TGE (among other things).
+>> +	 */
+> 
+> I'm not this comment is needed or is helpful here.  For example, I don't
+> understand what you mean with the offending guest sysregs and how that
+
+TTBR*, TCR, SCTLR... Anything that deals with stage-1 translations.
+
+> relates to the problem of configuring stage 2 before clearing TGE.  Is
+> this about gettting the stage 1 configuration in place first?
+
+Not only stage-1. Stage-2 is involved as well, as the CPU could
+otherwise end-up with the wrong translations (bypassing stage-2 altogether).
+
+> 
+> If so, could I suggest a reword along the lines of:
+> 
+> 	/*
+> 	 * ARM erratum 1165522 requires us to configure both stage 1 and
+> 	 * stage 2 translation for the guest context before we clear
+> 	 * HCR_EL2.TGE.
+> 	 *
+> 	 * We have already configured the guest's stage 1 translation in
+> 	 * kvm_vcpu_load_sysregs above.  We must now call __activate_vm
+> 	 * before __activate_traps, because __activate_vm configures
+> 	 * stage 2 translation, and __activate_traps clear HCR_EL2.TGE
+> 	 * (among other things).
+> 	 */
+
+Works for me (and shows that contrary to what you wrote above, you have
+perfectly understood the problem)!.
+
+Thanks,
+
+	M.
+-- 
+Jazz is not dead. It just smells funny...

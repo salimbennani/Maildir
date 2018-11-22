@@ -1,0 +1,203 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (61.164.42.155:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 13 Nov 2018 15:24:17 -0000
+Received: from icoremail.net (unknown [209.85.210.179])
+	by mail-app2 (Coremail) with SMTP id by_KCgCn3_gMyOpbPT+GAQ--.40657S3;
+	Tue, 13 Nov 2018 20:48:14 +0800 (CST)
+Received: from mail-pf1-f179.google.com (unknown [209.85.210.179])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwDnzkoKyOpbcmU4AA--.11090S3;
+	Tue, 13 Nov 2018 20:48:11 +0800 (CST)
+Received: by mail-pf1-f179.google.com with SMTP id s9-v6so5989021pfm.13
+        for <xuliker@zju.edu.cn>; Tue, 13 Nov 2018 04:48:10 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :from:to:cc:subject:date:message-id:sender:precedence:list-id;
+        bh=CHFb3AwzJ0hSO9JX1+gMFJ8qrG59hUtkezH+VOwAyTs=;
+        b=Y3FynUURrtyk4jhCAHklISurWkWAiu+rfDuhz/q9HAULIpcFcNbDy537HHSBwNKRkv
+         zrU8igi6yKxOd0T+4BV8NIMYLR8Vzott+uJ0j9disHWlNBfzVnz9xwkSXTFaHomu8+2F
+         PaJ+k2SMQwK0fPTUpdaeRzkuglkU8yU5ljGV73NY+blc6AZMhpd0gUPEVy3I+CQRgefE
+         mQoC2NKrTkcTlyOzPpMscsITGZd2/HcixvdLcvBVuENJFRLeimIDRCKLhpgsNnKyXTjN
+         lAH1nhSqE33CNPv0dSq4TGV2UsnNo/Foy85IToaPQp8pDw9LOKfqhOLmDvZWXUf30vdT
+         ZsQw==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org
+X-Gm-Message-State: AGRZ1gL8CG2Fc07ZmAhmL+2lxqVfw2sR/HpN8rg6Cqsh8UTQfRorN+7I
+	FUfch70XdtBAxNVFg2PNUbKTLpgSgYwD/5c5d0QAJYXwNf+LKDSG7A==
+X-Received: by 2002:a63:5816:: with SMTP id m22-v6mr4569389pgb.332.1542113290552;
+        Tue, 13 Nov 2018 04:48:10 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp4420399pjt;
+        Tue, 13 Nov 2018 04:48:09 -0800 (PST)
+X-Google-Smtp-Source: AJdET5eZMTl9eZxUJ8/ASD8zZZW7KkWLBkbp03lIPGQIfiz0FrnfZ1mAgozp46aCKXXttc6TsUNx
+X-Received: by 2002:a63:6643:: with SMTP id a64-v6mr4530679pgc.15.1542113289560;
+        Tue, 13 Nov 2018 04:48:09 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542113289; cv=none;
+        d=google.com; s=arc-20160816;
+        b=DJNooajsj0XfzjeBeoXWzGt+PVDJbs3AiPrP5HCBhPSF4yB8ksSTI6SPtmRJh35jDx
+         fdHcmi2pqfgeop9I/llEk5mflEbQCMvdbjMPRE+SnJMu6/0s4pHdvEI5pKTstae26YRd
+         5VOtm/nidX0quwtiB61uNFn8BWOtNBDdZgpKuRBjrvI/rDTcxsWAnDQAsit6kuNX7M1D
+         EmBnKRos9+rww3rARUtg8wokgYrSeKDd1D0PzcASZQ+cLVuGH5u9CeLI7EEEdp/XeI4d
+         KKG4YHYfeVlNPesK+4tmI3gSZD6wdZrckZ0k17v1bHKZQ9LWC9gy3zVxrsIslLT3aDIp
+         1Z0w==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:message-id:date:subject:cc:to:from;
+        bh=CHFb3AwzJ0hSO9JX1+gMFJ8qrG59hUtkezH+VOwAyTs=;
+        b=tMV5e99sA1NgDtGS+IQceVhy/KreXPaWH6NRwhgPJPbIRpvucvoC1SAqPhDZsPSw9t
+         AW1vClMZArV5sTzlExBLyFJrbJy/j82ZU0MMuHjPtDViVLP/7C1qHODayvLPKVFcIy8K
+         bYj4FIbmybw/jiCpD59u1d4lAK85NePHxsQDmP3IBSs0u3RXkwle6TOuCe0Wox3c1kmM
+         Fs5LGGkJqZ5f5NudzBtX4UpAixEUjQYc2d7CK/G9eCpPBLFBmErq0yf/87znF5LsZ46i
+         udVxyWFhQLWAaRN8610VlGc1x3DmIkjW9rNJfrlbhJboTsku2XViU21Wd3b4/62G82na
+         2aoQ==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id b28-v6si19042969pgm.568.2018.11.13.04.47.54;
+        Tue, 13 Nov 2018 04:48:09 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1732896AbeKMWpr (ORCPT <rfc822;fanshuming2011@gmail.com>
+        + 99 others); Tue, 13 Nov 2018 17:45:47 -0500
+Received: from laurent.telenet-ops.be ([195.130.137.89]:48294 "EHLO
+        laurent.telenet-ops.be" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1732743AbeKMWpr (ORCPT <rfc822;kvm@vger.kernel.org>);
+        Tue, 13 Nov 2018 17:45:47 -0500
+Received: from ramsan.of.borg ([84.194.111.163])
+        by laurent.telenet-ops.be with bizsmtp
+        id zQnm1y0013XaVaC01QnmF2; Tue, 13 Nov 2018 13:47:46 +0100
+Received: from rox.of.borg ([192.168.97.57])
+        by ramsan.of.borg with esmtp (Exim 4.86_2)
+        (envelope-from <geert@linux-m68k.org>)
+        id 1gMY6c-0005r9-0w; Tue, 13 Nov 2018 13:47:46 +0100
+Received: from geert by rox.of.borg with local (Exim 4.90_1)
+        (envelope-from <geert@linux-m68k.org>)
+        id 1gMY6b-000222-VV; Tue, 13 Nov 2018 13:47:45 +0100
+From: Geert Uytterhoeven <geert+renesas@glider.be>
+To: Philipp Zabel <p.zabel@pengutronix.de>
+Cc: Eric Auger <eric.auger@redhat.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        kvm@vger.kernel.org, linux-renesas-soc@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>
+Subject: [PATCH] reset: Add reset_control_get_count()
+Date: Tue, 13 Nov 2018 13:47:44 +0100
+Message-Id: <20181113124744.7769-1-geert+renesas@glider.be>
+X-Mailer: git-send-email 2.17.1
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwDnzkoKyOpbcmU4AA--.11090S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoWxWFyDtF1DJr13GFyxuFy5CFg_yoW5Ar45pF
+	15JFy3Jr90grnrGa1fJwn5CFya9F1fKF9rGr93K3Z3Cw4ftrs8Xryjyr15Ary3Ar4UJFyF
+	gF47WFy8uF17taUanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUU0bIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUU9Ib7Iv0xC_Kw4lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1l84ACjcxK6I8E
+	87Iv67AKxVW0oVCq3wA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_GcCE3s1le2I262IYc4CY6c
+	8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_Jr0_
+	Jr4lYx0Ex4A2jsIE14v26r4j6F4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvY0x0EwI
+	xGrwCjxxvEa2IrMxkF7I0Ew4C26cxK6c8Ij28IcwCY0x0Ix7I2Y4AK64vIr41lcIIF0xvE
+	2Ix0cI8IcVAFwI0_JFI_Gr1lcIIF0xvE2Ix0cI8IcVCY1x0267AKxVWUJVW8JwCYIxAIcV
+	C2z280aVAFwI0_GcCE3s1lcIIF0xvEx4A2jsIEc7CjxVAFwI0_GcCE3s1l42xK82IYc2Ij
+	64vIr41l42xK82IY64kExVAvwVAq07x20xyl4x8a6x804xWl4I8I3I0E4IkC6x0Yz7v_Jr
+	0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY
+	17CE14v26r1q6r43MIIYrxkI7VAKI48JMIIF0xvE42xK8VAvwI8IcIk0rVWrJr0_WFyUJb
+	IYCTnIWIevJa73UjIFyTuYvjxUBSfODUUUU
+
+Currently the reset core has internal support for counting the number of
+resets for a device described in DT.  Generalize this to devices using
+lookup resets, and export it for public use.
+
+This will be used by generic drivers that need to be sure a device is
+controlled by a single, dedicated reset line (e.g. vfio-platform).
+
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+---
+See https://lore.kernel.org/lkml/1539003437.11512.20.camel@pengutronix.de/
+for the rationale to ensure a single, dedicated reset line.
+
+ drivers/reset/core.c  | 41 +++++++++++++++++++++++++++++++++++++++++
+ include/linux/reset.h |  7 +++++++
+ 2 files changed, 48 insertions(+)
+
+diff --git a/drivers/reset/core.c b/drivers/reset/core.c
+index 654e20ff2d5da9d4..c32b755ec373c338 100644
+--- a/drivers/reset/core.c
++++ b/drivers/reset/core.c
+@@ -859,3 +859,44 @@ devm_reset_control_array_get(struct device *dev, bool shared, bool optional)
+ 	return rstc;
+ }
+ EXPORT_SYMBOL_GPL(devm_reset_control_array_get);
++
++static int reset_control_get_count_from_lookup(struct device *dev)
++{
++	const struct reset_control_lookup *lookup;
++	const char *dev_id = dev_name(dev);
++	int count = 0;
++
++	if (!dev)
++		return -EINVAL;
++
++	mutex_lock(&reset_lookup_mutex);
++
++	list_for_each_entry(lookup, &reset_lookup_list, list) {
++		if (!strcmp(lookup->dev_id, dev_id))
++			count++;
++	}
++
++	mutex_unlock(&reset_lookup_mutex);
++
++	if (count == 0)
++		count = -ENOENT;
++
++	return count;
++}
++
++/**
++ * of_reset_control_get_count - Count number of resets available with a device
++ *
++ * @dev: device for which to return the number of resets
++ *
++ * Returns positive reset count on success, or error number on failure and
++ * on count being zero.
++ */
++int reset_control_get_count(struct device *dev)
++{
++	if (dev->of_node)
++		return of_reset_control_get_count(dev->of_node);
++
++	return reset_control_get_count_from_lookup(dev);
++}
++EXPORT_SYMBOL_GPL(reset_control_get_count);
+diff --git a/include/linux/reset.h b/include/linux/reset.h
+index f0b094130686bf32..2698b36bd1eb3e0c 100644
+--- a/include/linux/reset.h
++++ b/include/linux/reset.h
+@@ -32,6 +32,8 @@ struct reset_control *devm_reset_control_array_get(struct device *dev,
+ struct reset_control *of_reset_control_array_get(struct device_node *np,
+ 						 bool shared, bool optional);
+ 
++int reset_control_get_count(struct device *dev);
++
+ #else
+ 
+ static inline int reset_control_reset(struct reset_control *rstc)
+@@ -97,6 +99,11 @@ of_reset_control_array_get(struct device_node *np, bool shared, bool optional)
+ 	return optional ? NULL : ERR_PTR(-ENOTSUPP);
+ }
+ 
++static inline int reset_control_get_count(struct device *dev)
++{
++	return -ENOENT;
++}
++
+ #endif /* CONFIG_RESET_CONTROLLER */
+ 
+ static inline int __must_check device_reset(struct device *dev)
+-- 
+2.17.1

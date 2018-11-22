@@ -1,0 +1,238 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 09 Nov 2018 00:37:28 -0000
+Received: from icoremail.net (unknown [209.85.215.177])
+	by mail-app2 (Coremail) with SMTP id by_KCgD3__u+g+Rbz_hhAQ--.29862S3;
+	Fri, 09 Nov 2018 02:43:11 +0800 (CST)
+Received: from mail-pg1-f177.google.com (unknown [209.85.215.177])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwB3X0u4g+RbWSseAA--.699S3;
+	Fri, 09 Nov 2018 02:43:04 +0800 (CST)
+Received: by mail-pg1-f177.google.com with SMTP id q5-v6so9232292pgv.0
+        for <xuliker@zju.edu.cn>; Thu, 08 Nov 2018 10:43:04 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:delivered-to:dkim-signature:mime-version:subject
+         :from:in-reply-to:date:cc:content-transfer-encoding:message-id
+         :references:to:sender:precedence:list-id;
+        bh=N3f6irVSEbSIw/kDr0Vvf4NVOc2l0Y9eZea0XyVIrus=;
+        b=CCG4IIvJx+BQfaheviihy3TUWXt7yoONPqqc60s6uVqQ86GZDp7XqS8MK9rkroBOoY
+         70eOohR11Bb29V0Invag6ZJtGTygh6r/IHTtdrJnQ9Gdz5C2MupX3WwjYoGXSP6mSKiQ
+         U1HROtOjEEj43crVClMlgCcetyutELtp/3coWPS/d3HTl1Al1kCUsdebEeVzpkN1yQws
+         6ZcJweEEheJjxdJCok8ElKy/+fs2ytD+yBOgTByb2CaSVIsdpqwU4yiv7tAOD1118qE3
+         b/Qgf2oQu6CW81D0kK/fnE9nu9scM3pzEcgbj6OraspCMuwCPM0CsKnpj9fRI1E0DpkK
+         rrAw==
+X-Gm-Message-State: AGRZ1gJm2pIPh2sTVeB/l0gYUiLuz6SfoZJ1OBnZdtJnPSaLt0t9wXtx
+	2Jiewl9ac1hbv+OxgMfqEZR/RLHuwqCiRKN6x5sVZimizoevnca0sw==
+X-Received: by 2002:a63:3c44:: with SMTP id i4mr4659445pgn.286.1541702583928;
+        Thu, 08 Nov 2018 10:43:03 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp568063pjt;
+        Thu, 8 Nov 2018 10:43:02 -0800 (PST)
+X-Google-Smtp-Source: AJdET5flgnYU88s5HeOZqoA8Vo6zYiHvqhuxBI13Ghcy3ZND0aH01iHoKECm5ujHZg03PW1HU3Lb
+X-Received: by 2002:a17:902:930b:: with SMTP id bc11-v6mr5719023plb.101.1541702582877;
+        Thu, 08 Nov 2018 10:43:02 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1541702582; cv=none;
+        d=google.com; s=arc-20160816;
+        b=M756+XN4RlA4h7nt+zr9JEy7aYf/RSl9xjRgl5cOahrXu6nGb5hLN1mNvXA3CV2Mz1
+         clwMCs1XipCJIq2Mi9UNGSC0Mn7xB9U3r1EFtC5Ud6jpXvWvMUSqcWAcWOoFwFfgCjPi
+         7d3eCJiDRtUPr/f9odH+g6k0qaQb5XKNHE0oSJKWwMrEfA1S02n1CotE2ZHdQdZoTm37
+         Ln6mliB7glcCk/Y+NNRNf0tkTZ2d5Qne/t1yOCLUzkrUmC9W+gyO90qEyR//BlEHXQ4V
+         kMTx4VfBzh+edhClLd8vSnnZ2lEKg7brf+yyFzGeWTyzyVyexltDJSo12HhkmuFCyJbw
+         JEtA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:to:references:message-id
+         :content-transfer-encoding:cc:date:in-reply-to:from:subject
+         :mime-version:dkim-signature;
+        bh=N3f6irVSEbSIw/kDr0Vvf4NVOc2l0Y9eZea0XyVIrus=;
+        b=waZCgT5cn9IUvP6otmr0XY3Vn73vNArKrX0OtdsmOxlQXTkWOYnHlnOSNd0clvWMeX
+         GMYODQPisIeqmhSnN34yxUlpio/cbuopwI59ANy4CCuRovKqmX98omt9uXX/TWJMFHg5
+         V5Gg3PGD8pYA+KXy2r6NTySanBkS8HAz6+K4/H1Z/FwyY2ztSllv3Z+RSJ78ypNkCc5l
+         EB0U+qge0jFPV+1uKecU6/X3qGWjqK7lh2l8s44TFX/ZbQa7ZflsgsjS4FTxA6mgK7za
+         RZagOWMvhmjQLfPU03SbkAb/yG3LyZcBOSERshi3CIVMoZ8TMV44CbYUY8p6+e2Zz6Gv
+         4/Uw==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@oracle.com header.s=corp-2018-07-02 header.b=WvMNLNEM;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;
+       dmarc=pass (p=NONE sp=NONE dis=NONE) header.from=oracle.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id z9si4001039pgf.54.2018.11.08.10.42.48;
+        Thu, 08 Nov 2018 10:43:02 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1727114AbeKIETE (ORCPT <rfc822;fanshuming2011@gmail.com>
+        + 99 others); Thu, 8 Nov 2018 23:19:04 -0500
+Received: from userp2130.oracle.com ([156.151.31.86]:59928 "EHLO
+        userp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727028AbeKIETE (ORCPT <rfc822;kvm@vger.kernel.org>);
+        Thu, 8 Nov 2018 23:19:04 -0500
+Received: from pps.filterd (userp2130.oracle.com [127.0.0.1])
+        by userp2130.oracle.com (8.16.0.22/8.16.0.22) with SMTP id wA8IYTq7077915;
+        Thu, 8 Nov 2018 18:41:50 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=content-type :
+ mime-version : subject : from : in-reply-to : date : cc :
+ content-transfer-encoding : message-id : references : to;
+ s=corp-2018-07-02; bh=N3f6irVSEbSIw/kDr0Vvf4NVOc2l0Y9eZea0XyVIrus=;
+ b=WvMNLNEMtR35NXF9xZSLC+Bf3y9CHUx8ncQlnBkMYyoa/Bs2RetjLqk6U40eQwetjSy4
+ De8Mf7rUO8/aj/E5ncRkwB2D50itToZ7DleRePq8TwXH3VOVCBCQrc2jaRVwp5+yBwCV
+ UlSnLTNO+tJvFynNDK7uLNyHuYRq1Hik+AQZEu6DTt1v2vnF/1bzdsrQ82cBH8uEkmmP
+ fVLFPgd08Ju9Hbr+KVgynqTZ5eQPULfi2bI+810rD/wEm3tsEXSEhn9kH2MVuXzEutB6
+ ycs/DfegTm2m4EHc6Joo6yN/jo0/mPr4VdM68IIBT24BLyUcg8S9VqTc/kGxdNy1u07O pw== 
+Received: from aserv0022.oracle.com (aserv0022.oracle.com [141.146.126.234])
+        by userp2130.oracle.com with ESMTP id 2nh33ub76f-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 08 Nov 2018 18:41:50 +0000
+Received: from aserv0122.oracle.com (aserv0122.oracle.com [141.146.126.236])
+        by aserv0022.oracle.com (8.14.4/8.14.4) with ESMTP id wA8IfnIn031863
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 8 Nov 2018 18:41:49 GMT
+Received: from abhmp0011.oracle.com (abhmp0011.oracle.com [141.146.116.17])
+        by aserv0122.oracle.com (8.14.4/8.14.4) with ESMTP id wA8IfnXe026080;
+        Thu, 8 Nov 2018 18:41:49 GMT
+Received: from [192.168.14.112] (/79.178.245.51)
+        by default (Oracle Beehive Gateway v4.0)
+        with ESMTP ; Thu, 08 Nov 2018 10:41:49 -0800
+Content-Type: text/plain;
+        charset=utf-8
+Mime-Version: 1.0 (Mac OS X Mail 11.1 \(3445.4.7\))
+Subject: Re: [Qemu-devel] [QEMU PATCH v2 0/2]: KVM: i386: Add support for save
+ and restore nested state
+From: Liran Alon <liran.alon@oracle.com>
+In-Reply-To: <d29d27ba-f34e-6dd6-4eec-8e75971269e3@redhat.com>
+Date: Thu, 8 Nov 2018 20:41:41 +0200
+Cc: Jim Mattson <jmattson@google.com>,
+        "Dr. David Alan Gilbert" <dgilbert@redhat.com>,
+        Eduardo Habkost <ehabkost@redhat.com>,
+        kvm list <kvm@vger.kernel.org>, mtosatti@redhat.com,
+        rth@twiddle.net, qemu-devel@nongnu.org
+Content-Transfer-Encoding: quoted-printable
+Message-Id: <59EE7141-6771-47E2-8473-C1429676AD7B@oracle.com>
+References: <CALMp9eQ5zWxb2N9fyYz=WcQshwk0L6qQ4D6L6+p_dzMo4H=txA@mail.gmail.com>
+ <20181102034649.43559-1-liran.alon@oracle.com>
+ <CALMp9eRk=a1FEyr78NRGBBZ2iFCo5s2n5N=bM4zR=YF56oob3A@mail.gmail.com>
+ <1C803EF0-9E1B-4E1B-A4DD-4BE788A7A1FF@oracle.com>
+ <DF5EC0F1-BA8D-4B85-BB1A-B22234235FBA@oracle.com>
+ <CALMp9eQSptO+S1NZjQQUa=HQCXFOevHwTDS9i0KXHCGSfKzEkA@mail.gmail.com>
+ <a567de11-a106-fd6d-7998-1a18ba17eaaa@redhat.com>
+ <939A6255-306C-431C-8799-0D56A30A3BD5@oracle.com>
+ <d29d27ba-f34e-6dd6-4eec-8e75971269e3@redhat.com>
+To: Paolo Bonzini <pbonzini@redhat.com>
+X-Mailer: Apple Mail (2.3445.4.7)
+X-Proofpoint-Virus-Version: vendor=nai engine=5900 definitions=9071 signatures=668683
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 malwarescore=0
+ phishscore=0 bulkscore=0 spamscore=0 mlxscore=0 mlxlogscore=999
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.0.1-1807170000 definitions=main-1811080157
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwB3X0u4g+RbWSseAA--.699S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoWxurW8KFW5Ar47uFy3uF4rXwb_yoW5AFyfp3
+	98Za9Fkr4DXrna9wn2qr18uFWSk3s8XFsxJr9xGw42k3Z0gF92yF4Iyw45ZFW3Crs7Gry2
+	vF42vas7AFyDZrJanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUU0bIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUU9vb7Iv0xC_Kw4lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2
+	z280aVAFwI0_Cr1j6rxdM28EF7xvwVC2z280aVCY1x0267AKxVWxJr0_GcWle2I262IYc4
+	CY6c8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_
+	Jr0_Jr4lYx0Ex4A2jsIE14v26r1j6r4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvY0x
+	0EwIxGrwCjxxvEa2IrMxkF7I0Ew4C26cxK6c8Ij28IcwCY0x0Ix7I2Y4AK64vIr41lcIIF
+	0xvE2Ix0cI8IcVAFwI0_Xr0_Ar1lcIIF0xvE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwCYIx
+	AIcVC2z280aVAFwI0_Gr1j6F4UJwCYIxAIcVC2z280aVCY1x0267AKxVW8Jr0_Cr1UMxAI
+	w28IcxkI7VAKI48JMxAIw28IcVAKzI0EY4vE52x082I5MxCjnVCjjxCrMxC20s026xCaFV
+	Cjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWl
+	x4CE17CEb7AF67AKxVWUtVW8ZwCIc40Y0x0EwIxGrwCI42IY6xAIw20EY4v20xvaj40_Gr
+	0_ZrUvcSsGvfC2KfnxnUUI43ZEXa7IUYd8n5UUUUU==
+
+
+
+> On 8 Nov 2018, at 19:02, Paolo Bonzini <pbonzini@redhat.com> wrote:
+>=20
+> On 08/11/2018 10:57, Liran Alon wrote:
+>>=20
+>>=20
+>>> On 8 Nov 2018, at 11:50, Paolo Bonzini <pbonzini@redhat.com> wrote:
+>>>=20
+>>> On 08/11/2018 01:45, Jim Mattson wrote:
+>>>> I have no attachments to the current design. I had used a data[] =
+blob,
+>>>> because I didn't think userspace would have any need to know what =
+was
+>>>> in there. However, I am now seeing the error of my ways. For =
+example,
+>>>> the userspace instruction emulator needs to know the contents of =
+the
+>>>> vmcs12 to emulate instructions when in guest mode.
+>>>=20
+>>> Yeah, we're probably going to have to document the KVM vmcs12 =
+structure,
+>>> possibly moving it to uapi.  But that's a different thing from
+>>> save/restore state, which can use the 4K or 8K data[] blob.
+>>>=20
+>>> Paolo
+>>=20
+>> But regardless of if we document vmcs12 or not, the current blob we
+>> have today should be separated to well-defined blobs/structs =
+(cached_vmcs12
+>> and cached_shadow_vmcs12) and each blob should have a relevant flag =
+that specifies
+>> it is valid (saved by kernel or requested to be restored by =
+userspace).
+>> Additional future nested-state should be added as additional
+>> well-defined blobs/structs with appropriate flags.
+>=20
+> We are somewhat limited by the ABI of the released kernel versions, =
+and
+> it's unlikely that the structure will change in the short term.  So I
+> think it's okay if we just define that the first 4K of data are the =
+VMCS
+> and the second 8K are the shadow VMCS, whenever format=3D0 in the
+> kvm_nested_state struct.
+>=20
+> Paolo
+
+So what I plan to do is indeed to define first 4K of data as vmcs12 and =
+next 4K as shadow_vmcs12.
+I will also define each of them in a separate VMState subsection that =
+each will have it=E2=80=99s own .needed()
+method that will decide if it=E2=80=99s relevant to send it based on =
+kvm_state.size.
+vmcs12 and shadow_vmcs12 will be put in a struct which is unioned with a =
+struct
+of 2 pages buffer to clearly indicate that one well-defined struct is =
+used for VMX and the other for SVM.
+(based on kvm_state.format)
+
+In addition, I will change KVM_{GET,SET}_NESTED_STATE documentation to =
+indicate that
+future nested state fields should be added at the end of struct and =
+weather they are valid should
+be determined by a flag in kvm_state.flags.
+QEMU will handle these new states in the future by adding more VMState =
+subsections that have
+.needed() method based on appropriate flag in kvm_state.flags.
+The struct itself that userspace use against it=E2=80=99s local kernel =
+will be determined based on KVM_CAPs.
+
+If there are no objections, I will write the needed patches for QEMU =
+(and the documentation patch for KVM).
+(And throw away the current VMState technique I used in this version of =
+the patch :P)
+
+-Liran
+
+>=20
+>> Then, in QEMU, each such well-defined blob/struct should have it=E2=80=99=
+s own subsection with a relevant .needed() method.
+>> This will allow us to preserve required backwards compatibility.
+>>=20
+>> Agreed?
+>>=20
+>> -Liran
+>>=20
+>=20

@@ -1,0 +1,439 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (61.164.42.155:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 10 Nov 2018 04:51:15 -0000
+Received: from icoremail.net (unknown [209.85.215.182])
+	by mail-app2 (Coremail) with SMTP id by_KCgDXv2KNOOZb1cxrAQ--.33396S3;
+	Sat, 10 Nov 2018 09:46:54 +0800 (CST)
+Received: from mail-pg1-f182.google.com (unknown [209.85.215.182])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwAH5UCLOOZbbwwlAA--.3882S3;
+	Sat, 10 Nov 2018 09:46:51 +0800 (CST)
+Received: by mail-pg1-f182.google.com with SMTP id 70so1587891pgh.8
+        for <xuliker@zju.edu.cn>; Fri, 09 Nov 2018 17:46:51 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:delivered-to:dkim-signature:dkim-signature
+         :dmarc-filter:from:to:cc:subject:date:message-id:in-reply-to
+         :references:sender:precedence:list-id;
+        bh=13K8B9QZLGmw7sxlQW9pckUzIqrNhwhAj7b5Tv78SVs=;
+        b=gfisPKqmxK0RpIGn6f//PVyyALWPWSSU69OaU1kM7X+KgWnOWhJqo8/IOuzAKy8xUl
+         mnIKNzkRA23R70DgeP+3GN0Vhkfz4jumjgNEnIqqWJydZgKsanimQXbGMfPDoHt/2aUG
+         SYEnFQ1VHVouq90smqjSMZ1TR7NQdLNfiipxBnztNdDwj8Q5p79LdK7WBRr9Y/StiddX
+         pHtjRBT9aGECjIoAljebYCirX1lBj7RnnKg2lp3GqBk5v45x8yRau8So/CC9TSIsZOhK
+         7dLEGXCfhbh1fi76AtO9cDxrJvaWrUiKZJ6fkiWhLYr6/4K+OzHTA+2H8p/Vakx5eAXB
+         2nQw==
+X-Gm-Message-State: AGRZ1gIFfuDBHVAOXduyYTQ8ls9P4Tjp/D0YeGGsfx1NX8b6Itw9jx32
+	ko4eEDYG9ssVfaQjl07fFHM1PFeXDxx1tHwmnXCoGnmiA8z9VLQ=
+X-Received: by 2002:a63:1d10:: with SMTP id d16-v6mr9292403pgd.228.1541814411429;
+        Fri, 09 Nov 2018 17:46:51 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp611778pjt;
+        Fri, 9 Nov 2018 17:46:50 -0800 (PST)
+X-Google-Smtp-Source: AJdET5c5etAJ4STFenQOndHF14ylple3RGSM83r+SFVzK1D/4T/Q/94MONH1ypovCqUlS8khQ2TC
+X-Received: by 2002:a63:4b18:: with SMTP id y24-v6mr9803883pga.181.1541814410285;
+        Fri, 09 Nov 2018 17:46:50 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1541814410; cv=none;
+        d=google.com; s=arc-20160816;
+        b=Y98zEin7SVYbm1s6Nsl+8vEuA2/5bLsRCz2n6KIRPxmLzjRJZ4RsoVl+M+iSo5Tr0k
+         8bUReCdoFZAIZDbcDGrZ83embIl5uBS0js67Us4ehnlcg0Mbi2ZwvqsAEpHA0+pyw5yr
+         sbaST/xorbhh51LNfR8lGQFJQIIY3HuvCiLlvb+8UvNxLEQleMMxSM9bfIbZZotaeH8l
+         BlyDUvMTGaRhk3WXQt8FCmfobB7LsYDwasTzDQrB3MXffDYoCclQUh2NRLoiBKIuUHJn
+         6AXmrcDrtY25aCzWGyf68PTWeb0VL0WbO9VYVYViU05grEWjmM0QviuH4CK0zQNxVNtq
+         vtlw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:references:in-reply-to:message-id:date
+         :subject:cc:to:from:dmarc-filter:dkim-signature:dkim-signature;
+        bh=13K8B9QZLGmw7sxlQW9pckUzIqrNhwhAj7b5Tv78SVs=;
+        b=SEI0dJn1bcSdzBD2ivIbdjN3B9w46X1tMFiNd4Cz84nc7rSB/cxI2ZISC5TIui7Ovv
+         7oA7QazfKbxBQL0FKrCxSM2m9+EbS1UYx/0wgqJyv6d5LeYZOz3Gr2/nEb+kJfVFwj47
+         pg8WECFwZoi+a8SlmVmZEluvbZhBXjS9QwKv/BWGxymvK2V/6IfpeOlP+q0ndHe5BHj9
+         r5QMFlWDiCOv1DjRRkAHRSJoIH5EOdNWESDNSCZ45K1WU3ZePBRa0nGbrgRbSl9kU35g
+         JqsIB49dIjGEeODmsY7/AUjv1GmtVBjiPPhJJyhOZcBphau2GKFJT48BtrJXvglsCWDg
+         ijHA==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@codeaurora.org header.s=default header.b=OGdWJDF0;
+       dkim=pass header.i=@codeaurora.org header.s=default header.b=TkftxRqJ;
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id f21si8104195pgb.371.2018.11.09.17.46.34;
+        Fri, 09 Nov 2018 17:46:50 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1728719AbeKJL2F (ORCPT <rfc822;tomnomnom1@gmail.com>
+        + 99 others); Sat, 10 Nov 2018 06:28:05 -0500
+Received: from smtp.codeaurora.org ([198.145.29.96]:35944 "EHLO
+        smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728032AbeKJL2F (ORCPT
+        <rfc822;linux-kernel@vger.kernel.org>);
+        Sat, 10 Nov 2018 06:28:05 -0500
+Received: by smtp.codeaurora.org (Postfix, from userid 1000)
+        id 0403F6081A; Sat, 10 Nov 2018 01:44:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
+        s=default; t=1541814290;
+        bh=fbwQWBf3UBEBtiBSqn5HyTLdpVIGXkJPPHSQkhOjQ/o=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=OGdWJDF08I6e4gxtv76VVAj6P8acaz/nlef5sspl33VEbDgYxbCP0MVwbJqCPWsoL
+         ziQ1LL+I8Zftr2NWc5T394ypBykrbizx/5KmuVvyH/7/86RMGXf7i63R5HIVrEOPPW
+         fhKAEaHNhVXmL6zheytwiJDImG/mUhcoiLE45gwg=
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
+        pdx-caf-mail.web.codeaurora.org
+X-Spam-Level: 
+X-Spam-Status: No, score=-2.7 required=2.0 tests=ALL_TRUSTED,BAYES_00,
+        DKIM_INVALID,DKIM_SIGNED autolearn=no autolearn_force=no version=3.4.0
+Received: from tdas-linux.qualcomm.com (blr-c-bdr-fw-01_globalnat_allzones-outside.qualcomm.com [103.229.19.19])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-SHA256 (128/128 bits))
+        (No client certificate requested)
+        (Authenticated sender: tdas@smtp.codeaurora.org)
+        by smtp.codeaurora.org (Postfix) with ESMTPSA id 8F8FC60ADB;
+        Sat, 10 Nov 2018 01:44:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
+        s=default; t=1541814288;
+        bh=fbwQWBf3UBEBtiBSqn5HyTLdpVIGXkJPPHSQkhOjQ/o=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=TkftxRqJ+6LfuQrWdz1soAv5RD+8b8pP0JSGvJuZKPpvO0vYtZUlpj37LICXkMP6e
+         dBCxXU7YeC514PRnkY4eWBuphaHYa1Bas/a8nHt/Awn9foOEzCgnT3Ho1kQ0RoqSfc
+         0CZcdd9pEGUvVxXLCir3+c4h/dHn9SdTS8xv2YWQ=
+DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org 8F8FC60ADB
+From: Taniya Das <tdas@codeaurora.org>
+To: Stephen Boyd <sboyd@kernel.org>,
+        Michael Turquette <mturquette@baylibre.com>
+Cc: Andy Gross <andy.gross@linaro.org>,
+        David Brown <david.brown@linaro.org>,
+        Rajendra Nayak <rnayak@codeaurora.org>,
+        linux-arm-msm@vger.kernel.org, linux-soc@vger.kernel.org,
+        linux-clk@vger.kernel.org, linux-kernel@vger.kernel.org,
+        devicetree@vger.kernel.org, robh@kernel.org,
+        Taniya Das <tdas@codeaurora.org>
+Subject: [PATCH v9 2/2] clk: qcom: Add lpass clock controller driver for SDM845
+Date: Sat, 10 Nov 2018 07:14:16 +0530
+Message-Id: <1541814256-23254-3-git-send-email-tdas@codeaurora.org>
+X-Mailer: git-send-email 1.9.1
+In-Reply-To: <1541814256-23254-1-git-send-email-tdas@codeaurora.org>
+References: <1541814256-23254-1-git-send-email-tdas@codeaurora.org>
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwAH5UCLOOZbbwwlAA--.3882S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoWxKF18ur1DKF48WFWDAF4fZrb_yoWfCry8pF
+	48Aa43Gr4UuFZ8WF42qws8uFn8twnYqFyUKrnrJ39Iv3Z8Aa47AF1vkasIyFWDWrWv9r13
+	JFWF9ayruF4rAwUanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUP2b7Iv0xC_tr1lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2
+	z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s0DM2AIxVAIcxkEcV
+	Aq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1j
+	6r18McIj6I8E87Iv67AKxVW8JVWxJwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IYc2Ij64
+	vIr41l7I0Y6sxI4wCY1x0264kExVAvwVAq07x20xylc7Ca8VAvwVCFzxkY4VCF77xAMxkI
+	ecxEwVCI4VWkMxkI7II2jI8vz4vEwIxGrwCYIxAIcVC0I7IYx2IY67AKxVW8JVW5JwCYIx
+	AIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMxvI42IY6I8E87Iv67AKxVWxJr0_GcWlcIIF
+	0xvEx4A2jsIEc7CjxVAFwI0_Cr1j6rxdMxAIw28IcxkI7VAKI48JMxAIw28IcVAKzI0EY4
+	vE52x082I5MxCjnVCjjxCrMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_
+	Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWUtVW8ZwCIc40Y0x
+	0EwIxGrwCI42IY6xAIw20EY4v20xvaj40_Gr0_ZrUvcSsGvfC2KfnxnUUI43ZEXa7IU5kw
+	IDUUUUU==
+
+Add support for the lpass clock controller found on SDM845 based devices.
+This would allow lpass peripheral loader drivers to control the clocks to
+bring the subsystem out of reset.
+LPASS clocks present on the global clock controller would be registered
+with the clock framework based on the protected-clock flag. Also do not
+gate these clocks if they are left unused, as the lpass clocks require
+the global clock controller lpass clocks to be enabled before they are
+accessed. Mark the GCC lpass clocks as CRITICAL, for the LPASS clock
+access.
+
+Signed-off-by: Taniya Das <tdas@codeaurora.org>
+---
+ drivers/clk/qcom/Kconfig          |   9 ++
+ drivers/clk/qcom/Makefile         |   1 +
+ drivers/clk/qcom/gcc-sdm845.c     |  30 ++++++
+ drivers/clk/qcom/lpasscc-sdm845.c | 192 ++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 232 insertions(+)
+ create mode 100644 drivers/clk/qcom/lpasscc-sdm845.c
+
+diff --git a/drivers/clk/qcom/Kconfig b/drivers/clk/qcom/Kconfig
+index a611531..23adc4c 100644
+--- a/drivers/clk/qcom/Kconfig
++++ b/drivers/clk/qcom/Kconfig
+@@ -293,6 +293,15 @@ config SDM_DISPCC_845
+ 	  Say Y if you want to support display devices and functionality such as
+ 	  splash screen.
+
++config SDM_LPASSCC_845
++	tristate "SDM845 Low Power Audio Subsystem (LPAAS) Clock Controller"
++	depends on COMMON_CLK_QCOM
++	select SDM_GCC_845
++	help
++	  Support for the LPASS clock controller on SDM845 devices.
++	  Say Y if you want to use the LPASS branch clocks of the LPASS clock
++	  controller to reset the LPASS subsystem.
++
+ config SPMI_PMIC_CLKDIV
+ 	tristate "SPMI PMIC clkdiv Support"
+ 	depends on (COMMON_CLK_QCOM && SPMI) || COMPILE_TEST
+diff --git a/drivers/clk/qcom/Makefile b/drivers/clk/qcom/Makefile
+index 981882e..3d530b1 100644
+--- a/drivers/clk/qcom/Makefile
++++ b/drivers/clk/qcom/Makefile
+@@ -46,6 +46,7 @@ obj-$(CONFIG_SDM_CAMCC_845) += camcc-sdm845.o
+ obj-$(CONFIG_SDM_DISPCC_845) += dispcc-sdm845.o
+ obj-$(CONFIG_SDM_GCC_660) += gcc-sdm660.o
+ obj-$(CONFIG_SDM_GCC_845) += gcc-sdm845.o
++obj-$(CONFIG_SDM_LPASSCC_845) += lpasscc-sdm845.o
+ obj-$(CONFIG_SDM_VIDEOCC_845) += videocc-sdm845.o
+ obj-$(CONFIG_SPMI_PMIC_CLKDIV) += clk-spmi-pmic-div.o
+ obj-$(CONFIG_KPSS_XCC) += kpss-xcc.o
+diff --git a/drivers/clk/qcom/gcc-sdm845.c b/drivers/clk/qcom/gcc-sdm845.c
+index f133b7f..ba8ff99 100644
+--- a/drivers/clk/qcom/gcc-sdm845.c
++++ b/drivers/clk/qcom/gcc-sdm845.c
+@@ -3153,6 +3153,34 @@ enum {
+ 	},
+ };
+
++static struct clk_branch gcc_lpass_q6_axi_clk = {
++	.halt_reg = 0x47000,
++	.halt_check = BRANCH_HALT,
++	.clkr = {
++		.enable_reg = 0x47000,
++		.enable_mask = BIT(0),
++		.hw.init = &(struct clk_init_data){
++			.name = "gcc_lpass_q6_axi_clk",
++			.flags = CLK_IS_CRITICAL,
++			.ops = &clk_branch2_ops,
++		},
++	},
++};
++
++static struct clk_branch gcc_lpass_sway_clk = {
++	.halt_reg = 0x47008,
++	.halt_check = BRANCH_HALT,
++	.clkr = {
++		.enable_reg = 0x47008,
++		.enable_mask = BIT(0),
++		.hw.init = &(struct clk_init_data){
++			.name = "gcc_lpass_sway_clk",
++			.flags = CLK_IS_CRITICAL,
++			.ops = &clk_branch2_ops,
++		},
++	},
++};
++
+ static struct gdsc pcie_0_gdsc = {
+ 	.gdscr = 0x6b004,
+ 	.pd = {
+@@ -3453,6 +3481,8 @@ enum {
+ 	[GCC_QSPI_CORE_CLK_SRC] = &gcc_qspi_core_clk_src.clkr,
+ 	[GCC_QSPI_CORE_CLK] = &gcc_qspi_core_clk.clkr,
+ 	[GCC_QSPI_CNOC_PERIPH_AHB_CLK] = &gcc_qspi_cnoc_periph_ahb_clk.clkr,
++	[GCC_LPASS_Q6_AXI_CLK] = &gcc_lpass_q6_axi_clk.clkr,
++	[GCC_LPASS_SWAY_CLK] = &gcc_lpass_sway_clk.clkr,
+ };
+
+ static const struct qcom_reset_map gcc_sdm845_resets[] = {
+diff --git a/drivers/clk/qcom/lpasscc-sdm845.c b/drivers/clk/qcom/lpasscc-sdm845.c
+new file mode 100644
+index 0000000..2ef7f2a
+--- /dev/null
++++ b/drivers/clk/qcom/lpasscc-sdm845.c
+@@ -0,0 +1,192 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * Copyright (c) 2018, The Linux Foundation. All rights reserved.
++ */
++
++#include <linux/platform_device.h>
++#include <linux/module.h>
++#include <linux/of_address.h>
++#include <linux/regmap.h>
++
++#include <dt-bindings/clock/qcom,lpass-sdm845.h>
++
++#include "clk-regmap.h"
++#include "clk-branch.h"
++#include "common.h"
++
++static struct clk_branch lpass_audio_wrapper_aon_clk = {
++	.halt_reg = 0x098,
++	.halt_check = BRANCH_VOTED,
++	.clkr = {
++		.enable_reg = 0x098,
++		.enable_mask = BIT(0),
++		.hw.init = &(struct clk_init_data){
++			.name = "lpass_audio_wrapper_aon_clk",
++			.ops = &clk_branch2_ops,
++		},
++	},
++};
++
++static struct clk_branch lpass_q6ss_ahbm_aon_clk = {
++	.halt_reg = 0x12000,
++	.halt_check = BRANCH_VOTED,
++	.clkr = {
++		.enable_reg = 0x12000,
++		.enable_mask = BIT(0),
++		.hw.init = &(struct clk_init_data){
++			.name = "lpass_q6ss_ahbm_aon_clk",
++			.ops = &clk_branch2_ops,
++		},
++	},
++};
++
++static struct clk_branch lpass_q6ss_ahbs_aon_clk = {
++	.halt_reg = 0x1f000,
++	.halt_check = BRANCH_VOTED,
++	.clkr = {
++		.enable_reg = 0x1f000,
++		.enable_mask = BIT(0),
++		.hw.init = &(struct clk_init_data){
++			.name = "lpass_q6ss_ahbs_aon_clk",
++			.ops = &clk_branch2_ops,
++		},
++	},
++};
++
++static struct clk_branch lpass_qdsp6ss_core_clk = {
++	.halt_reg = 0x20,
++	/* CLK_OFF would not toggle until LPASS is not out of reset */
++	.halt_check = BRANCH_HALT_SKIP,
++	.clkr = {
++		.enable_reg = 0x20,
++		.enable_mask = BIT(0),
++		.hw.init = &(struct clk_init_data){
++			.name = "lpass_qdsp6ss_core_clk",
++			.ops = &clk_branch2_ops,
++		},
++	},
++};
++
++static struct clk_branch lpass_qdsp6ss_xo_clk = {
++	.halt_reg = 0x38,
++	/* CLK_OFF would not toggle until LPASS is not out of reset */
++	.halt_check = BRANCH_HALT_SKIP,
++	.clkr = {
++		.enable_reg = 0x38,
++		.enable_mask = BIT(0),
++		.hw.init = &(struct clk_init_data){
++			.name = "lpass_qdsp6ss_xo_clk",
++			.ops = &clk_branch2_ops,
++		},
++	},
++};
++
++static struct clk_branch lpass_qdsp6ss_sleep_clk = {
++	.halt_reg = 0x3c,
++	/* CLK_OFF would not toggle until LPASS is not out of reset */
++	.halt_check = BRANCH_HALT_SKIP,
++	.clkr = {
++		.enable_reg = 0x3c,
++		.enable_mask = BIT(0),
++		.hw.init = &(struct clk_init_data){
++			.name = "lpass_qdsp6ss_sleep_clk",
++			.ops = &clk_branch2_ops,
++		},
++	},
++};
++
++static struct regmap_config lpass_regmap_config = {
++	.reg_bits	= 32,
++	.reg_stride	= 4,
++	.val_bits	= 32,
++	.fast_io	= true,
++};
++
++static struct clk_regmap *lpass_cc_sdm845_clocks[] = {
++	[LPASS_AUDIO_WRAPPER_AON_CLK] = &lpass_audio_wrapper_aon_clk.clkr,
++	[LPASS_Q6SS_AHBM_AON_CLK] = &lpass_q6ss_ahbm_aon_clk.clkr,
++	[LPASS_Q6SS_AHBS_AON_CLK] = &lpass_q6ss_ahbs_aon_clk.clkr,
++};
++
++static const struct qcom_cc_desc lpass_cc_sdm845_desc = {
++	.config = &lpass_regmap_config,
++	.clks = lpass_cc_sdm845_clocks,
++	.num_clks = ARRAY_SIZE(lpass_cc_sdm845_clocks),
++};
++
++static struct clk_regmap *lpass_qdsp6ss_sdm845_clocks[] = {
++	[LPASS_QDSP6SS_XO_CLK] = &lpass_qdsp6ss_xo_clk.clkr,
++	[LPASS_QDSP6SS_SLEEP_CLK] = &lpass_qdsp6ss_sleep_clk.clkr,
++	[LPASS_QDSP6SS_CORE_CLK] = &lpass_qdsp6ss_core_clk.clkr,
++};
++
++static const struct qcom_cc_desc lpass_qdsp6ss_sdm845_desc = {
++	.config = &lpass_regmap_config,
++	.clks = lpass_qdsp6ss_sdm845_clocks,
++	.num_clks = ARRAY_SIZE(lpass_qdsp6ss_sdm845_clocks),
++};
++
++static int lpass_clocks_sdm845_probe(struct platform_device *pdev, int index,
++				     const struct qcom_cc_desc *desc)
++{
++	struct regmap *regmap;
++	struct resource *res;
++	void __iomem *base;
++
++	res = platform_get_resource(pdev, IORESOURCE_MEM, index);
++	base = devm_ioremap_resource(&pdev->dev, res);
++	if (IS_ERR(base))
++		return PTR_ERR(base);
++
++	regmap = devm_regmap_init_mmio(&pdev->dev, base, desc->config);
++	if (IS_ERR(regmap))
++		return PTR_ERR(regmap);
++
++	return qcom_cc_really_probe(pdev, desc, regmap);
++}
++
++static const struct of_device_id lpass_cc_sdm845_match_table[] = {
++	{ .compatible = "qcom,sdm845-lpasscc" },
++	{ }
++};
++MODULE_DEVICE_TABLE(of, lpass_cc_sdm845_match_table);
++
++static int lpass_cc_sdm845_probe(struct platform_device *pdev)
++{
++	const struct qcom_cc_desc *desc;
++	int ret;
++
++	lpass_regmap_config.name = "cc";
++	desc = &lpass_cc_sdm845_desc;
++
++	ret = lpass_clocks_sdm845_probe(pdev, 0, desc);
++	if (ret)
++		return ret;
++
++	lpass_regmap_config.name = "qdsp6ss";
++	desc = &lpass_qdsp6ss_sdm845_desc;
++
++	return lpass_clocks_sdm845_probe(pdev, 1, desc);
++}
++
++static struct platform_driver lpass_cc_sdm845_driver = {
++	.probe		= lpass_cc_sdm845_probe,
++	.driver		= {
++		.name	= "sdm845-lpasscc",
++		.of_match_table = lpass_cc_sdm845_match_table,
++	},
++};
++
++static int __init lpass_cc_sdm845_init(void)
++{
++	return platform_driver_register(&lpass_cc_sdm845_driver);
++}
++subsys_initcall(lpass_cc_sdm845_init);
++
++static void __exit lpass_cc_sdm845_exit(void)
++{
++	platform_driver_unregister(&lpass_cc_sdm845_driver);
++}
++module_exit(lpass_cc_sdm845_exit);
++
++MODULE_LICENSE("GPL v2");
+--
+Qualcomm INDIA, on behalf of Qualcomm Innovation Center, Inc.is a member
+of the Code Aurora Forum, hosted by the  Linux Foundation.

@@ -1,0 +1,255 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 13 Nov 2018 00:34:57 -0000
+Received: from icoremail.net (unknown [209.85.215.182])
+	by mail-app2 (Coremail) with SMTP id by_KCgDnX+++FOpb+RaBAQ--.39374S3;
+	Tue, 13 Nov 2018 08:03:11 +0800 (CST)
+Received: from mail-pg1-f182.google.com (unknown [209.85.215.182])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwBnS0e0FOpb53E0AA--.6557S3;
+	Tue, 13 Nov 2018 08:03:00 +0800 (CST)
+Received: by mail-pg1-f182.google.com with SMTP id w3-v6so4766912pgs.11
+        for <xuliker@zju.edu.cn>; Mon, 12 Nov 2018 16:03:00 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:delivered-to:dkim-signature:mime-version:subject
+         :from:in-reply-to:date:cc:content-transfer-encoding:message-id
+         :references:to:sender:precedence:list-id;
+        bh=MbPdJvpoMD6dpOpQuI//2pl4UWL5guEp3PIEE523KAk=;
+        b=f+y3flFZXyuMGrugPWwq2GtEZ0KeSLf4C86nIj9KTzp2LYoZiAZqZe+StzevOmqcEK
+         rWCzzYHPeLN8vY3VkWRSGguwkpLv5vZd+aZuvTNKkTLyVkV4V6wdsXhhaZR0ZFSEv5LG
+         KceJGaXBM5EWyyre4petA5CrLKEb9etkgrkC9qll+kPcqFxPkbGHlTkuSMquWOnkROvm
+         unEO9yoHm6V9YbS2TTP4D6p4ZV0bvMdC+fdwM/sL5MJOy37RBPu/O4LeZy2aDOPeyWFx
+         geUgCQ1MBu9+S4cMN1lQdOFv0hoA2DjbHKgmch2VDifDu5NC4Nv6L8Ayq4mUf/NBaCK0
+         xOmg==
+X-Gm-Message-State: AGRZ1gK9yOZ3XjAfvakaLGavm3YlsybYc3VO29PZnvAsWHT3ZnH0eOwy
+	efLOY5b5Mmd12dBDDho2QQu82kPzXwORnLg4GisbJWzjDi+2C1EqSQ==
+X-Received: by 2002:a63:bc02:: with SMTP id q2mr2705083pge.116.1542067380274;
+        Mon, 12 Nov 2018 16:03:00 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp3820097pjt;
+        Mon, 12 Nov 2018 16:02:59 -0800 (PST)
+X-Google-Smtp-Source: AJdET5cHMh6XTwqtSgY0u1kQ3ekE3Mvx01bVZteY70G3SU83qW38a00Y4LzhPkSP0cpZrMuS3OAf
+X-Received: by 2002:a62:8a91:: with SMTP id o17-v6mr2862316pfk.210.1542067379265;
+        Mon, 12 Nov 2018 16:02:59 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542067379; cv=none;
+        d=google.com; s=arc-20160816;
+        b=F5zjAtQTGxX3FLIZiIsPBfTMxWQlBeiepxEFn/amVEXMH1EPZ/3ckgygQGSun3n6X9
+         rGZSqaNXlKw630TXyJjx5b/RCbLnlHjdXmc/p+07FbquJiOhma0V8tiZF8BWS22sRaAX
+         l/deOa3Haa+81ePmAIvexPJJEqhNi7WWBse8EYbRZSL6nmNxusuMtIXnKGA70ffCHs6M
+         hQwJXYCGFDCXyvUPPqchZHgS5lksYFp63tI/KFpIU6s9NP5Pjcie+HLgTM+E72jbSOIG
+         x9ojlTBMmppN3M9hEOQc/M2ixaiplJWGr0eDSjzSWvsN8/E7spfqAK5WX0i1lFBV4dk6
+         cFTw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:to:references:message-id
+         :content-transfer-encoding:cc:date:in-reply-to:from:subject
+         :mime-version:dkim-signature;
+        bh=MbPdJvpoMD6dpOpQuI//2pl4UWL5guEp3PIEE523KAk=;
+        b=YFwIdzJqXKAZ1dxjjiWYZHT9i/y/K+0+6APdWFbq4KMGNtnhMVTi3xPdhrau9X+9sH
+         usUqdO9jV0i+kvs/DtvbOkZjOHpMmXlu14tJVXPdRPsPuV97bKz3Z2efprQ2NzL+o/pj
+         Xe+36aqb3zIm9pqL4m8C7CT5BaKsLPWPFcXcYK8KnRfvM7fWENi5jb+sb9GlffjnIdn2
+         meKhdtaN2lyjfjmO4Hlg7WM5evvJ4BOL1ZXOah6kEX+cPDwy5OlTzleFFfMDWU9WhJfR
+         IkwavmuTWpTyZWPSHnhB+i9J70Zai3vnE03/qimSRyuG4y1HGhlsoamjG+kbjqephOfu
+         6NLA==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@oracle.com header.s=corp-2018-07-02 header.b=aO0CO1R2;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;
+       dmarc=pass (p=NONE sp=NONE dis=NONE) header.from=oracle.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id g18si18184354pgg.522.2018.11.12.16.02.45;
+        Mon, 12 Nov 2018 16:02:59 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1727333AbeKMJ4T (ORCPT <rfc822;fanshuming2011@gmail.com>
+        + 99 others); Tue, 13 Nov 2018 04:56:19 -0500
+Received: from userp2130.oracle.com ([156.151.31.86]:41414 "EHLO
+        userp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726111AbeKMJ4T (ORCPT <rfc822;kvm@vger.kernel.org>);
+        Tue, 13 Nov 2018 04:56:19 -0500
+Received: from pps.filterd (userp2130.oracle.com [127.0.0.1])
+        by userp2130.oracle.com (8.16.0.22/8.16.0.22) with SMTP id wACNwcOX183763;
+        Tue, 13 Nov 2018 00:00:34 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=content-type :
+ mime-version : subject : from : in-reply-to : date : cc :
+ content-transfer-encoding : message-id : references : to;
+ s=corp-2018-07-02; bh=MbPdJvpoMD6dpOpQuI//2pl4UWL5guEp3PIEE523KAk=;
+ b=aO0CO1R2qU/NLP22PLUOWCRo52bDFD0smyYV2UlTcsUdFoDCRVDkU3fcVXb/N3UrXUN/
+ toDbW1+69QZGaFVQMC/sIG8eCnIAHWx0Br0a48laAw8Mw2FMNb8/Mxo68QP447BzOG6i
+ /pv9KWP4DRhDsAdANlgYm4wsswXpU4Q/7Ye4rBNgsxJUfH/xv8CeUUmgAvhBMaiLBu3m
+ rInG937I9+fyEOlj8XLSDwG7JDInCZexWd8gTntXRRtRsLTdZ85mazRPwhL/Htzj1Sfw
+ ziKSsd8MDG5uQ1p9SRIW6F1uGP2sCs5v2fXgQjmZpqFVlUk5T6TfqXeeJ/rMRqHPx9tx zg== 
+Received: from aserv0021.oracle.com (aserv0021.oracle.com [141.146.126.233])
+        by userp2130.oracle.com with ESMTP id 2nnwg17g4f-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 13 Nov 2018 00:00:34 +0000
+Received: from userv0121.oracle.com (userv0121.oracle.com [156.151.31.72])
+        by aserv0021.oracle.com (8.14.4/8.14.4) with ESMTP id wAD00Rkt011316
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 13 Nov 2018 00:00:28 GMT
+Received: from abhmp0020.oracle.com (abhmp0020.oracle.com [141.146.116.26])
+        by userv0121.oracle.com (8.14.4/8.13.8) with ESMTP id wAD00RgW029004;
+        Tue, 13 Nov 2018 00:00:27 GMT
+Received: from [192.168.14.112] (/109.65.229.92)
+        by default (Oracle Beehive Gateway v4.0)
+        with ESMTP ; Mon, 12 Nov 2018 16:00:27 -0800
+Content-Type: text/plain;
+        charset=utf-8
+Mime-Version: 1.0 (Mac OS X Mail 11.1 \(3445.4.7\))
+Subject: Re: [Qemu-devel] [QEMU PATCH v2 0/2]: KVM: i386: Add support for save
+ and restore nested state
+From: Liran Alon <liran.alon@oracle.com>
+In-Reply-To: <20181112165437.GW3602@redhat.com>
+Date: Tue, 13 Nov 2018 02:00:22 +0200
+Cc: "Dr. David Alan Gilbert" <dgilbert@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>, jmattson@google.com,
+        ehabkost@redhat.com, kvm@vger.kernel.org, mtosatti@redhat.com,
+        qemu-devel@nongnu.org, rth@twiddle.net
+Content-Transfer-Encoding: quoted-printable
+Message-Id: <04AB82C1-F0AC-4BDB-A132-D39A49EA0A9A@oracle.com>
+References: <CALMp9eQ5zWxb2N9fyYz=WcQshwk0L6qQ4D6L6+p_dzMo4H=txA@mail.gmail.com>
+ <20181102034649.43559-1-liran.alon@oracle.com>
+ <12c26c34-8dd1-a442-7826-86b93ff978f8@redhat.com>
+ <20181102165409.GF21191@redhat.com>
+ <f58da4e8-aa40-2659-8db6-42c2b47f5b2f@redhat.com>
+ <20181112161829.GU3602@redhat.com> <20181112165053.GF2293@work-vm>
+ <20181112165437.GW3602@redhat.com>
+To: =?utf-8?B?IkRhbmllbCBQLiBCZXJyYW5nw6ki?= <berrange@redhat.com>
+X-Mailer: Apple Mail (2.3445.4.7)
+X-Proofpoint-Virus-Version: vendor=nai engine=5900 definitions=9075 signatures=668683
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 malwarescore=0
+ phishscore=0 bulkscore=0 spamscore=0 mlxscore=0 mlxlogscore=999
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.0.1-1807170000 definitions=main-1811120206
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwBnS0e0FOpb53E0AA--.6557S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoWxWw1ktr47AFyxuw4fWw43Awb_yoWrur1Dpa
+	4rtayFyrZ8t3WIya4Iyw4UJr4YqwsxX3yrWrn8Kr9FkFs8K3sxAr4kKw1xuFyDZr4SqwsY
+	va1YvFWxuwn8ArDanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUU0bIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUPSb7Iv0xC_Kw4lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_tr0E3s1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2
+	z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s0DM2AIxVAIcxkEcV
+	Aq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1j
+	6r18McIj6I8E87Iv67AKxVW8JVWxJwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IYc2Ij64
+	vIr41l7I0Y6sxI4wCY1x0264kExVAvwVAq07x20xylc7Ca8VAvwVCFzxkY4VCF77xAMxkI
+	ecxEwVCI4VWDMxkI7II2jI8vz4vEwIxGrwCYIxAIcVC0I7IYx2IY67AKxVWUCVW8JwCYIx
+	AIcVC0I7IYx2IY6xkF7I0E14v26r1j6r4UMxvI42IY6I8E87Iv67AKxVW8Jr0_Cr1UMxvI
+	42IY6I8E87Iv6xkF7I0E14v26r4UJVWxJr1l42xK82IYc2Ij64vIr41l42xK82IY64kExV
+	AvwVAq07x20xyl4x8a6x804xWl4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AK
+	xVWUJVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r1q6r43MIIYrx
+	kI7VAKI48JMIIF0xvE42xK8VAvwI8IcIk0rVW3JVWrJrUvcSsGvfC2KfnxnUUI43ZEXa7I
+	UOKD7DUUUUU==
+
+
+
+> On 12 Nov 2018, at 18:54, Daniel P. Berrang=C3=A9 =
+<berrange@redhat.com> wrote:
+>=20
+> On Mon, Nov 12, 2018 at 04:50:54PM +0000, Dr. David Alan Gilbert =
+wrote:
+>> * Daniel P. Berrang=C3=A9 (berrange@redhat.com) wrote:
+>>> On Sun, Nov 04, 2018 at 11:19:57PM +0100, Paolo Bonzini wrote:
+>>>> On 02/11/2018 17:54, Daniel P. Berrang=C3=A9 wrote:
+>>>>> We have usually followed a rule that new machine types must not
+>>>>> affect runability of a VM on a host. IOW new machine types should
+>>>>> not introduce dependancies on specific kernels, or hardware =
+features
+>>>>> such as CPU flags.
+>>>>=20
+>>>>> Anything that requires a new kernel feature thus ought to be an
+>>>>> opt-in config tunable on the CLI, separate from machine type
+>>>>> choice.
+>>>>=20
+>>>> Unless someone tinkered with the module parameters, they could not =
+even
+>>>> use nested virtualization before 4.20.  So for everyone else, "-cpu
+>>>> ...,+vmx" does count as an "opt-in config tunable on the CLI" that
+>>>> requires 4.20.
+>>>>=20
+>>>> For those that did tinker with module parameters, we can =
+grandfather in
+>>>> the old machine types, so that they can use nested virtualization =
+with
+>>>> no live migration support.  For those that did not, however, I =
+don't
+>>>> think it makes sense to say "oh by the way I really want to be able =
+to
+>>>> migrate this VM" on the command line, or even worse on the monitor.
+>>>=20
+>>> IIUC, 4.20 is only required from POV of migration state. Is it thus
+>>> possible to just register a migration blocker if QEMU is launched
+>>> on a host with kernel < 4.20.
+>>>=20
+>>> Migration has always been busted historically, so those people using
+>>> nested VMX already won't be hurt by not having ability to live =
+migrate
+>>> their VM, but could otherwise continue using them without being =
+forced
+>>> to upgrade their kernel to fix a feature they're not even using.
+>>=20
+>> Yes, although I am a bit worried we might have a population of users
+>> that:
+>>   a) Have enabled nesting
+>>   b) Run VMs with vmx enabled
+>=20
+>=20
+>>   c) Don't normally actually run nested guests
+>>   d) Currently happily migrate.
+>=20
+> True, and (b) would include anyone using libvirt's  host-model CPU. So =
+if
+> you enabled nesting, have host-model for all guests, but only use =
+nesting
+> in one of the guests, you'd be doomed.
+>=20
+> Is it possible for QEMU to determine if there are nested guests =
+running or
+> not and conditionally block migration appropriately to ensure safety ?
+
+
+Only if kernel supports KVM_CAP_NESTED_STATE.
+See my reply to Dave in this thread.
+
+-Liran
+
+>=20
+>=20
+> Regards,
+> Daniel
+> --=20
+> |: =
+https://urldefense.proofpoint.com/v2/url?u=3Dhttps-3A__berrange.com&d=3DDw=
+IDaQ&c=3DRoP1YumCXCgaWHvlZYR8PZh8Bv7qIrMUB65eapI_JnE&r=3DJk6Q8nNzkQ6LJ6g42=
+qARkg6ryIDGQr-yKXPNGZbpTx0&m=3DeMOrT-7t7-tfRtTw2da9c1YTU0_tOFfkVIhj9mWv-Pc=
+&s=3DDIzWfmRGWO1b6hzL9NRbIt41fiFcnPt0MC8917u4Qv0&e=3D      -o-    =
+https://urldefense.proofpoint.com/v2/url?u=3Dhttps-3A__www.flickr.com_phot=
+os_dberrange&d=3DDwIDaQ&c=3DRoP1YumCXCgaWHvlZYR8PZh8Bv7qIrMUB65eapI_JnE&r=3D=
+Jk6Q8nNzkQ6LJ6g42qARkg6ryIDGQr-yKXPNGZbpTx0&m=3DeMOrT-7t7-tfRtTw2da9c1YTU0=
+_tOFfkVIhj9mWv-Pc&s=3DCjA-joyt2Y9t5B4YzIiupfY8EEO58m4vbmnd45adzFI&e=3D =
+:|
+> |: =
+https://urldefense.proofpoint.com/v2/url?u=3Dhttps-3A__libvirt.org&d=3DDwI=
+DaQ&c=3DRoP1YumCXCgaWHvlZYR8PZh8Bv7qIrMUB65eapI_JnE&r=3DJk6Q8nNzkQ6LJ6g42q=
+ARkg6ryIDGQr-yKXPNGZbpTx0&m=3DeMOrT-7t7-tfRtTw2da9c1YTU0_tOFfkVIhj9mWv-Pc&=
+s=3DtD05tikOHMJhh_EeZ2Esoxb0oku3MPFmj-S2YHdUGm0&e=3D         -o-         =
+   =
+https://urldefense.proofpoint.com/v2/url?u=3Dhttps-3A__fstop138.berrange.c=
+om&d=3DDwIDaQ&c=3DRoP1YumCXCgaWHvlZYR8PZh8Bv7qIrMUB65eapI_JnE&r=3DJk6Q8nNz=
+kQ6LJ6g42qARkg6ryIDGQr-yKXPNGZbpTx0&m=3DeMOrT-7t7-tfRtTw2da9c1YTU0_tOFfkVI=
+hj9mWv-Pc&s=3DYAh1WAoXQKEB6hkMmG6ZnJQETOFnq6eqQLmJokME80A&e=3D :|
+> |: =
+https://urldefense.proofpoint.com/v2/url?u=3Dhttps-3A__entangle-2Dphoto.or=
+g&d=3DDwIDaQ&c=3DRoP1YumCXCgaWHvlZYR8PZh8Bv7qIrMUB65eapI_JnE&r=3DJk6Q8nNzk=
+Q6LJ6g42qARkg6ryIDGQr-yKXPNGZbpTx0&m=3DeMOrT-7t7-tfRtTw2da9c1YTU0_tOFfkVIh=
+j9mWv-Pc&s=3D90Mm1Qb-SHe8P63xwGp6gzMU1I5DEW6YX0ttG6TL_7g&e=3D    -o-    =
+https://urldefense.proofpoint.com/v2/url?u=3Dhttps-3A__www.instagram.com_d=
+berrange&d=3DDwIDaQ&c=3DRoP1YumCXCgaWHvlZYR8PZh8Bv7qIrMUB65eapI_JnE&r=3DJk=
+6Q8nNzkQ6LJ6g42qARkg6ryIDGQr-yKXPNGZbpTx0&m=3DeMOrT-7t7-tfRtTw2da9c1YTU0_t=
+OFfkVIhj9mWv-Pc&s=3Dl4NrrDdRzPClvYQdxQdfIW0geHPWcukeyOGX8QapwYA&e=3D :|

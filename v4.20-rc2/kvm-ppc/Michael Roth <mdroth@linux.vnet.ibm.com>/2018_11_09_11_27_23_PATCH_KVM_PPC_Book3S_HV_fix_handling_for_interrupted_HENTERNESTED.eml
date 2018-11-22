@@ -1,0 +1,241 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 09 Nov 2018 05:30:49 -0000
+Received: from icoremail.net (unknown [209.85.210.182])
+	by mail-app2 (Coremail) with SMTP id by_KCgDHH36__+Rb8aNkAQ--.30755S3;
+	Fri, 09 Nov 2018 11:32:15 +0800 (CST)
+Received: from mail-pf1-f182.google.com (unknown [209.85.210.182])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwCXbDi6_+RbkUQgAA--.5342S3;
+	Fri, 09 Nov 2018 11:32:10 +0800 (CST)
+Received: by mail-pf1-f182.google.com with SMTP id p17-v6so265671pfj.12
+        for <xuliker@zju.edu.cn>; Thu, 08 Nov 2018 19:32:10 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:delivered-to:dkim-signature:from:to:cc:subject
+         :date:message-id:sender:precedence:list-id;
+        bh=HYYiVtHD/xA79Bpi/vsaE19yHhyG089/O/jeOgrc4UI=;
+        b=VWorOa3V0SqNgZNlzZ7ZH1MQcWA2/NQBhObkuuPE1LyAhCPl+2TAnyL/jfCTgj7AAY
+         vO/1SHD3RMMQuoGmgOqDqki0i2T+XYc31ZZq3cHfAEFua0PVKbiGqyE8lqLbwLVLJxW9
+         PAVuVkYiQ69vkdCwqyRfH1QgDSvNOcka26P/oFhBHRn4dYhmfj24aBdIs3pnhxLSt3T5
+         30IOnRl0Wc1m76/feSxnj5jv5/d6Jiagl3WEHVSGq6K5R6g6W5VKtZ2exzygzyF3dBib
+         hpWEv+fljMicn8ZJwlaBrhtpPCZ+///UeNyxu83upcjLTesaYzhOyR5f1aG7lvoA4nnc
+         1LVQ==
+X-Gm-Message-State: AGRZ1gL7M6Ysb6Wz8DOz+dvXkvzZ00cqodwoLZf4QN/y84GPp4wJuRqe
+	QW4BTQ1d15JymdEFkuW8bzJfDW63LyPbd+7xkfqsRsgIReQlWin1qA==
+X-Received: by 2002:a62:4105:: with SMTP id o5-v6mr3999422pfa.85.1541734330477;
+        Thu, 08 Nov 2018 19:32:10 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp1035418pjt;
+        Thu, 8 Nov 2018 19:32:09 -0800 (PST)
+X-Google-Smtp-Source: AJdET5ePkjI2idO/8YAnqu2rkIcW9/Sg2KQ8SKNx2pdx4HQMj160tZHsrv+wnLhvOrw9LlzB7948
+X-Received: by 2002:a17:902:aa46:: with SMTP id c6-v6mr7360668plr.182.1541734329596;
+        Thu, 08 Nov 2018 19:32:09 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1541734329; cv=none;
+        d=google.com; s=arc-20160816;
+        b=up7nwPqF9QDCFQ4xVhcY2c/nj6MVnjyEg3oXKoRlUfLpwm6PmMaXRb8qE1JCGQDHz9
+         cNra0h2vnCg7EDwZSFwk8tfhDBxYTUuxQW7eXk7nHExBJsVM1j65UkveN046I0ijFpU8
+         f1hsHfJ/KrmPM5WIu7NfFzZMtWQTBSQO8Kyx0s0HQXqiu3yKuJKS7tEXshZwNcj3SLdC
+         TQ2eEBIMdE8N+xjVlfgsqaEnrzoeYlXMuPdB3jELbqtgPFICeqyEFntFteLgxNuaV9qR
+         rgA/6oZC/7k4aoSsxZCoyFQq/xy4g7PZ9SIvN1AijVZdGQ7Ni8FYE5GCbeCc81YvUuxk
+         MVQQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:message-id:date:subject:cc:to:from
+         :dkim-signature;
+        bh=HYYiVtHD/xA79Bpi/vsaE19yHhyG089/O/jeOgrc4UI=;
+        b=lBueHDlYGtCqOlpkePGKhcR2FMhtUQKYpBlmENPwUCRucyv2omZgXKyvax9mVbP7lV
+         3WuPKsVVDe+zCl5IbyoslHhRvmrxo0UiRErxZUOy/3nO+RO43MPNtCfVfqMOP1heO/dv
+         q2w05pI4M4RvFylHt3+iQcGZnt7mlMJ8sV3PmLaWzjgwJb1F0J9BX/6VvJ1So6X4Eqpx
+         53aUhAwyeBth8+lVDU6P1Dk3rUTzL0k8vIaE4MUkAQ0paQwD5mhPjP5H/aJMF8bKnyuf
+         d0KZi7zDpP4jjzQ9moiAfz7AYQB6ivpM3dRsHRbu/7mVC0fkG35A4KgrBRbH2cnhAtNl
+         +Lrg==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=fail header.i=@gmail.com header.s=20161025 header.b=gPymQ5dA;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=ibm.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id y2-v6si5500925pgc.430.2018.11.08.19.31.41;
+        Thu, 08 Nov 2018 19:32:09 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1727490AbeKINIA (ORCPT <rfc822;fanshuming2011@gmail.com>
+        + 99 others); Fri, 9 Nov 2018 08:08:00 -0500
+Received: from mail-ot1-f67.google.com ([209.85.210.67]:40266 "EHLO
+        mail-ot1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727238AbeKINH7 (ORCPT <rfc822;kvm@vger.kernel.org>);
+        Fri, 9 Nov 2018 08:07:59 -0500
+Received: by mail-ot1-f67.google.com with SMTP id s5so436247oth.7;
+        Thu, 08 Nov 2018 19:29:21 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:from:to:cc:subject:date:message-id;
+        bh=HYYiVtHD/xA79Bpi/vsaE19yHhyG089/O/jeOgrc4UI=;
+        b=gPymQ5dAq5rnM+9oEGvuWz6FO6ArJI//JzEK5tdbX2yXRWW0bQqgGGTves/BZRymy+
+         3TG88M14ykp+49SAHBQ+ekHJExVoE5S7TPUEiRDieF1utgejNB7Psrebl5qSbwpjIWhX
+         ZTGI0tpOg345Nzo4eMbtmtIUlH+ssYbN2ZqUIVzYTiyUALmcQdwAnWn6oAOi32LcTmJN
+         RvndPSqjbpa6N9naPKIvUw1xDShC2p0+2Hb+esArGnKbdKec7DJVP/knq3pYm+2/odOq
+         xALHJaeoOtS8mPSF2VgiGIoM9EEoJ+63ua4rre9IH8dQxGqmXV5mf7A5KfszdsgqHJwW
+         Up5A==
+X-Received: by 2002:a9d:439d:: with SMTP id t29mr4595260ote.284.1541734159494;
+        Thu, 08 Nov 2018 19:29:19 -0800 (PST)
+Received: from localhost (76-251-165-188.lightspeed.austtx.sbcglobal.net. [76.251.165.188])
+        by smtp.gmail.com with ESMTPSA id o64-v6sm3370867oig.6.2018.11.08.19.29.17
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Thu, 08 Nov 2018 19:29:18 -0800 (PST)
+From: Michael Roth <mdroth@linux.vnet.ibm.com>
+To: kvm@vger.kernel.org
+Cc: kvm-ppc@vger.kernel.org, linuxppc-dev@ozlabs.org,
+        David Gibson <david@gibson.dropbear.id.au>,
+        Paul Mackerras <paulus@ozlabs.org>,
+        Suraj Jitindar Singh <sjitindarsingh@gmail.com>
+Subject: [PATCH] KVM: PPC: Book3S HV: fix handling for interrupted H_ENTER_NESTED
+Date: Thu,  8 Nov 2018 21:27:23 -0600
+Message-Id: <20181109032723.16394-1-mdroth@linux.vnet.ibm.com>
+X-Mailer: git-send-email 2.17.1
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwCXbDi6_+RbkUQgAA--.5342S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW3Ww18CryUJw47Kr1fJw45Awb_yoW7ZFW7pr
+	45Kr1UCrWkJryDJr17JF15Jr4aqryUCF1UGr4kGr1DAr1UJr1DJr1UJr4UXr98Gr1rJr17
+	Jrn8Xw4Utr1rGw7anT9S1TB71UUUUUUqnTZGkaVYY2UrUUUU0bIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUBFb7Iv0xC_Kw4lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2
+	z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s0DM2AIxVAIcxkEcV
+	Aq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1j
+	6r18McIj6I8E87Iv67AKxVW8JVWxJwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IYc2Ij64
+	vIr41l7I0Y6sxI4wCY1x0264kExVAvwVAq07x20xylc2xSY4AK6IIF6r48MxkI7II2jI8v
+	z4vEwIxGrwCYIxAIcVC0I7IYx2IY67AKxVWUCVW8JwCYIxAIcVC0I7IYx2IY6xkF7I0E14
+	v26r1j6r4UMxvI42IY6I8E87Iv67AKxVW0oVCq3wCYIxAIcVC2z280aVCY1x0267AKxVW0
+	oVCq3wCF04k20xvY0x0EwIxGrwCF04k20xvEw4C26cxK6c8Ij28IcwCF72vE77IF4wCFx2
+	IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v26r1j6r18MI8I3I0E7480Y4vE14v2
+	6r106r1rMI8E67AF67kF1VAFwI0_JF0_Jw1lIxkGc2Ij64vIr41lIxAIcVCF04k26cxKx2
+	IYs7xG6rWUJVWrZr1UYxBIdaVFxhVjvjDU0xZFpf9x07bHKZAUUUUU=
+
+While running a nested guest VCPU on L0 via H_ENTER_NESTED hcall, a
+pending signal in the L0 QEMU process can generate the following
+sequence:
+
+  ret0 = kvmppc_pseries_do_hcall()
+    ret1 = kvmhv_enter_nested_guest()
+      ret2 = kvmhv_run_single_vcpu()
+      if (ret2 == -EINTR)
+        return H_INTERRUPT
+    if (ret1 == H_INTERRUPT)
+      kvmppc_set_gpr(vcpu, 3, 0)
+      return -EINTR
+    /* skipped: */
+    kvmppc_set_gpr(vcpu, 3, ret)
+    vcpu->arch.hcall_needed = 0
+    return RESUME_GUEST
+
+which causes an exit to L0 userspace with ret0 == -EINTR.
+
+The intention seems to be to set the hcall return value to 0 (via
+VCPU r3) so that L1 will see a successful return from H_ENTER_NESTED
+once we resume executing the VCPU. However, because we don't set
+vcpu->arch.hcall_needed = 0, we do the following once userspace
+resumes execution via kvm_arch_vcpu_ioctl_run():
+
+  ...
+  } else if (vcpu->arch.hcall_needed) {
+    int i
+
+    kvmppc_set_gpr(vcpu, 3, run->papr_hcall.ret);
+    for (i = 0; i < 9; ++i)
+           kvmppc_set_gpr(vcpu, 4 + i, run->papr_hcall.args[i]);
+    vcpu->arch.hcall_needed = 0;
+
+since vcpu->arch.hcall_needed == 1 indicates that userspace should
+have handled the hcall and stored the return value in
+run->papr_hcall.ret. Since that's not the case here, we can get an
+unexpected value in VCPU r3, which can result in
+kvmhv_p9_guest_entry() reporting an unexpected trap value when it
+returns from H_ENTER_NESTED, causing the following register dump to
+console via subsequent call to kvmppc_handle_exit_hv() in L1:
+
+  [  350.612854] vcpu 00000000f9564cf8 (0):
+  [  350.612915] pc  = c00000000013eb98  msr = 8000000000009033  trap = 1
+  [  350.613020] r 0 = c0000000004b9044  r16 = 0000000000000000
+  [  350.613075] r 1 = c00000007cffba30  r17 = 0000000000000000
+  [  350.613120] r 2 = c00000000178c100  r18 = 00007fffc24f3b50
+  [  350.613166] r 3 = c00000007ef52480  r19 = 00007fffc24fff58
+  [  350.613212] r 4 = 0000000000000000  r20 = 00000a1e96ece9d0
+  [  350.613253] r 5 = 70616d00746f6f72  r21 = 00000a1ea117c9b0
+  [  350.613295] r 6 = 0000000000000020  r22 = 00000a1ea1184360
+  [  350.613338] r 7 = c0000000783be440  r23 = 0000000000000003
+  [  350.613380] r 8 = fffffffffffffffc  r24 = 00000a1e96e9e124
+  [  350.613423] r 9 = c00000007ef52490  r25 = 00000000000007ff
+  [  350.613469] r10 = 0000000000000004  r26 = c00000007eb2f7a0
+  [  350.613513] r11 = b0616d0009eccdb2  r27 = c00000007cffbb10
+  [  350.613556] r12 = c0000000004b9000  r28 = c00000007d83a2c0
+  [  350.613597] r13 = c000000001b00000  r29 = c0000000783cdf68
+  [  350.613639] r14 = 0000000000000000  r30 = 0000000000000000
+  [  350.613681] r15 = 0000000000000000  r31 = c00000007cffbbf0
+  [  350.613723] ctr = c0000000004b9000  lr  = c0000000004b9044
+  [  350.613765] srr0 = 0000772f954dd48c srr1 = 800000000280f033
+  [  350.613808] sprg0 = 0000000000000000 sprg1 = c000000001b00000
+  [  350.613859] sprg2 = 0000772f9565a280 sprg3 = 0000000000000000
+  [  350.613911] cr = 88002848  xer = 0000000020040000  dsisr = 42000000
+  [  350.613962] dar = 0000772f95390000
+  [  350.614031] fault dar = c000000244b278c0 dsisr = 00000000
+  [  350.614073] SLB (0 entries):
+  [  350.614157] lpcr = 0040000003d40413 sdr1 = 0000000000000000 last_inst = ffffffff
+  [  350.614252] trap=0x1 | pc=0xc00000000013eb98 | msr=0x8000000000009033
+
+followed by L1's QEMU reporting the following before stopping execution
+of the nested guest:
+
+  KVM: unknown exit, hardware reason 1
+  NIP c00000000013eb98   LR c0000000004b9044 CTR c0000000004b9000 XER 0000000020040000 CPU#0
+  MSR 8000000000009033 HID0 0000000000000000  HF 8000000000000000 iidx 3 didx 3
+  TB 00000000 00000000 DECR 00000000
+  GPR00 c0000000004b9044 c00000007cffba30 c00000000178c100 c00000007ef52480
+  GPR04 0000000000000000 70616d00746f6f72 0000000000000020 c0000000783be440
+  GPR08 fffffffffffffffc c00000007ef52490 0000000000000004 b0616d0009eccdb2
+  GPR12 c0000000004b9000 c000000001b00000 0000000000000000 0000000000000000
+  GPR16 0000000000000000 0000000000000000 00007fffc24f3b50 00007fffc24fff58
+  GPR20 00000a1e96ece9d0 00000a1ea117c9b0 00000a1ea1184360 0000000000000003
+  GPR24 00000a1e96e9e124 00000000000007ff c00000007eb2f7a0 c00000007cffbb10
+  GPR28 c00000007d83a2c0 c0000000783cdf68 0000000000000000 c00000007cffbbf0
+  CR 88002848  [ L  L  -  -  E  L  G  L  ]             RES ffffffffffffffff
+   SRR0 0000772f954dd48c  SRR1 800000000280f033    PVR 00000000004e1202 VRSAVE 0000000000000000
+  SPRG0 0000000000000000 SPRG1 c000000001b00000  SPRG2 0000772f9565a280  SPRG3 0000000000000000
+  SPRG4 0000000000000000 SPRG5 0000000000000000  SPRG6 0000000000000000  SPRG7 0000000000000000
+  HSRR0 0000000000000000 HSRR1 0000000000000000
+   CFAR 0000000000000000
+   LPCR 0000000003d40413
+   PTCR 0000000000000000   DAR 0000772f95390000  DSISR 0000000042000000
+
+Fix this by setting vcpu->arch.hcall_needed = 0 to indicate completion
+of H_ENTER_NESTED before we exit to L0 userspace.
+
+Cc: linuxppc-dev@ozlabs.org
+Cc: David Gibson <david@gibson.dropbear.id.au>
+Cc: Paul Mackerras <paulus@ozlabs.org>
+Cc: Suraj Jitindar Singh <sjitindarsingh@gmail.com>
+Signed-off-by: Michael Roth <mdroth@linux.vnet.ibm.com>
+---
+ arch/powerpc/kvm/book3s_hv.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/arch/powerpc/kvm/book3s_hv.c b/arch/powerpc/kvm/book3s_hv.c
+index d65b961661fb..a56f8413758a 100644
+--- a/arch/powerpc/kvm/book3s_hv.c
++++ b/arch/powerpc/kvm/book3s_hv.c
+@@ -983,6 +983,7 @@ int kvmppc_pseries_do_hcall(struct kvm_vcpu *vcpu)
+ 		ret = kvmhv_enter_nested_guest(vcpu);
+ 		if (ret == H_INTERRUPT) {
+ 			kvmppc_set_gpr(vcpu, 3, 0);
++			vcpu->arch.hcall_needed = 0;
+ 			return -EINTR;
+ 		}
+ 		break;
+-- 
+2.17.1

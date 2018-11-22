@@ -1,0 +1,580 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 09 Nov 2018 00:38:08 -0000
+Received: from icoremail.net (unknown [209.85.214.175])
+	by mail-app2 (Coremail) with SMTP id by_KCgD3_6dtpeRb2J9iAQ--.30059S3;
+	Fri, 09 Nov 2018 05:06:54 +0800 (CST)
+Received: from mail-pl1-f175.google.com (unknown [209.85.214.175])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwCXekZqpeRbRa4eAA--.5848S3;
+	Fri, 09 Nov 2018 05:06:50 +0800 (CST)
+Received: by mail-pl1-f175.google.com with SMTP id t6-v6so10112402plo.9
+        for <xuliker@zju.edu.cn>; Thu, 08 Nov 2018 13:06:50 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :from:to:cc:subject:date:in-reply-to:references:message-id:sender
+         :precedence:list-id;
+        bh=8bzFnvUqT64mgelH2PmYFLikOsIxm8n+Dzj2WnhJvR4=;
+        b=K0ZgmVvxgIkY5hsIjRlnTXiorURf1YKXu+ceQvz7oy6swI9Hxyg/A3XYkcU8o+3e+Q
+         t9fTzLDSQBpVSqHMXZM2Z6PvK+4Vm3/zbwhjgQZHUgP7wmHYOQKCI9tYcIfZc6W7CAcr
+         PV+BcG6x5JBfukxXMN9rOdKRSPy4/LD5L+4GyMgkRBiR8PGPMGd3he2Sb9hQVFq9qScg
+         9cnMAL6LdCQeacDJM7BDUx0Q13gPyJrk/G0AxfEDQZi6Jv+FZxERDYYfTtRmcC3w185g
+         wBJrukhDmM937/VVPA08iM0eIDPliym2m5LBzclendozjzUnbpzerWQZIWDMgJEmScnA
+         I3Mg==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=ibm.com
+X-Gm-Message-State: AGRZ1gLHuis2ar8ssyjC57ck3kd+GPLbL9Umgj07QllD99SbsGuBZphz
+	F1xVxp4QAzb2W5VIBGfwqUenRxIleQgBkn4KhajNCL+2a5Sied2vHg==
+X-Received: by 2002:a17:902:6686:: with SMTP id e6-v6mr6027626plk.173.1541711210287;
+        Thu, 08 Nov 2018 13:06:50 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp729822pjt;
+        Thu, 8 Nov 2018 13:06:49 -0800 (PST)
+X-Google-Smtp-Source: AJdET5eW0N6kRnMqkydEp0pBl2abflFhFAm4wRqtErQPuQwGC7orgI0fz8xQTYG4bKkWm12Fma8d
+X-Received: by 2002:a62:8d92:: with SMTP id p18-v6mr6312255pfk.217.1541711209054;
+        Thu, 08 Nov 2018 13:06:49 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1541711209; cv=none;
+        d=google.com; s=arc-20160816;
+        b=XiJM1l+4JlnZdqb/j/WMOF7GMRcIqxEYoYG3z97dknWHesgSkOC/GNgqgVR+BelFOf
+         UcMXYDwqs3PVLw/l+Bcw2ETILPs+YWjR2aCAu/bIxy6Fl/7A29984eFpQdp62Tmkpdl9
+         DxaRTRuKnXKN9z7rWmOd9GB4x/GoaRAfvULPTgUSY4SVKRiUtR0d3KprsEH3M1xvA6/H
+         HFHHr3FoWht27aFulEfbR6Dx7TZpFx+LQu4zTq0mv2PfiANp3TTJI68VXB+jr5LHa4Wp
+         fBVgAiJ30iP0/9IYz0uF9c4xrcV1BN0Mnhj5zq+WJh5E5Lh0FiJn8fXX2L1LCZngPeG7
+         sC/g==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:message-id:references:in-reply-to:date
+         :subject:cc:to:from;
+        bh=8bzFnvUqT64mgelH2PmYFLikOsIxm8n+Dzj2WnhJvR4=;
+        b=dVvYZq6D4nio8jhdAbD7GsMvGrovdJe1NkB2d7R6Q6+xsso8Kze/Mca87D5td9lKgU
+         HzLaV1lNNC6OnORBGkqDb1TnMbwmGKqzJS6Nlq5yfNmk8h38ttEXQLPvjZRYxEg2kkV9
+         ZfRTOqHUfn9WCVR9qw6foeH7jozJls4v0ZR5jzVVKmpFHLtcS7/OfsLu+zvy5FyJlUA1
+         EPh2nfdZsHX8VTlTeaOKxHWUScpoIAxcdINSaOyqFAzDmy9hUXoCWZ4KXe2r2k5taCBx
+         WjvneZgn+r5DJnFppPll31E12p4mz2YR4ZHMLMj1zmMmWHTMd+fSgQ/eBW2SP0nRvDHp
+         W0uA==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=ibm.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id c135-v6si5740508pfc.6.2018.11.08.13.06.34;
+        Thu, 08 Nov 2018 13:06:49 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1727848AbeKIGnY (ORCPT <rfc822;tu.k.phung@gmail.com>
+        + 99 others); Fri, 9 Nov 2018 01:43:24 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:50466 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727698AbeKIGnF (ORCPT
+        <rfc822;linux-kernel@vger.kernel.org>);
+        Fri, 9 Nov 2018 01:43:05 -0500
+Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.22/8.16.0.22) with SMTP id wA8L0BFa063474
+        for <linux-kernel@vger.kernel.org>; Thu, 8 Nov 2018 16:05:48 -0500
+Received: from e16.ny.us.ibm.com (e16.ny.us.ibm.com [129.33.205.206])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2nmudkkf98-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-kernel@vger.kernel.org>; Thu, 08 Nov 2018 16:05:48 -0500
+Received: from localhost
+        by e16.ny.us.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-kernel@vger.kernel.org> from <eajames@linux.ibm.com>;
+        Thu, 8 Nov 2018 21:05:47 -0000
+Received: from b01cxnp23034.gho.pok.ibm.com (9.57.198.29)
+        by e16.ny.us.ibm.com (146.89.104.203) with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted;
+        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256/256)
+        Thu, 8 Nov 2018 21:05:43 -0000
+Received: from b01ledav001.gho.pok.ibm.com (b01ledav001.gho.pok.ibm.com [9.57.199.106])
+        by b01cxnp23034.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id wA8L5gBk25886764
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
+        Thu, 8 Nov 2018 21:05:42 GMT
+Received: from b01ledav001.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 603652805E;
+        Thu,  8 Nov 2018 21:05:42 +0000 (GMT)
+Received: from b01ledav001.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 4FABF28064;
+        Thu,  8 Nov 2018 21:05:41 +0000 (GMT)
+Received: from talon7.ibm.com (unknown [9.41.179.222])
+        by b01ledav001.gho.pok.ibm.com (Postfix) with ESMTP;
+        Thu,  8 Nov 2018 21:05:41 +0000 (GMT)
+From: Eddie James <eajames@linux.ibm.com>
+To: linux-kernel@vger.kernel.org
+Cc: linux-hwmon@vger.kernel.org, devicetree@vger.kernel.org,
+        jdelvare@suse.com, linux-doc@vger.kernel.org,
+        gregkh@linuxfoundation.org, robh+dt@kernel.org,
+        mark.rutland@arm.com, linux@roeck-us.net, rdunlap@infradead.org,
+        benh@kernel.crashing.org, Eddie James <eajames@linux.vnet.ibm.com>,
+        Eddie James <eajames@linux.ibm.com>
+Subject: [PATCH v6 09/10] hwmon (occ): Add sensor attributes and register hwmon device
+Date: Thu,  8 Nov 2018 15:05:28 -0600
+X-Mailer: git-send-email 1.8.3.1
+In-Reply-To: <1541711129-26631-1-git-send-email-eajames@linux.ibm.com>
+References: <1541711129-26631-1-git-send-email-eajames@linux.ibm.com>
+X-TM-AS-GCONF: 00
+x-cbid: 18110821-0072-0000-0000-000003C5B0F3
+X-IBM-SpamModules-Scores: 
+X-IBM-SpamModules-Versions: BY=3.00010009; HX=3.00000242; KW=3.00000007;
+ PH=3.00000004; SC=3.00000269; SDB=6.01114610; UDB=6.00577118; IPR=6.00894709;
+ MB=3.00024077; MTD=3.00000008; XFM=3.00000015; UTC=2018-11-08 21:05:46
+X-IBM-AV-DETECTION: SAVI=unused REMOTE=unused XFE=unused
+x-cbparentid: 18110821-0073-0000-0000-00004A0BB464
+Message-Id: <1541711129-26631-10-git-send-email-eajames@linux.ibm.com>
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2018-11-08_12:,,
+ signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ malwarescore=0 suspectscore=1 phishscore=0 bulkscore=0 spamscore=0
+ clxscore=1015 lowpriorityscore=0 mlxscore=0 impostorscore=0
+ mlxlogscore=999 adultscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.0.1-1807170000 definitions=main-1811080178
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwCXekZqpeRbRa4eAA--.5848S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW3uw1ftryfZFyfWw1kWw1rZwb_yoWkWr48pa
+	yDGFZ0qrs8GF9rXr9ayw40v3sYg395tFyUGF9Fg3Z3CF12gF9rXry0vry7u3s5Gr1DZw13
+	KFZFqa15GasrCr7anT9S1TB71UUUUUUqnTZGkaVYY2UrUUUU0bIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUPSb7Iv0xC_Kw4lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Xr0_Ar1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1l84ACjcxK6I8E
+	87Iv67AKxVWxJr0_GcWl84ACjcxK6I8E87Iv6xkF7I0E14v26F4UJVW0owAS0I0E0xvYzx
+	vE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AKxVWU
+	XVWUAwAv7VC2z280aVAFwI0_Gr0_Cr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcxkI7V
+	AKI48JMx02cVCv0xWlc7CjxVAKzI0EY4vE52x082I5MxkFs20EY4vE44CYbxCE4x80FwCY
+	02Avz4vEIxC_CwCY0x0Ix7I2Y4AK64vIr41lcIIF0xvE2Ix0cI8IcVAFwI0_Gr0_Xr1lcI
+	IF0xvE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwCYIxAIcVC2z280aVAFwI0_Gr1j6F4UJwCY
+	IxAIcVC2z280aVCY1x0267AKxVW8Jr0_Cr1UMxAIw28IcxkI7VAKI48JMxAIw28IcVAKzI
+	0EY4vE52x082I5MxCjnVCjjxCrMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAF
+	wI0_Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWUtVW8ZwCIc4
+	0Y0x0EwIxGrwCI42IY6xAIw20EY4v20xvaj40_JFI_GrUvcSsGvfC2KfnxnUUI43ZEXa7I
+	UOE9aPUUUUU==
+
+From: Eddie James <eajames@linux.vnet.ibm.com>
+
+Setup the sensor attributes for every OCC sensor found by the first poll
+response. Register the attributes with hwmon.
+
+Signed-off-by: Eddie James <eajames@linux.ibm.com>
+---
+ drivers/hwmon/occ/common.c | 337 +++++++++++++++++++++++++++++++++++++++++++++
+ drivers/hwmon/occ/common.h |  16 +++
+ 2 files changed, 353 insertions(+)
+
+diff --git a/drivers/hwmon/occ/common.c b/drivers/hwmon/occ/common.c
+index f7220132..c6c8161 100644
+--- a/drivers/hwmon/occ/common.c
++++ b/drivers/hwmon/occ/common.c
+@@ -1,11 +1,13 @@
+ // SPDX-License-Identifier: GPL-2.0
+ 
+ #include <linux/device.h>
++#include <linux/hwmon.h>
+ #include <linux/hwmon-sysfs.h>
+ #include <linux/jiffies.h>
+ #include <linux/kernel.h>
+ #include <linux/math64.h>
+ #include <linux/mutex.h>
++#include <linux/sysfs.h>
+ #include <asm/unaligned.h>
+ 
+ #include "common.h"
+@@ -641,6 +643,324 @@ static ssize_t occ_show_extended(struct device *dev,
+ 	return rc;
+ }
+ 
++/*
++ * Some helper macros to make it easier to define an occ_attribute. Since these
++ * are dynamically allocated, we shouldn't use the existing kernel macros which
++ * stringify the name argument.
++ */
++#define ATTR_OCC(_name, _mode, _show, _store) {				\
++	.attr	= {							\
++		.name = _name,						\
++		.mode = VERIFY_OCTAL_PERMISSIONS(_mode),		\
++	},								\
++	.show	= _show,						\
++	.store	= _store,						\
++}
++
++#define SENSOR_ATTR_OCC(_name, _mode, _show, _store, _nr, _index) {	\
++	.dev_attr	= ATTR_OCC(_name, _mode, _show, _store),	\
++	.index		= _index,					\
++	.nr		= _nr,						\
++}
++
++#define OCC_INIT_ATTR(_name, _mode, _show, _store, _nr, _index)		\
++	((struct sensor_device_attribute_2)				\
++		SENSOR_ATTR_OCC(_name, _mode, _show, _store, _nr, _index))
++
++/*
++ * Allocate and instatiate sensor_device_attribute_2s. It's most efficient to
++ * use our own instead of the built-in hwmon attribute types.
++ */
++static int occ_setup_sensor_attrs(struct occ *occ)
++{
++	unsigned int i, s, num_attrs = 0;
++	struct device *dev = occ->bus_dev;
++	struct occ_sensors *sensors = &occ->sensors;
++	struct occ_attribute *attr;
++	struct temp_sensor_2 *temp;
++	ssize_t (*show_temp)(struct device *, struct device_attribute *,
++			     char *) = occ_show_temp_1;
++	ssize_t (*show_freq)(struct device *, struct device_attribute *,
++			     char *) = occ_show_freq_1;
++	ssize_t (*show_power)(struct device *, struct device_attribute *,
++			      char *) = occ_show_power_1;
++	ssize_t (*show_caps)(struct device *, struct device_attribute *,
++			     char *) = occ_show_caps_1_2;
++
++	switch (sensors->temp.version) {
++	case 1:
++		num_attrs += (sensors->temp.num_sensors * 2);
++		break;
++	case 2:
++		num_attrs += (sensors->temp.num_sensors * 4);
++		show_temp = occ_show_temp_2;
++		break;
++	default:
++		sensors->temp.num_sensors = 0;
++	}
++
++	switch (sensors->freq.version) {
++	case 2:
++		show_freq = occ_show_freq_2;
++		/* fall through */
++	case 1:
++		num_attrs += (sensors->freq.num_sensors * 2);
++		break;
++	default:
++		sensors->freq.num_sensors = 0;
++	}
++
++	switch (sensors->power.version) {
++	case 2:
++		show_power = occ_show_power_2;
++		/* fall through */
++	case 1:
++		num_attrs += (sensors->power.num_sensors * 4);
++		break;
++	case 0xA0:
++		num_attrs += (sensors->power.num_sensors * 16);
++		show_power = occ_show_power_a0;
++		break;
++	default:
++		sensors->power.num_sensors = 0;
++	}
++
++	switch (sensors->caps.version) {
++	case 1:
++		num_attrs += (sensors->caps.num_sensors * 7);
++		break;
++	case 3:
++		show_caps = occ_show_caps_3;
++		/* fall through */
++	case 2:
++		num_attrs += (sensors->caps.num_sensors * 8);
++		break;
++	default:
++		sensors->caps.num_sensors = 0;
++	}
++
++	switch (sensors->extended.version) {
++	case 1:
++		num_attrs += (sensors->extended.num_sensors * 3);
++		break;
++	default:
++		sensors->extended.num_sensors = 0;
++	}
++
++	occ->attrs = devm_kzalloc(dev, sizeof(*occ->attrs) * num_attrs,
++				  GFP_KERNEL);
++	if (!occ->attrs)
++		return -ENOMEM;
++
++	/* null-terminated list */
++	occ->group.attrs = devm_kzalloc(dev, sizeof(*occ->group.attrs) *
++					num_attrs + 1, GFP_KERNEL);
++	if (!occ->group.attrs)
++		return -ENOMEM;
++
++	attr = occ->attrs;
++
++	for (i = 0; i < sensors->temp.num_sensors; ++i) {
++		s = i + 1;
++		temp = ((struct temp_sensor_2 *)sensors->temp.data) + i;
++
++		snprintf(attr->name, sizeof(attr->name), "temp%d_label", s);
++		attr->sensor = OCC_INIT_ATTR(attr->name, 0444, show_temp, NULL,
++					     0, i);
++		attr++;
++
++		if (sensors->temp.version > 1 &&
++		    temp->fru_type == OCC_FRU_TYPE_VRM) {
++			snprintf(attr->name, sizeof(attr->name),
++				 "temp%d_alarm", s);
++		} else {
++			snprintf(attr->name, sizeof(attr->name),
++				 "temp%d_input", s);
++		}
++
++		attr->sensor = OCC_INIT_ATTR(attr->name, 0444, show_temp, NULL,
++					     1, i);
++		attr++;
++
++		if (sensors->temp.version > 1) {
++			snprintf(attr->name, sizeof(attr->name),
++				 "temp%d_fru_type", s);
++			attr->sensor = OCC_INIT_ATTR(attr->name, 0444,
++						     show_temp, NULL, 2, i);
++			attr++;
++
++			snprintf(attr->name, sizeof(attr->name),
++				 "temp%d_fault", s);
++			attr->sensor = OCC_INIT_ATTR(attr->name, 0444,
++						     show_temp, NULL, 3, i);
++			attr++;
++		}
++	}
++
++	for (i = 0; i < sensors->freq.num_sensors; ++i) {
++		s = i + 1;
++
++		snprintf(attr->name, sizeof(attr->name), "freq%d_label", s);
++		attr->sensor = OCC_INIT_ATTR(attr->name, 0444, show_freq, NULL,
++					     0, i);
++		attr++;
++
++		snprintf(attr->name, sizeof(attr->name), "freq%d_input", s);
++		attr->sensor = OCC_INIT_ATTR(attr->name, 0444, show_freq, NULL,
++					     1, i);
++		attr++;
++	}
++
++	if (sensors->power.version == 0xA0) {
++		/*
++		 * Special case for many-attribute power sensor. Split it into
++		 * a sensor number per power type, emulating several sensors.
++		 */
++		for (i = 0; i < sensors->power.num_sensors; ++i) {
++			unsigned int j;
++			unsigned int nr = 0;
++
++			s = (i * 4) + 1;
++
++			for (j = 0; j < 4; ++j) {
++				snprintf(attr->name, sizeof(attr->name),
++					 "power%d_label", s);
++				attr->sensor = OCC_INIT_ATTR(attr->name, 0444,
++							     show_power, NULL,
++							     nr++, i);
++				attr++;
++
++				snprintf(attr->name, sizeof(attr->name),
++					 "power%d_average", s);
++				attr->sensor = OCC_INIT_ATTR(attr->name, 0444,
++							     show_power, NULL,
++							     nr++, i);
++				attr++;
++
++				snprintf(attr->name, sizeof(attr->name),
++					 "power%d_average_interval", s);
++				attr->sensor = OCC_INIT_ATTR(attr->name, 0444,
++							     show_power, NULL,
++							     nr++, i);
++				attr++;
++
++				snprintf(attr->name, sizeof(attr->name),
++					 "power%d_input", s);
++				attr->sensor = OCC_INIT_ATTR(attr->name, 0444,
++							     show_power, NULL,
++							     nr++, i);
++				attr++;
++
++				s++;
++			}
++		}
++	} else {
++		for (i = 0; i < sensors->power.num_sensors; ++i) {
++			s = i + 1;
++
++			snprintf(attr->name, sizeof(attr->name),
++				 "power%d_label", s);
++			attr->sensor = OCC_INIT_ATTR(attr->name, 0444,
++						     show_power, NULL, 0, i);
++			attr++;
++
++			snprintf(attr->name, sizeof(attr->name),
++				 "power%d_average", s);
++			attr->sensor = OCC_INIT_ATTR(attr->name, 0444,
++						     show_power, NULL, 1, i);
++			attr++;
++
++			snprintf(attr->name, sizeof(attr->name),
++				 "power%d_average_interval", s);
++			attr->sensor = OCC_INIT_ATTR(attr->name, 0444,
++						     show_power, NULL, 2, i);
++			attr++;
++
++			snprintf(attr->name, sizeof(attr->name),
++				 "power%d_input", s);
++			attr->sensor = OCC_INIT_ATTR(attr->name, 0444,
++						     show_power, NULL, 3, i);
++			attr++;
++		}
++	}
++
++	if (sensors->caps.num_sensors >= 1) {
++		s = sensors->power.num_sensors + 1;
++
++		snprintf(attr->name, sizeof(attr->name), "power%d_label", s);
++		attr->sensor = OCC_INIT_ATTR(attr->name, 0444, show_caps, NULL,
++					     0, 0);
++		attr++;
++
++		snprintf(attr->name, sizeof(attr->name), "power%d_cap", s);
++		attr->sensor = OCC_INIT_ATTR(attr->name, 0444, show_caps, NULL,
++					     1, 0);
++		attr++;
++
++		snprintf(attr->name, sizeof(attr->name), "power%d_input", s);
++		attr->sensor = OCC_INIT_ATTR(attr->name, 0444, show_caps, NULL,
++					     2, 0);
++		attr++;
++
++		snprintf(attr->name, sizeof(attr->name),
++			 "power%d_cap_not_redundant", s);
++		attr->sensor = OCC_INIT_ATTR(attr->name, 0444, show_caps, NULL,
++					     3, 0);
++		attr++;
++
++		snprintf(attr->name, sizeof(attr->name), "power%d_cap_max", s);
++		attr->sensor = OCC_INIT_ATTR(attr->name, 0444, show_caps, NULL,
++					     4, 0);
++		attr++;
++
++		snprintf(attr->name, sizeof(attr->name), "power%d_cap_min", s);
++		attr->sensor = OCC_INIT_ATTR(attr->name, 0444, show_caps, NULL,
++					     5, 0);
++		attr++;
++
++		snprintf(attr->name, sizeof(attr->name), "power%d_cap_user",
++			 s);
++		attr->sensor = OCC_INIT_ATTR(attr->name, 0644, show_caps,
++					     occ_store_caps_user, 6, 0);
++		attr++;
++
++		if (sensors->caps.version > 1) {
++			snprintf(attr->name, sizeof(attr->name),
++				 "power%d_cap_user_source", s);
++			attr->sensor = OCC_INIT_ATTR(attr->name, 0444,
++						     show_caps, NULL, 7, 0);
++			attr++;
++		}
++	}
++
++	for (i = 0; i < sensors->extended.num_sensors; ++i) {
++		s = i + 1;
++
++		snprintf(attr->name, sizeof(attr->name), "extn%d_label", s);
++		attr->sensor = OCC_INIT_ATTR(attr->name, 0444,
++					     occ_show_extended, NULL, 0, i);
++		attr++;
++
++		snprintf(attr->name, sizeof(attr->name), "extn%d_flags", s);
++		attr->sensor = OCC_INIT_ATTR(attr->name, 0444,
++					     occ_show_extended, NULL, 1, i);
++		attr++;
++
++		snprintf(attr->name, sizeof(attr->name), "extn%d_input", s);
++		attr->sensor = OCC_INIT_ATTR(attr->name, 0444,
++					     occ_show_extended, NULL, 2, i);
++		attr++;
++	}
++
++	/* put the sensors in the group */
++	for (i = 0; i < num_attrs; ++i) {
++		sysfs_attr_init(&occ->attrs[i].sensor.dev_attr.attr);
++		occ->group.attrs[i] = &occ->attrs[i].sensor.dev_attr.attr;
++	}
++
++	return 0;
++}
++
+ /* only need to do this once at startup, as OCC won't change sensors on us */
+ static void occ_parse_poll_response(struct occ *occ)
+ {
+@@ -704,6 +1024,7 @@ int occ_setup(struct occ *occ, const char *name)
+ 	int rc;
+ 
+ 	mutex_init(&occ->lock);
++	occ->groups[0] = &occ->group;
+ 
+ 	/* no need to lock */
+ 	rc = occ_poll(occ);
+@@ -718,5 +1039,21 @@ int occ_setup(struct occ *occ, const char *name)
+ 
+ 	occ_parse_poll_response(occ);
+ 
++	rc = occ_setup_sensor_attrs(occ);
++	if (rc) {
++		dev_err(occ->bus_dev, "failed to setup sensor attrs: %d\n",
++			rc);
++		return rc;
++	}
++
++	occ->hwmon = devm_hwmon_device_register_with_groups(occ->bus_dev, name,
++							    occ, occ->groups);
++	if (IS_ERR(occ->hwmon)) {
++		rc = PTR_ERR(occ->hwmon);
++		dev_err(occ->bus_dev, "failed to register hwmon device: %d\n",
++			rc);
++		return rc;
++	}
++
+ 	return 0;
+ }
+diff --git a/drivers/hwmon/occ/common.h b/drivers/hwmon/occ/common.h
+index e074251..00ac101 100644
+--- a/drivers/hwmon/occ/common.h
++++ b/drivers/hwmon/occ/common.h
+@@ -3,7 +3,9 @@
+ #ifndef OCC_COMMON_H
+ #define OCC_COMMON_H
+ 
++#include <linux/hwmon-sysfs.h>
+ #include <linux/mutex.h>
++#include <linux/sysfs.h>
+ 
+ struct device;
+ 
+@@ -76,6 +78,15 @@ struct occ_sensors {
+ 	struct occ_sensor extended;
+ };
+ 
++/*
++ * Use our own attribute struct so we can dynamically allocate space for the
++ * name.
++ */
++struct occ_attribute {
++	char name[32];
++	struct sensor_device_attribute_2 sensor;
++};
++
+ struct occ {
+ 	struct device *bus_dev;
+ 
+@@ -88,6 +99,11 @@ struct occ {
+ 
+ 	unsigned long last_update;
+ 	struct mutex lock;		/* lock OCC access */
++
++	struct device *hwmon;
++	struct occ_attribute *attrs;
++	struct attribute_group group;
++	const struct attribute_group *groups[2];
+ };
+ 
+ int occ_setup(struct occ *occ, const char *name);
+-- 
+1.8.3.1

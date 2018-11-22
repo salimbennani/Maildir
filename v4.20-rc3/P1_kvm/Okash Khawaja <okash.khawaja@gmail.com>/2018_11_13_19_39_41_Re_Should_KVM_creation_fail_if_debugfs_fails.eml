@@ -1,0 +1,187 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (61.164.42.155:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 13 Nov 2018 15:23:48 -0000
+Received: from icoremail.net (unknown [209.85.214.179])
+	by mail-app2 (Coremail) with SMTP id by_KCgCn3_hyuOpbjNeFAQ--.40474S3;
+	Tue, 13 Nov 2018 19:41:39 +0800 (CST)
+Received: from mail-pl1-f179.google.com (unknown [209.85.214.179])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwDXt0NtuOpbxBE4AA--.10420S3;
+	Tue, 13 Nov 2018 19:41:33 +0800 (CST)
+Received: by mail-pl1-f179.google.com with SMTP id b22-v6so431128pls.7
+        for <xuliker@zju.edu.cn>; Tue, 13 Nov 2018 03:41:33 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:delivered-to:dkim-signature:mime-version
+         :references:in-reply-to:from:date:message-id:subject:to:cc:sender
+         :precedence:list-id;
+        bh=+PDvyzZEMm51CiZ1ZYgxJGPGSig8QrR2fVyrqp6zI38=;
+        b=V3u9jBac+MunQ7eN2KtVtQDECu1T34BxvpNCFG5N3iTiBytOU9EON0VWGu1PGQw1fC
+         JQdf5Lmx056ZY/R1dJPJv1B9Vr4A9KRcjj8/2s5q3vkbmaAdMgEmMgWKhIX165ZQNE4g
+         LCI3AQuG5/iy5UqTeKOk6Az3/lIFX3s/cjyJ1KqnsnLrDT4Ukc7NyPax1I5FIG8YYJOz
+         kSKbP6AazKr2LzltT+pGgLTLWGfi5qfvn+QpJxzq+vaRNKWUUgJvHKV3IbRGAauMUtqe
+         0J9UOKdyE84gPj4xaG+mWxNncN+STLo8+JNLg+N70fp/XkoxwBXZJYVgvekFY0uk/+XB
+         dK6Q==
+X-Gm-Message-State: AGRZ1gL3U/APGYBOogQNCjCN26cZTMugMdPb4rdx678GKO8NntwXW4Vk
+	Y7Zh2bvXZ6ouHtNRxS97v6MmUBY2/b/IWqYLuY2cjZTyT6XGBDeJnA==
+X-Received: by 2002:a17:902:704c:: with SMTP id h12mr4799604plt.78.1542109293257;
+        Tue, 13 Nov 2018 03:41:33 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp4352982pjt;
+        Tue, 13 Nov 2018 03:41:32 -0800 (PST)
+X-Google-Smtp-Source: AJdET5crmg3ND6OzZal8UQ5AR+B9NS88PbfTrSm4JjMls9VkrAv6yW433H74tNRAvrMYiiOBtxFs
+X-Received: by 2002:a63:4665:: with SMTP id v37mr4469143pgk.425.1542109292395;
+        Tue, 13 Nov 2018 03:41:32 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542109292; cv=none;
+        d=google.com; s=arc-20160816;
+        b=MPJVnUrfPNgzGOqSNjbVlyPT+8uHElNPEX+6xVDRWNN2n32JYKM0hj3R57+Rh6dTPU
+         dlk8RsG/DSR0j5+7UOyDo+5bEkdQctIo/hKdxyApW2mcZhdE9cWKmzuBNAnyHJ9wjX0z
+         47vWe+y5SApsgpyu31zYtu6Gn+hpzH/CxYhzmzCdB+gnKW1gX3uvxy5D0qysNenxZiDX
+         xz16RFqKqxxpVlbwiiTKAsV4aXwcRIbTOQtZLyNc2BKcNZMH9486wOoWAOAeyQNq8Sd/
+         3BvOEj6s495lcgYA2ULBauvZP3wHdgUttJyF5WljsmOhyduu3XKqZ8c+gNLWvjm4Xety
+         oAsQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=+PDvyzZEMm51CiZ1ZYgxJGPGSig8QrR2fVyrqp6zI38=;
+        b=woyVv79p+9+bWeyOpIzWy+cgvzF2UfNgHI6Ngzo3OYFAVVF8TT7kWWFhbSyiZT3c5K
+         vnEgar0kzpBF0lrff1AC/O0m3zvRMK5O/lKpBb+34ek0lMsBJt3uRKn4Z/UuQ3604B2D
+         YUF114RJdwPEy1Dp9L9Qk76yy5yWy1VRmpyrsUL1gBePYLK9N6yp0chnHhNgLMB7oLQM
+         +3DdLyJlY05qMr7CC5t+8uHu2vU4s7oa3/IKfutx/1MC9kEIcmP7uuhkMOVbFAE8l5cc
+         yfWFiwfCXyK7NhwZNcwGvqCyegPu+HaGP2zTDGueNFxjihiA7pFulPPp9Ls23V3v6HnQ
+         v7vQ==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@gmail.com header.s=20161025 header.b=u+AbXyMq;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;
+       dmarc=pass (p=NONE sp=QUARANTINE dis=NONE) header.from=gmail.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id 89-v6si20611250pld.274.2018.11.13.03.41.18;
+        Tue, 13 Nov 2018 03:41:32 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1732612AbeKMVhj (ORCPT <rfc822;fanshuming2011@gmail.com>
+        + 99 others); Tue, 13 Nov 2018 16:37:39 -0500
+Received: from mail-oi1-f193.google.com ([209.85.167.193]:46549 "EHLO
+        mail-oi1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1732475AbeKMVhi (ORCPT <rfc822;kvm@vger.kernel.org>);
+        Tue, 13 Nov 2018 16:37:38 -0500
+Received: by mail-oi1-f193.google.com with SMTP id e19-v6so9969710oii.13
+        for <kvm@vger.kernel.org>; Tue, 13 Nov 2018 03:39:53 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=+PDvyzZEMm51CiZ1ZYgxJGPGSig8QrR2fVyrqp6zI38=;
+        b=u+AbXyMqKMLGhofL0b2xg9BXUn2EUauiq/vtu0+fyqkHuot3OvyK/BVTNEVbi11qVN
+         5iULuy01bLdSp3UJdgCpQtjxD2UiUh+m7TpaOhS6QEDT3oLlQ36Rwdg3zxR1zcB9XDbB
+         45RQFOJE2xdFUZFbLLBtwHpAy3ZVdZtSvtdNURAOseMm0ER8bewVE1DM9QShNjaRVAlm
+         EMPV57w3UoQlIJZKkF6QQd9s2eT/KDDrHwO1iKHnC/DEEe39v1tLpwoxtpeSqxXrkB1K
+         haqs6yBN8fPoEIINz/HVDUd7GrOUg+cVFUFQxLBHhwHYGAs2bEww1sdwNW9Psy6iCj+Q
+         ETcA==
+X-Received: by 2002:aca:add2:: with SMTP id w201-v6mr2865388oie.2.1542109193092;
+ Tue, 13 Nov 2018 03:39:53 -0800 (PST)
+MIME-Version: 1.0
+References: <CAOtcWM0BC1kvseu-rCP9oZYkQ1MmJOhzCEEd3zuR1f8M4k26Eg@mail.gmail.com>
+ <CAOtcWM1iqBE5Rdmvysv4WjM8oFYZE7ZErOSVGb1Nqjfo7DVHgA@mail.gmail.com> <7be961d1-cee1-caf5-9d4f-73f41f16b5f7@redhat.com>
+In-Reply-To: <7be961d1-cee1-caf5-9d4f-73f41f16b5f7@redhat.com>
+From: Okash Khawaja <okash.khawaja@gmail.com>
+Date: Tue, 13 Nov 2018 11:39:41 +0000
+Message-ID: <CAOtcWM1opTjQgHdfhtPAX9=cQor78bRayDJYiuKq7bE02kSRmQ@mail.gmail.com>
+Subject: Re: Should KVM creation fail if debugfs fails?
+To: david@redhat.com
+Cc: kvm@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwDXt0NtuOpbxBE4AA--.10420S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoWxCryxJFWxWF4xtF4rZw1xuFg_yoW5Gw4Up3
+	y8G3WfKryDG3s8C39Ikr40gryrtayxWr4UXFyjvr98ur9xArn3ZFWfG3y7CFZ7uF98C3W7
+	WFW8try7Kwn0ka7anT9S1TB71UUUUUUqnTZGkaVYY2UrUUUU0bIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUPYb7Iv0xC_Kw4lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2
+	z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s0DM2AIxVAIcxkEcV
+	Aq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1j
+	6r18McIj6I8E87Iv67AKxVW8JVWxJwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IY64vIr4
+	1l7I0Y6sxI4wCY1x0264kExVAvwVAq07x20xylc7Ca8VAvwVCFzxkY4VCF77xAMxkIecxE
+	wVCI4VW8KwCY0x0Ix7I2Y4AK64vIr41lcIIF0xvE2Ix0cI8IcVAFwI0_Gr0_Xr1lcIIF0x
+	vE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwCYIxAIcVC2z280aVAFwI0_Cr1j6rxdMxvI42IY
+	6I8E87Iv6xkF7I0E14v26F4UJVW0owCF04k20xvY0x0EwIxGrwCF04k20xvEw4C26cxK6c
+	8Ij28IcwCF72vE77IF4wCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v26r1j
+	6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_Jrv_JF1lIxkGc2Ij64
+	vIr41lIxAIcVCF04k26cxKx2IYs7xG6r1j6r1xYxBIdaVFxhVjvjDU0xZFpf9x07bdEfrU
+	UUUU=
+
+(Please ignore previous email)
+
+On Tue, Nov 13, 2018 at 9:48 AM David Hildenbrand <david@redhat.com> wrote:
+>
+> On 02.11.18 11:10, Okash Khawaja wrote:
+> > On Wed, Oct 31, 2018 at 1:17 AM Okash Khawaja <okash.khawaja@gmail.com> wrote:
+> >>
+> >> Hi,
+> >>
+> >> Apologies if this has already been discussed but hasn't crossed my
+> >> eyes. It seems that KVM_CREATE_VM ioctl will fail with -ENOMEM if the
+> >> call to kvm_create_vm_debugfs() returns negative value. Is debugfs
+> >> essential for KVM operation?
+> >>
+> >> I came across this when testing with a bpf-next kernel I manually
+> >> compiled, from around v4.17. Creating a VM from QEMU threw following
+> >> error:
+> >>
+> >> ioctl(KVM_CREATE_VM) failed: 12 Cannot allocate memory
+> >>
+> >> Running 4.19.0 kernel fixed the problem. Please note that
+> >> kvm_create_vm_debugfs() would not fail if debugfs hasn't been
+> >> registered at all.
+> >>
+> >> Thanks,
+> >> Okash
+> >
+> > `kvm_create_vm_debugfs()` currently fails only if it fails to allocate
+> > memory so in a way it does make sense that KVM_CREATE_VM ioctl fails
+> > with -ENOMEM. However, failing to create VM because debugfs failed
+> > doesn't seem optimal to me. For example, let's say we change
+> > `kvm_create_vm_debugfs()` to add more error exit conditions which
+> > aren't memory allocation related, then still the ioctl will fail with
+> > -ENOMEM, unless we change the calling code to check return value of
+> > `kvm_create_vm_debugfs()`. Also, if the memory pressure is transient
+> > and `kvm_create_vm_debugfs()` fails because of that, the whole VM
+> > creation shouldn't fail. But most importantly, since VM debugfs stat
+> > isn't necessary for VM to function, VM creation shouldn't fail.
+>
+> It's okay to ignore corner cases if it makes life easier (e.g. handling
+> debugfs created or not when tearing down a VM).
+>
+> >
+> > Please correct me if I'm wrong with my reasoning above. Ultimately, we
+> > should check errors in `kvm_create_vm_debugfs()` and clean up files
+> > and directories if needed and not fail KVM_CREATE_VM ioctl. If this
+> > makes sense, I can put together a patch :)
+> >
+>
+> Is this really worth investing time and effort?
+>
+> Why I am asking: Your kernel cannot even allocate memory for debugfs.
+> How are you supposed to do anything with that VM? Maybe you cannot even
+> create a VCPU. Maybe the OOM killer will zap your process. Is there any
+> reasonable setup where this would be expected to work?
+>
+> "memory pressure is transient" is not a convincing argument. This sounds
+> like a broken setup to me.
+Probably it was a broken set up - it was a "-next" branch - so may be
+not worth the effort. Thanks
+
+>
+> --
+>
+> Thanks,
+>
+> David / dhildenb

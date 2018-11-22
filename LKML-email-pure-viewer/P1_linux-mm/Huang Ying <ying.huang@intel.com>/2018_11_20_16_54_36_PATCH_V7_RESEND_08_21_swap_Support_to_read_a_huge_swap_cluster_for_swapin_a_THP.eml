@@ -1,0 +1,392 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (61.164.42.155:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 20 Nov 2018 11:08:20 -0000
+Received: from icoremail.net (unknown [209.85.210.180])
+	by mail-app4 (Coremail) with SMTP id cS_KCgCXz3QkzPNb9XPeAQ--.33167S3;
+	Tue, 20 Nov 2018 16:56:08 +0800 (CST)
+Received: from mail-pf1-f180.google.com (unknown [209.85.210.180])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwDnyEQezPNbdShdAA--.688S3;
+	Tue, 20 Nov 2018 16:55:59 +0800 (CST)
+Received: by mail-pf1-f180.google.com with SMTP id h3so686560pfg.1
+        for <xuliker@zju.edu.cn>; Tue, 20 Nov 2018 00:55:59 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :from:to:cc:subject:date:message-id:in-reply-to:references:sender
+         :precedence:list-id;
+        bh=0v+iEEGd9s2O6tsPNBfb1jYj1UXNNNFcbpy+UtpBuBU=;
+        b=CR7lNjNdR+pOYjc3Cxm7y07RPGKs+4YzIvCprJT+jl3NriZQBXrYjxvHC284qGMra6
+         twDD0hU1x/TyaiG35/cQB99moy/QYdLcqSmEh6v+MoPfHiYmZML4tJMM20uHDgo4PQKT
+         yZ+eZ+iGxxxo2k903pMCVQZ310dP4fwRhku91C48ix+Gi76ntRNqcD1JPa9gASlW8C6C
+         YOYssSeeA4YWdfLCj6IzJSf6I36x9FPHvnchxiS2yDLMzWvT7hkkGQntW1uEnT0Zp5CY
+         A4cbrt517RodTzro168F3v49rVBNWJ4k9/e6B8uugvqHX5eZsDM0KwfqaNxxqqiUddYM
+         DvrA==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=intel.com
+X-Gm-Message-State: AGRZ1gKw4U9QuVPHpUrSAp5k1U4QD/hXRduVO4eQsqOBd40bEfDEnhOH
+	h+OlDLoaV00LWnz9e94SfZQL8fO5nrd/avOFskJyXGR/u1wvA9U=
+X-Received: by 2002:aa7:8497:: with SMTP id u23mr1302446pfn.220.1542704158652;
+        Tue, 20 Nov 2018 00:55:58 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:d106:0:0:0:0 with SMTP id l6-v6csp342281pju;
+        Tue, 20 Nov 2018 00:55:57 -0800 (PST)
+X-Google-Smtp-Source: AFSGD/Xy3LN9Mndte2paLlfjqTVskVlLJwl/XLmQw5SVIPGBNb7EdMYzdaskBhMtQ/1bV8r9Nv7Z
+X-Received: by 2002:a17:902:b701:: with SMTP id d1-v6mr1269730pls.29.1542704157175;
+        Tue, 20 Nov 2018 00:55:57 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542704157; cv=none;
+        d=google.com; s=arc-20160816;
+        b=G5LbBpNROBTVFTqPwnAa+NprD95cu8jaPMUXSEzB+9hXqaxLPOUvEKMzHmGj3U0Nzn
+         Y/d9i+8050lwJfEGggiuVkDT2d7eCcElUGpvm/6CRDkR1Z8D5XCso1c5h8XZ23tvAUm2
+         FBqyNq28ROPJzb2QiT0rkle3lcxfw37VQMYubzjxkqr475OpJoWEQAhhhNXg4BIp1ae5
+         BQcKkSEPR2AqMwpYyaj6IIQlG5ByX+VvM/sHADRsc5pI/JO2NU6uXwKEX81uFMUxyT/E
+         MSFpoK9Yw1JEdxsWKOppsDTPq1A0yR6zb1LGWgo7PAqoh2SIREOko3wSCmyQnd4ryksq
+         MsAg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:references:in-reply-to:message-id:date
+         :subject:cc:to:from;
+        bh=0v+iEEGd9s2O6tsPNBfb1jYj1UXNNNFcbpy+UtpBuBU=;
+        b=sYLRjehStJF9yadRLDzaPjyx2UkQdTFqzcvHGJgkbHfKukqtjkVMhBX0AZ/AK7GhMu
+         BgOVNa0h4wgPyXjPkZxjD6GL7ehLF9s/ErnzeaLXbrR3HPXNQbLW3qv+uIfiOQi2ChZG
+         aUNjiGTzam1GrZdbqTQylvumokTmgIPfSlma0RAgrLOuJpRBrk6q9i7ryl+AYs2WKcAZ
+         CsUVLjZX0Cwdxk3lFTnUdAHfvIrowb+6G8zwnfDB/23wFHTuZD6dqHbE6fCgSVXDTrhT
+         IM3eNh/ELittcF9BVErKk6uY3m5vX4f00Bpo8XmmDT1ug0/7UKfX+7PSZQDsVlPDBfxd
+         gh8w==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=intel.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id i5si16346669pfo.189.2018.11.20.00.55.42;
+        Tue, 20 Nov 2018 00:55:57 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1727195AbeKTTXU (ORCPT <rfc822;nullbytes00@gmail.com>
+        + 99 others); Tue, 20 Nov 2018 14:23:20 -0500
+Received: from mga07.intel.com ([134.134.136.100]:57263 "EHLO mga07.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726196AbeKTTXS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+        Tue, 20 Nov 2018 14:23:18 -0500
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga002.fm.intel.com ([10.253.24.26])
+  by orsmga105.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 20 Nov 2018 00:55:17 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.56,256,1539673200"; 
+   d="scan'208";a="106105817"
+Received: from yhuang-mobile.sh.intel.com ([10.239.197.245])
+  by fmsmga002.fm.intel.com with ESMTP; 20 Nov 2018 00:55:15 -0800
+From: Huang Ying <ying.huang@intel.com>
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+        Huang Ying <ying.huang@intel.com>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Michal Hocko <mhocko@kernel.org>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Shaohua Li <shli@kernel.org>, Hugh Dickins <hughd@google.com>,
+        Minchan Kim <minchan@kernel.org>,
+        Rik van Riel <riel@redhat.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>,
+        Zi Yan <zi.yan@cs.rutgers.edu>,
+        Daniel Jordan <daniel.m.jordan@oracle.com>
+Subject: [PATCH -V7 RESEND 08/21] swap: Support to read a huge swap cluster for swapin a THP
+Date: Tue, 20 Nov 2018 16:54:36 +0800
+Message-Id: <20181120085449.5542-9-ying.huang@intel.com>
+X-Mailer: git-send-email 2.18.1
+In-Reply-To: <20181120085449.5542-1-ying.huang@intel.com>
+References: <20181120085449.5542-1-ying.huang@intel.com>
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwDnyEQezPNbdShdAA--.688S3
+Authentication-Results: mail-app4; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW3Wr47ur48Zw15tFy8Jr4xJFb_yoWfZFWfpF
+	9xWw1DGr48Xr1fG3yfJa1qkryfZr1F9FWrJry7KF1jvasaqr1rKFyUArsrJryUur1DuFWf
+	Wa1jgFWjkF1jqaDanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUBjb7Iv0xC_KF4lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2
+	z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s0DM2AIxVAIcxkEcV
+	Aq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1Y
+	6r17McIj6I8E87Iv67AKxVW8JVWxJwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IYc2Ij64
+	vIr41l7I0Y6sxI4wCY1x0264kExVAvwVAq07x20xylc2xSY4AK6IIF6r43MxkI7II2jI8v
+	z4vEwIxGrwCYIxAIcVC0I7IYx2IY67AKxVW5JVW7JwCYIxAIcVC0I7IYx2IY6xkF7I0E14
+	v26r4j6F4UMxvI42IY6I8E87Iv67AKxVW0oVCq3wCYIxAIcVC2z280aVCY1x0267AKxVW0
+	oVCq3wCF04k20xvY0x0EwIxGrwCF04k20xvEw4C26cxK6c8Ij28IcwCF72vE77IF4wCFx2
+	IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v26r1j6r18MI8I3I0E7480Y4vE14v2
+	6r106r1rMI8E67AF67kF1VAFwI0_GFv_WrylIxkGc2Ij64vIr41lIxAIcVCF04k26cxKx2
+	IYs7xG6r1j6r1xYxBIdaVFxhVjvjDU0xZFpf9x07b8_M3UUUUU=
+
+To swapin a THP in one piece, we need to read a huge swap cluster from
+the swap device.  This patch revised the __read_swap_cache_async() and
+its callers and callees to support this.  If __read_swap_cache_async()
+find the swap cluster of the specified swap entry is huge, it will try
+to allocate a THP, add it into the swap cache.  So later the contents
+of the huge swap cluster can be read into the THP.
+
+Signed-off-by: "Huang, Ying" <ying.huang@intel.com>
+Cc: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: Michal Hocko <mhocko@kernel.org>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Shaohua Li <shli@kernel.org>
+Cc: Hugh Dickins <hughd@google.com>
+Cc: Minchan Kim <minchan@kernel.org>
+Cc: Rik van Riel <riel@redhat.com>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>
+Cc: Zi Yan <zi.yan@cs.rutgers.edu>
+Cc: Daniel Jordan <daniel.m.jordan@oracle.com>
+---
+ include/linux/huge_mm.h |  8 ++++++
+ include/linux/swap.h    |  4 +--
+ mm/huge_memory.c        |  3 +-
+ mm/swap_state.c         | 61 +++++++++++++++++++++++++++++++++--------
+ mm/swapfile.c           |  9 ++++--
+ 5 files changed, 67 insertions(+), 18 deletions(-)
+
+diff --git a/include/linux/huge_mm.h b/include/linux/huge_mm.h
+index 1c0fda003d6a..f4dbd0662438 100644
+--- a/include/linux/huge_mm.h
++++ b/include/linux/huge_mm.h
+@@ -250,6 +250,8 @@ static inline bool thp_migration_supported(void)
+ 	return IS_ENABLED(CONFIG_ARCH_ENABLE_THP_MIGRATION);
+ }
+ 
++gfp_t alloc_hugepage_direct_gfpmask(struct vm_area_struct *vma,
++				    unsigned long addr);
+ #else /* CONFIG_TRANSPARENT_HUGEPAGE */
+ #define HPAGE_PMD_SHIFT ({ BUILD_BUG(); 0; })
+ #define HPAGE_PMD_MASK ({ BUILD_BUG(); 0; })
+@@ -363,6 +365,12 @@ static inline bool thp_migration_supported(void)
+ {
+ 	return false;
+ }
++
++static inline gfp_t alloc_hugepage_direct_gfpmask(struct vm_area_struct *vma,
++						  unsigned long addr)
++{
++	return 0;
++}
+ #endif /* CONFIG_TRANSPARENT_HUGEPAGE */
+ 
+ #endif /* _LINUX_HUGE_MM_H */
+diff --git a/include/linux/swap.h b/include/linux/swap.h
+index 441da4a832a6..4bd532c9315e 100644
+--- a/include/linux/swap.h
++++ b/include/linux/swap.h
+@@ -462,7 +462,7 @@ extern sector_t map_swap_page(struct page *, struct block_device **);
+ extern sector_t swapdev_block(int, pgoff_t);
+ extern int page_swapcount(struct page *);
+ extern int __swap_count(swp_entry_t entry);
+-extern int __swp_swapcount(swp_entry_t entry);
++extern int __swp_swapcount(swp_entry_t entry, int *entry_size);
+ extern int swp_swapcount(swp_entry_t entry);
+ extern struct swap_info_struct *page_swap_info(struct page *);
+ extern struct swap_info_struct *swp_swap_info(swp_entry_t entry);
+@@ -590,7 +590,7 @@ static inline int __swap_count(swp_entry_t entry)
+ 	return 0;
+ }
+ 
+-static inline int __swp_swapcount(swp_entry_t entry)
++static inline int __swp_swapcount(swp_entry_t entry, int *entry_size)
+ {
+ 	return 0;
+ }
+diff --git a/mm/huge_memory.c b/mm/huge_memory.c
+index a38d549fb4dc..eeea00070da8 100644
+--- a/mm/huge_memory.c
++++ b/mm/huge_memory.c
+@@ -629,7 +629,8 @@ static vm_fault_t __do_huge_pmd_anonymous_page(struct vm_fault *vmf,
+  *	    available
+  * never: never stall for any thp allocation
+  */
+-static inline gfp_t alloc_hugepage_direct_gfpmask(struct vm_area_struct *vma, unsigned long addr)
++gfp_t alloc_hugepage_direct_gfpmask(struct vm_area_struct *vma,
++				    unsigned long addr)
+ {
+ 	const bool vma_madvised = !!(vma->vm_flags & VM_HUGEPAGE);
+ 	gfp_t this_node = 0;
+diff --git a/mm/swap_state.c b/mm/swap_state.c
+index 97831166994a..1eedbc0aede2 100644
+--- a/mm/swap_state.c
++++ b/mm/swap_state.c
+@@ -361,7 +361,9 @@ struct page *__read_swap_cache_async(swp_entry_t entry, gfp_t gfp_mask,
+ {
+ 	struct page *found_page = NULL, *new_page = NULL;
+ 	struct swap_info_struct *si;
+-	int err;
++	int err, entry_size = 1;
++	swp_entry_t hentry;
++
+ 	*new_page_allocated = false;
+ 
+ 	do {
+@@ -387,14 +389,42 @@ struct page *__read_swap_cache_async(swp_entry_t entry, gfp_t gfp_mask,
+ 		 * as SWAP_HAS_CACHE.  That's done in later part of code or
+ 		 * else swap_off will be aborted if we return NULL.
+ 		 */
+-		if (!__swp_swapcount(entry) && swap_slot_cache_enabled)
++		if (!__swp_swapcount(entry, &entry_size) &&
++		    swap_slot_cache_enabled)
+ 			break;
+ 
+ 		/*
+ 		 * Get a new page to read into from swap.
+ 		 */
+-		if (!new_page) {
+-			new_page = alloc_page_vma(gfp_mask, vma, addr);
++		if (!new_page ||
++		    (IS_ENABLED(CONFIG_THP_SWAP) &&
++		     hpage_nr_pages(new_page) != entry_size)) {
++			if (new_page)
++				put_page(new_page);
++			if (IS_ENABLED(CONFIG_THP_SWAP) &&
++			    entry_size == HPAGE_PMD_NR) {
++				gfp_t gfp;
++
++				gfp = alloc_hugepage_direct_gfpmask(vma, addr);
++				/*
++				 * Make sure huge page allocation flags are
++				 * compatible with that of normal page
++				 */
++				VM_WARN_ONCE(gfp_mask & ~(gfp | __GFP_RECLAIM),
++					     "ignoring gfp_mask bits: %x",
++					     gfp_mask & ~(gfp | __GFP_RECLAIM));
++				new_page = alloc_pages_vma(gfp, HPAGE_PMD_ORDER,
++							   vma, addr,
++							   numa_node_id());
++				if (new_page)
++					prep_transhuge_page(new_page);
++				hentry = swp_entry(swp_type(entry),
++						   round_down(swp_offset(entry),
++							      HPAGE_PMD_NR));
++			} else {
++				new_page = alloc_page_vma(gfp_mask, vma, addr);
++				hentry = entry;
++			}
+ 			if (!new_page)
+ 				break;		/* Out of memory */
+ 		}
+@@ -402,7 +432,7 @@ struct page *__read_swap_cache_async(swp_entry_t entry, gfp_t gfp_mask,
+ 		/*
+ 		 * Swap entry may have been freed since our caller observed it.
+ 		 */
+-		err = swapcache_prepare(entry, 1);
++		err = swapcache_prepare(hentry, entry_size);
+ 		if (err == -EEXIST) {
+ 			/*
+ 			 * We might race against get_swap_page() and stumble
+@@ -411,18 +441,24 @@ struct page *__read_swap_cache_async(swp_entry_t entry, gfp_t gfp_mask,
+ 			 */
+ 			cond_resched();
+ 			continue;
++		} else if (err == -ENOTDIR) {
++			/* huge swap cluster has been split under us */
++			continue;
+ 		} else if (err)		/* swp entry is obsolete ? */
+ 			break;
+ 
+ 		/* May fail (-ENOMEM) if XArray node allocation failed. */
+ 		__SetPageLocked(new_page);
+ 		__SetPageSwapBacked(new_page);
+-		err = add_to_swap_cache(new_page, entry, gfp_mask & GFP_KERNEL);
++		err = add_to_swap_cache(new_page, hentry, gfp_mask & GFP_KERNEL);
+ 		if (likely(!err)) {
+ 			/* Initiate read into locked page */
+ 			SetPageWorkingset(new_page);
+ 			lru_cache_add_anon(new_page);
+ 			*new_page_allocated = true;
++			if (IS_ENABLED(CONFIG_THP_SWAP))
++				new_page += swp_offset(entry) &
++					(entry_size - 1);
+ 			return new_page;
+ 		}
+ 		__ClearPageLocked(new_page);
+@@ -430,7 +466,7 @@ struct page *__read_swap_cache_async(swp_entry_t entry, gfp_t gfp_mask,
+ 		 * add_to_swap_cache() doesn't return -EEXIST, so we can safely
+ 		 * clear SWAP_HAS_CACHE flag.
+ 		 */
+-		put_swap_page(new_page, entry);
++		put_swap_page(new_page, hentry);
+ 	} while (err != -ENOMEM);
+ 
+ 	if (new_page)
+@@ -452,7 +488,7 @@ struct page *read_swap_cache_async(swp_entry_t entry, gfp_t gfp_mask,
+ 			vma, addr, &page_was_allocated);
+ 
+ 	if (page_was_allocated)
+-		swap_readpage(retpage, do_poll);
++		swap_readpage(compound_head(retpage), do_poll);
+ 
+ 	return retpage;
+ }
+@@ -571,8 +607,9 @@ struct page *swap_cluster_readahead(swp_entry_t entry, gfp_t gfp_mask,
+ 		if (!page)
+ 			continue;
+ 		if (page_allocated) {
+-			swap_readpage(page, false);
+-			if (offset != entry_offset) {
++			swap_readpage(compound_head(page), false);
++			if (offset != entry_offset &&
++			    !PageTransCompound(page)) {
+ 				SetPageReadahead(page);
+ 				count_vm_event(SWAP_RA);
+ 			}
+@@ -733,8 +770,8 @@ static struct page *swap_vma_readahead(swp_entry_t fentry, gfp_t gfp_mask,
+ 		if (!page)
+ 			continue;
+ 		if (page_allocated) {
+-			swap_readpage(page, false);
+-			if (i != ra_info.offset) {
++			swap_readpage(compound_head(page), false);
++			if (i != ra_info.offset && !PageTransCompound(page)) {
+ 				SetPageReadahead(page);
+ 				count_vm_event(SWAP_RA);
+ 			}
+diff --git a/mm/swapfile.c b/mm/swapfile.c
+index a57967292a8d..c22c11b4a879 100644
+--- a/mm/swapfile.c
++++ b/mm/swapfile.c
+@@ -1542,7 +1542,8 @@ int __swap_count(swp_entry_t entry)
+ 	return count;
+ }
+ 
+-static int swap_swapcount(struct swap_info_struct *si, swp_entry_t entry)
++static int swap_swapcount(struct swap_info_struct *si, swp_entry_t entry,
++			  int *entry_size)
+ {
+ 	int count = 0;
+ 	pgoff_t offset = swp_offset(entry);
+@@ -1550,6 +1551,8 @@ static int swap_swapcount(struct swap_info_struct *si, swp_entry_t entry)
+ 
+ 	ci = lock_cluster_or_swap_info(si, offset);
+ 	count = swap_count(si->swap_map[offset]);
++	if (entry_size)
++		*entry_size = ci && cluster_is_huge(ci) ? SWAPFILE_CLUSTER : 1;
+ 	unlock_cluster_or_swap_info(si, ci);
+ 	return count;
+ }
+@@ -1559,14 +1562,14 @@ static int swap_swapcount(struct swap_info_struct *si, swp_entry_t entry)
+  * This does not give an exact answer when swap count is continued,
+  * but does include the high COUNT_CONTINUED flag to allow for that.
+  */
+-int __swp_swapcount(swp_entry_t entry)
++int __swp_swapcount(swp_entry_t entry, int *entry_size)
+ {
+ 	int count = 0;
+ 	struct swap_info_struct *si;
+ 
+ 	si = get_swap_device(entry);
+ 	if (si) {
+-		count = swap_swapcount(si, entry);
++		count = swap_swapcount(si, entry, entry_size);
+ 		put_swap_device(si);
+ 	}
+ 	return count;
+-- 
+2.18.1

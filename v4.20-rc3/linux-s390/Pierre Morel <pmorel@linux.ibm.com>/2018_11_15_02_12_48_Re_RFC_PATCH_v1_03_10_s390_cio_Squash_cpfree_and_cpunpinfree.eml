@@ -1,0 +1,231 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 15 Nov 2018 00:41:55 -0000
+Received: from icoremail.net (unknown [209.85.215.176])
+	by mail-app2 (Coremail) with SMTP id by_KCgC3f+3NZexbeTCSAQ--.43360S3;
+	Thu, 15 Nov 2018 02:13:34 +0800 (CST)
+Received: from mail-pg1-f176.google.com (unknown [209.85.215.176])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwCnjEjIZexbV88_AA--.930S3;
+	Thu, 15 Nov 2018 02:13:28 +0800 (CST)
+Received: by mail-pg1-f176.google.com with SMTP id 70so7717249pgh.8
+        for <xuliker@zju.edu.cn>; Wed, 14 Nov 2018 10:13:28 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :reply-to:subject:to:cc:references:from:date:user-agent:mime-version
+         :in-reply-to:content-language:content-transfer-encoding:message-id
+         :sender:precedence:list-id;
+        bh=AmMe5YQrClmzcWG1qcFDD9BDc+yvwHU4O1KuoDPeY7E=;
+        b=hNMTMlMHSei6AHkDxt03WdZqKk6Mr52spfF+a3DqqZet449SXlSxoeiU4ofdG66xMR
+         C7ra3ceVjou5sdcF0quYlFZ3+YSpKkMGDfgd4+ggarE5qCYkSK0ZCcc3YCj/e0pLT2xi
+         s2dO2ZhbYflwxEWdJSs9lgl28q+bg2r6Vv1oVIhkO2zlLTxlq20pYYkV6cckjEBiv+te
+         znbpzFeExN9/Zo9UewS8yGFEAKzEyDUW+h6SZnSPZHuRmnhl48URtOOII6ssuttALu+V
+         W8Op2/M4IK/QSMjEAZDJydFNlDr3Yr8BEpujlNgujVY5NDryTUiZS/WXBk6k4fMmA57K
+         XwYw==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=ibm.com
+X-Gm-Message-State: AGRZ1gKJLUsxD2SAMBp/odLDfXfndvDP2d/x83lJMHf+wXxq7yV4s87o
+	Xjlvm8QZA14Dq5KQ1/ha850CTloRzo6Pxae1+5NcSHR5PU4VIsbg1w==
+X-Received: by 2002:a63:9402:: with SMTP id m2mr2603651pge.93.1542219208015;
+        Wed, 14 Nov 2018 10:13:28 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp6141343pjt;
+        Wed, 14 Nov 2018 10:13:26 -0800 (PST)
+X-Google-Smtp-Source: AJdET5ecA3cJ2NyfNoyiOAstR+H7QAOXmwlAOia3c9gIUDSS+dh60ozR9G9gq4WLOJxBXwxZbHN+
+X-Received: by 2002:aa7:80ce:: with SMTP id a14-v6mr2994213pfn.86.1542219206548;
+        Wed, 14 Nov 2018 10:13:26 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542219206; cv=none;
+        d=google.com; s=arc-20160816;
+        b=m7tMGganqv/z0mpCv6QaNKNxxnw1t9Hg0SVuYyFBvqHxwBFbtRm5tppbPw3wf4gWkG
+         BXWEMGypZJS6i/N7HLKz/g5utNS3hRgKv0NbKxaxCb/nEYhzBdE3V5UCnBy0Zt8D7XUS
+         7sEI1a2ZbMrFyXOtLek9HRku1RNZh/aSdTzZzt8Q91Z6mt5T3NUz3xoGr4jAI9Ya+E+u
+         n8X2qpd9qRYdC6gBA1143eIXPFltB2NN18cnmf52Ji8NVN9H7dwHV49n47/bsN9R1x9d
+         6xm+0sq0AItoTwtFTzukxDEwKH8mNfj0FcsqFgmAnmZ4FghZdADEJAtOzb9+c5F0+a21
+         vSLw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:message-id:content-transfer-encoding
+         :content-language:in-reply-to:mime-version:user-agent:date:from
+         :references:cc:to:subject:reply-to;
+        bh=AmMe5YQrClmzcWG1qcFDD9BDc+yvwHU4O1KuoDPeY7E=;
+        b=c1QY02dQc3ZuLsyq5jPE0844ViY9dtUIMpIcDTltrE2oRph9vUQyGJbDpL9STvJLeE
+         97E29uZxJpL7kH9pjVz0ya79i4CV9t/qSlMwgfQQJzkRiBA+Bb1NVpMcqB1AZ1wyp8hS
+         B6Hdi8Yn/W8c/WSyJqBYVHoEVHcCJctpNtuEQ2Z77pPVzzjG6UX2IKJtVzeYK+O9/rNL
+         vdTD63VgmWAQKcWU7Qv0hw0e0d+0YVNzkOURtJM/5c7tTiQ+HDzUsSJKpQwLglb4PC6I
+         PCAtOg1eSrlZwnAVGRXB++s30A0w4wKI/lJjVoJpsyorLR35NGSEknmP8+GfaJkXbTBu
+         zkFQ==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=ibm.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id f35si22176145pgf.449.2018.11.14.10.13.04;
+        Wed, 14 Nov 2018 10:13:26 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1730979AbeKOERK (ORCPT <rfc822;xiao.zheng.rmb@gmail.com>
+        + 99 others); Wed, 14 Nov 2018 23:17:10 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:47224 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727821AbeKOERK (ORCPT
+        <rfc822;kvm@vger.kernel.org>); Wed, 14 Nov 2018 23:17:10 -0500
+Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.22/8.16.0.22) with SMTP id wAEHxLxX132757
+        for <kvm@vger.kernel.org>; Wed, 14 Nov 2018 13:12:54 -0500
+Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2nrp8wg4jc-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <kvm@vger.kernel.org>; Wed, 14 Nov 2018 13:12:54 -0500
+Received: from localhost
+        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <kvm@vger.kernel.org> from <pmorel@linux.ibm.com>;
+        Wed, 14 Nov 2018 18:12:52 -0000
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (9.149.109.197)
+        by e06smtp02.uk.ibm.com (192.168.101.132) with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted;
+        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256/256)
+        Wed, 14 Nov 2018 18:12:50 -0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id wAEICnOa6029660
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
+        Wed, 14 Nov 2018 18:12:49 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 0C007A405B;
+        Wed, 14 Nov 2018 18:12:49 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C2AA2A405F;
+        Wed, 14 Nov 2018 18:12:48 +0000 (GMT)
+Received: from [9.145.52.74] (unknown [9.145.52.74])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed, 14 Nov 2018 18:12:48 +0000 (GMT)
+Reply-To: pmorel@linux.ibm.com
+Subject: Re: [RFC PATCH v1 03/10] s390/cio: Squash cp_free and cp_unpin_free
+To: Eric Farman <farman@linux.ibm.com>,
+        Cornelia Huck <cohuck@redhat.com>
+Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Farhan Ali <alifm@linux.ibm.com>,
+        "Jason J . Herne" <jjherne@linux.ibm.com>
+References: <20181109023937.96105-1-farman@linux.ibm.com>
+ <20181109023937.96105-4-farman@linux.ibm.com>
+From: Pierre Morel <pmorel@linux.ibm.com>
+Date: Wed, 14 Nov 2018 19:12:48 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.2.1
+MIME-Version: 1.0
+In-Reply-To: <20181109023937.96105-4-farman@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+x-cbid: 18111418-0008-0000-0000-00000292D4A9
+X-IBM-AV-DETECTION: SAVI=unused REMOTE=unused XFE=unused
+x-cbparentid: 18111418-0009-0000-0000-000021FCEB23
+Message-Id: <e394816f-27b4-78ae-3c75-67d178697d13@linux.ibm.com>
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2018-11-14_14:,,
+ signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ malwarescore=0 suspectscore=2 phishscore=0 bulkscore=0 spamscore=0
+ clxscore=1015 lowpriorityscore=0 mlxscore=0 impostorscore=0
+ mlxlogscore=999 adultscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.0.1-1810050000 definitions=main-1811140161
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwCnjEjIZexbV88_AA--.930S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW7Zw47tryrZw4DWF17AFWDurg_yoW8tFWfpF
+	4fCry5G3ykJryxuFs8G340qF1rtr48G3y7ury0ywnYyrnxXr95KryUC34I9FZ5ArZ7AF4r
+	AF98KFyDuan8JFJanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUmvb7Iv0xC_tr1lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1l84ACjcxK6I8E
+	87Iv67AKxVW8Jr0_Cr1UM28EF7xvwVC2z280aVCY1x0267AKxVW8Jr0_Cr1UM2AIxVAIcx
+	kEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v2
+	6r1j6r18McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IY64
+	vIr41l7I0Y6sxI4wCYjI0SjxkI62AI1cAE67vIY487MxkF7I0Ew4C26cxK6c8Ij28IcwCY
+	1Ik26cxK6xAEc7vF6xCjj44lc2xSY4AK6IIF6rylc2IjII80xcxEwVAKI48JMxvI42IY6x
+	IIjxv20xvE14v26r1I6r4UMxvI42IY6xIIjxv20xvEc7CjxVAFwI0_Jr0_Gr1lcIIF0xvE
+	x4A2jsIE14v26F4j6r4UJwCYIxAIcVC2z280aVCY1x0267AKxVW8JVW8Jr1l42xK82IYc2
+	Ij64vIr41l42xK82IY64kExVAvwVAq07x20xyl4x8a6x804xWl4I8I3I0E4IkC6x0Yz7v_
+	Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1V
+	AY17CE14v26r1q6r43MIIYrxkI7VAKI48JMIIF0xvE42xK8VAvwI8IcIk0rVW3JVWrJrUv
+	cSsGvfC2KfnxnUUI43ZEXa7IU5Fg43UUUUU==
+
+On 09/11/2018 03:39, Eric Farman wrote:
+> The routine cp_free() does nothing but call cp_unpin_free(), and while
+> most places call cp_free() there is one caller of cp_unpin_free().
+> 
+> Let's avoid the confusion, and make cp_free() do all the work.
+> 
+> Signed-off-by: Eric Farman <farman@linux.ibm.com>
+> ---
+>   drivers/s390/cio/vfio_ccw_cp.c | 30 ++++++++++++------------------
+>   1 file changed, 12 insertions(+), 18 deletions(-)
+> 
+> diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
+> index 70a006ba4d05..a5a701451ef8 100644
+> --- a/drivers/s390/cio/vfio_ccw_cp.c
+> +++ b/drivers/s390/cio/vfio_ccw_cp.c
+> @@ -329,22 +329,6 @@ static void ccwchain_cda_free(struct ccwchain *chain, int idx)
+>   	kfree((void *)(u64)ccw->cda);
+>   }
+>   
+> -/* Unpin the pages then free the memory resources. */
+> -static void cp_unpin_free(struct channel_program *cp)
+> -{
+> -	struct ccwchain *chain, *temp;
+> -	int i;
+> -
+> -	list_for_each_entry_safe(chain, temp, &cp->ccwchain_list, next) {
+> -		for (i = 0; i < chain->ch_len; i++) {
+> -			pfn_array_table_unpin_free(chain->ch_pat + i,
+> -						   cp->mdev);
+> -			ccwchain_cda_free(chain, i);
+> -		}
+> -		ccwchain_free(chain);
+> -	}
+> -}
+> -
+>   /**
+>    * ccwchain_calc_length - calculate the length of the ccw chain.
+>    * @iova: guest physical address of the target ccw chain
+> @@ -695,7 +679,7 @@ int cp_init(struct channel_program *cp, struct device *mdev, union orb *orb)
+>   	/* Now loop for its TICs. */
+>   	ret = ccwchain_loop_tic(chain, cp);
+>   	if (ret)
+> -		cp_unpin_free(cp);
+> +		cp_free(cp);
+>   	/* It is safe to force: if not set but idals used
+>   	 * ccwchain_calc_length returns an error.
+>   	 */
+> @@ -715,7 +699,17 @@ int cp_init(struct channel_program *cp, struct device *mdev, union orb *orb)
+>    */
+>   void cp_free(struct channel_program *cp)
+>   {
+> -	cp_unpin_free(cp);
+> +	struct ccwchain *chain, *temp;
+> +	int i;
+> +
+> +	list_for_each_entry_safe(chain, temp, &cp->ccwchain_list, next) {
+> +		for (i = 0; i < chain->ch_len; i++) {
+> +			pfn_array_table_unpin_free(chain->ch_pat + i,
+> +						   cp->mdev);
+> +			ccwchain_cda_free(chain, i);
+> +		}
+> +		ccwchain_free(chain);
+> +	}
+>   }
+>   
+>   /**
+> 
+
+LGTM
+Reviewed-by: Pierre Morel<pmorel@linux.ibm.com>
+
+
+
+-- 
+Pierre Morel
+Linux/KVM/QEMU in Böblingen - Germany

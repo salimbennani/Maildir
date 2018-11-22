@@ -1,0 +1,182 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 21 Nov 2018 00:40:11 -0000
+Received: from icoremail.net (unknown [209.85.215.175])
+	by mail-app4 (Coremail) with SMTP id cS_KCgDXv9q8J_RbAI3gAQ--.34276S3;
+	Tue, 20 Nov 2018 23:27:01 +0800 (CST)
+Received: from mail-pg1-f175.google.com (unknown [209.85.215.175])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwDXvkq4J_RbQtNeAA--.1326S3;
+	Tue, 20 Nov 2018 23:26:48 +0800 (CST)
+Received: by mail-pg1-f175.google.com with SMTP id 17so1056589pgg.1
+        for <xuliker@zju.edu.cn>; Tue, 20 Nov 2018 07:26:48 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:delivered-to:dkim-signature:mime-version
+         :in-reply-to:references:from:date:message-id:subject:to:cc:sender
+         :precedence:list-id;
+        bh=fbfxrs4wBz7nR1I+XzTYC0vEFDsE7kNKXN1zKxd8L+M=;
+        b=ufekInyqHtbaOm9u2gSKFrj6Fc+4qNRGWSLN+vcenCkQ30CQ0XBUX5xJ4Vz154ifvz
+         1OvqbIIkkztZXUUnXX6l6aw/XtH46fgTDioh27amRxYrc3cXlhbrexRtKqsnEp1njiNX
+         NdatwBlwNKwuBGlo/a6q8xj7Pg6iQxoHIx2PJdkb3UtdMddV6iQqYw59Y0smOQMFlxfw
+         zMN10q1LBJrmdiXT4nS79w37A2y0FBdxXw2/sI+KZdBs6SH8//wyVXLuOxYAlZem9WUw
+         hFK/nlMxYQur8IAHKdoH+ongop/pYvkOmqQPglOcfxka6r6ENqg3EMc4PwZ5qVxsmYe+
+         Huow==
+X-Gm-Message-State: AGRZ1gKRAKi35MxBjSykuzELnnaAQH7tzDblvlnEO6tDKho6Q79DJyK9
+	0tEHBB4isYuH33D2VkvYXbyM+l2dTQfvikc7PJg7wdu4NsjuS8k=
+X-Received: by 2002:a62:1f9d:: with SMTP id l29mr2665581pfj.14.1542727608223;
+        Tue, 20 Nov 2018 07:26:48 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:d106:0:0:0:0 with SMTP id l6-v6csp739042pju;
+        Tue, 20 Nov 2018 07:26:47 -0800 (PST)
+X-Google-Smtp-Source: AFSGD/U2qxLQJDeDeKkjGoOY3YBg2nI+021qLnhtRoRFj5dVo42zYpPF3q3Df01HfRlhZXLM00YZ
+X-Received: by 2002:a63:d604:: with SMTP id q4mr2261793pgg.175.1542727607302;
+        Tue, 20 Nov 2018 07:26:47 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542727607; cv=none;
+        d=google.com; s=arc-20160816;
+        b=SnjsyxamIP/39ZwQ1mZu88Fy/7d9zGixwViZzgh0dMT5puaPGmCqyq/8KCq4xyVYvh
+         B5RiPVHxJg5zbINAw/EXHf9yLK24oVk6Z2zuGhD/0lJS4vxj7oAYoJoyHN2cKG+hePNY
+         6KzZCyY1VNWNGTsTCefY8zoCz0dNFHUXRMNc8RDFFMgTotSzQYHB52HUTIfUIaqMjSOd
+         v5DuUnIfoYCKbha1qdlYiW/cTgQ3iSnKA4xkURJbgbp3WtG3//JAWS1Xdi6UGL+X6Oq7
+         Q0evdwkJ2lyVfjs4z/o9so3iDGo7EFBbA/wX1hxRTeuCPTFQFlHcWMRWrq3n6otpH8Lo
+         nQhQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:cc:to:subject:message-id:date:from
+         :references:in-reply-to:mime-version:dkim-signature;
+        bh=fbfxrs4wBz7nR1I+XzTYC0vEFDsE7kNKXN1zKxd8L+M=;
+        b=Z9R7JX0LAMH9reMhW9nKYiVK88E1RG2NzgsilEt7TKK6KUTRa618nKBxXGPXx8fVga
+         MwS0ZKkdYRv4OjJXRtuVfoVSmDOaSqjQnFJYh/GuKIb44vLDWw4txl/SuJmB2G0AmvXn
+         gDPW277urdSd+bf7zcYMp7BMkIIbQqQe5LmTH/qjpdB0t4wlCZ8EWSll1xfum8jlbtmy
+         3e5M7lySD1FM8nxwYn4KCCLmJ1b4nUYH86odBIpx+jWQkMgSx2KcykO8n9z12ZV9OVSO
+         3SEmpwSu1voi4GuLeWzJmkpCN2Y9HErjpUQH754ICwuZ0x90EXTospkmrEauN9cTs3py
+         FMBw==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@linaro.org header.s=google header.b=SwkJYnce;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;
+       dmarc=pass (p=NONE sp=NONE dis=NONE) header.from=linaro.org
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id z1si11953413plo.202.2018.11.20.07.26.27;
+        Tue, 20 Nov 2018 07:26:47 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1725913AbeKUB1f (ORCPT <rfc822;alpcanarslan95@gmail.com>
+        + 99 others); Tue, 20 Nov 2018 20:27:35 -0500
+Received: from mail-ot1-f66.google.com ([209.85.210.66]:32790 "EHLO
+        mail-ot1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725851AbeKUB1f (ORCPT <rfc822;kvm@vger.kernel.org>);
+        Tue, 20 Nov 2018 20:27:35 -0500
+Received: by mail-ot1-f66.google.com with SMTP id i20so1927566otl.0
+        for <kvm@vger.kernel.org>; Tue, 20 Nov 2018 06:58:02 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:in-reply-to:references:from:date:message-id:subject:to
+         :cc;
+        bh=fbfxrs4wBz7nR1I+XzTYC0vEFDsE7kNKXN1zKxd8L+M=;
+        b=SwkJYnceSKk0zvZTU5CZdGSeIONleGANAYrFhleLxensEsqMoTsiY+F/qzLK8dz4PV
+         Da466u0Mg6BrXpEtF+EsEhw2DOQQ+zXC2Wp1dgsfTdxttvSn0xPqz4N/NPZHzIeGB35w
+         BY+EnthjkJ6/sbdFc92HvafWu3FNMKzlFNpHQ=
+X-Received: by 2002:a9d:582e:: with SMTP id r46mr1398181oth.238.1542725882506;
+ Tue, 20 Nov 2018 06:58:02 -0800 (PST)
+MIME-Version: 1.0
+Received: by 2002:a9d:4b0e:0:0:0:0:0 with HTTP; Tue, 20 Nov 2018 06:57:42
+ -0800 (PST)
+In-Reply-To: <1541672989-15967-8-git-send-email-gengdongjiu@huawei.com>
+References: <1541672989-15967-1-git-send-email-gengdongjiu@huawei.com> <1541672989-15967-8-git-send-email-gengdongjiu@huawei.com>
+From: Peter Maydell <peter.maydell@linaro.org>
+Date: Tue, 20 Nov 2018 14:57:42 +0000
+Message-ID: <CAFEAcA9wLv96u_GYCBPFtkQMvntoHDKhQjremmN1noaJxsvhAQ@mail.gmail.com>
+Subject: Re: [PATCH RESEND v15 07/10] KVM: Move related hwpoison page
+ functions to accel/kvm/ folder
+To: Dongjiu Geng <gengdongjiu@huawei.com>
+Cc: Igor Mammedov <imammedo@redhat.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Laszlo Ersek <lersek@redhat.com>,
+        Marc Zyngier <marc.zyngier@arm.com>,
+        James Morse <james.morse@arm.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Marcelo Tosatti <mtosatti@redhat.com>,
+        Richard Henderson <rth@twiddle.net>,
+        Zheng Xiang <zhengxiang9@huawei.com>,
+        Eduardo Habkost <ehabkost@redhat.com>,
+        kvm-devel <kvm@vger.kernel.org>,
+        Shannon Zhao <shannon.zhaosl@gmail.com>,
+        QEMU Developers <qemu-devel@nongnu.org>,
+        qemu-arm <qemu-arm@nongnu.org>
+Content-Type: text/plain; charset="UTF-8"
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwDXvkq4J_RbQtNeAA--.1326S3
+Authentication-Results: mail-app4; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW7Kry5GF1fXF15Kw1xXrW8WFg_yoW8Aw1xpa
+	s3JFW5GF1rAryIywn7Jw4fuFyxWws5KFWUXr12vr1vvasxWr1ktr40kr4Yg3Z09ryjyF4f
+	tFWjgFsxGFs0vFDanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUBIb7Iv0xC_Cr1lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2
+	z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s0DM2AIxVAIcxkEcV
+	Aq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1j
+	6r18McIj6I8E87Iv67AKxVWxJVW8Jr1lOx8S6xCaFVCjc4AY6r1j6r4UMx02cVCv0xWlc7
+	CjxVAKzI0EY4vE52x082I5MxkFs20EY4vE44CYbxCE4x80FwCY02Avz4vEIxC_XrWlc2Ij
+	II80xcxEwVAKI48JMxvI42IY6xIIjxv20xvE14v26ryj6F1UMxvI42IY6xIIjxv20xvEc7
+	CjxVAFwI0_Gr0_Cr1lcIIF0xvEx4A2jsIE14v26rxl6s0DMxvI42IY6I8E87Iv6xkF7I0E
+	14v26rxl6s0DMxAIw28IcxkI7VAKI48JMxAIw28IcVAKzI0EY4vE52x082I5MxCjnVCjjx
+	CrMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxVCjr7xv
+	wVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVW8ZVWrXwCIc40Y0x0EwIxGrwCI42IY6xAIw2
+	0EY4v20xvaj40_Jr0_JF7vcSsGvfC2KfnxnUUI43ZEXa7IU5w2-UUUUUU==
+
+On 8 November 2018 at 10:29, Dongjiu Geng <gengdongjiu@huawei.com> wrote:
+> kvm_hwpoison_page_add() and kvm_unpoison_all() will be used both
+> by X86 and ARM platforms, so move these functions to a common
+> accel/kvm/ folder to avoid duplicate code.
+>
+> Signed-off-by: Dongjiu Geng <gengdongjiu@huawei.com>
+> ---
+> Address Peter's comments to move related hwpoison page function to
+> accel/kvm folder in [1]
+> Address Paolo's comments to move HWPoisonPage definition back to
+> accel/kvm/kvm-all.c
+>
+> [1]:
+> https://lists.gnu.org/archive/html/qemu-arm/2017-09/msg00077.html
+> https://lists.gnu.org/archive/html/qemu-arm/2017-09/msg00152.html
+> ---
+
+> --- a/include/exec/ram_addr.h
+> +++ b/include/exec/ram_addr.h
+> @@ -115,6 +115,11 @@ void qemu_ram_free(RAMBlock *block);
+>
+>  int qemu_ram_resize(RAMBlock *block, ram_addr_t newsize, Error **errp);
+>
+> +/* Add a poisoned page to the list */
+> +void kvm_hwpoison_page_add(ram_addr_t ram_addr);
+> +/* Free and remove all the poisoned pages in the list */
+> +void kvm_unpoison_all(void *param);
+> +
+
+In my previous review comments I said:
+>>> Any new globally-visible function prototype in a header should
+>>> have a doc-comment formatted documentation comment, please.
+>>
+>>
+>> Ok, thanks for this reminder. Do you mean I need to add comments
+>> for this globally-visible function, such as below:
+>>
+>> /*
+>>  * xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+>>  */
+>> void kvm_hwpoison_page_add(ram_addr_t ram_addr);
+>
+> It should be in the doc-comment format, which begins
+> "/**" and has some stylization of how you list parameters
+> and so on. Lots of examples in the existing headers.
+
+Can we have a doc-comment in the proper format and with a little
+more detail than a single line, please?
+
+thanks
+-- PMM

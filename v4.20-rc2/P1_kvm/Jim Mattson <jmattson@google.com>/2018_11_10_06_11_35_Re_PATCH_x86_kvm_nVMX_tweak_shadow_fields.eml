@@ -1,0 +1,244 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (61.164.42.155:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 10 Nov 2018 00:57:18 -0000
+Received: from icoremail.net (unknown [209.85.214.181])
+	by mail-app2 (Coremail) with SMTP id by_KCgDXv5otBuZbfLdqAQ--.32611S3;
+	Sat, 10 Nov 2018 06:11:58 +0800 (CST)
+Received: from mail-pl1-f181.google.com (unknown [209.85.214.181])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwDXsDwqBuZbBWUkAA--.6070S3;
+	Sat, 10 Nov 2018 06:11:54 +0800 (CST)
+Received: by mail-pl1-f181.google.com with SMTP id w24-v6so1536220plq.3
+        for <xuliker@zju.edu.cn>; Fri, 09 Nov 2018 14:11:54 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:delivered-to:dkim-signature:mime-version
+         :in-reply-to:references:from:date:message-id:subject:to:cc:sender
+         :precedence:list-id;
+        bh=cVJzDokP8G7rTZxK4K6d9MiLT0ljzEFm46DI5ADvF9o=;
+        b=AC4FleV09r5ivWKOmKsz/MYjeClqwXexTpMwb9CB0e+k7eH0qntK8n5p/3kI4OUipH
+         ImBu2926CTQEbYQoxNsSkqmkPzQ2WVzwkmrlgukDKRxcU7RjX4+cHVVwCtX+n+hoirzi
+         znPsPjuj7RaYRcTye9GsS6wpUvCcjVbpYnm89KHIfx1N8z0yO2TLDQM06Nk/Zobp6SX7
+         ytaprFE07/94XY9wT9gCauM7mn0o92kgd3hZey2Lm/UJLotyXOeIGEzJttogNmKALzBN
+         lruYKEyDsBjdTn+Tz4exDC5L2Uawn4O6+oKyt2toU+J/D1SeeMjrUkI2/qJUmtaxuU+e
+         zp5Q==
+X-Gm-Message-State: AGRZ1gIFBxf2vKhtc5ZMzNsf+cAcDQg8CKhxMhUsRpHMsPZO12GmY44G
+	E5ROheeUuLVwNHWOEUpaIwXf1qicFgih99oZT5LwBrgFd1Ba01iyPw==
+X-Received: by 2002:a17:902:b598:: with SMTP id a24-v6mr10611259pls.231.1541801514559;
+        Fri, 09 Nov 2018 14:11:54 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp447176pjt;
+        Fri, 9 Nov 2018 14:11:53 -0800 (PST)
+X-Google-Smtp-Source: AJdET5ebiKjCTGkBTRvZonuxFEvgcJB07wztudaHcE+bTZ+lLlynY3RexUYtgPqRkLASmXf+GTlT
+X-Received: by 2002:a62:5210:: with SMTP id g16-v6mr10686352pfb.256.1541801513755;
+        Fri, 09 Nov 2018 14:11:53 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1541801513; cv=none;
+        d=google.com; s=arc-20160816;
+        b=dsnejJB2NRPePdnpVnSL7PETuuEm4saqMyg13CZx2e5tmYKdcdShO5WrRvTg7aCv+4
+         uzJtIf739Pot5IVQPYgaL+wUdW4ee7SuwLPSu9Vlyo/vhjD86fYovXOmBBLw8yj1jgjz
+         xH3z/A83oKLuJN4GzIqNjDAvBl21BPTMk1LDmW26ATQcP9LjzcM1f5kPUEVmEeE1/9zC
+         IITvhxFuOfx7YdSByXRPWFSjXjddSR9lZdrJuiTwfYogLPv1oQ+YumCr9BKtZHr6187I
+         s0xH/TJVgOFm0MPTKOQun51eAkidLKa2yZPD07Y8WfK2yk2kVXy+zvQBrWFn40RiD+RA
+         Q//w==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:cc:to:subject:message-id:date:from
+         :references:in-reply-to:mime-version:dkim-signature;
+        bh=cVJzDokP8G7rTZxK4K6d9MiLT0ljzEFm46DI5ADvF9o=;
+        b=0DFZrRJVOjDl7DsQQihOn1Jprj49eDcdKLsgkMR/zLv02YGAYWP/C5kRmOkrv8jPOF
+         sWFwnvNQBh19g64YnM0rcVh/B/7o5mHrYlKTd25oJlnLr6cv7fAJVHPtPtrq9J1bFUWH
+         jY2ew+aAkVzCG796NdVIHFKDZGwG/Rte9Pa3CspTUSqdducIxbbCAsDkMhqT80oobMjH
+         SeUTC7EVB25MN+UGKSQh+s7lpES+uDvvW9aNFXRAz24Ms9cp4eNATei31tiBlrnpzthG
+         F2K/E77dj2dFWjKc9l3IqtE9xnlWuOZwI+nYnqLA6u/mGi7P5R4ohpUci/+2B0Fti4fn
+         0hCg==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@google.com header.s=20161025 header.b=qzAjDGEF;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;
+       dmarc=pass (p=REJECT sp=REJECT dis=NONE) header.from=google.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id w5-v6si7494571pgj.506.2018.11.09.14.11.40;
+        Fri, 09 Nov 2018 14:11:53 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1727181AbeKJHyJ (ORCPT <rfc822;fanshuming2011@gmail.com>
+        + 99 others); Sat, 10 Nov 2018 02:54:09 -0500
+Received: from mail-ot1-f66.google.com ([209.85.210.66]:45001 "EHLO
+        mail-ot1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726764AbeKJHyJ (ORCPT <rfc822;kvm@vger.kernel.org>);
+        Sat, 10 Nov 2018 02:54:09 -0500
+Received: by mail-ot1-f66.google.com with SMTP id z33so3011557otz.11
+        for <kvm@vger.kernel.org>; Fri, 09 Nov 2018 14:11:36 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=mime-version:in-reply-to:references:from:date:message-id:subject:to
+         :cc;
+        bh=cVJzDokP8G7rTZxK4K6d9MiLT0ljzEFm46DI5ADvF9o=;
+        b=qzAjDGEFHe3y7i2Dle17nRfs1V4Dir33ggKqNj9EIVUX0dmh46XLC/YjmpzKcBHNSh
+         0WV/bCnGZAx3m2q+RC8Eo4vbf/1W3khoFqE2TIfoB6cH3S+ATj/4fu+D42udouuJdFAL
+         zPxmThLnQQeaKoNnGTRcfTEtgeJRdge1O/rLANGj8rJGNJNLiSxZ8EnrPn74ZvRWi14z
+         P4yU+f4LaY3rNkNl+2YojC/UGm5FAUA+Zuh/AjWNHZDQ6UP25m1ywmFo67tZCjJ0xR9B
+         QIofQbo61CunjagZvj9cees7Cr10zscWzV7DqcKMNliRl/Lig9L2zD0GFZX20NJhmLAM
+         U9yQ==
+X-Received: by 2002:a9d:bee:: with SMTP id 101mr6697315oth.120.1541801495753;
+ Fri, 09 Nov 2018 14:11:35 -0800 (PST)
+MIME-Version: 1.0
+Received: by 2002:ac9:31a7:0:0:0:0:0 with HTTP; Fri, 9 Nov 2018 14:11:35 -0800 (PST)
+In-Reply-To: <31279dfd-d0a1-3720-46a2-52395a124057@redhat.com>
+References: <20181019141603.15995-1-vkuznets@redhat.com> <31279dfd-d0a1-3720-46a2-52395a124057@redhat.com>
+From: Jim Mattson <jmattson@google.com>
+Date: Fri, 9 Nov 2018 14:11:35 -0800
+Message-ID: <CALMp9eQ4493qH4sA4e5UibaHhatEKnztGNBO2s40jc2jXXCdUQ@mail.gmail.com>
+Subject: Re: [PATCH] x86/kvm/nVMX: tweak shadow fields
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Vitaly Kuznetsov <vkuznets@redhat.com>,
+        kvm list <kvm@vger.kernel.org>,
+        =?UTF-8?B?UmFkaW0gS3LEjW3DocWZ?= <rkrcmar@redhat.com>,
+        Liran Alon <liran.alon@oracle.com>,
+        LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwDXsDwqBuZbBWUkAA--.6070S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW3Xry8AFyxAw4fZrWfKFWfZrb_yoWxJF1Upa
+	y8uF1DKF9FqrZayr9rGF4qvrn09rWvvFZ7CrWUCF1Y9FWDt3ZrZayUXw1DZFy8Xrn5GF4x
+	XrW3Z347Zay5GaUanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUU0bIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUBSb7Iv0xC_Kw4lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2
+	z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s0DM2AIxVAIcxkEcV
+	Aq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1Y
+	6r17McIj6I8E87Iv67AKxVW8JVWxJwAm72CE4IkC6x0Yz7v_Jr0_Gr1l7I0Y6sxI4wCY1x
+	0264kExVAvwVAq07x20xylc7Ca8VAvwVCFzxkY4VCF77xAMxkIecxEwVCI4VW3MxkI7II2
+	jI8vz4vEwIxGrwCYIxAIcVC0I7IYx2IY67AKxVW5JVW7JwCYIxAIcVC0I7IYx2IY6xkF7I
+	0E14v26r4j6F4UMxvI42IY6I8E87Iv67AKxVW8Jr0_Cr1UMxvI42IY6I8E87Iv6xkF7I0E
+	14v26r4UJVWxJr1l42xK82IYc2Ij64vIr41l42xK82IY64kExVAvwVAq07x20xyl4x8a6x
+	804xWl4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x8G
+	jcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r126r1DMIIYrxkI7VAKI48JMIIF0xvE42
+	xK8VAvwI8IcIk0rVW8JVW3JbIYCTnIWIevJa73UjIFyTuYvjxUHoa0DUUUU
+
+I'm not convinced that the "one size fits all" and "context-free"
+approaches to VMCS shadowing are terribly effective.
+
+For example, we never shadow VMX_INSTRUCTION_INFO, but if we just
+reflected an exit to L1 for which that field is defined, there's
+probably a good chance that L1 will use it. We always shadow
+VM_EXIT_INTR_INFO, but if we didn't just reflect exit reason 0 to L1,
+it's not likely to be read. If the L2 guest is in legacy mode or
+compatibility mode, L1 is much more likely to be interested in the
+contents of the descriptor cache than if the guest is in 64-bit mode.
+
+Some hypervisors write TSC_OFFSET quite frequently. Others rarely.
+Last time I checked (it's been a while), VirtualBox was always
+interested in everything. :-) Kvm, Hyper-V, VMware, VirtualBox,
+Parallels...they all have different patterns, and they change from
+release to release.
+
+Is it worth having a set of VMCS shadowing bitmaps per-vCPU, in order
+to make better use of this feature?
+
+On Fri, Oct 19, 2018 at 9:45 AM, Paolo Bonzini <pbonzini@redhat.com> wrote:
+> On 19/10/2018 16:16, Vitaly Kuznetsov wrote:
+>> It seems we have some leftovers from times when 'unrestricted guest'
+>> wasn't exposed to L1. Stop shadowing GUEST_CS_{BASE,LIMIT,AR_SELECTOR}
+>> and GUEST_ES_BASE, shadow GUEST_SS_AR_BYTES as it was found that some
+>> hypervisors (e.g. Hyper-V without Enlightened VMCS) access it pretty
+>> often.
+>>
+>> Suggested-by: Paolo Bonzini <pbonzini@redhat.com>
+>> Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+>
+> Queued, thanks.
+>
+> Paolo
+>
+>> ---
+>>  arch/x86/kvm/vmx.c               | 10 +++++-----
+>>  arch/x86/kvm/vmx_shadow_fields.h |  5 +----
+>>  2 files changed, 6 insertions(+), 9 deletions(-)
+>>
+>> diff --git a/arch/x86/kvm/vmx.c b/arch/x86/kvm/vmx.c
+>> index abeeb45d1c33..641a65b30685 100644
+>> --- a/arch/x86/kvm/vmx.c
+>> +++ b/arch/x86/kvm/vmx.c
+>> @@ -12715,6 +12715,7 @@ static void prepare_vmcs02_full(struct vcpu_vmx *vmx, struct vmcs12 *vmcs12)
+>>       if (!hv_evmcs || !(hv_evmcs->hv_clean_fields &
+>>                          HV_VMX_ENLIGHTENED_CLEAN_FIELD_GUEST_GRP2)) {
+>>               vmcs_write16(GUEST_ES_SELECTOR, vmcs12->guest_es_selector);
+>> +             vmcs_write16(GUEST_CS_SELECTOR, vmcs12->guest_cs_selector);
+>>               vmcs_write16(GUEST_SS_SELECTOR, vmcs12->guest_ss_selector);
+>>               vmcs_write16(GUEST_DS_SELECTOR, vmcs12->guest_ds_selector);
+>>               vmcs_write16(GUEST_FS_SELECTOR, vmcs12->guest_fs_selector);
+>> @@ -12722,6 +12723,7 @@ static void prepare_vmcs02_full(struct vcpu_vmx *vmx, struct vmcs12 *vmcs12)
+>>               vmcs_write16(GUEST_LDTR_SELECTOR, vmcs12->guest_ldtr_selector);
+>>               vmcs_write16(GUEST_TR_SELECTOR, vmcs12->guest_tr_selector);
+>>               vmcs_write32(GUEST_ES_LIMIT, vmcs12->guest_es_limit);
+>> +             vmcs_write32(GUEST_CS_LIMIT, vmcs12->guest_cs_limit);
+>>               vmcs_write32(GUEST_SS_LIMIT, vmcs12->guest_ss_limit);
+>>               vmcs_write32(GUEST_DS_LIMIT, vmcs12->guest_ds_limit);
+>>               vmcs_write32(GUEST_FS_LIMIT, vmcs12->guest_fs_limit);
+>> @@ -12731,12 +12733,13 @@ static void prepare_vmcs02_full(struct vcpu_vmx *vmx, struct vmcs12 *vmcs12)
+>>               vmcs_write32(GUEST_GDTR_LIMIT, vmcs12->guest_gdtr_limit);
+>>               vmcs_write32(GUEST_IDTR_LIMIT, vmcs12->guest_idtr_limit);
+>>               vmcs_write32(GUEST_ES_AR_BYTES, vmcs12->guest_es_ar_bytes);
+>> -             vmcs_write32(GUEST_SS_AR_BYTES, vmcs12->guest_ss_ar_bytes);
+>>               vmcs_write32(GUEST_DS_AR_BYTES, vmcs12->guest_ds_ar_bytes);
+>>               vmcs_write32(GUEST_FS_AR_BYTES, vmcs12->guest_fs_ar_bytes);
+>>               vmcs_write32(GUEST_GS_AR_BYTES, vmcs12->guest_gs_ar_bytes);
+>>               vmcs_write32(GUEST_LDTR_AR_BYTES, vmcs12->guest_ldtr_ar_bytes);
+>>               vmcs_write32(GUEST_TR_AR_BYTES, vmcs12->guest_tr_ar_bytes);
+>> +             vmcs_writel(GUEST_ES_BASE, vmcs12->guest_es_base);
+>> +             vmcs_writel(GUEST_CS_BASE, vmcs12->guest_cs_base);
+>>               vmcs_writel(GUEST_SS_BASE, vmcs12->guest_ss_base);
+>>               vmcs_writel(GUEST_DS_BASE, vmcs12->guest_ds_base);
+>>               vmcs_writel(GUEST_FS_BASE, vmcs12->guest_fs_base);
+>> @@ -12838,11 +12841,8 @@ static int prepare_vmcs02(struct kvm_vcpu *vcpu, struct vmcs12 *vmcs12,
+>>        */
+>>       if (!hv_evmcs || !(hv_evmcs->hv_clean_fields &
+>>                          HV_VMX_ENLIGHTENED_CLEAN_FIELD_GUEST_GRP2)) {
+>> -             vmcs_write16(GUEST_CS_SELECTOR, vmcs12->guest_cs_selector);
+>> -             vmcs_write32(GUEST_CS_LIMIT, vmcs12->guest_cs_limit);
+>>               vmcs_write32(GUEST_CS_AR_BYTES, vmcs12->guest_cs_ar_bytes);
+>> -             vmcs_writel(GUEST_ES_BASE, vmcs12->guest_es_base);
+>> -             vmcs_writel(GUEST_CS_BASE, vmcs12->guest_cs_base);
+>> +             vmcs_write32(GUEST_SS_AR_BYTES, vmcs12->guest_ss_ar_bytes);
+>>       }
+>>
+>>       if (vmx->nested.nested_run_pending &&
+>> diff --git a/arch/x86/kvm/vmx_shadow_fields.h b/arch/x86/kvm/vmx_shadow_fields.h
+>> index cd0c75f6d037..132432f375c2 100644
+>> --- a/arch/x86/kvm/vmx_shadow_fields.h
+>> +++ b/arch/x86/kvm/vmx_shadow_fields.h
+>> @@ -28,7 +28,6 @@
+>>   */
+>>
+>>  /* 16-bits */
+>> -SHADOW_FIELD_RW(GUEST_CS_SELECTOR)
+>>  SHADOW_FIELD_RW(GUEST_INTR_STATUS)
+>>  SHADOW_FIELD_RW(GUEST_PML_INDEX)
+>>  SHADOW_FIELD_RW(HOST_FS_SELECTOR)
+>> @@ -47,8 +46,8 @@ SHADOW_FIELD_RW(VM_ENTRY_EXCEPTION_ERROR_CODE)
+>>  SHADOW_FIELD_RW(VM_ENTRY_INTR_INFO_FIELD)
+>>  SHADOW_FIELD_RW(VM_ENTRY_INSTRUCTION_LEN)
+>>  SHADOW_FIELD_RW(TPR_THRESHOLD)
+>> -SHADOW_FIELD_RW(GUEST_CS_LIMIT)
+>>  SHADOW_FIELD_RW(GUEST_CS_AR_BYTES)
+>> +SHADOW_FIELD_RW(GUEST_SS_AR_BYTES)
+>>  SHADOW_FIELD_RW(GUEST_INTERRUPTIBILITY_INFO)
+>>  SHADOW_FIELD_RW(VMX_PREEMPTION_TIMER_VALUE)
+>>
+>> @@ -61,8 +60,6 @@ SHADOW_FIELD_RW(GUEST_CR0)
+>>  SHADOW_FIELD_RW(GUEST_CR3)
+>>  SHADOW_FIELD_RW(GUEST_CR4)
+>>  SHADOW_FIELD_RW(GUEST_RFLAGS)
+>> -SHADOW_FIELD_RW(GUEST_CS_BASE)
+>> -SHADOW_FIELD_RW(GUEST_ES_BASE)
+>>  SHADOW_FIELD_RW(CR0_GUEST_HOST_MASK)
+>>  SHADOW_FIELD_RW(CR0_READ_SHADOW)
+>>  SHADOW_FIELD_RW(CR4_READ_SHADOW)
+>>
+>

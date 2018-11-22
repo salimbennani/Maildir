@@ -1,0 +1,159 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (61.164.42.155:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 10 Nov 2018 00:53:13 -0000
+Received: from icoremail.net (unknown [209.85.215.181])
+	by mail-app2 (Coremail) with SMTP id by_KCgDHH951k+VbbEZoAQ--.31457S3;
+	Fri, 09 Nov 2018 22:02:30 +0800 (CST)
+Received: from mail-pg1-f181.google.com (unknown [209.85.215.181])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwAX+URuk+VbkNwiAA--.4022S3;
+	Fri, 09 Nov 2018 22:02:22 +0800 (CST)
+Received: by mail-pg1-f181.google.com with SMTP id f8-v6so891202pgq.5
+        for <xuliker@zju.edu.cn>; Fri, 09 Nov 2018 06:02:22 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :from:to:cc:subject:date:message-id:sender:precedence:list-id;
+        bh=/jIp7X0nIORLPNBCS5oFW9+7yBKU0wQGStRXrF5Zepo=;
+        b=oUFBxqjErjrYoR1vadfKn9xDBC9DgSz4Jt6xFLZJGs7yw+UFjDpEHfcx6zLpN9m0q3
+         x+8ALhWy+wp8HjX/z288c+tppvSX3JLrItLFATjHwxXaNJnn385F62V/xW3J7Zue1f+S
+         tKv2ZoTfolaVpOVs6/NmxnomJreILwBAie5imoDDE2LHC3lU2HsKQuibyuxQQ2sqVZ9n
+         ioeIz/WyTbeDXuO2JoQ6//l6IxbiBW6xtL0GD3zD6dLpej/cyiblmXulaAM7PZx6sdrH
+         VB4w5g4sdhx1n0HqBJXGo6r4Ba7rSTNMNJt+iFIHJ/EpVU+z/r2rQeFQGhMPTTneC994
+         5kkg==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=redhat.com
+X-Gm-Message-State: AGRZ1gJPMsu3A5S6N7QJ76FPlPniyj8MdefYgh65qjS0N1ew4wbV5UnN
+	7Gy6jzCGA1hMcI032+uKMMwpE/Aogthort+jT4Iw/UClRxO3JTMjFA==
+X-Received: by 2002:a63:3c44:: with SMTP id i4mr7497325pgn.286.1541772142114;
+        Fri, 09 Nov 2018 06:02:22 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp234467pjt;
+        Fri, 9 Nov 2018 06:02:21 -0800 (PST)
+X-Google-Smtp-Source: AJdET5c7FrG5mpa6xkk/8zTvtQ6DnpAB4nMk3yiIT3mc+GMN7VIdcrMoGgHZbncG7hPy4XJwr4zD
+X-Received: by 2002:a62:4896:: with SMTP id q22-v6mr9193472pfi.248.1541772141118;
+        Fri, 09 Nov 2018 06:02:21 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1541772141; cv=none;
+        d=google.com; s=arc-20160816;
+        b=o9pryuGJQNlwAu+mkgat+AlmHNlHe36sQ0VQqBzpd/5B0pSmDKRP3Ug5TawThMfk8e
+         2j/9C6rVJM5AURWboNc/Qlt0k7EqlF8GiPUoGpZelvhClftdF7MY+gcli2WYnKV0T3o+
+         SvGBa2YR4QVxizslimGgk2ekQLI6zaq8GI+y41l81disIiMMG6ZT/7ZHllJeruwNsYEA
+         cvxPXMGiMhcyjnDDus9lv3WWLz3ONx86H1xMYaTwgmqsyf/wguxGHN/dmYRgXhvGfRak
+         59XuKJHSVYWqHK6gcfDlrRho/gyBZpTL60OYqpfOuL18Qj16mP38lc7/xUeSuXpdWoqQ
+         FlBg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:message-id:date:subject:cc:to:from;
+        bh=/jIp7X0nIORLPNBCS5oFW9+7yBKU0wQGStRXrF5Zepo=;
+        b=xYfZPM9feGfMhFnBj2Xq/zxXSatDr1PSpsyLV21m9iTNfZ50PSiuyX5cidT/VjEPr6
+         kszsWeEVhcvaBRH1dSArdTlcRvZehUUg541pa93DAgsRCRCyP+IAERIJyUPhoL3UcDWm
+         3/yCPof+PPXO4TZtOJR0gyZ7dkcuCXWeERGx64MseOPWkigyAXqRIAC7VFrlixtTW6IT
+         GBVoCb06Iq2hDj0+kvLU86EFEsVnIFFC6zQcAX9iEf5g2JPASjXqdqxyDBXIPyLb74Vp
+         AcjAYuRrrKCID7KG6EsA6hY6zkh8wmCfFufzrcLiMzWrRgmelGQaZDulyXmXyGq/1bSN
+         qc3g==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=redhat.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id h190-v6si8498991pfb.206.2018.11.09.06.00.55;
+        Fri, 09 Nov 2018 06:02:21 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1727806AbeKIXkf (ORCPT <rfc822;fanshuming2011@gmail.com>
+        + 99 others); Fri, 9 Nov 2018 18:40:35 -0500
+Received: from mx1.redhat.com ([209.132.183.28]:31132 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727735AbeKIXkf (ORCPT <rfc822;kvm@vger.kernel.org>);
+        Fri, 9 Nov 2018 18:40:35 -0500
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id CCC3D81F09;
+        Fri,  9 Nov 2018 13:59:51 +0000 (UTC)
+Received: from vitty.brq.redhat.com (unknown [10.43.2.9])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id C4C555D968;
+        Fri,  9 Nov 2018 13:59:50 +0000 (UTC)
+From: Vitaly Kuznetsov <vkuznets@redhat.com>
+To: kvm@vger.kernel.org
+Cc: Paolo Bonzini <pbonzini@redhat.com>,
+        Roman Kagan <rkagan@virtuozzo.com>
+Subject: [PATCH kvm-unit-tests] x86/hyperv: pass hv_vpindex cpu flag along with hv_synic
+Date: Fri,  9 Nov 2018 14:59:49 +0100
+Message-Id: <20181109135949.24182-1-vkuznets@redhat.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.27]); Fri, 09 Nov 2018 13:59:51 +0000 (UTC)
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwAX+URuk+VbkNwiAA--.4022S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW7Aw4ftr1rtr17Zw48GryDWrg_yoW8WFW7pw
+	n7CFy7Kw1fAr1ayanrZFWkGFyrCa1DAa93ua15trWjkr97ZFyUtF42grW2yr18Xw43AFya
+	vrsFvrW7Cw13u3DanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUPFb7Iv0xC_Zr1lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Xr0_Ar1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1l84ACjcxK6I8E
+	87Iv67AKxVW0oVCq3wA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_GcCE3s1le2I262IYc4CY6c
+	8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_Jr0_
+	Jr4lYx0Ex4A2jsIE14v26F4j6r4UJwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IY64vIr4
+	1l7I0Y6sxI4wCY1x0264kExVAvwVAq07x20xylc7Ca8VAvwVCFzxkY4VCF77xAMxkIecxE
+	wVCI4VW5XwCY0x0Ix7I2Y4AK64vIr41lcIIF0xvE2Ix0cI8IcVAFwI0_JFI_Gr1lcIIF0x
+	vE2Ix0cI8IcVCY1x0267AKxVWUJVW8JwCYIxAIcVC2z280aVAFwI0_GcCE3s1lcIIF0xvE
+	x4A2jsIEc7CjxVAFwI0_GcCE3s1l42xK82IYc2Ij64vIr41l42xK82IY64kExVAvwVAq07
+	x20xyl4x8a6x804xWl4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWU
+	GwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r126r1DMIIYrxkI7VAKI4
+	8JMIIF0xvE42xK8VAvwI8IcIk0rVWrJr0_WFyUJbIYCTnIWIevJa73UjIFyTuYvjxUDVWl
+	DUUUU
+
+Since Qemu commit 9b4cf107b09d ("hyperv: only add SynIC in compatible
+ configurations") hv_vpindex flag is mandatory if hv_synic is used:
+
+$ qemu-system-x86_64 -nodefaults -cpu kvm64,hv_time,hv_synic,hv_stimer  \
+     -device hyperv-testdev -device pc-testdev -device isa-debug-exit,  \
+     iobase=0xf4,iosize=0x4 -vnc none -serial stdio -device pci-testdev \
+     -machine accel=kvm -kernel x86/hyperv_stimer.flat
+
+Results in:
+
+Hyper-V SynIC (requested by 'hv-synic' cpu flag) requires Hyper-V VP_INDEX
+ ('hv-vpindex')
+qemu-system-x86_64: kvm_init_vcpu failed: Function not implemented
+
+Fix the configuration.
+
+Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+---
+ x86/unittests.cfg | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/x86/unittests.cfg b/x86/unittests.cfg
+index 3b21a85..c744a6d 100644
+--- a/x86/unittests.cfg
++++ b/x86/unittests.cfg
+@@ -620,19 +620,19 @@ arch = x86_64
+ [hyperv_synic]
+ file = hyperv_synic.flat
+ smp = 2
+-extra_params = -cpu kvm64,hv_synic -device hyperv-testdev
++extra_params = -cpu kvm64,hv_vpindex,hv_synic -device hyperv-testdev
+ groups = hyperv
+ 
+ [hyperv_connections]
+ file = hyperv_connections.flat
+ smp = 2
+-extra_params = -cpu kvm64,hv_synic -device hyperv-testdev
++extra_params = -cpu kvm64,hv_vpindex,hv_synic -device hyperv-testdev
+ groups = hyperv
+ 
+ [hyperv_stimer]
+ file = hyperv_stimer.flat
+ smp = 2
+-extra_params = -cpu kvm64,hv_time,hv_synic,hv_stimer -device hyperv-testdev
++extra_params = -cpu kvm64,hv_vpindex,hv_time,hv_synic,hv_stimer -device hyperv-testdev
+ groups = hyperv
+ 
+ [hyperv_clock]
+-- 
+2.17.2

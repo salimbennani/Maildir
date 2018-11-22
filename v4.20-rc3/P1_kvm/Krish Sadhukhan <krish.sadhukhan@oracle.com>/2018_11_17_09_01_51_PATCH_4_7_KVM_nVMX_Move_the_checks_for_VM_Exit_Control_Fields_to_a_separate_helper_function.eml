@@ -1,0 +1,201 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (61.164.42.155:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 17 Nov 2018 03:15:38 -0000
+Received: from icoremail.net (unknown [209.85.215.174])
+	by mail-app2 (Coremail) with SMTP id by_KCgCn3yRnbu9b4pimAQ--.50222S3;
+	Sat, 17 Nov 2018 09:27:04 +0800 (CST)
+Received: from mail-pg1-f174.google.com (unknown [209.85.215.174])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwB3VUFibu9bbMVLAA--.3310S3;
+	Sat, 17 Nov 2018 09:26:59 +0800 (CST)
+Received: by mail-pg1-f174.google.com with SMTP id y4so11318502pgc.12
+        for <xuliker@zju.edu.cn>; Fri, 16 Nov 2018 17:26:59 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:delivered-to:dkim-signature:from:to:cc:subject
+         :date:message-id:in-reply-to:references:sender:precedence:list-id;
+        bh=g0yNnwC3HEyP3AHw4p7BVIKE25y4DXVH5iCW4q7wfOE=;
+        b=LrNajzLZlTeNnQSPTlXM0cw+7ZwlcRZiwhB6Lvdh2ZUeOg6r+S6kBwYUYNKmghDgw8
+         591EAjzPsEQBtDgidfcVxPzZOgxlBRIDkSmuhFdxtPpyt+diXldq/32vbEqoaIsdB1lG
+         oDTST+IlUHrdTfGRo3hQSWBsN7YFUpjNNYLEqs6HlVr3t4th6SUvr++iZdqu5wbm2ziT
+         pRAGSVxxlCsgZ2crTtyCliKlHDi4QFGIDed1euaydiJDPjhrL41gMrAJ9qS/k1KoFvr0
+         YIA/USy25WOMqgzZBoJrZ8YbuMZPwwNd5hPEfunJ7ySTqKcxEt2OIigdLdz14vX0qWtB
+         KSeg==
+X-Gm-Message-State: AGRZ1gLrhXslhKi2f5MTHz6A0YtYYbosQKTxlO2SeD8BXdnUElE9mLmv
+	P1rcxaaFDxo3loI+VrXAWgxSj3n1pgVc9nrxr/KY7F+oR+l+Wts=
+X-Received: by 2002:a63:bc02:: with SMTP id q2mr12182290pge.116.1542418018720;
+        Fri, 16 Nov 2018 17:26:58 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:d106:0:0:0:0 with SMTP id l6-v6csp22301pju;
+        Fri, 16 Nov 2018 17:26:57 -0800 (PST)
+X-Google-Smtp-Source: AJdET5fUfrjuEupngrsAR9wU8fkOraYTsEXi10+kNm9NmJ+zfWDIQzi/kibRowtzscgeqdH44tW0
+X-Received: by 2002:a17:902:4165:: with SMTP id e92-v6mr13310648pld.209.1542418017772;
+        Fri, 16 Nov 2018 17:26:57 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542418017; cv=none;
+        d=google.com; s=arc-20160816;
+        b=0CI1PlEyNFEC53WjlJyC3jU5wmc5Pj26ok+y+LarQ6OllMJ6tpDWaBjWxPeZCm8f4f
+         cy2SGS8+GbaRX4LPTRFENh7jXqXvpO/3axCBhIEQAKv6JBplyCivuy/0jrw3Wkm4MalJ
+         wWBMcidIGnwM5A8I42byGgEgOZeup+YaBEghC4te8dAJKz2XFczXv3foJ1+lxcdDEzHQ
+         lSkQJeSMDZF8iN1oBjW/RhcYYlSxC9goI0t0UYZkF51UAo6WKWDhqs59bMiUz7NcYjkT
+         8MRlTveREozvumyTSLp83fJVVoN4Qb+hoj44d8nmiUDLlEBB7moVJvL+tAWOnM6br5lK
+         +mfw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:references:in-reply-to:message-id:date
+         :subject:cc:to:from:dkim-signature;
+        bh=g0yNnwC3HEyP3AHw4p7BVIKE25y4DXVH5iCW4q7wfOE=;
+        b=MwgdBLnKF09TVaz59SE++hF4ReoXkylLxUFkHB/boNIjnwPumA7PqaiXh9QbbexhoU
+         UuU9bi2sLYArtnTP1yvLB382Zm1aGqiKP6y6UL907n4+gQGDzl10Pe8VazuBG23m7JV4
+         MXF9qoj5Zb1D3FwHH8TsUirh0q6C7cZdJUH/8b1DSEN3Xh5Ai1hrBXi+oOiiq7WGJ/8I
+         dt3OnYeGS72wMKQFWBS1/qxwrT4KPdZYFl6nDqiDXtZZhLm5HuPwnBQzXrhEQJVX5Iuj
+         5IOysDMccYIbpzmwE5xMTPNYuZjgkBlmmmY/XGIoLgav7l/hmxHAD55Et8ExkKCi1SpF
+         YUsw==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@oracle.com header.s=corp-2018-07-02 header.b=H3PRPUNY;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;
+       dmarc=pass (p=NONE sp=NONE dis=NONE) header.from=oracle.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id o186-v6si36749099pfo.236.2018.11.16.17.26.22;
+        Fri, 16 Nov 2018 17:26:57 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1729820AbeKQLk5 (ORCPT <rfc822;nodee764@gmail.com> + 99 others);
+        Sat, 17 Nov 2018 06:40:57 -0500
+Received: from userp2130.oracle.com ([156.151.31.86]:48516 "EHLO
+        userp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727116AbeKQLk5 (ORCPT <rfc822;kvm@vger.kernel.org>);
+        Sat, 17 Nov 2018 06:40:57 -0500
+Received: from pps.filterd (userp2130.oracle.com [127.0.0.1])
+        by userp2130.oracle.com (8.16.0.22/8.16.0.22) with SMTP id wAH1Oimv169831;
+        Sat, 17 Nov 2018 01:26:07 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
+ subject : date : message-id : in-reply-to : references; s=corp-2018-07-02;
+ bh=g0yNnwC3HEyP3AHw4p7BVIKE25y4DXVH5iCW4q7wfOE=;
+ b=H3PRPUNYlBlKde8Qadw7z9BwmPuGICB24cDgTMFV4M/y5QxviZJSULkRj5WcYgPNDjHB
+ TKzcs9O+Vx60xXmeGsBfuZGIxUZ+7ZVwSHIj4xVV8MQFS5fB3y/ipexykgnl1xA8OaW2
+ xLSrJYS9b7hgy6wRnnZhuXFv6QV8jTBFllcjCrDqin0YZmX2vsKadGNM8A8qrYORyDHr
+ ctp5TIVQyYn8SMixqW/3aPe63k7ajv/QTg1wkLKHK7SCtq6cC2INsZwwAr7ZDtp/rMJx
+ /vVKDSflEjDf3hEH06Zf6/OWLyG+j2U6w5zcmNdBWV4eW35AARjd+RhJYPdwSaK16/7E pA== 
+Received: from userv0022.oracle.com (userv0022.oracle.com [156.151.31.74])
+        by userp2130.oracle.com with ESMTP id 2nr7cshwna-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Sat, 17 Nov 2018 01:26:07 +0000
+Received: from userv0121.oracle.com (userv0121.oracle.com [156.151.31.72])
+        by userv0022.oracle.com (8.14.4/8.14.4) with ESMTP id wAH1Q7XB026053
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Sat, 17 Nov 2018 01:26:07 GMT
+Received: from abhmp0013.oracle.com (abhmp0013.oracle.com [141.146.116.19])
+        by userv0121.oracle.com (8.14.4/8.13.8) with ESMTP id wAH1Q7Of017391;
+        Sat, 17 Nov 2018 01:26:07 GMT
+Received: from ban25x6uut29.us.oracle.com (/10.153.73.29)
+        by default (Oracle Beehive Gateway v4.0)
+        with ESMTP ; Fri, 16 Nov 2018 17:26:06 -0800
+From: Krish Sadhukhan <krish.sadhukhan@oracle.com>
+To: kvm@vger.kernel.org
+Cc: pbonzini@redhat.com, jmattson@google.com, rkrcmar@redhat.com
+Subject: [PATCH 4/7] KVM: nVMX: Move the checks for VM-Exit Control Fields to a separate helper function
+Date: Fri, 16 Nov 2018 20:01:51 -0500
+Message-Id: <20181117010154.10629-5-krish.sadhukhan@oracle.com>
+X-Mailer: git-send-email 2.9.5
+In-Reply-To: <20181117010154.10629-1-krish.sadhukhan@oracle.com>
+References: <20181117010154.10629-1-krish.sadhukhan@oracle.com>
+X-Proofpoint-Virus-Version: vendor=nai engine=5900 definitions=9079 signatures=668683
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=1 malwarescore=0
+ phishscore=0 bulkscore=0 spamscore=0 mlxscore=0 mlxlogscore=947
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.0.1-1810050000 definitions=main-1811170010
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwB3VUFibu9bbMVLAA--.3310S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW7Cry5uFWftr1rGw4rKF1xZrb_yoW5JF1xp3
+	yxWwn0qFWUt3y3uw1xKrn8CFWSvrykuF9xJrW0gF4Fq3sFka45JryxtryxtFWUKrZYgw1f
+	ZFW8tr4xu3WUAFJanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUPvb7Iv0xC_tr1lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2
+	z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s0DM2AIxVAIcxkEcV
+	Aq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1j
+	6r18McIj6I8E87Iv67AKxVW8JVWxJwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IYc2Ij64
+	vIr41l7I0Y6sxI4wCY1x0264kExVAvwVAq07x20xylc7Ca8VAvwVCFzxkY4VCF77xAMxkI
+	ecxEwVCI4VWkMxkI7II2jI8vz4vEwIxGrwCYIxAIcVC0I7IYx2IY67AKxVWUJVWUCwCYIx
+	AIcVC0I7IYx2IY6xkF7I0E14v26r1j6r4UMxvI42IY6I8E87Iv67AKxVW8Jr0_Cr1UMxvI
+	42IY6I8E87Iv6xkF7I0E14v26r4UJVWxJr1l42xK82IYc2Ij64vIr41l42xK82IY64kExV
+	AvwVAq07x20xyl4x8a6x804xWl4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AK
+	xVWUJVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r126r1DMIIYrx
+	kI7VAKI48JMIIF0xvE42xK8VAvwI8IcIk0rVWrJr0_WFyUJbIYCTnIWIevJa73UjIFyTuY
+	vjxUg7KsUUUUU
+
+.. to improve readability and maintainability, and to align the code as per
+the layout of the checks in chapter "VM Entries" in Intel SDM vol 3C.
+
+Signed-off-by: Krish Sadhukhan <krish.sadhukhan@oracle.com>
+Reviewed-by: Mihai Carabas <mihai.carabas@oracle.com>
+Reviewed-by: Mark Kanda <mark.kanda@oracle.com>
+---
+ arch/x86/kvm/vmx.c | 28 ++++++++++++++++++++++++----
+ 1 file changed, 24 insertions(+), 4 deletions(-)
+
+diff --git a/arch/x86/kvm/vmx.c b/arch/x86/kvm/vmx.c
+index 26b05d7..c015dff 100644
+--- a/arch/x86/kvm/vmx.c
++++ b/arch/x86/kvm/vmx.c
+@@ -11740,14 +11740,21 @@ static int nested_vmx_check_msr_switch(struct kvm_vcpu *vcpu,
+ 	return 0;
+ }
+ 
+-static int nested_vmx_check_msr_switch_controls(struct kvm_vcpu *vcpu,
++static int nested_vmx_check_exit_msr_switch_controls(struct kvm_vcpu *vcpu,
+ 						struct vmcs12 *vmcs12)
+ {
+ 	if (nested_vmx_check_msr_switch(vcpu, vmcs12->vm_exit_msr_load_count,
+ 					vmcs12->vm_exit_msr_load_addr) ||
+ 	    nested_vmx_check_msr_switch(vcpu, vmcs12->vm_exit_msr_store_count,
+-					vmcs12->vm_exit_msr_store_addr) ||
+-	    nested_vmx_check_msr_switch(vcpu, vmcs12->vm_entry_msr_load_count,
++					vmcs12->vm_exit_msr_store_addr))
++		return -EINVAL;
++	return 0;
++}
++
++static int nested_vmx_check_msr_switch_controls(struct kvm_vcpu *vcpu,
++						struct vmcs12 *vmcs12)
++{
++	if (nested_vmx_check_msr_switch(vcpu, vmcs12->vm_entry_msr_load_count,
+ 					vmcs12->vm_entry_msr_load_addr))
+ 		return -EINVAL;
+ 
+@@ -12418,13 +12425,26 @@ static int nested_check_vm_execution_controls(struct kvm_vcpu *vcpu,
+ 	return 0;
+ }
+ 
++/*
++ * Checks related to VM-Exit Control Fields
++ */
++static int nested_check_vm_exit_controls(struct kvm_vcpu *vcpu,
++					 struct vmcs12 *vmcs12)
++{
++	if (nested_vmx_check_exit_msr_switch_controls(vcpu, vmcs12))
++		return -EINVAL;
++
++	return 0;
++}
++
+ static int nested_check_vmentry_prereqs(struct kvm_vcpu *vcpu, struct vmcs12 *vmcs12)
+ {
+ 	if (vmcs12->guest_activity_state != GUEST_ACTIVITY_ACTIVE &&
+ 	    vmcs12->guest_activity_state != GUEST_ACTIVITY_HLT)
+ 		return VMXERR_ENTRY_INVALID_CONTROL_FIELD;
+ 
+-	if (nested_check_vm_execution_controls(vcpu, vmcs12))
++	if (nested_check_vm_execution_controls(vcpu, vmcs12) ||
++	    nested_check_vm_exit_controls(vcpu, vmcs12))
+ 		return VMXERR_ENTRY_INVALID_CONTROL_FIELD;
+ 
+ 	if (nested_vmx_check_msr_switch_controls(vcpu, vmcs12))
+-- 
+2.9.5

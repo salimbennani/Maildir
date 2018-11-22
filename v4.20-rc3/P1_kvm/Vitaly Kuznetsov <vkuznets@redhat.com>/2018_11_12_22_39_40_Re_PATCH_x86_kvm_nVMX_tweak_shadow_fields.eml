@@ -1,0 +1,151 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (61.164.42.155:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 12 Nov 2018 15:16:50 -0000
+Received: from icoremail.net (unknown [209.85.215.172])
+	by mail-app2 (Coremail) with SMTP id by_KCgDXvwrFkOlboj9+AQ--.38179S3;
+	Mon, 12 Nov 2018 22:40:06 +0800 (CST)
+Received: from mail-pg1-f172.google.com (unknown [209.85.215.172])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwCXfkrEkOlbBTMyAA--.2811S3;
+	Mon, 12 Nov 2018 22:40:04 +0800 (CST)
+Received: by mail-pg1-f172.google.com with SMTP id f8-v6so4163180pgq.5
+        for <xuliker@zju.edu.cn>; Mon, 12 Nov 2018 06:40:04 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :from:to:cc:subject:in-reply-to:references:date:message-id
+         :mime-version:sender:precedence:list-id;
+        bh=gocOSikIKWympMOSCc8HktmkEkLiE/tmEXvgUtBJ4go=;
+        b=fm5IQ7uTji8dnTAWH4jVqgF8n8CA+toxZPsQzE6b48ftQBjbxhogmyKkTgdItRX92r
+         mQpBMWXxNYyMTPNgOJiXtdeSTP4FKEIKvrq+cHxXRc7gJm0X3U7vKuaxSKdqQslxLG4w
+         CARP/T4jpRIq5j9I4Gi8ImTcTM4xFNrq0d6QpHcDiXYiLrHaJ8SUzgU2L08sWGxYYGC2
+         mRqLB+WpIf9+Y1yLeOK5aaZP3VSvTpOSIAUHxiUwckRW2Sdh0DHIbkzGskclI7/7ZFCw
+         hGQ2nuy+Yf7FzgRMNLQwaYwZTU9vCyBgtjEU1Wei5vimW50nYZ7K1FeB1FPXH68rEXgJ
+         +VhQ==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=redhat.com
+X-Gm-Message-State: AGRZ1gKWYc74phmCkT9ASvTeKi+JKVokv5zSVTzOacli0Hm5+MxCvu5O
+	ymSFOTEd6VlnxYD2GnoUakwUXBJhG2SSRr13eFHO2BPq+q/+ZF3G2A==
+X-Received: by 2002:a63:2c0e:: with SMTP id s14mr1077837pgs.132.1542033603814;
+        Mon, 12 Nov 2018 06:40:03 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp3268061pjt;
+        Mon, 12 Nov 2018 06:40:02 -0800 (PST)
+X-Google-Smtp-Source: AJdET5ex1IDp+4Rb52H9Av0AP0GQh/O9Xa4ywrBZxNGv03w5MLpZfZf4bwqf/SryYnrX+FOPGixU
+X-Received: by 2002:a62:1e42:: with SMTP id e63-v6mr1137493pfe.149.1542033602800;
+        Mon, 12 Nov 2018 06:40:02 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542033602; cv=none;
+        d=google.com; s=arc-20160816;
+        b=DbfS8Z7oaLXZaBIfQzzPjM6TydqeGA9tr2veyJZPHItMijzAUBz25YSgfmNd0Mupyc
+         LeFbkAkJS1S4S8RyvEZbGQEqNWszVfaxd2MbVMPabj6r93/yzVddfxcez6J7hm8j9bCc
+         ISQNji7w6DEMnBSbPDw8DMCEhBiMMncQhONyf28nd0SKmuMn9Lud7FxS9cb9Llp2dalc
+         fcypnNEbAkHWXLU2t/+vqusLiOJvz1BK9NB/tCf5at2NeJtjKnWZjXL7lz6GoP4HeOgl
+         sC4niTynGsoMPjrSfLvyt1SVFKH9PtZE/s7QEp3DEwoTna7yjjO28vPWzXnbgajcqMUu
+         VCHw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:mime-version:message-id:date:references
+         :in-reply-to:subject:cc:to:from;
+        bh=gocOSikIKWympMOSCc8HktmkEkLiE/tmEXvgUtBJ4go=;
+        b=J5trYYMHclfDHDP41D+EMBuTV/15Z8OW678FjvS7wJD9pTeOyQN9u2DrP2KElOzSNb
+         Lx4sxuOBSakGEkik0keqdsvxTsq0gAe73HIhLG4cB2w9Fo8fqv+K1rbCKD0DLibDkFnf
+         wcABJM+O1GP5ekfKowQm0pjs4NdNrRAOZgQlyuvtjB17soHqc0TOWfQYZC5CU9HQlLz5
+         rUH4GaH9H3KpbFF6R/5+bvJPKdwA79HUTsUvD0vLXeGWRRWOC6BrEveMLqMTq4hTvtK0
+         X9ETTgLXevwSXXTaOj6cZTdY2V58Qc7VwELIK95QyLQLoe7IueNEsE+Pc9p3zYGsJVqj
+         k3GA==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=redhat.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id 1-v6si19076296plq.243.2018.11.12.06.39.47;
+        Mon, 12 Nov 2018 06:40:02 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1727208AbeKMAdQ (ORCPT <rfc822;fanshuming2011@gmail.com>
+        + 99 others); Mon, 12 Nov 2018 19:33:16 -0500
+Received: from mx1.redhat.com ([209.132.183.28]:37175 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727030AbeKMAdP (ORCPT <rfc822;kvm@vger.kernel.org>);
+        Mon, 12 Nov 2018 19:33:15 -0500
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 13B8CC0C0562;
+        Mon, 12 Nov 2018 14:39:43 +0000 (UTC)
+Received: from vitty.brq.redhat.com.redhat.com (unknown [10.43.2.155])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id AD60D1019632;
+        Mon, 12 Nov 2018 14:39:41 +0000 (UTC)
+From: Vitaly Kuznetsov <vkuznets@redhat.com>
+To: Jim Mattson <jmattson@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Cc: kvm list <kvm@vger.kernel.org>,
+        Radim =?utf-8?B?S3LEjW3DocWZ?= <rkrcmar@redhat.com>,
+        Liran Alon <liran.alon@oracle.com>,
+        LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] x86/kvm/nVMX: tweak shadow fields
+In-Reply-To: <CALMp9eQ4493qH4sA4e5UibaHhatEKnztGNBO2s40jc2jXXCdUQ@mail.gmail.com>
+References: <20181019141603.15995-1-vkuznets@redhat.com> <31279dfd-d0a1-3720-46a2-52395a124057@redhat.com> <CALMp9eQ4493qH4sA4e5UibaHhatEKnztGNBO2s40jc2jXXCdUQ@mail.gmail.com>
+Date: Mon, 12 Nov 2018 15:39:40 +0100
+Message-ID: <87pnvas6kz.fsf@vitty.brq.redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.32]); Mon, 12 Nov 2018 14:39:43 +0000 (UTC)
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwCXfkrEkOlbBTMyAA--.2811S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW7Ary5tFy7KF4DZFWDWrW3Jrb_yoW8Wr4kpF
+	WjgF97Kr1vqr9avFy8GF1xWFy0qws7tw13JFyYgr4xuw1DJF1xZFy2gF4FyF9agrs2kr4Y
+	qr4Fvas0va4DZaDanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUU0bIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUPYb7Iv0xC_Kw4lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2
+	z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s0DM2AIxVAIcxkEcV
+	Aq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r10
+	6r15McIj6I8E87Iv67AKxVWxJVW8Jr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcVAKI4
+	8JMx02cVCv0xWlc7CjxVAKzI0EY4vE52x082I5MxkFs20EY4vE44CYbxCE4x80FwCY02Av
+	z4vEIxC_Xrylc2IjII80xcxEwVAKI48JMxvI42IY6xIIjxv20xvE14v26r4j6ryUMxvI42
+	IY6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1lcIIF0xvEx4A2jsIE14v26rxl6s0DMxvI42IY
+	6I8E87Iv6xkF7I0E14v26rxl6s0DMxAIw28IcxkI7VAKI48JMxAIw28IcVAKzI0EY4vE52
+	x082I5MxCjnVCjjxCrMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr0_
+	Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWUAVWUtwCIc40Y0x0EwI
+	xGrwCI42IY6xAIw20EY4v20xvaj40_Zr0_Wr1UYxBIdaVFxhVjvjDU0xZFpf9x07bysqZU
+	UUUU=
+
+Jim Mattson <jmattson@google.com> writes:
+
+> I'm not convinced that the "one size fits all" and "context-free"
+> approaches to VMCS shadowing are terribly effective.
+>
+> For example, we never shadow VMX_INSTRUCTION_INFO, but if we just
+> reflected an exit to L1 for which that field is defined, there's
+> probably a good chance that L1 will use it. We always shadow
+> VM_EXIT_INTR_INFO, but if we didn't just reflect exit reason 0 to L1,
+> it's not likely to be read. If the L2 guest is in legacy mode or
+> compatibility mode, L1 is much more likely to be interested in the
+> contents of the descriptor cache than if the guest is in 64-bit mode.
+>
+> Some hypervisors write TSC_OFFSET quite frequently. Others rarely.
+> Last time I checked (it's been a while), VirtualBox was always
+> interested in everything. :-) Kvm, Hyper-V, VMware, VirtualBox,
+> Parallels...they all have different patterns, and they change from
+> release to release.
+>
+> Is it worth having a set of VMCS shadowing bitmaps per-vCPU, in order
+> to make better use of this feature?
+
+Per CPU or not, to improve the feature we'll probably need some sort of
+an 'adaptive' algorithm picking which fields to shadow. I haven't
+thought this through, especially read/write shadowing, but we can
+probably start with an empty bitmap and later shadow it when we get over
+some threshold of vmread/vmwrite exits we enabling shadowing. The
+question is when we un-shadow it. For example, we can un-shadow a field
+for writing every time we see it was not changed between two exits to L0
+(so we're trying to write the same value to vmcs12).
+
+-- 
+Vitaly

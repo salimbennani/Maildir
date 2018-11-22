@@ -1,0 +1,187 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (61.164.42.155:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 10 Nov 2018 00:56:09 -0000
+Received: from icoremail.net (unknown [209.85.214.174])
+	by mail-app2 (Coremail) with SMTP id by_KCgDHH_pm3eVbx99pAQ--.32353S3;
+	Sat, 10 Nov 2018 03:17:59 +0800 (CST)
+Received: from mail-pl1-f174.google.com (unknown [209.85.214.174])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwAH5UBj3eVbHNkjAA--.1418S3;
+	Sat, 10 Nov 2018 03:17:55 +0800 (CST)
+Received: by mail-pl1-f174.google.com with SMTP id q19-v6so1353155pll.7
+        for <xuliker@zju.edu.cn>; Fri, 09 Nov 2018 11:17:55 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:delivered-to:dkim-signature:mime-version:subject
+         :from:in-reply-to:date:cc:content-transfer-encoding:message-id
+         :references:to:sender:precedence:list-id;
+        bh=8ygsmHrPVrMtkIKxr655pkHx3q6WUP4dCc12XOQH9vQ=;
+        b=oYFuxySgFjARxrnf31z0I8GgU+cUXVMaY363f7l6ojPGxK4jLk2am6m+LQpOYQxg4H
+         VX9NaHnW2rCK9HbiSBle+LUWkuRVKsg0ydEDxsDhq9HwXb1VnTd4TolbAUeGkhFSLX5K
+         JRi9ePO40+crQJ43rIDRus0VgAq06aBGvI1DNr/+T+R5Q157clMx+RKm+zVedpGKcgox
+         c3zH8h56ABD/7hAQf35wQSk9QCw1GKWYc7d8YHfMtTYe4cSZJ3CehrToMg1ECy8DaPb3
+         kEcDtyxcV0i9cjmCju+0B+gWN2f3p3CWs0A1QGzUHHnrbUE5X9C3xI+jq/FXFg5flISr
+         BnHQ==
+X-Gm-Message-State: AGRZ1gIpf787ygKncoDBVjXIWPR/ZRP2g+GGSegBMHr8fWlcE6LXKipC
+	43IjSKP+E2seDQ6SI7ggknQAAtMZ9rRvc6Lr6Gqwu2jBHvqdHlNlZw==
+X-Received: by 2002:a17:902:8e81:: with SMTP id bg1-v6mr10059603plb.192.1541791075132;
+        Fri, 09 Nov 2018 11:17:55 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp279840pjt;
+        Fri, 9 Nov 2018 11:17:54 -0800 (PST)
+X-Google-Smtp-Source: AJdET5fq0Jna5FsGn2CNpUQ6jO0vTpMuUvLK6fk7eiJ+CnB77RDilbnqIzGnA47zCgwOpmovDeyM
+X-Received: by 2002:a63:cb4a:: with SMTP id m10mr8278770pgi.105.1541791074482;
+        Fri, 09 Nov 2018 11:17:54 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1541791074; cv=none;
+        d=google.com; s=arc-20160816;
+        b=K7bBIw4Toc4KtNLEMV5MG+rH7+zyRfTFar6/a5URC1FySHVEXoE7qOHeEiQVv86d1X
+         VCQbFtjaZny6auPoTWjdPj9Ils25/lLSVALe5HS7Ci7Y9OsoXCaX9HNI+EgjsUIV68FS
+         sV5nwP8oLyTLkASerKj6vZN3n6yLRalTDWG7gOmxAw5MPXRcjVFGDHAXsvik/F+2Ja4a
+         OwDHh+8UUWEUBDAtJF6OYfVLAYp5bOjb+fyRSBZLt+heXSgvXRNvjwDXJcrNWNB4hR6h
+         YenXo8rI/xQemKvD9wdob/spGn+tyYzKPiUgM0+GoeqBRsa3Gq1KNbq21GPlCxlq7v7m
+         CP6Q==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:to:references:message-id
+         :content-transfer-encoding:cc:date:in-reply-to:from:subject
+         :mime-version:dkim-signature;
+        bh=8ygsmHrPVrMtkIKxr655pkHx3q6WUP4dCc12XOQH9vQ=;
+        b=iGpwE4Ol5v4BA4yPaz+0teqjV1UPfSakOz1EL2Afm7JKdASmcivcl1qDJ912lQ/5en
+         ZB9bsOZb9BDrNKMFpVibzdqL84BJrfPx4WEXlgNzlby1C6SqF0o1tla29bKLp0D2uXWl
+         3BIThiZnRQF/DLutl5YKQwTxqusdbG1vO+j0RHBU/Y+AvxX4Y6v8BpjUgfi9qN7CDkTv
+         giY/kbxMEJ3avHzKFmZvw2SwTrz8aO9vhOFjDViEvNWExSQycXCiCn5bcU1T0wFqMT9u
+         WWrwOJbJt++c12wgm8s564nNwbj/8LOCEgb4jqUOgmW+9Xtgb29MPovV+ZQtTOyYXAlD
+         wiBA==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@oracle.com header.s=corp-2018-07-02 header.b=ThCxv8o7;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;
+       dmarc=pass (p=NONE sp=NONE dis=NONE) header.from=oracle.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id t11-v6si8570327plq.280.2018.11.09.11.17.39;
+        Fri, 09 Nov 2018 11:17:54 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1728492AbeKJE5m (ORCPT <rfc822;fanshuming2011@gmail.com>
+        + 99 others); Fri, 9 Nov 2018 23:57:42 -0500
+Received: from userp2120.oracle.com ([156.151.31.85]:54284 "EHLO
+        userp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727961AbeKJE5l (ORCPT <rfc822;kvm@vger.kernel.org>);
+        Fri, 9 Nov 2018 23:57:41 -0500
+Received: from pps.filterd (userp2120.oracle.com [127.0.0.1])
+        by userp2120.oracle.com (8.16.0.22/8.16.0.22) with SMTP id wA9JEYC1188460;
+        Fri, 9 Nov 2018 19:15:43 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=content-type :
+ mime-version : subject : from : in-reply-to : date : cc :
+ content-transfer-encoding : message-id : references : to;
+ s=corp-2018-07-02; bh=8ygsmHrPVrMtkIKxr655pkHx3q6WUP4dCc12XOQH9vQ=;
+ b=ThCxv8o7tJkGFzv3IKkQSnznklzmeAmkqPlVwc6sCYuznDwlbcpeuJFvqhB/Lgk0rWMi
+ xEN+3ltSgOnFHHVxiruc5o8THDMQqv0kXxnVTMUYkL/85svqNKZJJ4IpGkni0IGPcxlN
+ qyRnuTQ+FJtLwHvGShe8QrEfqXItRhfr6jZz67/WcMiGHj4HnZ/xAbIzGEeBL2ZrQB8T
+ Wv4MlmJvQX7Cj3sE0fiaPPEi+pjVcMcz9iO2ZFJy8+sBW4cky/i3ZmPBrbqNqson0tAI
+ Ce2F6/sLtJ6HnDYF54ly2teanu8h/KSKmB8VeofNIdD+M8yKMQdY36VJ/5XQ/t5QSatS nA== 
+Received: from userv0021.oracle.com (userv0021.oracle.com [156.151.31.71])
+        by userp2120.oracle.com with ESMTP id 2nh4ar8q4x-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 09 Nov 2018 19:15:43 +0000
+Received: from userv0122.oracle.com (userv0122.oracle.com [156.151.31.75])
+        by userv0021.oracle.com (8.14.4/8.14.4) with ESMTP id wA9JFg9h023140
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 9 Nov 2018 19:15:43 GMT
+Received: from abhmp0009.oracle.com (abhmp0009.oracle.com [141.146.116.15])
+        by userv0122.oracle.com (8.14.4/8.14.4) with ESMTP id wA9JFguF027106;
+        Fri, 9 Nov 2018 19:15:42 GMT
+Received: from [192.168.14.112] (/79.178.245.51)
+        by default (Oracle Beehive Gateway v4.0)
+        with ESMTP ; Fri, 09 Nov 2018 11:15:42 -0800
+Content-Type: text/plain;
+        charset=us-ascii
+Mime-Version: 1.0 (Mac OS X Mail 11.1 \(3445.4.7\))
+Subject: Re: [PATCH] kvm: vmx: Set IA32_TSC_AUX for legacy mode guests
+From: Liran Alon <liran.alon@oracle.com>
+In-Reply-To: <20181109173421.177250-1-jmattson@google.com>
+Date: Fri, 9 Nov 2018 21:15:39 +0200
+Cc: kvm@vger.kernel.org, Marc Orr <marcorr@google.com>,
+        Peter Shier <pshier@google.com>
+Content-Transfer-Encoding: 7bit
+Message-Id: <5A2F3B41-F70D-42DA-A1E6-7D2759C171AB@oracle.com>
+References: <20181109173421.177250-1-jmattson@google.com>
+To: Jim Mattson <jmattson@google.com>
+X-Mailer: Apple Mail (2.3445.4.7)
+X-Proofpoint-Virus-Version: vendor=nai engine=5900 definitions=9072 signatures=668683
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 malwarescore=0
+ phishscore=0 bulkscore=0 spamscore=0 mlxscore=0 mlxlogscore=999
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.0.1-1807170000 definitions=main-1811090174
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwAH5UBj3eVbHNkjAA--.1418S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW7KFWDtw15uF13JrW7Cr48WFg_yoW8Ww4xpa
+	9FyF10g3WUXFWDG34rAF18Ww4Ykay7KFW3XF4UZr13AFnFgwnrWF1Y93Z8Aa4kZws2vFy5
+	X3Wavwn7uw4UKa7anT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUPSb7Iv0xC_Cr1lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_tr0E3s1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr1j6F4UJwA2z4x0Y4vE
+	x4A2jsIE14v26rxl6s0DM28EF7xvwVC2z280aVCY1x0267AKxVW0oVCq3wAS0I0E0xvYzx
+	vE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AKxVWU
+	GVWUXwAv7VC2z280aVAFwI0_Gr0_Cr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcxkI7V
+	AKI48JMx02cVCv0xWlc7CjxVAKzI0EY4vE52x082I5MxkFs20EY4vE44CYbxCE4x80FwCY
+	02Avz4vEIxC_WwCY0x0Ix7I2Y4AK64vIr41lcIIF0xvE2Ix0cI8IcVAFwI0_Xr0_Ar1lcI
+	IF0xvE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwCYIxAIcVC2z280aVAFwI0_Gr1j6F4UJwCY
+	IxAIcVC2z280aVCY1x0267AKxVW8Jr0_Cr1UMxAIw28IcxkI7VAKI48JMxAIw28IcVAKzI
+	0EY4vE52x082I5MxCjnVCjjxCrMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAF
+	wI0_Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWUAVWUtwCIc4
+	0Y0x0EwIxGrwCI42IY6xAIw20EY4v20xvaj40_Gr0_ZrUvcSsGvfC2KfnxnUUI43ZEXa7I
+	U5QdbUUUUUU==
+
+
+
+> On 9 Nov 2018, at 19:34, Jim Mattson <jmattson@google.com> wrote:
+> 
+> RDTSCP is supported in legacy mode as well as long mode. The
+> IA32_TSC_AUX MSR should be set to the correct guest value before
+> entering any guest that supports RDTSCP.
+> 
+> Fixes: 4e47c7a6d714 ("KVM: VMX: Add instruction rdtscp support for guest")
+> Signed-off-by: Jim Mattson <jmattson@google.com>
+> Reviewed-by: Peter Shier <pshier@google.com>
+> Reviewed-by: Marc Orr <marcorr@google.com>
+> ---
+> arch/x86/kvm/vmx.c | 6 +++---
+> 1 file changed, 3 insertions(+), 3 deletions(-)
+> 
+> diff --git a/arch/x86/kvm/vmx.c b/arch/x86/kvm/vmx.c
+> index ccc6a01eb4f4..120fc97a63fc 100644
+> --- a/arch/x86/kvm/vmx.c
+> +++ b/arch/x86/kvm/vmx.c
+> @@ -3415,9 +3415,6 @@ static void setup_msrs(struct vcpu_vmx *vmx)
+> 		index = __find_msr_index(vmx, MSR_CSTAR);
+> 		if (index >= 0)
+> 			move_msr_up(vmx, index, save_nmsrs++);
+> -		index = __find_msr_index(vmx, MSR_TSC_AUX);
+> -		if (index >= 0 && guest_cpuid_has(&vmx->vcpu, X86_FEATURE_RDTSCP))
+> -			move_msr_up(vmx, index, save_nmsrs++);
+> 		/*
+> 		 * MSR_STAR is only needed on long mode guests, and only
+> 		 * if efer.sce is enabled.
+> @@ -3430,6 +3427,9 @@ static void setup_msrs(struct vcpu_vmx *vmx)
+> 	index = __find_msr_index(vmx, MSR_EFER);
+> 	if (index >= 0 && update_transition_efer(vmx, index))
+> 		move_msr_up(vmx, index, save_nmsrs++);
+> +	index = __find_msr_index(vmx, MSR_TSC_AUX);
+> +	if (index >= 0 && guest_cpuid_has(&vmx->vcpu, X86_FEATURE_RDTSCP))
+> +		move_msr_up(vmx, index, save_nmsrs++);
+> 
+> 	vmx->save_nmsrs = save_nmsrs;
+> 
+> -- 
+> 2.19.1.930.g4563a0d9d0-goog
+> 
+
+Reviewed-by: Liran Alon <liran.alon@oracle.com>
+
+

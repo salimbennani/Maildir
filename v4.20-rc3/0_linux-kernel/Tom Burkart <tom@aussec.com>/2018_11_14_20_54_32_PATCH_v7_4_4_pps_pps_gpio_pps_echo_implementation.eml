@@ -1,0 +1,339 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (61.164.42.155:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 14 Nov 2018 14:46:19 -0000
+Received: from icoremail.net (unknown [209.85.214.172])
+	by mail-app2 (Coremail) with SMTP id by_KCgDHH7akG+xbIEiQAQ--.43331S3;
+	Wed, 14 Nov 2018 20:57:09 +0800 (CST)
+Received: from mail-pl1-f172.google.com (unknown [209.85.214.172])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwBnSUWjG+xb0rU+AA--.2179S3;
+	Wed, 14 Nov 2018 20:57:07 +0800 (CST)
+Received: by mail-pl1-f172.google.com with SMTP id p4-v6so7760043plo.5
+        for <xuliker@zju.edu.cn>; Wed, 14 Nov 2018 04:57:07 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:delivered-to:dkim-signature:from:to:cc:subject
+         :date:message-id:in-reply-to:references:sender:precedence:list-id;
+        bh=Oc6FxSk0eVgXXKyNgObB43+pezHrw9ARv3g0wdKfxmk=;
+        b=adOgKbbs1Xv44mGbHin25ZwUmKFNaui6V/IDZUnUhBore0txVR6uyhHZj7cGOXH0DZ
+         faf0o+ntYsT4KRgA4tWawsEYBwxVA/PchFV0tQ5UNIQWGL/20c+xz2TkvXtVyg1tk3yv
+         xOGHpEFxw1RLDp6f8Wz6SS9pNsuaWoduQX7fi5SX5blstt1K1AJEH6/2Q1+SxBDLLcr3
+         ZgqDCP1Se+hSSYPFxhCUrVNeiEN/RpDLC28IiqwEr+abNc+ZWIm5nsnL8/kvrBdu+vrp
+         kISGFbH2zG+B0vkvlzvcLRwgjTc6oqVZZmeDhQYB/50JilfqdFPtP55FLajH2gzoNUkO
+         nHKw==
+X-Gm-Message-State: AGRZ1gKR3fe2pmpo7dr2O9rhlM3PG9OslR+JDwEIqO+eiRSEmNFvT1JW
+	nsfHdyzhuwJB1HSXQrHNYRtE3t4q1ZAXnGhs8jhkgF3gAaLx22ULxg==
+X-Received: by 2002:a17:902:704c:: with SMTP id h12mr1854428plt.78.1542200226777;
+        Wed, 14 Nov 2018 04:57:06 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp5765180pjt;
+        Wed, 14 Nov 2018 04:57:05 -0800 (PST)
+X-Google-Smtp-Source: AJdET5cUnegBxHWE4FZ6LV2AvCwEmd3JyQk71A9OCTaqAACpTQuhVH+0Uk6lggLqAqLZyj8sj9g4
+X-Received: by 2002:a62:9a09:: with SMTP id o9-v6mr1881607pfe.229.1542200225129;
+        Wed, 14 Nov 2018 04:57:05 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542200225; cv=none;
+        d=google.com; s=arc-20160816;
+        b=mrSNmY/vN5N3DXIIT5w8YzJmxsYj9CZ6Rpb9B7d9il1n/NVjVTCuebVq7WA7PqPvyR
+         YjTgEK2cf7GkSaVCFGNVos4KHPboN/T144DVMXsShlnu0kuWC/0bXbjmDQZCeiogJe0Y
+         BS7TeeJmHoB9j1besrt7EU4SfcCKvrNvDwcSAdB46Z8NgHMqsV5MP1lsY0tyGuqyMYXQ
+         iLXNl+BFZZq3GpfLt++vU8UzA+SaTfrFUHFYdSt/+Ay98jK4q6js/nOdzjPm35VnYVtk
+         pjghLDX4xjikMCkOtFEPbH4PLH+/VRabJrhXDAkvmhHxk5PkrLMSBNgZPqVbq5e8i9/w
+         tD3A==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:references:in-reply-to:message-id:date
+         :subject:cc:to:from:dkim-signature;
+        bh=Oc6FxSk0eVgXXKyNgObB43+pezHrw9ARv3g0wdKfxmk=;
+        b=RUAtOh/928KcI0ClsShg/vTBSjLQp4m7mI+Oe+5MTqKM1CH04QSd0YN9df3kpWZ5/N
+         aQtxejO+uTPWY1o9YN4RjviPMOXEL6Kky8QaLaRDF/3MIxBZ3DbWJxDCL2s1kw9XzLcX
+         9v7Oy1WupM2hQrSVG4Ia8JE5MSgy/P2iFWe8gSlnZVZaaBa7aBpSNQfCd3bm5lqO3k9+
+         v5BvZwqb3ctK1c4tajoX3kLTdovpqzsUBOsk7uhyHBpudUudlpLHlbg3y9ObHdd6+Xqq
+         iucPtkE4P0EYmd/ksYDij8avDTL8aWRQZPLb91BGEnXvyS2BTvA+NxDJmLVY4ErF0dP9
+         pfZQ==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=fail header.i=@aussec.com header.s=2016 header.b=WtuuVCOZ;
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=aussec.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id c23-v6si17106099pls.141.2018.11.14.04.56.49;
+        Wed, 14 Nov 2018 04:57:05 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1732765AbeKNW7C (ORCPT <rfc822;docz2a@gmail.com> + 99 others);
+        Wed, 14 Nov 2018 17:59:02 -0500
+Received: from csm1.csm-office.com.au ([165.228.118.109]:48402 "EHLO
+        sleepy.aussec.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727731AbeKNW7C (ORCPT
+        <rfc822;linux-kernel@vger.kernel.org>);
+        Wed, 14 Nov 2018 17:59:02 -0500
+X-Virus-Scanned: amavisd-new at aussec.com
+Received: from hpdv6.aussec.com.com (c110-21-61-29.farfl4.nsw.optusnet.com.au [110.21.61.29])
+        (authenticated bits=0)
+        by sleepy.aussec.com (8.15.2/8.15.2) with ESMTPSA id wAECsstZ003333
+        (version=TLSv1.2 cipher=DHE-RSA-AES128-SHA bits=128 verify=NO);
+        Wed, 14 Nov 2018 23:55:40 +1100
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=aussec.com; s=2016;
+        t=1542200140; bh=3C8o+nvrah3cHzNGwjzPmTo89nmUiu2W+GnOY7dE9LI=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References;
+        b=WtuuVCOZjYLscFAIiOADvl2TIn3es4/CwoNAuoFjkmfBJTgW+DomHtKxaLyuE3sWu
+         NyUefy0OlvOI65ktBBYkQhG9q5vCN7NPi4+R3zydI8FAcDLDvE5mHzV0I2OjqhBMWf
+         +UdWzLnbrVXArM70/VoQ6qnuA3XPPTOjm8BikG1SyvkWEETTy15J4Y7HKDWZeptBCD
+         9ZNGcN4+IGkAPixiENEB6q09DkU18mOMJQal0RomHuql54vhs430HIwb7/hGLxyinf
+         iNqt5tox7Aa2gq8XKuTYzSDB5RLuVnV4cTnAjMGGBEAFgVv+HJ+7ZUwmI8ONuc/QAP
+         bfsXRB9xxEyHw==
+From: Tom Burkart <tom@aussec.com>
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Cc: Tom Burkart <tom@aussec.com>, Lukas Senger <lukas@fridolin.com>
+Subject: [PATCH v7 4/4] pps: pps-gpio pps-echo implementation
+Date: Wed, 14 Nov 2018 23:54:32 +1100
+Message-Id: <20181114125432.16044-5-tom@aussec.com>
+X-Mailer: git-send-email 2.12.3
+In-Reply-To: <20181114125432.16044-4-tom@aussec.com>
+References: <20181114125432.16044-1-tom@aussec.com>
+ <20181114125432.16044-2-tom@aussec.com>
+ <20181114125432.16044-3-tom@aussec.com>
+ <20181114125432.16044-4-tom@aussec.com>
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwBnSUWjG+xb0rU+AA--.2179S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW3JFyrKFW8Jw4rGr13KFWfXwb_yoWxtw1kpF
+	W8CF45Jr4jgF4xGw4Fvrs8Z3W5Kr92va42ya9rG340yr12q3sYqa1qyFy0vFW2yrWDGr17
+	X34FqFWY9F4DCFJanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUPIb7Iv0xC_tr1lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2
+	z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s0DM2AIxVAIcxkEcV
+	Aq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r10
+	6r15McIj6I8E87Iv67AKxVW8JVWxJwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IYc2Ij64
+	vIr41l7I0Y6sxI4wCY1x0264kExVAvwVAq07x20xylc7Ca8VAvwVCFzxkY4VCF77xAMxkI
+	ecxEwVCI4VW5JwCY0x0Ix7I2Y4AK64vIr41lcIIF0xvE2Ix0cI8IcVAFwI0_Gr0_Xr1lcI
+	IF0xvE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwCYIxAIcVC2z280aVAFwI0_Cr1j6rxdMxvI
+	42IY6I8E87Iv6xkF7I0E14v26F4UJVW0owCF04k20xvY0x0EwIxGrwCF04k20xvEw4C26c
+	xK6c8Ij28IcwCF72vE77IF4wCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v2
+	6r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_JF0_Jw1lIxkGc2
+	Ij64vIr41lIxAIcVCF04k26cxKx2IYs7xG6r4j6FyUYxBIdaVFxhVjvjDU0xZFpf9x07bb
+	eOJUUUUU=
+
+This patch implements the pps echo functionality for pps-gpio, that
+sysfs claims is available already.
+
+Configuration is done via device tree bindings.
+
+This patch was originally written by Lukas Senger as part of a masters
+thesis project and modified for inclusion into the linux kernel by Tom
+Burkart.
+
+Signed-off-by: Lukas Senger <lukas@fridolin.com>
+Signed-off-by: Tom Burkart <tom@aussec.com>
+---
+ drivers/pps/clients/pps-gpio.c | 103 +++++++++++++++++++++++++++++++++++++++--
+ include/linux/pps-gpio.h       |   3 ++
+ 2 files changed, 103 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/pps/clients/pps-gpio.c b/drivers/pps/clients/pps-gpio.c
+index aa8b8fb0e9ab..ea035399d56d 100644
+--- a/drivers/pps/clients/pps-gpio.c
++++ b/drivers/pps/clients/pps-gpio.c
+@@ -36,6 +36,8 @@
+ #include <linux/list.h>
+ #include <linux/of_device.h>
+ #include <linux/of_gpio.h>
++#include <linux/timer.h>
++#include <linux/jiffies.h>
+ 
+ /* Info for each registered platform device */
+ struct pps_gpio_device_data {
+@@ -43,10 +45,16 @@ struct pps_gpio_device_data {
+ 	struct pps_device *pps;		/* PPS source device */
+ 	struct pps_source_info info;	/* PPS source information */
+ 	struct gpio_desc *gpio_pin;	/* GPIO port descriptors */
++	struct gpio_desc *echo_pin;
++	struct timer_list echo_timer;	/* timer to reset echo active state */
+ 	bool assert_falling_edge;
+ 	bool capture_clear;
++	bool enable_pps_echo;
++	bool invert_pps_echo;
+ 	bool legacy_int_gpio;		/* flag for which ABI to use */
++	unsigned int echo_active_ms;	/* PPS echo active duration */
+ 	unsigned int gpio_pin_int;	/* GPIO integer ABI */
++	unsigned long echo_timeout;	/* timer timeout value in jiffies */
+ };
+ 
+ /*
+@@ -70,15 +78,54 @@ static irqreturn_t pps_gpio_irq_handler(int irq, void *data)
+ 		rising_edge = gpiod_get_value(info->gpio_pin);
+ 	if ((rising_edge && !info->assert_falling_edge) ||
+ 			(!rising_edge && info->assert_falling_edge))
+-		pps_event(info->pps, &ts, PPS_CAPTUREASSERT, NULL);
++		pps_event(info->pps, &ts, PPS_CAPTUREASSERT, data);
+ 	else if (info->capture_clear &&
+ 			((rising_edge && info->assert_falling_edge) ||
+ 			(!rising_edge && !info->assert_falling_edge)))
+-		pps_event(info->pps, &ts, PPS_CAPTURECLEAR, NULL);
++		pps_event(info->pps, &ts, PPS_CAPTURECLEAR, data);
+ 
+ 	return IRQ_HANDLED;
+ }
+ 
++static void pps_gpio_echo(struct pps_device *pps, int event, void *data)
++{
++	/* add_timer() needs to write into info->echo_timer */
++	struct pps_gpio_device_data *info;
++
++	info = data;
++
++	switch (event) {
++	case PPS_CAPTUREASSERT:
++		if (pps->params.mode & PPS_ECHOASSERT)
++			gpiod_set_value(info->echo_pin,
++				info->invert_pps_echo ? 0 : 1);
++		break;
++
++	case PPS_CAPTURECLEAR:
++		if (pps->params.mode & PPS_ECHOCLEAR)
++			gpiod_set_value(info->echo_pin,
++				info->invert_pps_echo ? 0 : 1);
++		break;
++	}
++
++	/* fire the timer */
++	if (info->pps->params.mode & (PPS_ECHOASSERT | PPS_ECHOCLEAR)) {
++		info->echo_timer.expires = jiffies + info->echo_timeout;
++		add_timer(&info->echo_timer);
++	}
++}
++
++/* Timer callback to reset the echo pin to the inactive state */
++static void pps_gpio_echo_timer_callback(struct timer_list *t)
++{
++	const struct pps_gpio_device_data *info;
++
++	info = from_timer(info, t, echo_timer);
++
++	gpiod_set_value(info->echo_pin,
++		info->invert_pps_echo ? 1 : 0);
++}
++
+ static int pps_gpio_setup(struct platform_device *pdev)
+ {
+ 	struct pps_gpio_device_data *data = platform_get_drvdata(pdev);
+@@ -86,14 +133,20 @@ static int pps_gpio_setup(struct platform_device *pdev)
+ 	struct device_node *np = pdev->dev.of_node;
+ 	const char *gpio_label;
+ 	int ret;
++	u32 value;
+ 
+ 	if (pdata) {
+ 		data->gpio_pin_int = pdata->gpio_pin_int;
+ 		data->gpio_pin = pdata->gpio_pin;
++		data->echo_pin = pdata->echo_pin;
++		if (pdata->echo_pin != NULL)
++			data->enable_pps_echo = true;
+ 		gpio_label = pdata->gpio_label;
+ 
+ 		data->assert_falling_edge = pdata->assert_falling_edge;
+ 		data->capture_clear = pdata->capture_clear;
++		data->invert_pps_echo = pdata->invert_pps_echo;
++		data->echo_active_ms = pdata->echo_active_ms;
+ 	} else {
+ 		if (of_get_property(np, "gpios", NULL)) { /* integer GPIO */
+ 			data->legacy_int_gpio = true;
+@@ -118,11 +171,45 @@ static int pps_gpio_setup(struct platform_device *pdev)
+ 			}
+ 		}
+ 
++		if (of_get_property(np, "echo-gpios", NULL)) {
++			data->enable_pps_echo = true;
++
++			data->echo_pin = devm_gpiod_get(&pdev->dev,
++				"echo",
++				GPIOD_OUT_LOW);
++			if (IS_ERR(data->echo_pin)) {
++				dev_err(&pdev->dev, "failed to request ECHO GPIO\n");
++				return PTR_ERR(data->echo_pin);
++			}
++
++			ret = of_property_read_u32(np,
++				"echo-active-ms",
++				&value);
++			if (ret) {
++				dev_err(&pdev->dev,
++					"failed to get echo-active-ms from OF\n");
++				return ret;
++			}
++			data->echo_active_ms = value;
++		}
++
++
+ 		if (of_get_property(np, "assert-falling-edge", NULL))
+ 			data->assert_falling_edge = true;
+ 
+ 		if (of_get_property(np, "capture-clear", NULL))
+ 			data->capture_clear = true;
++
++		if (of_get_property(np, "invert-pps-echo", NULL))
++			data->invert_pps_echo = true;
++	}
++	/* sanity check on echo_active_ms */
++	if (data->enable_pps_echo
++			&& (!data->echo_active_ms || data->echo_active_ms > 999)) {
++		dev_err(&pdev->dev,
++			"echo-active-ms: %u - bad value from OF\n",
++			data->echo_active_ms);
++		return -EINVAL;
+ 	}
+ 
+ 	/* GPIO setup */
+@@ -197,6 +284,11 @@ static int pps_gpio_probe(struct platform_device *pdev)
+ 	data->info.owner = THIS_MODULE;
+ 	snprintf(data->info.name, PPS_MAX_NAME_LEN - 1, "%s.%d",
+ 		 pdev->name, pdev->id);
++	if (data->enable_pps_echo) {
++		data->info.echo = pps_gpio_echo;
++		data->echo_timeout = msecs_to_jiffies(data->echo_active_ms);
++		timer_setup(&data->echo_timer, pps_gpio_echo_timer_callback, 0);
++	}
+ 
+ 	/* register PPS source */
+ 	pps_default_params = PPS_CAPTUREASSERT | PPS_OFFSETASSERT;
+@@ -229,6 +321,11 @@ static int pps_gpio_remove(struct platform_device *pdev)
+ 	struct pps_gpio_device_data *data = platform_get_drvdata(pdev);
+ 
+ 	pps_unregister_source(data->pps);
++	if (data->enable_pps_echo) {
++		del_timer_sync(&data->echo_timer);
++		/* reset echo pin in any case */
++		gpiod_set_value(data->echo_pin, data->invert_pps_echo ? 1 : 0);
++	}
+ 	dev_info(&pdev->dev, "removed IRQ %d as PPS source\n", data->irq);
+ 	return 0;
+ }
+@@ -253,4 +350,4 @@ MODULE_AUTHOR("Ricardo Martins <rasm@fe.up.pt>");
+ MODULE_AUTHOR("James Nuss <jamesnuss@nanometrics.ca>");
+ MODULE_DESCRIPTION("Use GPIO pin as PPS source");
+ MODULE_LICENSE("GPL");
+-MODULE_VERSION("1.1.0");
++MODULE_VERSION("1.2.0");
+diff --git a/include/linux/pps-gpio.h b/include/linux/pps-gpio.h
+index 86e2081dc7d1..21eceb90187d 100644
+--- a/include/linux/pps-gpio.h
++++ b/include/linux/pps-gpio.h
+@@ -24,8 +24,11 @@
+ 
+ struct pps_gpio_platform_data {
+ 	struct gpio_desc *gpio_pin;
++	struct gpio_desc *echo_pin;
+ 	bool assert_falling_edge;
+ 	bool capture_clear;
++	bool invert_pps_echo;
++	unsigned int echo_active_ms;
+ 	unsigned int gpio_pin_int;
+ 	const char *gpio_label;
+ };
+-- 
+2.12.3

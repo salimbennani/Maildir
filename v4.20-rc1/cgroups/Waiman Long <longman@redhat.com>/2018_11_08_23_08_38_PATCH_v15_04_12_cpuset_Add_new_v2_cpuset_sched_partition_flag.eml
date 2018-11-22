@@ -1,0 +1,631 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 09 Nov 2018 00:35:28 -0000
+Received: from icoremail.net (unknown [209.85.210.180])
+	by mail-app2 (Coremail) with SMTP id by_KCgDXv+4UUuRbQ+BgAQ--.29477S3;
+	Thu, 08 Nov 2018 23:11:17 +0800 (CST)
+Received: from mail-pf1-f180.google.com (unknown [209.85.210.180])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwBX0EwTUuRbl1MdAA--.9605S3;
+	Thu, 08 Nov 2018 23:11:15 +0800 (CST)
+Received: by mail-pf1-f180.google.com with SMTP id p17-v6so9050618pfj.12
+        for <xuliker@zju.edu.cn>; Thu, 08 Nov 2018 07:11:15 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :from:to:cc:subject:date:message-id:in-reply-to:references:sender
+         :precedence:list-id;
+        bh=BGu1wz1Om3ovDW1w+nuoZM1Sxy7ZgZB3iJhlseNlEQw=;
+        b=MSDjZC44HO4vTKrk/7r/yr3i/BT3Qyj9kNTYRi7kD5fM4PTv5p9+oy9wfjTiFMJ+if
+         h7rKIVMdDOBKbxX/FuBfGnYLPoQJDa1tqwT3u2TXyOuEVklAX3pAidsFrx8DAqAH/w40
+         q3DJFQWa5pgBS7C2RSW3d9sINK8zh/ZX47L8bh+4lKZWEmTPp5Vxn+Qki5kEfttoxkam
+         VjXPxZlU3qkQGnsgdwe1PwfjBAqHnCXzGNCPUpTWcJ7pL6QSiqDTUHyPljLwhtllzdoS
+         rLBaKJbIEjd6n2s4BDMYoZ3XTCea2P3lF1KvvMb7oNOs5uodp6YsAdyVc+4KiDND+LI7
+         4ULw==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=redhat.com
+X-Gm-Message-State: AGRZ1gLKg88SmtfoESNinnpgN7M34hUAETDjci9YJe12nwh4ubMEnyQj
+	SwXbQfo8OENO2j5jxVpzsRCduoSxMFUTbNYxevJuAQJFa89fVuFmyw==
+X-Received: by 2002:a63:5816:: with SMTP id m22-v6mr4018159pgb.332.1541689874628;
+        Thu, 08 Nov 2018 07:11:14 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp306132pjt;
+        Thu, 8 Nov 2018 07:11:13 -0800 (PST)
+X-Google-Smtp-Source: AJdET5fO7dtDCL9nkJHFkmaGKkKFJPQVcXP/oK2BdCNIarreCZb/vXbLqPks9cu0kWB7XpPRal/K
+X-Received: by 2002:a17:902:8f94:: with SMTP id z20-v6mr4812659plo.175.1541689873417;
+        Thu, 08 Nov 2018 07:11:13 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1541689873; cv=none;
+        d=google.com; s=arc-20160816;
+        b=xR0/driLrxZlz1HN/hmuSxAtAwcCBGRlXx+bBa0FeRUGGXbnIil8CJDHLKvy2ZlDP2
+         eozhW3dwdKd9G6VR5BTxBSCAj0vLd92ZQZC/Bao0U1qJBr40TjmUvjUz4wSXuttS/ZG+
+         jBnsidIK/+x0lXGG5y28atC2wBXq7gDRt+nuS5NnM8/DIdmxp4eSNtIAUE+KD/l2DuI1
+         pwLhsFfIcIXE9/kX4TI2V0uSMKJiHgNDG9wyLF/rlc0ZVBKjbdy5epJakbzvgzgo3Rv8
+         UjfpCiza3AIKvI/W8OjE1dROs5yrIBe25D2xLRSyoZw26rag6LQy6ZbtfPRXIeFAWH1A
+         /ALg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:references:in-reply-to:message-id:date
+         :subject:cc:to:from;
+        bh=BGu1wz1Om3ovDW1w+nuoZM1Sxy7ZgZB3iJhlseNlEQw=;
+        b=yt0wLI+5LdzeqPOenBZaIpIWMpiwWKJOL6Wxqb/fiIP3qMjuPY9m8eyKV8/XgK2Sf8
+         LrQ7joxK2csbZdZXfaiXCud0rvFxUJf79YK/rtveCu/LkPFg71zhD1v7acqXdjHlwZ2k
+         r3OKaB1lMkG8J9XocTNRjfhKRnqgS1wr+Nytchm+fn5EkkfJJnwbKQ1K09EX9uL11kui
+         CXEUYyyNAsh6l9SEDQEu5w3Kv1Qt6LeP7I8lDEHM/5YM4c+9pSDX5EMtEkV5ZxE806it
+         4032dPElMiDYP6qM2Mcn17zPcN27DLlGDleWWXFwPi4QI3GM7lzFDGUOi4ZUBPtmoFe7
+         EYow==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=redhat.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id 28-v6si1881332pfm.51.2018.11.08.07.10.53;
+        Thu, 08 Nov 2018 07:11:13 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1727244AbeKIApJ (ORCPT <rfc822;ankurbansal210989@gmail.com>
+        + 99 others); Thu, 8 Nov 2018 19:45:09 -0500
+Received: from mx1.redhat.com ([209.132.183.28]:57018 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727084AbeKIApJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+        Thu, 8 Nov 2018 19:45:09 -0500
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 0CD21308FBA2;
+        Thu,  8 Nov 2018 15:09:12 +0000 (UTC)
+Received: from llong.com (dhcp-17-55.bos.redhat.com [10.18.17.55])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 5423C648C8;
+        Thu,  8 Nov 2018 15:09:10 +0000 (UTC)
+From: Waiman Long <longman@redhat.com>
+To: Tejun Heo <tj@kernel.org>, Li Zefan <lizefan@huawei.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Ingo Molnar <mingo@redhat.com>
+Cc: cgroups@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-doc@vger.kernel.org, kernel-team@fb.com, pjt@google.com,
+        luto@amacapital.net, Mike Galbraith <efault@gmx.de>,
+        torvalds@linux-foundation.org, Roman Gushchin <guro@fb.com>,
+        Juri Lelli <juri.lelli@redhat.com>,
+        Patrick Bellasi <patrick.bellasi@arm.com>,
+        Tom Hromatka <tom.hromatka@oracle.com>,
+        Waiman Long <longman@redhat.com>
+Subject: [PATCH v15 04/12] cpuset: Add new v2 cpuset.sched.partition flag
+Date: Thu,  8 Nov 2018 10:08:38 -0500
+Message-Id: <1541689726-20088-5-git-send-email-longman@redhat.com>
+In-Reply-To: <1541689726-20088-1-git-send-email-longman@redhat.com>
+References: <1541689726-20088-1-git-send-email-longman@redhat.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.43]); Thu, 08 Nov 2018 15:09:12 +0000 (UTC)
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwBX0EwTUuRbl1MdAA--.9605S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvAXoWfGF1xtFW3AF4Dtry8Cr13CFg_yoW8WFWkAo
+	WfGF4rZw1xJr15GFsYvrn2yFyUWanYk3Zxt3ZFgFsrWF13ArnrKa47K3sF934fJrZ0qF4r
+	JFyFqw1xGrW7tF17n29KB7ZKAUJUUUUU529EdanIXcx71UUUUj7v73VFW2AGmfu7jjvjm3
+	AaLaJ3UjIYCTnIWjp_UUUYl7k0a2IF6w4kM7kC6x804xWl14x267AKxVWUJVW8JwAFIxvE
+	14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK021l84ACjcxK6xIIjx
+	v20xvE14v26F1j6w1UM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26F4j6r4UJwA2z4x0Y4vE
+	x4A2jsIE14v26rxl6s0DM28EF7xvwVC2z280aVCY1x0267AKxVW0oVCq3wAS0I0E0xvYzx
+	vE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AKxVWU
+	GVWUXwAv7VC2z280aVAFwI0_Gr0_Cr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcVAKI4
+	8JMx02cVCv0xWlc7CjxVAKzI0EY4vE52x082I5MxkIecxEwVCI4VW5WwCY0x0Ix7I2Y4AK
+	64vIr41lcIIF0xvE2Ix0cI8IcVAFwI0_Xr0_Ar1lcIIF0xvE2Ix0cI8IcVCY1x0267AKxV
+	W8JVWxJwCYIxAIcVC2z280aVAFwI0_GcCE3s1lcIIF0xvEx4A2jsIEc7CjxVAFwI0_GcCE
+	3s1l42xK82IYc2Ij64vIr41l42xK82IY64kExVAvwVAq07x20xyl4x8a6x804xWl4I8I3I
+	0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x8GjcxK67AKxVWU
+	GVWUWwC2zVAF1VAY17CE14v26r4a6rW5MIIYrxkI7VAKI48JMIIF0xvE42xK8VAvwI8IcI
+	k0rVW8JVW3JbIYCTnIWIevJa73UjIFyTuYvjxUm_OzUUUUU
+
+A new cpuset.sched.partition boolean flag is added to cpuset v2.
+This new flag, if set, indicates that the cgroup is the root of a
+new scheduling domain or partition that includes itself and all its
+descendants except those that are scheduling domain roots themselves
+and their descendants.
+
+With this new flag, one can directly create as many partitions as
+necessary without ever using the v1 trick of turning off load balancing
+in specific cpusets to create partitions as a side effect.
+
+This new flag is owned by the parent and will cause the CPUs in the
+cpuset to be removed from the effective CPUs of its parent.
+
+This is implemented internally by adding a new subparts_cpus mask that
+holds the CPUs belonging to child partitions so that:
+
+        subparts_cpus | effective_cpus = cpus_allowed
+        subparts_cpus & effective_cpus = 0
+
+This new flag can only be turned on in a cpuset if its parent is a
+partition root itself. The state of this flag cannot be changed if the
+cpuset has children.
+
+Once turned on, further changes to "cpuset.cpus" is allowed as long
+as there is at least one CPU left that can be granted from the parent
+and a child partition root cannot use up all the CPUs in the parent's
+effective_cpus.
+
+Signed-off-by: Waiman Long <longman@redhat.com>
+---
+ kernel/cgroup/cpuset.c | 365 +++++++++++++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 352 insertions(+), 13 deletions(-)
+
+diff --git a/kernel/cgroup/cpuset.c b/kernel/cgroup/cpuset.c
+index 2ac9437..85e0416 100644
+--- a/kernel/cgroup/cpuset.c
++++ b/kernel/cgroup/cpuset.c
+@@ -970,10 +970,191 @@ static void update_tasks_cpumask(struct cpuset *cs)
+ 	css_task_iter_end(&it);
+ }
+ 
++/**
++ * compute_effective_cpumask - Compute the effective cpumask of the cpuset
++ * @new_cpus: the temp variable for the new effective_cpus mask
++ * @cs: the cpuset the need to recompute the new effective_cpus mask
++ * @parent: the parent cpuset
++ *
++ * If the parent has subpartition CPUs, include them in the list of
++ * allowable CPUs in computing the new effective_cpus mask.
++ */
++static void compute_effective_cpumask(struct cpumask *new_cpus,
++				      struct cpuset *cs, struct cpuset *parent)
++{
++	if (parent->nr_subparts_cpus) {
++		cpumask_or(new_cpus, parent->effective_cpus,
++			   parent->subparts_cpus);
++		cpumask_and(new_cpus, new_cpus, cs->cpus_allowed);
++	} else {
++		cpumask_and(new_cpus, cs->cpus_allowed, parent->effective_cpus);
++	}
++}
++
++/*
++ * Commands for update_parent_subparts_cpumask
++ */
++enum subparts_cmd {
++	partcmd_enable,		/* Enable partition root	 */
++	partcmd_disable,	/* Disable partition root	 */
++	partcmd_update,		/* Update parent's subparts_cpus */
++};
++
++/**
++ * update_parent_subparts_cpumask - update subparts_cpus mask of parent cpuset
++ * @cpuset:  The cpuset that requests change in partition root state
++ * @cmd:     Partition root state change command
++ * @newmask: Optional new cpumask for partcmd_update
++ * @tmp:     Temporary addmask and delmask
++ * Return:   0, 1 or an error code
++ *
++ * For partcmd_enable, the cpuset is being transformed from a non-partition
++ * root to a partition root. The cpus_allowed mask of the given cpuset will
++ * be put into parent's subparts_cpus and taken away from parent's
++ * effective_cpus. The function will return 0 if all the CPUs listed in
++ * cpus_allowed can be granted or an error code will be returned.
++ *
++ * For partcmd_disable, the cpuset is being transofrmed from a partition
++ * root back to a non-partition root. any CPUs in cpus_allowed that are in
++ * parent's subparts_cpus will be taken away from that cpumask and put back
++ * into parent's effective_cpus. 0 should always be returned.
++ *
++ * For partcmd_update, if the optional newmask is specified, the cpu
++ * list is to be changed from cpus_allowed to newmask. Otherwise,
++ * cpus_allowed is assumed to remain the same.  The function will return
++ * 1 if changes to parent's subparts_cpus and effective_cpus happen or 0
++ * otherwise. In case of error, an error code will be returned.
++ *
++ * The partcmd_enable and partcmd_disable commands are used by
++ * update_prstate(). The partcmd_update command is used by
++ * update_cpumasks_hier() with newmask NULL and update_cpumask() with
++ * newmask set.
++ *
++ * The checking is more strict when enabling partition root than the
++ * other two commands.
++ *
++ * Because of the implicit cpu exclusive nature of a partition root,
++ * cpumask changes that violates the cpu exclusivity rule will not be
++ * permitted when checked by validate_change(). The validate_change()
++ * function will also prevent any changes to the cpu list if it is not
++ * a superset of children's cpu lists.
++ */
++static int update_parent_subparts_cpumask(struct cpuset *cpuset, int cmd,
++					  struct cpumask *newmask,
++					  struct tmpmasks *tmp)
++{
++	struct cpuset *parent = parent_cs(cpuset);
++	int adding;	/* Moving cpus from effective_cpus to subparts_cpus */
++	int deleting;	/* Moving cpus from subparts_cpus to effective_cpus */
++
++	lockdep_assert_held(&cpuset_mutex);
++
++	/*
++	 * The parent must be a partition root.
++	 * The new cpumask, if present, or the current cpus_allowed must
++	 * not be empty.
++	 */
++	if (!is_partition_root(parent) ||
++	   (newmask && cpumask_empty(newmask)) ||
++	   (!newmask && cpumask_empty(cpuset->cpus_allowed)))
++		return -EINVAL;
++
++	/*
++	 * Enabling/disabling partition root is not allowed if there are
++	 * online children.
++	 */
++	if ((cmd != partcmd_update) && css_has_online_children(&cpuset->css))
++		return -EBUSY;
++
++	/*
++	 * Enabling partition root is not allowed if not all the CPUs
++	 * can be granted from parent's effective_cpus or at least one
++	 * CPU will be left after that.
++	 */
++	if ((cmd == partcmd_enable) &&
++	   (!cpumask_subset(cpuset->cpus_allowed, parent->effective_cpus) ||
++	     cpumask_equal(cpuset->cpus_allowed, parent->effective_cpus)))
++		return -EINVAL;
++
++	/*
++	 * A cpumask update cannot make parent's effective_cpus become empty.
++	 */
++	adding = deleting = false;
++	if (cmd == partcmd_enable) {
++		cpumask_copy(tmp->addmask, cpuset->cpus_allowed);
++		adding = true;
++	} else if (cmd == partcmd_disable) {
++		deleting = cpumask_and(tmp->delmask, cpuset->cpus_allowed,
++				       parent->subparts_cpus);
++	} else if (newmask) {
++		/*
++		 * partcmd_update with newmask:
++		 *
++		 * delmask = cpus_allowed & ~newmask & parent->subparts_cpus
++		 * addmask = newmask & parent->effective_cpus
++		 *		     & ~parent->subparts_cpus
++		 */
++		cpumask_andnot(tmp->delmask, cpuset->cpus_allowed, newmask);
++		deleting = cpumask_and(tmp->delmask, tmp->delmask,
++				       parent->subparts_cpus);
++
++		cpumask_and(tmp->addmask, newmask, parent->effective_cpus);
++		adding = cpumask_andnot(tmp->addmask, tmp->addmask,
++					parent->subparts_cpus);
++		/*
++		 * Return error if the new effective_cpus could become empty.
++		 */
++		if (adding && !deleting &&
++		    cpumask_equal(parent->effective_cpus, tmp->addmask))
++			return -EINVAL;
++	} else {
++		/*
++		 * partcmd_update w/o newmask:
++		 *
++		 * addmask = cpus_allowed & parent->effectiveb_cpus
++		 *
++		 * Note that parent's subparts_cpus may have been
++		 * pre-shrunk in case the CPUs granted to the parent
++		 * by the grandparent changes. So no deletion is needed.
++		 */
++		adding = cpumask_and(tmp->addmask, cpuset->cpus_allowed,
++				     parent->effective_cpus);
++		if (cpumask_equal(tmp->addmask, parent->effective_cpus))
++			return -EINVAL;
++	}
++
++	if (!adding && !deleting)
++		return 0;
++
++	/*
++	 * Change the parent's subparts_cpus.
++	 * Newly added CPUs will be removed from effective_cpus and
++	 * newly deleted ones will be added back to effective_cpus.
++	 */
++	spin_lock_irq(&callback_lock);
++	if (adding) {
++		cpumask_or(parent->subparts_cpus,
++			   parent->subparts_cpus, tmp->addmask);
++		cpumask_andnot(parent->effective_cpus,
++			       parent->effective_cpus, tmp->addmask);
++	}
++	if (deleting) {
++		cpumask_andnot(parent->subparts_cpus,
++			       parent->subparts_cpus, tmp->delmask);
++		cpumask_or(parent->effective_cpus,
++			   parent->effective_cpus, tmp->delmask);
++	}
++
++	parent->nr_subparts_cpus = cpumask_weight(parent->subparts_cpus);
++	spin_unlock_irq(&callback_lock);
++
++	return cmd == partcmd_update;
++}
++
+ /*
+  * update_cpumasks_hier - Update effective cpumasks and tasks in the subtree
+- * @cs: the cpuset to consider
+- * @new_cpus: temp variable for calculating new effective_cpus
++ * @cs:  the cpuset to consider
++ * @tmp: temp variables for calculating effective_cpus & partition setup
+  *
+  * When congifured cpumask is changed, the effective cpumasks of this cpuset
+  * and all its descendants need to be updated.
+@@ -982,7 +1163,7 @@ static void update_tasks_cpumask(struct cpuset *cs)
+  *
+  * Called with cpuset_mutex held
+  */
+-static void update_cpumasks_hier(struct cpuset *cs, struct cpumask *new_cpus)
++static void update_cpumasks_hier(struct cpuset *cs, struct tmpmasks *tmp)
+ {
+ 	struct cpuset *cp;
+ 	struct cgroup_subsys_state *pos_css;
+@@ -991,28 +1172,61 @@ static void update_cpumasks_hier(struct cpuset *cs, struct cpumask *new_cpus)
+ 	rcu_read_lock();
+ 	cpuset_for_each_descendant_pre(cp, pos_css, cs) {
+ 		struct cpuset *parent = parent_cs(cp);
++		bool cs_empty;
++
++		compute_effective_cpumask(tmp->new_cpus, cp, parent);
++		cs_empty = cpumask_empty(tmp->new_cpus);
+ 
+-		cpumask_and(new_cpus, cp->cpus_allowed, parent->effective_cpus);
++		/*
++		 * A partition root cannot have empty effective_cpus
++		 */
++		WARN_ON_ONCE(cs_empty && is_partition_root(cp));
+ 
+ 		/*
+ 		 * If it becomes empty, inherit the effective mask of the
+ 		 * parent, which is guaranteed to have some CPUs.
+ 		 */
+-		if (is_in_v2_mode() && cpumask_empty(new_cpus))
+-			cpumask_copy(new_cpus, parent->effective_cpus);
++		if (is_in_v2_mode() && cs_empty)
++			cpumask_copy(tmp->new_cpus, parent->effective_cpus);
+ 
+-		/* Skip the whole subtree if the cpumask remains the same. */
+-		if (cpumask_equal(new_cpus, cp->effective_cpus)) {
++		/*
++		 * Skip the whole subtree if the cpumask remains the same
++		 * and has no partition root state.
++		 */
++		if (!is_partition_root(cp) &&
++		    cpumask_equal(tmp->new_cpus, cp->effective_cpus)) {
+ 			pos_css = css_rightmost_descendant(pos_css);
+ 			continue;
+ 		}
+ 
++		/*
++		 * update_parent_subparts_cpumask() should have been called
++		 * for cs already in update_cpumask(). We should also call
++		 * update_tasks_cpumask() again for tasks in the parent
++		 * cpuset if the parent's subparts_cpus changes.
++		 */
++		if ((cp != cs) && cp->partition_root_state &&
++		    update_parent_subparts_cpumask(cp, partcmd_update,
++						   NULL, tmp)) {
++			if (parent != &top_cpuset)
++				update_tasks_cpumask(parent);
++		}
++
+ 		if (!css_tryget_online(&cp->css))
+ 			continue;
+ 		rcu_read_unlock();
+ 
+ 		spin_lock_irq(&callback_lock);
+-		cpumask_copy(cp->effective_cpus, new_cpus);
++
++		cpumask_copy(cp->effective_cpus, tmp->new_cpus);
++		if (cp->nr_subparts_cpus) {
++			/*
++			 * Make sure that effective_cpus & subparts_cpus
++			 * are mutually exclusive.
++			 */
++			cpumask_andnot(cp->effective_cpus, cp->effective_cpus,
++				       cp->subparts_cpus);
++		}
+ 		spin_unlock_irq(&callback_lock);
+ 
+ 		WARN_ON(!is_in_v2_mode() &&
+@@ -1047,6 +1261,7 @@ static int update_cpumask(struct cpuset *cs, struct cpuset *trialcs,
+ 			  const char *buf)
+ {
+ 	int retval;
++	struct tmpmasks tmp;
+ 
+ 	/* top_cpuset.cpus_allowed tracks cpu_online_mask; it's read-only */
+ 	if (cs == &top_cpuset)
+@@ -1078,12 +1293,39 @@ static int update_cpumask(struct cpuset *cs, struct cpuset *trialcs,
+ 	if (retval < 0)
+ 		return retval;
+ 
++#ifdef CONFIG_CPUMASK_OFFSTACK
++	/*
++	 * Use the cpumasks in trialcs for tmpmasks when they are pointers
++	 * to allocated cpumasks.
++	 */
++	tmp.addmask  = trialcs->subparts_cpus;
++	tmp.delmask  = trialcs->effective_cpus;
++	tmp.new_cpus = trialcs->cpus_allowed;
++#endif
++
++	if (cs->partition_root_state) {
++		/* Cpumask of a partition root cannot be empty */
++		if (cpumask_empty(trialcs->cpus_allowed))
++			return -EINVAL;
++		if (update_parent_subparts_cpumask(cs, partcmd_update,
++					trialcs->cpus_allowed, &tmp) < 0)
++			return -EINVAL;
++	}
++
+ 	spin_lock_irq(&callback_lock);
+ 	cpumask_copy(cs->cpus_allowed, trialcs->cpus_allowed);
++
++	/*
++	 * Make sure that subparts_cpus is a subset of cpus_allowed.
++	 */
++	if (cs->nr_subparts_cpus) {
++		cpumask_andnot(cs->subparts_cpus, cs->subparts_cpus,
++			       cs->cpus_allowed);
++		cs->nr_subparts_cpus = cpumask_weight(cs->subparts_cpus);
++	}
+ 	spin_unlock_irq(&callback_lock);
+ 
+-	/* use trialcs->cpus_allowed as a temp variable */
+-	update_cpumasks_hier(cs, trialcs->cpus_allowed);
++	update_cpumasks_hier(cs, &tmp);
+ 	return 0;
+ }
+ 
+@@ -1442,6 +1684,80 @@ static int update_flag(cpuset_flagbits_t bit, struct cpuset *cs,
+ }
+ 
+ /*
++ * update_prstate - update partititon_root_state
++ * cs:	the cpuset to update
++ * val: 0 - disabled, 1 - enabled
++ *
++ * Call with cpuset_mutex held.
++ */
++static int update_prstate(struct cpuset *cs, int val)
++{
++	int err;
++	struct cpuset *parent = parent_cs(cs);
++	struct tmpmasks tmp;
++
++	if ((val != 0) && (val != 1))
++		return -EINVAL;
++	if (val == cs->partition_root_state)
++		return 0;
++
++	/*
++	 * Cannot force a partial or erroneous partition root to a full
++	 * partition root.
++	 */
++	if (val && cs->partition_root_state)
++		return -EINVAL;
++
++	if (alloc_cpumasks(NULL, &tmp))
++		return -ENOMEM;
++
++	err = -EINVAL;
++	if (!cs->partition_root_state) {
++		/*
++		 * Turning on partition root requires setting the
++		 * CS_CPU_EXCLUSIVE bit implicitly as well and cpus_allowed
++		 * cannot be NULL.
++		 */
++		if (cpumask_empty(cs->cpus_allowed))
++			goto out;
++
++		err = update_flag(CS_CPU_EXCLUSIVE, cs, 1);
++		if (err)
++			goto out;
++
++		err = update_parent_subparts_cpumask(cs, partcmd_enable,
++						     NULL, &tmp);
++		if (err) {
++			update_flag(CS_CPU_EXCLUSIVE, cs, 0);
++			goto out;
++		}
++		cs->partition_root_state = PRS_ENABLED;
++	} else {
++		err = update_parent_subparts_cpumask(cs, partcmd_disable,
++						     NULL, &tmp);
++		if (err)
++			goto out;
++
++		cs->partition_root_state = 0;
++
++		/* Turning off CS_CPU_EXCLUSIVE will not return error */
++		update_flag(CS_CPU_EXCLUSIVE, cs, 0);
++	}
++
++	/*
++	 * Update cpumask of parent's tasks except when it is the top
++	 * cpuset as some system daemons cannot be mapped to other CPUs.
++	 */
++	if (parent != &top_cpuset)
++		update_tasks_cpumask(parent);
++
++	rebuild_sched_domains_locked();
++out:
++	free_cpumasks(NULL, &tmp);
++	return err;
++}
++
++/*
+  * Frequency meter - How fast is some event occurring?
+  *
+  * These routines manage a digitally filtered, constant time based,
+@@ -1686,6 +2002,7 @@ static void cpuset_attach(struct cgroup_taskset *tset)
+ 	FILE_MEM_EXCLUSIVE,
+ 	FILE_MEM_HARDWALL,
+ 	FILE_SCHED_LOAD_BALANCE,
++	FILE_PARTITION_ROOT,
+ 	FILE_SCHED_RELAX_DOMAIN_LEVEL,
+ 	FILE_MEMORY_PRESSURE_ENABLED,
+ 	FILE_MEMORY_PRESSURE,
+@@ -1755,6 +2072,9 @@ static int cpuset_write_s64(struct cgroup_subsys_state *css, struct cftype *cft,
+ 	case FILE_SCHED_RELAX_DOMAIN_LEVEL:
+ 		retval = update_relax_domain_level(cs, val);
+ 		break;
++	case FILE_PARTITION_ROOT:
++		retval = update_prstate(cs, val);
++		break;
+ 	default:
+ 		retval = -EINVAL;
+ 		break;
+@@ -1905,6 +2225,8 @@ static s64 cpuset_read_s64(struct cgroup_subsys_state *css, struct cftype *cft)
+ 	switch (type) {
+ 	case FILE_SCHED_RELAX_DOMAIN_LEVEL:
+ 		return cs->relax_domain_level;
++	case FILE_PARTITION_ROOT:
++		return cs->partition_root_state;
+ 	default:
+ 		BUG();
+ 	}
+@@ -2056,6 +2378,14 @@ static s64 cpuset_read_s64(struct cgroup_subsys_state *css, struct cftype *cft)
+ 		.flags = CFTYPE_NOT_ON_ROOT,
+ 	},
+ 
++	{
++		.name = "sched.partition",
++		.read_s64 = cpuset_read_s64,
++		.write_s64 = cpuset_write_s64,
++		.private = FILE_PARTITION_ROOT,
++		.flags = CFTYPE_NOT_ON_ROOT,
++	},
++
+ 	{ }	/* terminate */
+ };
+ 
+@@ -2157,7 +2487,12 @@ static int cpuset_css_online(struct cgroup_subsys_state *css)
+ /*
+  * If the cpuset being removed has its flag 'sched_load_balance'
+  * enabled, then simulate turning sched_load_balance off, which
+- * will call rebuild_sched_domains_locked().
++ * will call rebuild_sched_domains_locked(). That is not needed
++ * in the default hierarchy where only changes in partition
++ * will cause repartitioning.
++ *
++ * If the cpuset has the 'sched.partition' flag enabled, simulate
++ * turning 'sched.partition" off.
+  */
+ 
+ static void cpuset_css_offline(struct cgroup_subsys_state *css)
+@@ -2166,7 +2501,11 @@ static void cpuset_css_offline(struct cgroup_subsys_state *css)
+ 
+ 	mutex_lock(&cpuset_mutex);
+ 
+-	if (is_sched_load_balance(cs))
++	if (is_partition_root(cs))
++		update_prstate(cs, 0);
++
++	if (!cgroup_subsys_on_dfl(cpuset_cgrp_subsys) &&
++	    is_sched_load_balance(cs))
+ 		update_flag(CS_SCHED_LOAD_BALANCE, cs, 0);
+ 
+ 	cpuset_dec();
+-- 
+1.8.3.1

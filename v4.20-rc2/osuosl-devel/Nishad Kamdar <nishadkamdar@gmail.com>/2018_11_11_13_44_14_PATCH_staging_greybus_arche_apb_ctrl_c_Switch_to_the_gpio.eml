@@ -1,0 +1,437 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (61.164.42.155:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 11 Nov 2018 15:04:42 -0000
+Received: from icoremail.net (unknown [209.85.214.174])
+	by mail-app2 (Coremail) with SMTP id by_KCgCn3yT5wedbc1xzAQ--.35529S3;
+	Sun, 11 Nov 2018 13:45:30 +0800 (CST)
+Received: from mail-pl1-f174.google.com (unknown [209.85.214.174])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwCnjUn3wedb4nAqAA--.14608S3;
+	Sun, 11 Nov 2018 13:45:27 +0800 (CST)
+Received: by mail-pl1-f174.google.com with SMTP id p16-v6so2750120plr.8
+        for <xuliker@zju.edu.cn>; Sat, 10 Nov 2018 21:45:27 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:delivered-to:dkim-signature:date:from:to:cc
+         :subject:message-id:mime-version:content-disposition:user-agent
+         :sender:precedence:list-id;
+        bh=TBOctfYOpPlIzLqNi4gt6PqmTVhT/HwRQN+0tcQEQKI=;
+        b=I2Mk28S4bqFz7ASOlXalXZQ1rGSqr45E/HOlMyvavsIzLHV8+jt698pDughRvw03mt
+         A6tcJrH00lxl4YwhLRSIulVpS0eyfTwQhgB4B76CzFKja5x/C7pqleEcTTRGKca+lo2H
+         W401QpqOFmeAgJTVOK71dATfvqr3Eenv3AswsKycsjQBbLPhpfhYLnYdQswkXSoeHOGs
+         Xa6DqfxzgAsYmDnkPQVwXOd1ma1+UgZs/CMW1URVKXlFJZxw6cTgTDbm0fSo3tmUtXZp
+         ilBsEXRQebeqBUZEEv2ic2XUVyKsUz9XrnwLDV1L5CIVAZd8GQcmYdoJ2nOuqn79eEmY
+         edrw==
+X-Gm-Message-State: AGRZ1gK/Ryliiiv7tYl9Ze4ZB93GFbFHiLVhuXfEG5+dO2ChdNzX0UWA
+	BpDJ73QZWjc2OLPa6jcddTdTOpEvurObmkdcwI7T+yP3SC77bno=
+X-Received: by 2002:a17:902:8e81:: with SMTP id bg1-v6mr15150244plb.192.1541915126759;
+        Sat, 10 Nov 2018 21:45:26 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp1794173pjt;
+        Sat, 10 Nov 2018 21:45:25 -0800 (PST)
+X-Google-Smtp-Source: AJdET5d3dOWHlSeWVeKcUNZH0XLest+s5KRO7F8TpksNCFoQSFHDAXX2YUSAgZxJXwMZikRRcbPK
+X-Received: by 2002:a63:a612:: with SMTP id t18-v6mr13025158pge.338.1541915125406;
+        Sat, 10 Nov 2018 21:45:25 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1541915125; cv=none;
+        d=google.com; s=arc-20160816;
+        b=mZcRzAX2crkUUhyDEbJuIxNVcyJnhPoUgVuDyluJglmBzAwwmN+okWMH9ccehV/8F6
+         TpxYl3/+u4U6dlQFld6nrsORFxIlzz1T0x1BaDzQdBuZ4MAI4+rooFRSzp1raFDiRLMK
+         qBvsgS4yqGA/5At+5Fnu/tRFT5wwD88zIbFciGHopgmUC/rdCAD8pfkagi1BS25tb1e9
+         gH0IQsbr7KvGi7jU4cafAQf8GMhbRmHvXw+xxaw22//swxO0CK25xPyfaU5axhLvaa9Z
+         VMSuG51xabXSlWpvQQJh26MokCoVJwuDz8UVQIEoedGpwXLLGAyvcuE08EU6ZxPnVtfy
+         WYHg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:user-agent:content-disposition
+         :mime-version:message-id:subject:cc:to:from:date:dkim-signature;
+        bh=TBOctfYOpPlIzLqNi4gt6PqmTVhT/HwRQN+0tcQEQKI=;
+        b=KY5ydUXTtWZbB2iFa+jBAeOe4G5SVawamxrO+zqxNcEb9KRwXjZKiRziMIx+beu4ng
+         3qmsJGi2ESK2zHWlzjL2587iLpmISvvPBEMb6XJ/2EmpxADdID8ShGQkTfhtZnvmUWyG
+         zwsxbRn1Yu+7z2QOJrr1adPZMfGwfS4nKNVE1JDVvlItf9WuNgGK+oKyCRJY5XTnbDhD
+         JewrBWuUVIaWAqFajYIgUr2WWUV57IKOwI+DP9NwaF2ydD2Lv9bhFlfJtswevZbW8SHP
+         +6Vv0D56g7hF9juxPWFha0SsiNak3n4VGbmTKEtjaGDaGw40BW8wUnwjFaeXgWhramt1
+         28wQ==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@gmail.com header.s=20161025 header.b=iykUcICm;
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;
+       dmarc=pass (p=NONE sp=QUARANTINE dis=NONE) header.from=gmail.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id g11-v6si6572416pfe.186.2018.11.10.21.44.32;
+        Sat, 10 Nov 2018 21:45:25 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1727398AbeKKPcB (ORCPT <rfc822;berg.ding@gmail.com> + 99 others);
+        Sun, 11 Nov 2018 10:32:01 -0500
+Received: from mail-pg1-f196.google.com ([209.85.215.196]:35064 "EHLO
+        mail-pg1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727305AbeKKPcB (ORCPT
+        <rfc822;linux-kernel@vger.kernel.org>);
+        Sun, 11 Nov 2018 10:32:01 -0500
+Received: by mail-pg1-f196.google.com with SMTP id 32-v6so2601852pgu.2
+        for <linux-kernel@vger.kernel.org>; Sat, 10 Nov 2018 21:44:27 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:mime-version:content-disposition
+         :user-agent;
+        bh=TBOctfYOpPlIzLqNi4gt6PqmTVhT/HwRQN+0tcQEQKI=;
+        b=iykUcICm/lx65ZYz3eMGViQxdbaEpDYzApoll0qYtTB7vOXO7RyCNMwto8VCBXDGDj
+         TciqJjnCcVGgmneXT3rslxxx0AaMXZWeiz9aLCiqCeSR6FeRMmknJIl+0r34mY5ONrlx
+         GpqGKDPcY8ywHuZFWeupXq5/nglN4ZcZmgMSz66NUrAjnhNpXz+6wpmAftW6YSfSfTGY
+         e2gVMCk9Idr+MdBIor7E84c9liePYxUluZ/m3F86X92BHeYYCGrUEFUJGbAGlXeuZ9kS
+         KYpgjpJIGXxKHqMnpB+MNkHtoLQi8zE8mRYN+iLy5kc+lJuiKYns6pPMDCXtUzgdwsvE
+         QqzA==
+X-Received: by 2002:a63:d34a:: with SMTP id u10mr13528547pgi.301.1541915067350;
+        Sat, 10 Nov 2018 21:44:27 -0800 (PST)
+Received: from nishad ([106.193.161.4])
+        by smtp.gmail.com with ESMTPSA id s184sm13941023pgc.38.2018.11.10.21.44.21
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Sat, 10 Nov 2018 21:44:26 -0800 (PST)
+Date: Sun, 11 Nov 2018 11:14:14 +0530
+From: Nishad Kamdar <nishadkamdar@gmail.com>
+To: Vaibhav Hiremath <hvaibhav.linux@gmail.com>,
+        Johan Hovold <johan@kernel.org>, Alex Elder <elder@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: greybus-dev@lists.linaro.org, devel@driverdev.osuosl.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH] staging: greybus: arche-apb-ctrl.c: Switch to the gpio
+ descriptor interface
+Message-ID: <20181111054405.GA32548@nishad>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.9.4 (2018-02-28)
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwCnjUn3wedb4nAqAA--.14608S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW3GF15Kr4rGFWrKr18KrW7Jwb_yoWfKr17pF
+	4UJF48JFW8GFy8twn8JryxZ3WjyF4xta47Cw47WrWfC3Waqrn8tFn0yFyjqr1akFykuFy5
+	GF4agayIvF4qvF7anT9S1TB71UUUUUUqnTZGkaVYY2UrUUUU0bIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUPab7Iv0xC_Kw4lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Gr0_Xr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1l84ACjcxK6I8E
+	87Iv67AKxVW0oVCq3wA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_GcCE3s1le2I262IYc4CY6c
+	8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_Jr0_
+	Jr4lYx0Ex4A2jsIE14v26r1j6r4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvEwIxGrw
+	CjxxvEa2IrMxkF7I0Ew4C26cxK6c8Ij28IcwCY1Ik26cxK6xAEc7vF6xCjj44lc2xSY4AK
+	6IIF6r4rMxkI7II2jI8vz4vEwIxGrwCYIxAIcVC0I7IYx2IY67AKxVWUJVWUCwCYIxAIcV
+	C0I7IYx2IY6xkF7I0E14v26r1j6r4UMxvI42IY6I8E87Iv67AKxVW8Jr0_Cr1UMxvI42IY
+	6I8E87Iv6xkF7I0E14v26r4UJVWxJr1l42xK82IYc2Ij64vIr41l42xK82IY64kExVAvwV
+	Aq07x20xyl4x8a6x804xWl4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWU
+	JVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r1q6r43MIIYrxkI7V
+	AKI48JMIIF0xvE42xK8VAvwI8IcIk0rVWrJr0_WFyUJbIYCTnIWIevJa73UjIFyTuYvjxU
+	QDPEDUUUU
+
+Use the gpiod interface instead of the deprecated old non-descriptor
+interface.
+
+Signed-off-by: Nishad Kamdar <nishadkamdar@gmail.com>
+---
+ drivers/staging/greybus/arche-apb-ctrl.c | 158 ++++++++++-------------
+ 1 file changed, 65 insertions(+), 93 deletions(-)
+
+diff --git a/drivers/staging/greybus/arche-apb-ctrl.c b/drivers/staging/greybus/arche-apb-ctrl.c
+index cc8d6fc831b4..fd19e2394c9c 100644
+--- a/drivers/staging/greybus/arche-apb-ctrl.c
++++ b/drivers/staging/greybus/arche-apb-ctrl.c
+@@ -8,9 +8,8 @@
+ 
+ #include <linux/clk.h>
+ #include <linux/delay.h>
+-#include <linux/gpio.h>
++#include <linux/gpio/consumer.h>
+ #include <linux/interrupt.h>
+-#include <linux/of_gpio.h>
+ #include <linux/of_irq.h>
+ #include <linux/module.h>
+ #include <linux/pinctrl/consumer.h>
+@@ -20,17 +19,16 @@
+ #include <linux/spinlock.h>
+ #include "arche_platform.h"
+ 
+-
+ static void apb_bootret_deassert(struct device *dev);
+ 
+ struct arche_apb_ctrl_drvdata {
+ 	/* Control GPIO signals to and from AP <=> AP Bridges */
+-	int resetn_gpio;
+-	int boot_ret_gpio;
+-	int pwroff_gpio;
+-	int wake_in_gpio;
+-	int wake_out_gpio;
+-	int pwrdn_gpio;
++	struct gpio_desc *resetn;
++	struct gpio_desc *boot_ret;
++	struct gpio_desc *pwroff;
++	struct gpio_desc *wake_in;
++	struct gpio_desc *wake_out;
++	struct gpio_desc *pwrdn;
+ 
+ 	enum arche_platform_state state;
+ 	bool init_disabled;
+@@ -38,28 +36,28 @@ struct arche_apb_ctrl_drvdata {
+ 	struct regulator *vcore;
+ 	struct regulator *vio;
+ 
+-	int clk_en_gpio;
++	struct gpio_desc *clk_en;
+ 	struct clk *clk;
+ 
+ 	struct pinctrl *pinctrl;
+ 	struct pinctrl_state *pin_default;
+ 
+ 	/* V2: SPI Bus control  */
+-	int spi_en_gpio;
++	struct gpio_desc *spi_en;
+ 	bool spi_en_polarity_high;
+ };
+ 
+ /*
+  * Note that these low level api's are active high
+  */
+-static inline void deassert_reset(unsigned int gpio)
++static inline void deassert_reset(struct gpio_desc *gpio)
+ {
+-	gpio_set_value(gpio, 1);
++	gpiod_set_value(gpio, 1);
+ }
+ 
+-static inline void assert_reset(unsigned int gpio)
++static inline void assert_reset(struct gpio_desc *gpio)
+ {
+-	gpio_set_value(gpio, 0);
++	gpiod_set_value(gpio, 0);
+ }
+ 
+ /*
+@@ -76,11 +74,11 @@ static int coldboot_seq(struct platform_device *pdev)
+ 		return 0;
+ 
+ 	/* Hold APB in reset state */
+-	assert_reset(apb->resetn_gpio);
++	assert_reset(apb->resetn);
+ 
+ 	if (apb->state == ARCHE_PLATFORM_STATE_FW_FLASHING &&
+-	    gpio_is_valid(apb->spi_en_gpio))
+-		devm_gpio_free(dev, apb->spi_en_gpio);
++	    apb->spi_en)
++		devm_gpiod_put(dev, apb->spi_en);
+ 
+ 	/* Enable power to APB */
+ 	if (!IS_ERR(apb->vcore)) {
+@@ -102,13 +100,13 @@ static int coldboot_seq(struct platform_device *pdev)
+ 	apb_bootret_deassert(dev);
+ 
+ 	/* On DB3 clock was not mandatory */
+-	if (gpio_is_valid(apb->clk_en_gpio))
+-		gpio_set_value(apb->clk_en_gpio, 1);
++	if (apb->clk_en)
++		gpiod_set_value(apb->clk_en, 1);
+ 
+ 	usleep_range(100, 200);
+ 
+ 	/* deassert reset to APB : Active-low signal */
+-	deassert_reset(apb->resetn_gpio);
++	deassert_reset(apb->resetn);
+ 
+ 	apb->state = ARCHE_PLATFORM_STATE_ACTIVE;
+ 
+@@ -120,6 +118,7 @@ static int fw_flashing_seq(struct platform_device *pdev)
+ 	struct device *dev = &pdev->dev;
+ 	struct arche_apb_ctrl_drvdata *apb = platform_get_drvdata(pdev);
+ 	int ret;
++	unsigned long flags;
+ 
+ 	if (apb->init_disabled ||
+ 	    apb->state == ARCHE_PLATFORM_STATE_FW_FLASHING)
+@@ -137,25 +136,20 @@ static int fw_flashing_seq(struct platform_device *pdev)
+ 		return ret;
+ 	}
+ 
+-	if (gpio_is_valid(apb->spi_en_gpio)) {
+-		unsigned long flags;
+-
+-		if (apb->spi_en_polarity_high)
+-			flags = GPIOF_OUT_INIT_HIGH;
+-		else
+-			flags = GPIOF_OUT_INIT_LOW;
++	if (apb->spi_en_polarity_high)
++		flags = GPIOD_OUT_HIGH;
++	else
++		flags = GPIOD_OUT_LOW;
+ 
+-		ret = devm_gpio_request_one(dev, apb->spi_en_gpio,
+-					    flags, "apb_spi_en");
+-		if (ret) {
+-			dev_err(dev, "Failed requesting SPI bus en gpio %d\n",
+-				apb->spi_en_gpio);
+-			return ret;
+-		}
++	apb->spi_en = devm_gpiod_get(dev, "gb,apb_spi_en", flags);
++	if (IS_ERR(apb->spi_en)) {
++		ret = PTR_ERR(apb->spi_en);
++		dev_err(dev, "Failed requesting SPI bus en GPIO: %d\n", ret);
++		return ret;
+ 	}
+ 
+ 	/* for flashing device should be in reset state */
+-	assert_reset(apb->resetn_gpio);
++	assert_reset(apb->resetn);
+ 	apb->state = ARCHE_PLATFORM_STATE_FW_FLASHING;
+ 
+ 	return 0;
+@@ -178,8 +172,8 @@ static int standby_boot_seq(struct platform_device *pdev)
+ 		return 0;
+ 
+ 	if (apb->state == ARCHE_PLATFORM_STATE_FW_FLASHING &&
+-	    gpio_is_valid(apb->spi_en_gpio))
+-		devm_gpio_free(dev, apb->spi_en_gpio);
++	    apb->spi_en)
++		devm_gpiod_put(dev, apb->spi_en);
+ 
+ 	/*
+ 	 * As per WDM spec, do nothing
+@@ -203,12 +197,12 @@ static void poweroff_seq(struct platform_device *pdev)
+ 		return;
+ 
+ 	if (apb->state == ARCHE_PLATFORM_STATE_FW_FLASHING &&
+-	    gpio_is_valid(apb->spi_en_gpio))
+-		devm_gpio_free(dev, apb->spi_en_gpio);
++	    apb->spi_en)
++		devm_gpiod_put(dev, apb->spi_en);
+ 
+ 	/* disable the clock */
+-	if (gpio_is_valid(apb->clk_en_gpio))
+-		gpio_set_value(apb->clk_en_gpio, 0);
++	if (apb->clk_en)
++		gpiod_set_value(apb->clk_en, 0);
+ 
+ 	if (!IS_ERR(apb->vcore) && regulator_is_enabled(apb->vcore) > 0)
+ 		regulator_disable(apb->vcore);
+@@ -217,7 +211,7 @@ static void poweroff_seq(struct platform_device *pdev)
+ 		regulator_disable(apb->vio);
+ 
+ 	/* As part of exit, put APB back in reset state */
+-	assert_reset(apb->resetn_gpio);
++	assert_reset(apb->resetn);
+ 	apb->state = ARCHE_PLATFORM_STATE_OFF;
+ 
+ 	/* TODO: May have to send an event to SVC about this exit */
+@@ -227,7 +221,7 @@ static void apb_bootret_deassert(struct device *dev)
+ {
+ 	struct arche_apb_ctrl_drvdata *apb = dev_get_drvdata(dev);
+ 
+-	gpio_set_value(apb->boot_ret_gpio, 0);
++	gpiod_set_value(apb->boot_ret, 0);
+ }
+ 
+ int apb_ctrl_coldboot(struct device *dev)
+@@ -326,63 +320,44 @@ static int apb_ctrl_get_devtree_data(struct platform_device *pdev,
+ 	struct device_node *np = dev->of_node;
+ 	int ret;
+ 
+-	apb->resetn_gpio = of_get_named_gpio(np, "reset-gpios", 0);
+-	if (apb->resetn_gpio < 0) {
+-		dev_err(dev, "failed to get reset gpio\n");
+-		return apb->resetn_gpio;
+-	}
+-	ret = devm_gpio_request_one(dev, apb->resetn_gpio,
+-				    GPIOF_OUT_INIT_LOW, "apb-reset");
+-	if (ret) {
+-		dev_err(dev, "Failed requesting reset gpio %d\n",
+-			apb->resetn_gpio);
++	apb->resetn = devm_gpiod_get(dev, "gb,reset-gpios", GPIOD_OUT_LOW);
++	if (IS_ERR(apb->resetn)) {
++		ret = PTR_ERR(apb->resetn);
++		dev_err(dev, "Failed requesting reset GPIO: %d\n", ret);
+ 		return ret;
+ 	}
+ 
+-	apb->boot_ret_gpio = of_get_named_gpio(np, "boot-ret-gpios", 0);
+-	if (apb->boot_ret_gpio < 0) {
+-		dev_err(dev, "failed to get boot retention gpio\n");
+-		return apb->boot_ret_gpio;
+-	}
+-	ret = devm_gpio_request_one(dev, apb->boot_ret_gpio,
+-				    GPIOF_OUT_INIT_LOW, "boot retention");
+-	if (ret) {
+-		dev_err(dev, "Failed requesting bootret gpio %d\n",
+-			apb->boot_ret_gpio);
++	apb->boot_ret = devm_gpiod_get(dev, "gb,boot-ret-gpios", GPIOD_OUT_LOW);
++	if (IS_ERR(apb->boot_ret)) {
++		ret = PTR_ERR(apb->boot_ret);
++		dev_err(dev, "Failed requesting bootret GPIO: %d\n", ret);
+ 		return ret;
+ 	}
+ 
+ 	/* It's not mandatory to support power management interface */
+-	apb->pwroff_gpio = of_get_named_gpio(np, "pwr-off-gpios", 0);
+-	if (apb->pwroff_gpio < 0) {
+-		dev_err(dev, "failed to get power off gpio\n");
+-		return apb->pwroff_gpio;
+-	}
+-	ret = devm_gpio_request_one(dev, apb->pwroff_gpio,
+-				    GPIOF_IN, "pwroff_n");
+-	if (ret) {
+-		dev_err(dev, "Failed requesting pwroff_n gpio %d\n",
+-			apb->pwroff_gpio);
++	apb->pwroff = devm_gpiod_get_optional(dev, "gb,pwr-off-gpios",
++					      GPIOD_IN);
++	if (IS_ERR(apb->pwroff)) {
++		ret = PTR_ERR(apb->pwroff);
++		dev_err(dev, "Failed requesting pwroff_n GPIO: %d\n", ret);
+ 		return ret;
+ 	}
+ 
+ 	/* Do not make clock mandatory as of now (for DB3) */
+-	apb->clk_en_gpio = of_get_named_gpio(np, "clock-en-gpio", 0);
+-	if (apb->clk_en_gpio < 0) {
+-		dev_warn(dev, "failed to get clock en gpio\n");
+-	} else if (gpio_is_valid(apb->clk_en_gpio)) {
+-		ret = devm_gpio_request_one(dev, apb->clk_en_gpio,
+-					    GPIOF_OUT_INIT_LOW, "apb_clk_en");
+-		if (ret) {
+-			dev_warn(dev, "Failed requesting APB clock en gpio %d\n",
+-				 apb->clk_en_gpio);
+-			return ret;
+-		}
++	apb->clk_en = devm_gpiod_get_optional(dev, "gb,clock-en-gpio",
++					      GPIOD_OUT_LOW);
++	if (IS_ERR(apb->clk_en)) {
++		ret = PTR_ERR(apb->clk_en);
++		dev_err(dev, "Failed requesting APB clock en GPIO: %d\n", ret);
++		return ret;
+ 	}
+ 
+-	apb->pwrdn_gpio = of_get_named_gpio(np, "pwr-down-gpios", 0);
+-	if (apb->pwrdn_gpio < 0)
+-		dev_warn(dev, "failed to get power down gpio\n");
++	apb->pwrdn = devm_gpiod_get(dev, "gb,pwr-down-gpios", GPIOD_OUT_LOW);
++	if (IF_ERR(apb->pwrdn)) {
++		ret = PTR_ERR(apb->pwrdn);
++		dev_warn(dev, "Failed requesting power down GPIO: %d\n", ret);
++		return ret;
++	}
+ 
+ 	/* Regulators are optional, as we may have fixed supply coming in */
+ 	apb->vcore = devm_regulator_get(dev, "vcore");
+@@ -405,11 +380,8 @@ static int apb_ctrl_get_devtree_data(struct platform_device *pdev,
+ 	}
+ 
+ 	/* Only applicable for platform >= V2 */
+-	apb->spi_en_gpio = of_get_named_gpio(np, "spi-en-gpio", 0);
+-	if (apb->spi_en_gpio >= 0) {
+-		if (of_property_read_bool(pdev->dev.of_node,
+-					  "spi-en-active-high"))
+-			apb->spi_en_polarity_high = true;
++	if (of_property_read_bool(pdev->dev.of_node, "gb,spi-en-active-high"))
++		apb->spi_en_polarity_high = true;
+ 	}
+ 
+ 	return 0;
+-- 
+2.17.1

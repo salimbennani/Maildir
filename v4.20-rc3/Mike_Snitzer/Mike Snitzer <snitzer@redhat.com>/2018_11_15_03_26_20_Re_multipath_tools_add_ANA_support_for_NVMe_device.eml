@@ -1,0 +1,330 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 15 Nov 2018 00:42:17 -0000
+Received: from icoremail.net (unknown [209.85.215.177])
+	by mail-app2 (Coremail) with SMTP id by_KCgDnX+_9duxb85eSAQ--.44521S3;
+	Thu, 15 Nov 2018 03:26:54 +0800 (CST)
+Received: from mail-pg1-f177.google.com (unknown [209.85.215.177])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwDHq0f4duxbLgBAAA--.1499S3;
+	Thu, 15 Nov 2018 03:26:49 +0800 (CST)
+Received: by mail-pg1-f177.google.com with SMTP id y4so7796888pgc.12
+        for <xuliker@zju.edu.cn>; Wed, 14 Nov 2018 11:26:49 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent:sender:precedence
+         :list-id;
+        bh=J2stsEU8trDmxKlumt6YLltsUVfb77b3KFt/wdcvg0U=;
+        b=csRbn/w11n1gtFtJKp5BFGurUv/SIyTd3GcyKvYmRQdEDq/mJJIYX+9uQb0svG2uvV
+         XTLIMGwgZzV2Z/4kt4whZFJoWtt7rjI+TxmFYTH20zKVJsXsgDtOOFZbby6okJ2+8fkJ
+         2mRrdXteBkQ1y27SsQVFLoSbQcEnkKx1a6mblr6zWUNvGYxKYOR62FAzMJB+ko09TUgE
+         5P1fjVuu63XgeTdBdKdHDKCFO6t88l6zLydMmYfwksC0T5hG3EEMzCSalL6MqNwcUb9Q
+         P/oaSNwLS2Dg+db2dfpXZupBliXk3hHkV8S4udIsNHvV4r13LnlVCxEoFzYk2dsyLCCo
+         PsTQ==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=redhat.com
+X-Gm-Message-State: AGRZ1gKOoYYh65lTyCGDMaQgeWEyxIyZaf4LpZNjyxkNSXBu9Y/WdBYZ
+	ejl5Aku1Ypn/udm8Paq5KFnXHrdRBl3VFk9Sj848R/tLRiA8RwRISA==
+X-Received: by 2002:a63:9402:: with SMTP id m2mr2813328pge.93.1542223608666;
+        Wed, 14 Nov 2018 11:26:48 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp6216368pjt;
+        Wed, 14 Nov 2018 11:26:47 -0800 (PST)
+X-Google-Smtp-Source: AJdET5eyiIoLDA83V05r07hAUqn4NiJ30ten1t1On6Nldb991st+C5IXdqxj2DLNImvZxP5wYEvT
+X-Received: by 2002:a62:9f42:: with SMTP id g63-v6mr3234055pfe.144.1542223607612;
+        Wed, 14 Nov 2018 11:26:47 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542223607; cv=none;
+        d=google.com; s=arc-20160816;
+        b=aqMFhSKxBMASvBg0uOehJ9QmfV1HVNJfycN4ZBz2MXVTo6c2RaBVW3rxNmmKhDMAps
+         eb2NSJ+pes8KoSdoshBLWu/NPYm3DXQgHydRsBP3pwI6Do0lUfZneykxWjvpyvSzdNce
+         PvH6otn9O142b132JjBugRKpnoro10Ye9qoc+xvpbBOnky9BIRcAug0yVOYz6bp0JCoG
+         b7XNjie/5A9re0zCyqaPKWvnNay5FM0xrHRVQK8/1iOQpTffu2sAi1ToQoLK4kja104r
+         ehx1Ert4NZqwnKGSi66SnFlFh7mPWIMuH2bz9Oq4vdJgAt4RvGkxgPeruzQiUAu9SV0e
+         tieQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:user-agent:in-reply-to
+         :content-disposition:mime-version:references:message-id:subject:cc
+         :to:from:date;
+        bh=J2stsEU8trDmxKlumt6YLltsUVfb77b3KFt/wdcvg0U=;
+        b=jO5dCr2mcGrCJ9CsdVPvoeKrevP7DJTrAZvSaoQr2eM8cmq+8+PK7i7HQcpQHefJyf
+         LF5atBg7Z6xW/C0sWTGQZxhTIh94XBZXjuJZW12Lp8bpNRJpXWTcXjQN2aKNpY5RTisM
+         tc2Abw8Yeb3ulOSXoWnF6KUkzZWmCY/Ld4j4RYp9TmExkhfUgF0hI7+wtZNgo2pZABMz
+         2hiut2f95xBidTPtx6a2NRk4tNoqLPslOEOAuiHtavJPolrruwv70J1yXlur5Xsan9G2
+         Jr1fcInfWbdq6CUMcbN79rvVsfaVb+JX8uJJPA8uF/ODbd8wdNygLEQUmOGrrNVoxjai
+         ABUQ==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=redhat.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id a16si7304812plm.365.2018.11.14.11.26.31;
+        Wed, 14 Nov 2018 11:26:47 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1725927AbeKOFay (ORCPT <rfc822;leiliang4you@gmail.com>
+        + 99 others); Thu, 15 Nov 2018 00:30:54 -0500
+Received: from mx1.redhat.com ([209.132.183.28]:13191 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725756AbeKOFax (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+        Thu, 15 Nov 2018 00:30:53 -0500
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id C07E430C1D0D;
+        Wed, 14 Nov 2018 19:26:23 +0000 (UTC)
+Received: from localhost (unknown [10.18.25.149])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 3F94B600D6;
+        Wed, 14 Nov 2018 19:26:21 +0000 (UTC)
+Date: Wed, 14 Nov 2018 14:26:20 -0500
+From: Mike Snitzer <snitzer@redhat.com>
+To: Hannes Reinecke <hare@suse.de>
+Cc: Keith Busch <keith.busch@intel.com>,
+        Sagi Grimberg <sagi@grimberg.me>, hch@lst.de, axboe@kernel.dk,
+        Martin Wilck <mwilck@suse.com>, lijie <lijie34@huawei.com>,
+        xose.vazquez@gmail.com, linux-nvme@lists.infradead.org,
+        chengjike.cheng@huawei.com, shenhong09@huawei.com,
+        dm-devel@redhat.com, wangzhoumengjian@huawei.com,
+        christophe.varoqui@opensvc.com, bmarzins@redhat.com,
+        sschremm@netapp.com, linux-block@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: multipath-tools: add ANA support for NVMe device
+Message-ID: <20181114192620.GA18908@redhat.com>
+References: <1541657381-7452-1-git-send-email-lijie34@huawei.com>
+ <2691abf6733f791fb16b86d96446440e4aaff99f.camel@suse.com>
+ <20181112215323.GA7983@redhat.com>
+ <20181113161838.GC9827@localhost.localdomain>
+ <20181113180008.GA12513@redhat.com>
+ <20181114053837.GA15086@redhat.com>
+ <30cf7af7-8826-55bd-e39a-4f81ed032f6d@suse.de>
+ <20181114174746.GA18526@redhat.com>
+ <87c931e5-4ac9-1795-8d40-cc5541d3ebcf@suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <87c931e5-4ac9-1795-8d40-cc5541d3ebcf@suse.de>
+User-Agent: Mutt/1.5.21 (2010-09-15)
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.45]); Wed, 14 Nov 2018 19:26:24 +0000 (UTC)
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwDHq0f4duxbLgBAAA--.1499S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW3Gw18ur1UCFykKryUArWxXrb_yoWxZw18pF
+	y5XFs8CFs7WF17trZFqw4UCFn0kw4rtryUCrZrKw15ZrZayryfuF1UKF109r9YkrnxuryI
+	vFWUJr9rWF93Ja7anT9S1TB71UUUUUUqnTZGkaVYY2UrUUUU0bIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUBFb7Iv0xC_Kw4lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2
+	z280aVAFwI0_Cr1j6rxdM28EF7xvwVC2z280aVCY1x0267AKxVWxJr0_GcWle2I262IYc4
+	CY6c8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_
+	JrI_JrylYx0Ex4A2jsIE14v26r1j6r4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvEwI
+	xGrwCjxxvEa2IrMxkF7I0Ew4C26cxK6c8Ij28IcwCY02Avz4vEIxC_WwCY0x0Ix7I2Y4AK
+	64vIr41lcIIF0xvE2Ix0cI8IcVAFwI0_Gr0_Xr1lcIIF0xvE2Ix0cI8IcVCY1x0267AKxV
+	W8JVWxJwCYIxAIcVC2z280aVAFwI0_Gr1j6F4UJwCYIxAIcVC2z280aVCY1x0267AKxVW8
+	Jr0_Cr1UMxAIw28IcxkI7VAKI48JMxAIw28IcVAKzI0EY4vE52x082I5MxCjnVCjjxCrMx
+	C20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxVCjr7xvwVAF
+	wI0_JrI_JrWlx4CE17CEb7AF67AKxVW8ZVWrXwCIc40Y0x0EwIxGrwCI42IY6xAIw20EY4
+	v20xvaj40_Zr0_Wr1UYxBIdaVFxhVjvjDU0xZFpf9x07bmb1nUUUUU=
+
+On Wed, Nov 14 2018 at  1:51pm -0500,
+Hannes Reinecke <hare@suse.de> wrote:
+
+> On 11/14/18 6:47 PM, Mike Snitzer wrote:
+> > On Wed, Nov 14 2018 at  2:49am -0500,
+> > Hannes Reinecke <hare@suse.de> wrote:
+> > 
+> >> On 11/14/18 6:38 AM, Mike Snitzer wrote:
+> >>> On Tue, Nov 13 2018 at  1:00pm -0500,
+> >>> Mike Snitzer <snitzer@redhat.com> wrote:
+> >>>
+> >>>> [1]: http://lists.infradead.org/pipermail/linux-nvme/2018-November/020765.html
+> >>>> [2]: https://www.redhat.com/archives/dm-devel/2018-November/msg00072.html
+> >>> ...
+> >>>
+> >>> I knew there had to be a pretty tight coupling between the NVMe driver's
+> >>> native multipathing and ANA support... and that the simplicity of
+> >>> Hannes' patch [1] was too good to be true.
+> >>>
+> >>> The real justification for not making Hannes' change is it'd effectively
+> >>> be useless without first splitting out the ANA handling done during NVMe
+> >>> request completion (NVME_SC_ANA_* cases in nvme_failover_req) that
+> >>> triggers re-reading the ANA log page accordingly.
+> >>>
+> >>> So without the ability to drive the ANA workqueue to trigger
+> >>> nvme_read_ana_log() from the nvme driver's completion path -- even if
+> >>> nvme_core.multipath=N -- it really doesn't buy multipath-tools anything
+> >>> to have the NVMe driver export the ana state via sysfs, because that ANA
+> >>> state will never get updated.
+> >>>
+> >> Hmm. Indeed, I was more focussed on having the sysfs attributes
+> >> displayed, so yes, indeed it needs some more work.
+> > ...
+> >>> Not holding my breath BUT:
+> >>> if decoupling the reading of ANA state from native NVMe multipathing
+> >>> specific work during nvme request completion were an acceptable
+> >>> advancement I'd gladly do the work.
+> >>>
+> >> I'd be happy to work on that, given that we'll have to have 'real'
+> >> ANA support for device-mapper anyway for SLE12 SP4 etc.
+> > 
+> > I had a close enough look yesterday that I figured I'd just implement
+> > what I reasoned through as one way forward, compile tested only (patch
+> > relative to Jens' for-4.21/block):
+> > 
+> >  drivers/nvme/host/core.c      | 14 +++++++---
+> >  drivers/nvme/host/multipath.c | 65 ++++++++++++++++++++++++++-----------------
+> >  drivers/nvme/host/nvme.h      |  4 +++
+> >  3 files changed, 54 insertions(+), 29 deletions(-)
+> > 
+> > diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
+> > index f172d63db2b5..05313ab5d91e 100644
+> > --- a/drivers/nvme/host/core.c
+> > +++ b/drivers/nvme/host/core.c
+> > @@ -252,10 +252,16 @@ void nvme_complete_rq(struct request *req)
+> >  	trace_nvme_complete_rq(req);
+> >  
+> >  	if (unlikely(status != BLK_STS_OK && nvme_req_needs_retry(req))) {
+> > -		if ((req->cmd_flags & REQ_NVME_MPATH) &&
+> > -		    blk_path_error(status)) {
+> > -			nvme_failover_req(req);
+> > -			return;
+> > +		if (blk_path_error(status)) {
+> > +			struct nvme_ns *ns = req->q->queuedata;
+> > +			u16 nvme_status = nvme_req(req)->status;
+> > +
+> > +			if (req->cmd_flags & REQ_NVME_MPATH) {
+> > +				nvme_failover_req(req);
+> > +				nvme_update_ana(ns, nvme_status);
+> > +				return;
+> > +			}
+> > +			nvme_update_ana(ns, nvme_status);
+> >  		}
+> >  
+> >  		if (!blk_queue_dying(req->q)) {
+> > diff --git a/drivers/nvme/host/multipath.c b/drivers/nvme/host/multipath.c
+> > index 5e3cc8c59a39..f7fbc161dc8c 100644
+> > --- a/drivers/nvme/host/multipath.c
+> > +++ b/drivers/nvme/host/multipath.c
+> > @@ -22,7 +22,7 @@ MODULE_PARM_DESC(multipath,
+> >  
+> >  inline bool nvme_ctrl_use_ana(struct nvme_ctrl *ctrl)
+> >  {
+> > -	return multipath && ctrl->subsys && (ctrl->subsys->cmic & (1 << 3));
+> > +	return ctrl->subsys && (ctrl->subsys->cmic & (1 << 3));
+> >  }
+> >  
+> >  /*
+> > @@ -47,6 +47,17 @@ void nvme_set_disk_name(char *disk_name, struct nvme_ns *ns,
+> >  	}
+> >  }
+> >  
+> > +static bool nvme_ana_error(u16 status)
+> > +{
+> > +	switch (status & 0x7ff) {
+> > +	case NVME_SC_ANA_TRANSITION:
+> > +	case NVME_SC_ANA_INACCESSIBLE:
+> > +	case NVME_SC_ANA_PERSISTENT_LOSS:
+> > +		return true;
+> > +	}
+> > +	return false;
+> > +}
+> > +
+> >  void nvme_failover_req(struct request *req)
+> >  {
+> >  	struct nvme_ns *ns = req->q->queuedata;
+> > @@ -58,10 +69,7 @@ void nvme_failover_req(struct request *req)
+> >  	spin_unlock_irqrestore(&ns->head->requeue_lock, flags);
+> >  	blk_mq_end_request(req, 0);
+> >  
+> > -	switch (status & 0x7ff) {
+> > -	case NVME_SC_ANA_TRANSITION:
+> > -	case NVME_SC_ANA_INACCESSIBLE:
+> > -	case NVME_SC_ANA_PERSISTENT_LOSS:
+> > +	if (nvme_ana_error(status)) {
+> >  		/*
+> >  		 * If we got back an ANA error we know the controller is alive,
+> >  		 * but not ready to serve this namespaces.  The spec suggests
+> > @@ -69,31 +77,38 @@ void nvme_failover_req(struct request *req)
+> >  		 * that the admin and I/O queues are not serialized that is
+> >  		 * fundamentally racy.  So instead just clear the current path,
+> >  		 * mark the the path as pending and kick of a re-read of the ANA
+> > -		 * log page ASAP.
+> > +		 * log page ASAP (see nvme_update_ana() below).
+> >  		 */
+> >  		nvme_mpath_clear_current_path(ns);
+> > -		if (ns->ctrl->ana_log_buf) {
+> > -			set_bit(NVME_NS_ANA_PENDING, &ns->flags);
+> > -			queue_work(nvme_wq, &ns->ctrl->ana_work);
+> > +	} else {
+> > +		switch (status & 0x7ff) {
+> > +		case NVME_SC_HOST_PATH_ERROR:
+> > +			/*
+> > +			 * Temporary transport disruption in talking to the
+> > +			 * controller.  Try to send on a new path.
+> > +			 */
+> > +			nvme_mpath_clear_current_path(ns);
+> > +			break;
+> > +		default:
+> > +			/*
+> > +			 * Reset the controller for any non-ANA error as we
+> > +			 * don't know what caused the error.
+> > +			 */
+> > +			nvme_reset_ctrl(ns->ctrl);
+> > +			break;
+> >  		}
+> > -		break;
+> > -	case NVME_SC_HOST_PATH_ERROR:
+> > -		/*
+> > -		 * Temporary transport disruption in talking to the controller.
+> > -		 * Try to send on a new path.
+> > -		 */
+> > -		nvme_mpath_clear_current_path(ns);
+> > -		break;
+> > -	default:
+> > -		/*
+> > -		 * Reset the controller for any non-ANA error as we don't know
+> > -		 * what caused the error.
+> > -		 */
+> > -		nvme_reset_ctrl(ns->ctrl);
+> > -		break;
+> >  	}
+> Maybe move nvme_mpath_clear_current_path() out of the loop (it wouldn't
+> matter if we clear the path if we reset the controller afterwards); that
+> might even clean up the code even more.
+
+Not completely sure what you're suggesting.  But I was going for purely
+functional equivalent of the existing upstream code -- just with
+multipathing and ana split.
+
+Could be that in future it wouldn't make sense to always
+nvme_mpath_clear_current_path() for all cases?
+
+> 
+> > +}
+> >  
+> > -	kblockd_schedule_work(&ns->head->requeue_work);
+> > +void nvme_update_ana(struct nvme_ns *ns, u16 status)
+> > +{
+> > +	if (nvme_ana_error(status) && ns->ctrl->ana_log_buf) {
+> > +		set_bit(NVME_NS_ANA_PENDING, &ns->flags);
+> > +		queue_work(nvme_wq, &ns->ctrl->ana_work);
+> > +	}
+> > +
+> > +	if (multipath)
+> > +		kblockd_schedule_work(&ns->head->requeue_work);
+> >  }
+> 
+> maybe use 'ns->head->disk' here; we only need to call this if we have a
+> multipath disk.
+
+Sure.
+
+> Remaining bits are okay.
+
+Thanks,
+Mike

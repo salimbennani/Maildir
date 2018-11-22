@@ -1,0 +1,868 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 09 Nov 2018 00:36:06 -0000
+Received: from icoremail.net (unknown [209.85.210.177])
+	by mail-app2 (Coremail) with SMTP id by_KCgDnX9NwYuRbVzhhAQ--.29383S3;
+	Fri, 09 Nov 2018 00:21:05 +0800 (CST)
+Received: from mail-pf1-f177.google.com (unknown [209.85.210.177])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwCXcz9sYuRblZMdAA--.6120S3;
+	Fri, 09 Nov 2018 00:21:00 +0800 (CST)
+Received: by mail-pf1-f177.google.com with SMTP id p17-v6so9139718pfj.12
+        for <xuliker@zju.edu.cn>; Thu, 08 Nov 2018 08:21:00 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:delivered-to:dkim-signature:from:to:cc:subject
+         :in-reply-to:message-id:date:sender:precedence:list-id;
+        bh=Z6ojf+X9U+sfTIV4swcc4vKHB0Z90Q15j6kQ8RqcNac=;
+        b=YF4h2vB4g+7ab+l7XlQLi7bNrxYr+PqUpzTQIRbzH3cGr3qI3FoiIWRR6jQREYYPio
+         XBt75ukq/MXEDTzdzmV0On+2ndAUX62S/SjARtIrgBKlo0IezxG1sR+jSNbxbG/jvw1J
+         JRwINpJKGjiNIDynBg0MBKZj7DXvQmHg0MuutWSIZzSGgmAV++d8HhMQbtoD/eJrcJFz
+         tHpngUP0AFdrBLTgVflyoPBrkHKJ2SN9IBxP4rJhleX7HXxdoKlCOeIUwpVAstgn5Wlf
+         OIDUG4e2ddZ3dkfxSn0ZB5YVCUMhf+yN/Yn1IqzedkD9dOkPR9cN2ajjMIrvTaTybI5/
+         rYdQ==
+X-Gm-Message-State: AGRZ1gLKhtDh+NP54BpqS6Mg+2gfBRPyqg/TRYLmYDGPeUVUqXlEgFxZ
+	jRzvuZDZ8wYP7bLCNV0DYf4QyqaDPt+sRmBPG/sj5z5pMtuI3ZZH3Q==
+X-Received: by 2002:a62:d084:: with SMTP id p126-v6mr5367776pfg.147.1541694060471;
+        Thu, 08 Nov 2018 08:21:00 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp394048pjt;
+        Thu, 8 Nov 2018 08:20:59 -0800 (PST)
+X-Google-Smtp-Source: AJdET5cJDe/lbpskVQp03l0htg2OZRvl8j6x7WxrtAWEzVvoqQhX5gDN77IjCIh7FMOZ2biny7Y4
+X-Received: by 2002:a17:902:4623:: with SMTP id o32-v6mr5077123pld.187.1541694059205;
+        Thu, 08 Nov 2018 08:20:59 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1541694059; cv=none;
+        d=google.com; s=arc-20160816;
+        b=aQgQ1EB+Ts9Y10kBmYv8QLu44kuFEyEiLfC9yHMFWf/RdWfxa7qj+Li78wQEoMErix
+         11/4n2D4/FCDPHfMASmg+eOgCh43GS76JmZ+wRIrwXI5Tp1j97/ZfqDMqbD7dCohpRP5
+         CP338A3YSBQpoJnnBGGguCuDnrdmz5RPPHUNor7x0zSRCz30k3bbIHsh4GSFQ0v3FO5F
+         Q47ILwTq9ez93rPFw8cbKnTBjGZWLkgN73eNSqhx7OHTUZFZy3S+U8ceqER4KNUKVX09
+         bsnhGs/jc6B70hFAKgwNVL91j1jxxW+6ZXpsUWOLpt9tmpuAlmFdaEiqynTiPY4pU5PV
+         ujCw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:date:message-id:in-reply-to:subject:cc:to
+         :from:dkim-signature;
+        bh=Z6ojf+X9U+sfTIV4swcc4vKHB0Z90Q15j6kQ8RqcNac=;
+        b=vLqxDCsXC1PzOErfUfcOn5UjZ9EICYUa+3Cc1AW1HvdLNb07tSkdvS1t1AR/NYnuku
+         mmJohy59RZEe/9unajmFpKWucj+16ILFBjcB/bdOhGEtfvbGQ/ZXwyIghQUMpiSqDcZI
+         q09QkiTaOn5gX8XF1qc5f7hngIRJyhAi/ii3hHzMtuZ00mGvMQ/iYqeD96PpXSW7lKKa
+         YilhpCYWeBObKsFmJY5U/8rRa9xDsl/7yXR8R7khuN/aFv10Dn8/T29a6pFw8xYRx1b2
+         Vy7FT3pnLqcCbpQ23frlPzuAuWRXcDuknG1WPM4snVm4aTodUR39CnFzwUMdG6eDIonj
+         qoJg==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=fail header.i=@sirena.org.uk header.s=20170815-heliosphere header.b="nyCYwv/P";
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=kernel.org
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id 4-v6si4740937pff.140.2018.11.08.08.20.43;
+        Thu, 08 Nov 2018 08:20:59 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1727324AbeKIBzs (ORCPT <rfc822;ankurbansal210989@gmail.com>
+        + 99 others); Thu, 8 Nov 2018 20:55:48 -0500
+Received: from heliosphere.sirena.org.uk ([172.104.155.198]:45830 "EHLO
+        heliosphere.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726421AbeKIByu (ORCPT
+        <rfc822;linux-kernel@vger.kernel.org>);
+        Thu, 8 Nov 2018 20:54:50 -0500
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=sirena.org.uk; s=20170815-heliosphere; h=Date:Message-Id:In-Reply-To:
+        Subject:Cc:To:From:Sender:Reply-To:MIME-Version:Content-Type:
+        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
+        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:References:
+        List-Id:List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:
+        List-Archive; bh=Z6ojf+X9U+sfTIV4swcc4vKHB0Z90Q15j6kQ8RqcNac=; b=nyCYwv/PRIJS
+        bDR5jCauITNYrt4j0jZjy5WdONi0wH5Eha3mW0cCFu95M/px+lpLYTvg/+bzGGjSkj7uxOFYJEJ1A
+        WUaDAJ8iyhXFc1qTPRbozph4NpnA9RwQZTefse0Iu0FuQ17j2XfbiCAxOiFspI8bbV522Ip1IIb5V
+        ueEnM=;
+Received: from cpc102320-sgyl38-2-0-cust46.18-2.cable.virginm.net ([82.37.168.47] helo=debutante.sirena.org.uk)
+        by heliosphere.sirena.org.uk with esmtpa (Exim 4.89)
+        (envelope-from <broonie@sirena.org.uk>)
+        id 1gKn0s-0000Bt-RR; Thu, 08 Nov 2018 16:18:34 +0000
+Received: by debutante.sirena.org.uk (Postfix, from userid 1000)
+        id 57BFA1124D9E; Thu,  8 Nov 2018 16:18:34 +0000 (GMT)
+From: Mark Brown <broonie@kernel.org>
+To: Dmitry Osipenko <digetx@gmail.com>
+Cc: Mark Brown <broonie@kernel.org>, linux-kernel@vger.kernel.org
+Subject: Applied "regulator: core: Use ww_mutex for regulators locking" to the regulator tree
+In-Reply-To: 
+Message-Id: <20181108161834.57BFA1124D9E@debutante.sirena.org.uk>
+Date: Thu,  8 Nov 2018 16:18:34 +0000 (GMT)
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwCXcz9sYuRblZMdAA--.6120S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvAXoWfZFWrJFyxKr45Zw18AF13Arb_yoW8tr4xGo
+	WDZrWak3W8GF13GrWfJa1Iy3ZrXrW5JrsayF15ur4kuFn7Gr17ArW7KFyUXF13G3W5KF18
+	J3WrJFy8GF47Jryfn29KB7ZKAUJUUUUU529EdanIXcx71UUUUj7v73VFW2AGmfu7jjvjm3
+	AaLaJ3UjIYCTnIWjp_UUUYZ7k0a2IF6w4kM7kC6x804xWl14x267AKxVWUJVW8JwAFIxvE
+	14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK021l84ACjcxK6xIIjx
+	v20xvE14v26F1j6w1UM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26F4j6r4UJwA2z4x0Y4vE
+	x4A2jsIE14v26F4j6r4UJwA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_Gr0_Gr1UM2AIxVAIcx
+	kEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v2
+	6r106r15McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x0Yz7v_Jr0_Gr1l7I0Y6sxI4w
+	CY1x0264kExVAvwVAq07x20xylc7Ca8VAvwVCFzxkY4VCF77xAMxkIecxEwVCI4VWUMxkI
+	7II2jI8vz4vEwIxGrwCYIxAIcVC0I7IYx2IY67AKxVW7JVWDJwCYIxAIcVC0I7IYx2IY6x
+	kF7I0E14v26r4j6F4UMxvI42IY6I8E87Iv67AKxVW8JVWxJwCYIxAIcVC2z280aVCY1x02
+	67AKxVW8JVW8Jr1l42xK82IYc2Ij64vIr41l42xK82IY64kExVAvwVAq07x20xyl4x8a6x
+	804xWl4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x8G
+	jcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r126r1DMIIYrxkI7VAKI48JMIIF0xvE42
+	xK8VAvwI8IcIk0rVW8JVW3JbIYCTnIWIevJa73UjIFyTuYvjxUQHanDUUUU
+
+The patch
+
+   regulator: core: Use ww_mutex for regulators locking
+
+has been applied to the regulator tree at
+
+   https://git.kernel.org/pub/scm/linux/kernel/git/broonie/regulator.git 
+
+All being well this means that it will be integrated into the linux-next
+tree (usually sometime in the next 24 hours) and sent to Linus during
+the next merge window (or sooner if it is a bug fix), however if
+problems are discovered then the patch may be dropped or reverted.  
+
+You may get further e-mails resulting from automated or manual testing
+and review of the tree, please engage with people reporting problems and
+send followup patches addressing any issues that are reported if needed.
+
+If any updates are required or you are submitting further changes they
+should be sent as incremental updates against current git, existing
+patches will not be replaced.
+
+Please add any relevant lists and maintainers to the CCs when replying
+to this mail.
+
+Thanks,
+Mark
+
+From 3cf8826e503e9a0c2a33c9fc5785e5c569bb259b Mon Sep 17 00:00:00 2001
+From: Dmitry Osipenko <digetx@gmail.com>
+Date: Fri, 5 Oct 2018 18:36:37 +0300
+Subject: [PATCH] regulator: core: Use ww_mutex for regulators locking
+
+Wait/wound mutex shall be used in order to avoid lockups on locking of
+coupled regulators.
+
+Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+Suggested-by: Lucas Stach <l.stach@pengutronix.de>
+Signed-off-by: Mark Brown <broonie@kernel.org>
+---
+ drivers/regulator/core.c         | 401 +++++++++++++++++++++++--------
+ include/linux/regulator/driver.h |   3 +-
+ 2 files changed, 307 insertions(+), 97 deletions(-)
+
+diff --git a/drivers/regulator/core.c b/drivers/regulator/core.c
+index 783ec9c74104..a3448636f334 100644
+--- a/drivers/regulator/core.c
++++ b/drivers/regulator/core.c
+@@ -50,6 +50,8 @@
+ #define rdev_dbg(rdev, fmt, ...)					\
+ 	pr_debug("%s: " fmt, rdev_get_name(rdev), ##__VA_ARGS__)
+ 
++static DEFINE_WW_CLASS(regulator_ww_class);
++static DEFINE_MUTEX(regulator_nesting_mutex);
+ static DEFINE_MUTEX(regulator_list_mutex);
+ static LIST_HEAD(regulator_map_list);
+ static LIST_HEAD(regulator_ena_gpio_list);
+@@ -154,7 +156,7 @@ static inline struct regulator_dev *rdev_get_supply(struct regulator_dev *rdev)
+ /**
+  * regulator_lock_nested - lock a single regulator
+  * @rdev:		regulator source
+- * @subclass:		mutex subclass used for lockdep
++ * @ww_ctx:		w/w mutex acquire context
+  *
+  * This function can be called many times by one task on
+  * a single regulator and its mutex will be locked only
+@@ -162,24 +164,52 @@ static inline struct regulator_dev *rdev_get_supply(struct regulator_dev *rdev)
+  * than the one, which initially locked the mutex, it will
+  * wait on mutex.
+  */
+-static void regulator_lock_nested(struct regulator_dev *rdev,
+-				  unsigned int subclass)
++static inline int regulator_lock_nested(struct regulator_dev *rdev,
++					struct ww_acquire_ctx *ww_ctx)
+ {
+-	if (!mutex_trylock(&rdev->mutex)) {
+-		if (rdev->mutex_owner == current) {
++	bool lock = false;
++	int ret = 0;
++
++	mutex_lock(&regulator_nesting_mutex);
++
++	if (ww_ctx || !ww_mutex_trylock(&rdev->mutex)) {
++		if (rdev->mutex_owner == current)
+ 			rdev->ref_cnt++;
+-			return;
++		else
++			lock = true;
++
++		if (lock) {
++			mutex_unlock(&regulator_nesting_mutex);
++			ret = ww_mutex_lock(&rdev->mutex, ww_ctx);
++			mutex_lock(&regulator_nesting_mutex);
+ 		}
+-		mutex_lock_nested(&rdev->mutex, subclass);
++	} else {
++		lock = true;
+ 	}
+ 
+-	rdev->ref_cnt = 1;
+-	rdev->mutex_owner = current;
++	if (lock && ret != -EDEADLK) {
++		rdev->ref_cnt++;
++		rdev->mutex_owner = current;
++	}
++
++	mutex_unlock(&regulator_nesting_mutex);
++
++	return ret;
+ }
+ 
+-static inline void regulator_lock(struct regulator_dev *rdev)
++/**
++ * regulator_lock - lock a single regulator
++ * @rdev:		regulator source
++ *
++ * This function can be called many times by one task on
++ * a single regulator and its mutex will be locked only
++ * once. If a task, which is calling this function is other
++ * than the one, which initially locked the mutex, it will
++ * wait on mutex.
++ */
++static void regulator_lock(struct regulator_dev *rdev)
+ {
+-	regulator_lock_nested(rdev, 0);
++	regulator_lock_nested(rdev, NULL);
+ }
+ 
+ /**
+@@ -191,50 +221,46 @@ static inline void regulator_lock(struct regulator_dev *rdev)
+  */
+ static void regulator_unlock(struct regulator_dev *rdev)
+ {
+-	if (rdev->ref_cnt != 0) {
+-		rdev->ref_cnt--;
++	mutex_lock(&regulator_nesting_mutex);
+ 
+-		if (!rdev->ref_cnt) {
+-			rdev->mutex_owner = NULL;
+-			mutex_unlock(&rdev->mutex);
+-		}
++	if (--rdev->ref_cnt == 0) {
++		rdev->mutex_owner = NULL;
++		ww_mutex_unlock(&rdev->mutex);
+ 	}
++
++	WARN_ON_ONCE(rdev->ref_cnt < 0);
++
++	mutex_unlock(&regulator_nesting_mutex);
+ }
+ 
+-static int regulator_lock_recursive(struct regulator_dev *rdev,
+-				    unsigned int subclass)
++static void regulator_unlock_recursive(struct regulator_dev *rdev,
++				       unsigned int n_coupled)
+ {
+ 	struct regulator_dev *c_rdev;
+ 	int i;
+ 
+-	for (i = 0; i < rdev->coupling_desc.n_coupled; i++) {
+-		c_rdev = rdev->coupling_desc.coupled_rdevs[i];
++	for (i = n_coupled; i > 0; i--) {
++		c_rdev = rdev->coupling_desc.coupled_rdevs[i - 1];
+ 
+ 		if (!c_rdev)
+ 			continue;
+ 
+-		regulator_lock_nested(c_rdev, subclass++);
+-
+ 		if (c_rdev->supply)
+-			subclass =
+-				regulator_lock_recursive(c_rdev->supply->rdev,
+-							 subclass);
+-	}
++			regulator_unlock_recursive(
++					c_rdev->supply->rdev,
++					c_rdev->coupling_desc.n_coupled);
+ 
+-	return subclass;
++		regulator_unlock(c_rdev);
++	}
+ }
+ 
+-/**
+- * regulator_unlock_dependent - unlock regulator's suppliers and coupled
+- *				regulators
+- * @rdev:			regulator source
+- *
+- * Unlock all regulators related with rdev by coupling or suppling.
+- */
+-static void regulator_unlock_dependent(struct regulator_dev *rdev)
++static int regulator_lock_recursive(struct regulator_dev *rdev,
++				    struct regulator_dev **new_contended_rdev,
++				    struct regulator_dev **old_contended_rdev,
++				    struct ww_acquire_ctx *ww_ctx)
+ {
+ 	struct regulator_dev *c_rdev;
+-	int i;
++	int i, err;
+ 
+ 	for (i = 0; i < rdev->coupling_desc.n_coupled; i++) {
+ 		c_rdev = rdev->coupling_desc.coupled_rdevs[i];
+@@ -242,23 +268,95 @@ static void regulator_unlock_dependent(struct regulator_dev *rdev)
+ 		if (!c_rdev)
+ 			continue;
+ 
+-		regulator_unlock(c_rdev);
++		if (c_rdev != *old_contended_rdev) {
++			err = regulator_lock_nested(c_rdev, ww_ctx);
++			if (err) {
++				if (err == -EDEADLK) {
++					*new_contended_rdev = c_rdev;
++					goto err_unlock;
++				}
+ 
+-		if (c_rdev->supply)
+-			regulator_unlock_dependent(c_rdev->supply->rdev);
++				/* shouldn't happen */
++				WARN_ON_ONCE(err != -EALREADY);
++			}
++		} else {
++			*old_contended_rdev = NULL;
++		}
++
++		if (c_rdev->supply) {
++			err = regulator_lock_recursive(c_rdev->supply->rdev,
++						       new_contended_rdev,
++						       old_contended_rdev,
++						       ww_ctx);
++			if (err) {
++				regulator_unlock(c_rdev);
++				goto err_unlock;
++			}
++		}
+ 	}
++
++	return 0;
++
++err_unlock:
++	regulator_unlock_recursive(rdev, i);
++
++	return err;
++}
++
++/**
++ * regulator_unlock_dependent - unlock regulator's suppliers and coupled
++ *				regulators
++ * @rdev:			regulator source
++ * @ww_ctx:			w/w mutex acquire context
++ *
++ * Unlock all regulators related with rdev by coupling or suppling.
++ */
++static void regulator_unlock_dependent(struct regulator_dev *rdev,
++				       struct ww_acquire_ctx *ww_ctx)
++{
++	regulator_unlock_recursive(rdev, rdev->coupling_desc.n_coupled);
++	ww_acquire_fini(ww_ctx);
+ }
+ 
+ /**
+  * regulator_lock_dependent - lock regulator's suppliers and coupled regulators
+  * @rdev:			regulator source
++ * @ww_ctx:			w/w mutex acquire context
+  *
+  * This function as a wrapper on regulator_lock_recursive(), which locks
+  * all regulators related with rdev by coupling or suppling.
+  */
+-static inline void regulator_lock_dependent(struct regulator_dev *rdev)
++static void regulator_lock_dependent(struct regulator_dev *rdev,
++				     struct ww_acquire_ctx *ww_ctx)
+ {
+-	regulator_lock_recursive(rdev, 0);
++	struct regulator_dev *new_contended_rdev = NULL;
++	struct regulator_dev *old_contended_rdev = NULL;
++	int err;
++
++	mutex_lock(&regulator_list_mutex);
++
++	ww_acquire_init(ww_ctx, &regulator_ww_class);
++
++	do {
++		if (new_contended_rdev) {
++			ww_mutex_lock_slow(&new_contended_rdev->mutex, ww_ctx);
++			old_contended_rdev = new_contended_rdev;
++			old_contended_rdev->ref_cnt++;
++		}
++
++		err = regulator_lock_recursive(rdev,
++					       &new_contended_rdev,
++					       &old_contended_rdev,
++					       ww_ctx);
++
++		if (old_contended_rdev)
++			regulator_unlock(old_contended_rdev);
++
++	} while (err == -EDEADLK);
++
++	ww_acquire_done(ww_ctx);
++
++	mutex_unlock(&regulator_list_mutex);
+ }
+ 
+ /**
+@@ -772,7 +870,7 @@ static int drms_uA_update(struct regulator_dev *rdev)
+ 	int current_uA = 0, output_uV, input_uV, err;
+ 	unsigned int mode;
+ 
+-	lockdep_assert_held_once(&rdev->mutex);
++	lockdep_assert_held_once(&rdev->mutex.base);
+ 
+ 	/*
+ 	 * first check to see if we can set modes at all, otherwise just
+@@ -2274,7 +2372,20 @@ static int _regulator_enable(struct regulator_dev *rdev)
+ {
+ 	int ret;
+ 
+-	lockdep_assert_held_once(&rdev->mutex);
++	lockdep_assert_held_once(&rdev->mutex.base);
++
++	if (rdev->supply) {
++		ret = _regulator_enable(rdev->supply->rdev);
++		if (ret < 0)
++			return ret;
++	}
++
++	/* balance only if there are regulators coupled */
++	if (rdev->coupling_desc.n_coupled > 1) {
++		ret = regulator_balance_voltage(rdev, PM_SUSPEND_ON);
++		if (ret < 0)
++			goto err_disable_supply;
++	}
+ 
+ 	/* check voltage and requested load before enabling */
+ 	if (regulator_ops_is_valid(rdev, REGULATOR_CHANGE_DRMS))
+@@ -2285,18 +2396,20 @@ static int _regulator_enable(struct regulator_dev *rdev)
+ 		ret = _regulator_is_enabled(rdev);
+ 		if (ret == -EINVAL || ret == 0) {
+ 			if (!regulator_ops_is_valid(rdev,
+-					REGULATOR_CHANGE_STATUS))
+-				return -EPERM;
++					REGULATOR_CHANGE_STATUS)) {
++				ret = -EPERM;
++				goto err_disable_supply;
++			}
+ 
+ 			ret = _regulator_do_enable(rdev);
+ 			if (ret < 0)
+-				return ret;
++				goto err_disable_supply;
+ 
+ 			_notifier_call_chain(rdev, REGULATOR_EVENT_ENABLE,
+ 					     NULL);
+ 		} else if (ret < 0) {
+ 			rdev_err(rdev, "is_enabled() failed: %d\n", ret);
+-			return ret;
++			goto err_disable_supply;
+ 		}
+ 		/* Fallthrough on positive return values - already enabled */
+ 	}
+@@ -2304,6 +2417,12 @@ static int _regulator_enable(struct regulator_dev *rdev)
+ 	rdev->use_count++;
+ 
+ 	return 0;
++
++err_disable_supply:
++	if (rdev->supply)
++		_regulator_disable(rdev->supply->rdev);
++
++	return ret;
+ }
+ 
+ /**
+@@ -2320,30 +2439,15 @@ static int _regulator_enable(struct regulator_dev *rdev)
+ int regulator_enable(struct regulator *regulator)
+ {
+ 	struct regulator_dev *rdev = regulator->rdev;
++	struct ww_acquire_ctx ww_ctx;
+ 	int ret = 0;
+ 
+ 	if (regulator->always_on)
+ 		return 0;
+ 
+-	if (rdev->supply) {
+-		ret = regulator_enable(rdev->supply);
+-		if (ret != 0)
+-			return ret;
+-	}
+-
+-	regulator_lock_dependent(rdev);
+-	/* balance only if there are regulators coupled */
+-	if (rdev->coupling_desc.n_coupled > 1) {
+-		ret = regulator_balance_voltage(rdev, PM_SUSPEND_ON);
+-		if (ret != 0)
+-			goto unlock;
+-	}
++	regulator_lock_dependent(rdev, &ww_ctx);
+ 	ret = _regulator_enable(rdev);
+-unlock:
+-	regulator_unlock_dependent(rdev);
+-
+-	if (ret != 0 && rdev->supply)
+-		regulator_disable(rdev->supply);
++	regulator_unlock_dependent(rdev, &ww_ctx);
+ 
+ 	return ret;
+ }
+@@ -2385,7 +2489,7 @@ static int _regulator_disable(struct regulator_dev *rdev)
+ {
+ 	int ret = 0;
+ 
+-	lockdep_assert_held_once(&rdev->mutex);
++	lockdep_assert_held_once(&rdev->mutex.base);
+ 
+ 	if (WARN(rdev->use_count <= 0,
+ 		 "unbalanced disables for %s\n", rdev_get_name(rdev)))
+@@ -2423,6 +2527,12 @@ static int _regulator_disable(struct regulator_dev *rdev)
+ 		rdev->use_count--;
+ 	}
+ 
++	if (ret == 0 && rdev->coupling_desc.n_coupled > 1)
++		ret = regulator_balance_voltage(rdev, PM_SUSPEND_ON);
++
++	if (ret == 0 && rdev->supply)
++		ret = _regulator_disable(rdev->supply->rdev);
++
+ 	return ret;
+ }
+ 
+@@ -2441,19 +2551,15 @@ static int _regulator_disable(struct regulator_dev *rdev)
+ int regulator_disable(struct regulator *regulator)
+ {
+ 	struct regulator_dev *rdev = regulator->rdev;
++	struct ww_acquire_ctx ww_ctx;
+ 	int ret = 0;
+ 
+ 	if (regulator->always_on)
+ 		return 0;
+ 
+-	regulator_lock_dependent(rdev);
++	regulator_lock_dependent(rdev, &ww_ctx);
+ 	ret = _regulator_disable(rdev);
+-	if (rdev->coupling_desc.n_coupled > 1)
+-		regulator_balance_voltage(rdev, PM_SUSPEND_ON);
+-	regulator_unlock_dependent(rdev);
+-
+-	if (ret == 0 && rdev->supply)
+-		regulator_disable(rdev->supply);
++	regulator_unlock_dependent(rdev, &ww_ctx);
+ 
+ 	return ret;
+ }
+@@ -2464,7 +2570,7 @@ static int _regulator_force_disable(struct regulator_dev *rdev)
+ {
+ 	int ret = 0;
+ 
+-	lockdep_assert_held_once(&rdev->mutex);
++	lockdep_assert_held_once(&rdev->mutex.base);
+ 
+ 	ret = _notifier_call_chain(rdev, REGULATOR_EVENT_FORCE_DISABLE |
+ 			REGULATOR_EVENT_PRE_DISABLE, NULL);
+@@ -2497,14 +2603,15 @@ static int _regulator_force_disable(struct regulator_dev *rdev)
+ int regulator_force_disable(struct regulator *regulator)
+ {
+ 	struct regulator_dev *rdev = regulator->rdev;
++	struct ww_acquire_ctx ww_ctx;
+ 	int ret;
+ 
+-	regulator_lock_dependent(rdev);
++	regulator_lock_dependent(rdev, &ww_ctx);
+ 	regulator->uA_load = 0;
+ 	ret = _regulator_force_disable(regulator->rdev);
+ 	if (rdev->coupling_desc.n_coupled > 1)
+ 		regulator_balance_voltage(rdev, PM_SUSPEND_ON);
+-	regulator_unlock_dependent(rdev);
++	regulator_unlock_dependent(rdev, &ww_ctx);
+ 
+ 	if (rdev->supply)
+ 		while (rdev->open_count--)
+@@ -2518,9 +2625,10 @@ static void regulator_disable_work(struct work_struct *work)
+ {
+ 	struct regulator_dev *rdev = container_of(work, struct regulator_dev,
+ 						  disable_work.work);
++	struct ww_acquire_ctx ww_ctx;
+ 	int count, i, ret;
+ 
+-	regulator_lock(rdev);
++	regulator_lock_dependent(rdev, &ww_ctx);
+ 
+ 	BUG_ON(!rdev->deferred_disables);
+ 
+@@ -2541,7 +2649,10 @@ static void regulator_disable_work(struct work_struct *work)
+ 			rdev_err(rdev, "Deferred disable failed: %d\n", ret);
+ 	}
+ 
+-	regulator_unlock(rdev);
++	if (rdev->coupling_desc.n_coupled > 1)
++		regulator_balance_voltage(rdev, PM_SUSPEND_ON);
++
++	regulator_unlock_dependent(rdev, &ww_ctx);
+ 
+ 	if (rdev->supply) {
+ 		for (i = 0; i < count; i++) {
+@@ -2652,9 +2763,9 @@ int regulator_is_enabled(struct regulator *regulator)
+ 	if (regulator->always_on)
+ 		return 1;
+ 
+-	regulator_lock_dependent(regulator->rdev);
++	regulator_lock(regulator->rdev);
+ 	ret = _regulator_is_enabled(regulator->rdev);
+-	regulator_unlock_dependent(regulator->rdev);
++	regulator_unlock(regulator->rdev);
+ 
+ 	return ret;
+ }
+@@ -3268,7 +3379,7 @@ static int regulator_get_optimal_voltage(struct regulator_dev *rdev,
+ 		int tmp_min = 0;
+ 		int tmp_max = INT_MAX;
+ 
+-		lockdep_assert_held_once(&c_rdevs[i]->mutex);
++		lockdep_assert_held_once(&c_rdevs[i]->mutex.base);
+ 
+ 		ret = regulator_check_consumers(c_rdevs[i],
+ 						&tmp_min,
+@@ -3479,14 +3590,15 @@ static int regulator_balance_voltage(struct regulator_dev *rdev,
+  */
+ int regulator_set_voltage(struct regulator *regulator, int min_uV, int max_uV)
+ {
+-	int ret = 0;
++	struct ww_acquire_ctx ww_ctx;
++	int ret;
+ 
+-	regulator_lock_dependent(regulator->rdev);
++	regulator_lock_dependent(regulator->rdev, &ww_ctx);
+ 
+ 	ret = regulator_set_voltage_unlocked(regulator, min_uV, max_uV,
+ 					     PM_SUSPEND_ON);
+ 
+-	regulator_unlock_dependent(regulator->rdev);
++	regulator_unlock_dependent(regulator->rdev, &ww_ctx);
+ 
+ 	return ret;
+ }
+@@ -3558,18 +3670,19 @@ static int _regulator_set_suspend_voltage(struct regulator *regulator,
+ int regulator_set_suspend_voltage(struct regulator *regulator, int min_uV,
+ 				  int max_uV, suspend_state_t state)
+ {
+-	int ret = 0;
++	struct ww_acquire_ctx ww_ctx;
++	int ret;
+ 
+ 	/* PM_SUSPEND_ON is handled by regulator_set_voltage() */
+ 	if (regulator_check_states(state) || state == PM_SUSPEND_ON)
+ 		return -EINVAL;
+ 
+-	regulator_lock_dependent(regulator->rdev);
++	regulator_lock_dependent(regulator->rdev, &ww_ctx);
+ 
+ 	ret = _regulator_set_suspend_voltage(regulator, min_uV,
+ 					     max_uV, state);
+ 
+-	regulator_unlock_dependent(regulator->rdev);
++	regulator_unlock_dependent(regulator->rdev, &ww_ctx);
+ 
+ 	return ret;
+ }
+@@ -3759,13 +3872,12 @@ static int _regulator_get_voltage(struct regulator_dev *rdev)
+  */
+ int regulator_get_voltage(struct regulator *regulator)
+ {
++	struct ww_acquire_ctx ww_ctx;
+ 	int ret;
+ 
+-	regulator_lock_dependent(regulator->rdev);
+-
++	regulator_lock_dependent(regulator->rdev, &ww_ctx);
+ 	ret = _regulator_get_voltage(regulator->rdev);
+-
+-	regulator_unlock_dependent(regulator->rdev);
++	regulator_unlock_dependent(regulator->rdev, &ww_ctx);
+ 
+ 	return ret;
+ }
+@@ -4301,7 +4413,7 @@ EXPORT_SYMBOL_GPL(regulator_bulk_free);
+ int regulator_notifier_call_chain(struct regulator_dev *rdev,
+ 				  unsigned long event, void *data)
+ {
+-	lockdep_assert_held_once(&rdev->mutex);
++	lockdep_assert_held_once(&rdev->mutex.base);
+ 
+ 	_notifier_call_chain(rdev, event, data);
+ 	return NOTIFY_DONE;
+@@ -4669,7 +4781,7 @@ regulator_register(const struct regulator_desc *regulator_desc,
+ 		rdev->dev.of_node = of_node_get(config->of_node);
+ 	}
+ 
+-	mutex_init(&rdev->mutex);
++	ww_mutex_init(&rdev->mutex, &regulator_ww_class);
+ 	rdev->reg_data = config->driver_data;
+ 	rdev->owner = regulator_desc->owner;
+ 	rdev->desc = regulator_desc;
+@@ -5026,8 +5138,6 @@ static void regulator_summary_show_subtree(struct seq_file *s,
+ 	if (!rdev)
+ 		return;
+ 
+-	regulator_lock_nested(rdev, level);
+-
+ 	opmode = _regulator_get_mode_unlocked(rdev);
+ 	seq_printf(s, "%*s%-*s %3d %4d %6d %7s ",
+ 		   level * 3 + 1, "",
+@@ -5084,8 +5194,101 @@ static void regulator_summary_show_subtree(struct seq_file *s,
+ 
+ 	class_for_each_device(&regulator_class, NULL, &summary_data,
+ 			      regulator_summary_show_children);
++}
++
++struct summary_lock_data {
++	struct ww_acquire_ctx *ww_ctx;
++	struct regulator_dev **new_contended_rdev;
++	struct regulator_dev **old_contended_rdev;
++};
++
++static int regulator_summary_lock_one(struct device *dev, void *data)
++{
++	struct regulator_dev *rdev = dev_to_rdev(dev);
++	struct summary_lock_data *lock_data = data;
++	int ret = 0;
++
++	if (rdev != *lock_data->old_contended_rdev) {
++		ret = regulator_lock_nested(rdev, lock_data->ww_ctx);
++
++		if (ret == -EDEADLK)
++			*lock_data->new_contended_rdev = rdev;
++		else
++			WARN_ON_ONCE(ret);
++	} else {
++		*lock_data->old_contended_rdev = NULL;
++	}
++
++	return ret;
++}
++
++static int regulator_summary_unlock_one(struct device *dev, void *data)
++{
++	struct regulator_dev *rdev = dev_to_rdev(dev);
++	struct summary_lock_data *lock_data = data;
++
++	if (lock_data) {
++		if (rdev == *lock_data->new_contended_rdev)
++			return -EDEADLK;
++	}
+ 
+ 	regulator_unlock(rdev);
++
++	return 0;
++}
++
++static int regulator_summary_lock_all(struct ww_acquire_ctx *ww_ctx,
++				      struct regulator_dev **new_contended_rdev,
++				      struct regulator_dev **old_contended_rdev)
++{
++	struct summary_lock_data lock_data;
++	int ret;
++
++	lock_data.ww_ctx = ww_ctx;
++	lock_data.new_contended_rdev = new_contended_rdev;
++	lock_data.old_contended_rdev = old_contended_rdev;
++
++	ret = class_for_each_device(&regulator_class, NULL, &lock_data,
++				    regulator_summary_lock_one);
++	if (ret)
++		class_for_each_device(&regulator_class, NULL, &lock_data,
++				      regulator_summary_unlock_one);
++
++	return ret;
++}
++
++static void regulator_summary_lock(struct ww_acquire_ctx *ww_ctx)
++{
++	struct regulator_dev *new_contended_rdev = NULL;
++	struct regulator_dev *old_contended_rdev = NULL;
++	int err;
++
++	ww_acquire_init(ww_ctx, &regulator_ww_class);
++
++	do {
++		if (new_contended_rdev) {
++			ww_mutex_lock_slow(&new_contended_rdev->mutex, ww_ctx);
++			old_contended_rdev = new_contended_rdev;
++			old_contended_rdev->ref_cnt++;
++		}
++
++		err = regulator_summary_lock_all(ww_ctx,
++						 &new_contended_rdev,
++						 &old_contended_rdev);
++
++		if (old_contended_rdev)
++			regulator_unlock(old_contended_rdev);
++
++	} while (err == -EDEADLK);
++
++	ww_acquire_done(ww_ctx);
++}
++
++static void regulator_summary_unlock(struct ww_acquire_ctx *ww_ctx)
++{
++	class_for_each_device(&regulator_class, NULL, NULL,
++			      regulator_summary_unlock_one);
++	ww_acquire_fini(ww_ctx);
+ }
+ 
+ static int regulator_summary_show_roots(struct device *dev, void *data)
+@@ -5101,12 +5304,18 @@ static int regulator_summary_show_roots(struct device *dev, void *data)
+ 
+ static int regulator_summary_show(struct seq_file *s, void *data)
+ {
++	struct ww_acquire_ctx ww_ctx;
++
+ 	seq_puts(s, " regulator                      use open bypass  opmode voltage current     min     max\n");
+ 	seq_puts(s, "---------------------------------------------------------------------------------------\n");
+ 
++	regulator_summary_lock(&ww_ctx);
++
+ 	class_for_each_device(&regulator_class, NULL, s,
+ 			      regulator_summary_show_roots);
+ 
++	regulator_summary_unlock(&ww_ctx);
++
+ 	return 0;
+ }
+ 
+diff --git a/include/linux/regulator/driver.h b/include/linux/regulator/driver.h
+index a05d37d0efa1..e71f9c314426 100644
+--- a/include/linux/regulator/driver.h
++++ b/include/linux/regulator/driver.h
+@@ -20,6 +20,7 @@
+ #include <linux/device.h>
+ #include <linux/notifier.h>
+ #include <linux/regulator/consumer.h>
++#include <linux/ww_mutex.h>
+ 
+ struct gpio_desc;
+ struct regmap;
+@@ -462,7 +463,7 @@ struct regulator_dev {
+ 	struct coupling_desc coupling_desc;
+ 
+ 	struct blocking_notifier_head notifier;
+-	struct mutex mutex; /* consumer lock */
++	struct ww_mutex mutex; /* consumer lock */
+ 	struct task_struct *mutex_owner;
+ 	int ref_cnt;
+ 	struct module *owner;
+-- 
+2.19.0.rc2

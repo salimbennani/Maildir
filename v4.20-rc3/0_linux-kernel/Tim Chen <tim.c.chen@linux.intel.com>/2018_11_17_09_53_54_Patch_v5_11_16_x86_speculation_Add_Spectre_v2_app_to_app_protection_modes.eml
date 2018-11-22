@@ -1,0 +1,512 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (61.164.42.155:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 17 Nov 2018 03:16:03 -0000
+Received: from icoremail.net (unknown [209.85.210.170])
+	by mail-app2 (Coremail) with SMTP id by_KCgCn39zwfO9bW+6mAQ--.49555S3;
+	Sat, 17 Nov 2018 10:29:04 +0800 (CST)
+Received: from mail-pf1-f170.google.com (unknown [209.85.210.170])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwBn4EzufO9bt+9LAA--.3856S3;
+	Sat, 17 Nov 2018 10:29:02 +0800 (CST)
+Received: by mail-pf1-f170.google.com with SMTP id w73so2905379pfk.10
+        for <xuliker@zju.edu.cn>; Fri, 16 Nov 2018 18:29:02 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :from:to:cc:subject:date:message-id:in-reply-to:references
+         :in-reply-to:references:sender:precedence:list-id;
+        bh=z5trZz8j/nuV0p+lQBXy9CaRU3c7oqcJcalaLjOJSfs=;
+        b=O2/5GKVg4QZo4O9O+b7qrFjSDnRUFAb26iJT4N/BVWUsej+Fxz4a+h+bHts5BVh+aX
+         rBpgjq2C8JTByc0hCXBvG8D9X2pIYaAwAc4+PFWNuhUO4G7eoK9iDu0VkTBJWLnZ9b7/
+         2Q/10EXScc3D/RqKhk/rPED1Bg1eJLNyzQWAuNiflLkfjZNnMZjIknZU6+/kIBHEAS/b
+         46XAC231fxto2fsTikwIw51GxccSxlJshEQrlqGFbkyIhG9AQzBppyNmxP5HpwkOFwfK
+         nr4JoZJPm+h1Drd6AUxSr4RtWLanAUYnJv4R4zrH8MBM0LElcT8RmzXcVF+J4C3wkjtQ
+         Wvtw==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=intel.com
+X-Gm-Message-State: AGRZ1gIn102tJZm/5R1+ZlaKLhm9irAbVDGAoB0AhKkEU67gg9oWuex5
+	LggOoSbBq8K8kasYzLXXgcuCVqFgOqu6+ufZUgcHEynrOqcy1P8=
+X-Received: by 2002:a63:4044:: with SMTP id n65mr11834649pga.90.1542421742450;
+        Fri, 16 Nov 2018 18:29:02 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:d106:0:0:0:0 with SMTP id l6-v6csp64156pju;
+        Fri, 16 Nov 2018 18:29:01 -0800 (PST)
+X-Google-Smtp-Source: AJdET5fd4yr50ZUXCqcCDmaM2DAsLFNyziEcqAG8Hqa1th8cH65wrNZniDuGoqekfURbv4r8/GOz
+X-Received: by 2002:a63:f34b:: with SMTP id t11mr12227389pgj.341.1542421740955;
+        Fri, 16 Nov 2018 18:29:00 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542421740; cv=none;
+        d=google.com; s=arc-20160816;
+        b=zJk1D7YtBjWDLyI9KZwcKauOPwSBQkp1T+LmgzF3FcFuQwyLjesmC2RHrKkUdcbsHR
+         ZoxfhlU0hnYbZMYs5/dJCTsly6/qDSONo/RaxD3nRUAyb4+oSOb2j23eoWIFVAKu5f9V
+         uz1zKJaJP6kJn4ANC++p7fIUAMZxyz4HZeoO9V5aAYiRqrlZ1KJ59yHnI6P6HQWnHGKH
+         /8MrtTq07Y/r28eTM2NFY//EzIST2x2GaUlED0YUT/7XF49MvA54pUezTiA3tQu7kazi
+         RgnKVZkwbqi/pcBiTBSO0hQHSUL9G4fweuzFQqPX3w5zZagYS2kRs4Eg/PyIH4iGeJqD
+         6fVw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:references:in-reply-to:references
+         :in-reply-to:message-id:date:subject:cc:to:from;
+        bh=z5trZz8j/nuV0p+lQBXy9CaRU3c7oqcJcalaLjOJSfs=;
+        b=lwo+qAJXNqVYUGg9KWYxVun3Hd6ezGeaicWwIYo0jJuafCmLUqTAudT6ldaxMW5Tmo
+         2JWqQV9CsOUPez1aa5Bmedn0q+1wVdfTqfucOLdr+g4IXi/peKkP74IzKjdW1Qh8OutI
+         cj+H1jQz4A9sHIFdOaAUNPtNQYpGzGsSKcSkwDo0JoFHUhUQOqk5JNDIvDzBG5ZxkjoO
+         z05bZU6LWrWZ3qOKoddiFmZs4NxFZ53lN/23OKLts3xGFP71p7QK8h2YDDBzkJ+vbBzk
+         E1cAcT+sPwvpOj/mfGEcwh/VKwO3Kc0uItU2wXIuj8FuaDp70xSSS5BHzDPeUk9QmtkM
+         /pkg==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=intel.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id 2-v6si35936589pla.223.2018.11.16.18.28.46;
+        Fri, 16 Nov 2018 18:29:00 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1731314AbeKQMmo (ORCPT <rfc822;xjxyklwx@gmail.com> + 99 others);
+        Sat, 17 Nov 2018 07:42:44 -0500
+Received: from mga14.intel.com ([192.55.52.115]:45898 "EHLO mga14.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1731204AbeKQMmn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+        Sat, 17 Nov 2018 07:42:43 -0500
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga006.fm.intel.com ([10.253.24.20])
+  by fmsmga103.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 16 Nov 2018 18:27:47 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.56,242,1539673200"; 
+   d="scan'208";a="281852622"
+Received: from skl-02.jf.intel.com ([10.54.74.62])
+  by fmsmga006.fm.intel.com with ESMTP; 16 Nov 2018 18:27:46 -0800
+From: Tim Chen <tim.c.chen@linux.intel.com>
+To: Jiri Kosina <jikos@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>
+Cc: Tim Chen <tim.c.chen@linux.intel.com>,
+        Tom Lendacky <thomas.lendacky@amd.com>,
+        Ingo Molnar <mingo@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        David Woodhouse <dwmw@amazon.co.uk>,
+        Andi Kleen <ak@linux.intel.com>,
+        Dave Hansen <dave.hansen@intel.com>,
+        Casey Schaufler <casey.schaufler@intel.com>,
+        Asit Mallick <asit.k.mallick@intel.com>,
+        Arjan van de Ven <arjan@linux.intel.com>,
+        Jon Masters <jcm@redhat.com>,
+        Waiman Long <longman9394@gmail.com>,
+        linux-kernel@vger.kernel.org, x86@kernel.org
+Subject: [Patch v5 11/16] x86/speculation: Add Spectre v2 app to app protection modes
+Date: Fri, 16 Nov 2018 17:53:54 -0800
+Message-Id: <ca5dd01c12789d3f75ab1b73bfcac3bdaea93dd6.1542418937.git.tim.c.chen@linux.intel.com>
+X-Mailer: git-send-email 2.9.4
+In-Reply-To: <cover.1542418936.git.tim.c.chen@linux.intel.com>
+References: <cover.1542418936.git.tim.c.chen@linux.intel.com>
+In-Reply-To: <cover.1542418936.git.tim.c.chen@linux.intel.com>
+References: <cover.1542418936.git.tim.c.chen@linux.intel.com>
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwBn4EzufO9bt+9LAA--.3856S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvAXoW3KFyxAr1DZFyfAw4xKrW3Jrb_yoW8JF4rGo
+	W3Gr17CryUWF4IgF1vyr9rKr4rWFZ5GFZ3ArsxtayqqF9rAF1qqrWUCw4jqFyagF10gr97
+	Gr9Fqw1IgF47J3Z8n29KB7ZKAUJUUUUU529EdanIXcx71UUUUj7v73VFW2AGmfu7jjvjm3
+	AaLaJ3UjIYCTnIWjp_UUUOe7k0a2IF6w4kM7kC6x804xWl14x267AKxVWUJVW8JwAFIxvE
+	14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK021l84ACjcxK6xIIjx
+	v20xvE14v26F1j6w1UM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26F4j6r4UJwA2z4x0Y4vE
+	x4A2jsIE14v26rxl6s0DM28EF7xvwVC2z280aVCY1x0267AKxVW0oVCq3wAS0I0E0xvYzx
+	vE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AKxVWU
+	JVWUGwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcxkI7V
+	AKI48JMx02cVCv0xWlc7CjxVAKzI0EY4vE52x082I5MxkFs20EY4vE44CYbxCE4x80FwCY
+	02Avz4vEIxC_Gr1lc2IjII80xcxEwVAKI48JMxvI42IY6xIIjxv20xvE14v26r4j6ryUMx
+	vI42IY6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1lcIIF0xvEx4A2jsIE14v26r4UJVWxJr1l
+	cIIF0xvEx4A2jsIEc7CjxVAFwI0_Gr1j6F4UJwCF04k20xvY0x0EwIxGrwCF04k20xvEw4
+	C26cxK6c8Ij28IcwCF72vE77IF4wCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E
+	14v26r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_GFv_WrylIx
+	kGc2Ij64vIr41lIxAIcVCF04k26cxKx2IYs7xG6r1I6r4UYxBIdaVFxhVjvjDU0xZFpf9x
+	07blnQUUUUUU=
+
+Add new protection modes for Spectre v2 mitigations against
+Spectre v2 attacks on user processes.  There are three modes:
+
+	strict mode:
+	In this mode, IBPB and STIBP are deployed full
+	time to protect all processes.
+
+	lite mode:
+	In this mode, IBPB and STIBP are only deployed on
+	processes marked with TIF_STIBP flag.
+
+	none mode:
+	In this mode, no mitigations are deployed.
+
+The protection mode can be specified by the spectre_v2_app2app
+boot parameter with the following semantics:
+
+spectre_v2_app2app=
+	off    - Turn off mitigation
+	lite   - Protect processes which are marked non-dumpable
+	strict - Protect all processes
+	auto   - Kernel selects the mode
+
+	Not specifying this option is equivalent to
+	spectre_v2_app2app=auto.
+
+	Setting spectre_v2=off will also turn off this mitigation.
+
+	Setting spectre_v2=on implies unconditionally enabling
+	this mitigation.
+
+Signed-off-by: Tim Chen <tim.c.chen@linux.intel.com>
+---
+ Documentation/admin-guide/kernel-parameters.txt |  20 ++++
+ arch/x86/include/asm/nospec-branch.h            |   9 ++
+ arch/x86/kernel/cpu/bugs.c                      | 153 +++++++++++++++++++++---
+ arch/x86/mm/tlb.c                               |  23 +++-
+ 4 files changed, 185 insertions(+), 20 deletions(-)
+
+diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/admin-guide/kernel-parameters.txt
+index 81d1d5a..9c306e3 100644
+--- a/Documentation/admin-guide/kernel-parameters.txt
++++ b/Documentation/admin-guide/kernel-parameters.txt
+@@ -4215,6 +4215,26 @@
+ 			Not specifying this option is equivalent to
+ 			spectre_v2=auto.
+ 
++	spectre_v2_app2app=
++			[X86] Control mitigation of Spectre variant 2
++		        application to application (indirect branch speculation)
++			vulnerability.
++
++			off    - Unconditionally disable mitigations
++			lite   - Protect tasks which have requested restricted
++				 indirect branch speculation via the
++				 PR_SET_SPECULATION_CTRL prctl(). 
++			strict - Protect all processes
++			auto   - Kernel selects the mode
++
++			Not specifying this option is equivalent to
++			spectre_v2_app2app=auto.
++
++			Setting spectre_v2=off will also turn off this mitigation.
++
++			Setting spectre_v2=on implies unconditionally enabling
++			this mitigation.
++
+ 	spec_store_bypass_disable=
+ 			[HW] Control Speculative Store Bypass (SSB) Disable mitigation
+ 			(Speculative Store Bypass vulnerability)
+diff --git a/arch/x86/include/asm/nospec-branch.h b/arch/x86/include/asm/nospec-branch.h
+index 80dc144..587629d 100644
+--- a/arch/x86/include/asm/nospec-branch.h
++++ b/arch/x86/include/asm/nospec-branch.h
+@@ -3,6 +3,7 @@
+ #ifndef _ASM_X86_NOSPEC_BRANCH_H_
+ #define _ASM_X86_NOSPEC_BRANCH_H_
+ 
++#include <linux/static_key.h>
+ #include <asm/alternative.h>
+ #include <asm/alternative-asm.h>
+ #include <asm/cpufeatures.h>
+@@ -226,6 +227,12 @@ enum spectre_v2_mitigation {
+ 	SPECTRE_V2_IBRS_ENHANCED,
+ };
+ 
++enum spectre_v2_app2app_mitigation {
++	SPECTRE_V2_APP2APP_NONE,
++	SPECTRE_V2_APP2APP_LITE,
++	SPECTRE_V2_APP2APP_STRICT,
++};
++
+ /* The Speculative Store Bypass disable variants */
+ enum ssb_mitigation {
+ 	SPEC_STORE_BYPASS_NONE,
+@@ -237,6 +244,8 @@ enum ssb_mitigation {
+ extern char __indirect_thunk_start[];
+ extern char __indirect_thunk_end[];
+ 
++DECLARE_STATIC_KEY_FALSE(spectre_v2_app_lite);
++
+ /*
+  * On VMEXIT we must ensure that no RSB predictions learned in the guest
+  * can be followed in the host, by overwriting the RSB completely. Both
+diff --git a/arch/x86/kernel/cpu/bugs.c b/arch/x86/kernel/cpu/bugs.c
+index 6e1b910..21caade 100644
+--- a/arch/x86/kernel/cpu/bugs.c
++++ b/arch/x86/kernel/cpu/bugs.c
+@@ -133,6 +133,14 @@ enum spectre_v2_mitigation_cmd {
+ 	SPECTRE_V2_CMD_RETPOLINE_AMD,
+ };
+ 
++enum spectre_v2_app2app_mitigation_cmd {
++	SPECTRE_V2_APP2APP_CMD_NONE,
++	SPECTRE_V2_APP2APP_CMD_AUTO,
++	SPECTRE_V2_APP2APP_CMD_FORCE,
++	SPECTRE_V2_APP2APP_CMD_LITE,
++	SPECTRE_V2_APP2APP_CMD_STRICT,
++};
++
+ static const char *spectre_v2_strings[] = {
+ 	[SPECTRE_V2_NONE]			= "Vulnerable",
+ 	[SPECTRE_V2_RETPOLINE_MINIMAL]		= "Vulnerable: Minimal generic ASM retpoline",
+@@ -142,12 +150,24 @@ static const char *spectre_v2_strings[] = {
+ 	[SPECTRE_V2_IBRS_ENHANCED]		= "Mitigation: Enhanced IBRS",
+ };
+ 
++static const char *spectre_v2_app2app_strings[] = {
++	[SPECTRE_V2_APP2APP_NONE]   = "App-App Vulnerable",
++	[SPECTRE_V2_APP2APP_LITE]   = "App-App Mitigation: Protect branch speculation restricted tasks",
++	[SPECTRE_V2_APP2APP_STRICT] = "App-App Mitigation: Full app to app attack protection",
++};
++
++DEFINE_STATIC_KEY_FALSE(spectre_v2_app_lite);
++EXPORT_SYMBOL_GPL(spectre_v2_app_lite);
++
+ #undef pr_fmt
+ #define pr_fmt(fmt)     "Spectre V2 : " fmt
+ 
+ static enum spectre_v2_mitigation spectre_v2_enabled __ro_after_init =
+ 	SPECTRE_V2_NONE;
+ 
++static enum spectre_v2_app2app_mitigation
++	spectre_v2_app2app_enabled __ro_after_init = SPECTRE_V2_APP2APP_NONE;
++
+ void
+ x86_virt_spec_ctrl(u64 guest_spec_ctrl, u64 guest_virt_spec_ctrl, bool setguest)
+ {
+@@ -169,6 +189,9 @@ x86_virt_spec_ctrl(u64 guest_spec_ctrl, u64 guest_virt_spec_ctrl, bool setguest)
+ 		    static_cpu_has(X86_FEATURE_AMD_SSBD))
+ 			hostval |= ssbd_tif_to_spec_ctrl(ti->flags);
+ 
++		if (static_branch_unlikely(&spectre_v2_app_lite))
++			hostval |= stibp_tif_to_spec_ctrl(ti->flags);
++
+ 		if (hostval != guestval) {
+ 			msrval = setguest ? guestval : hostval;
+ 			wrmsrl(MSR_IA32_SPEC_CTRL, msrval);
+@@ -275,6 +298,66 @@ static const struct {
+ 	{ "auto",              SPECTRE_V2_CMD_AUTO,              false },
+ };
+ 
++static const struct {
++	const char *option;
++	enum spectre_v2_app2app_mitigation_cmd cmd;
++	bool secure;
++} app2app_options[] = {
++	{ "off",	SPECTRE_V2_APP2APP_CMD_NONE,   false },
++	{ "lite",	SPECTRE_V2_APP2APP_CMD_LITE,   false },
++	{ "strict",	SPECTRE_V2_APP2APP_CMD_STRICT, false },
++	{ "auto",	SPECTRE_V2_APP2APP_CMD_AUTO,   false },
++	/*
++	 * The "on" option is kept as last entry. It is implied by
++	 * spectre_v2=on boot parameter and it is not checked
++	 * in spectre_v2_app2app boot parameter.
++	 */
++	{ "on",		SPECTRE_V2_APP2APP_CMD_FORCE,  true  },
++};
++
++static enum spectre_v2_app2app_mitigation_cmd __init
++	    spectre_v2_parse_app2app_cmdline(enum spectre_v2_mitigation_cmd v2_cmd)
++{
++	enum spectre_v2_app2app_mitigation_cmd cmd;
++	char arg[20];
++	int ret, i;
++
++	if (v2_cmd == SPECTRE_V2_CMD_FORCE) {
++		cmd = SPECTRE_V2_APP2APP_CMD_FORCE;
++		goto show_cmd;
++	}
++
++	cmd = SPECTRE_V2_APP2APP_CMD_AUTO;
++	ret = cmdline_find_option(boot_command_line, "spectre_v2_app2app",
++				  arg, sizeof(arg));
++	if (ret < 0)
++		return SPECTRE_V2_APP2APP_CMD_AUTO;
++
++	/*
++	 * Don't check the last entry for forced mitigation. It is infered from
++	 * v2_cmd == SPECTRE_V2_CMD_FORCE
++	 */
++	for (i = 0; i < ARRAY_SIZE(app2app_options)-1; i++) {
++		if (!match_option(arg, ret, app2app_options[i].option))
++			continue;
++		cmd = app2app_options[i].cmd;
++		break;
++	}
++
++	if (i >= ARRAY_SIZE(app2app_options)) {
++		pr_err("unknown app to app protection option (%s). Switching to AUTO select\n", arg);
++		return SPECTRE_V2_APP2APP_CMD_AUTO;
++	}
++
++show_cmd:
++	if (app2app_options[i].secure)
++		spec2_print_if_secure(app2app_options[i].option);
++	else
++		spec2_print_if_insecure(app2app_options[i].option);
++
++	return cmd;
++}
++
+ static enum spectre_v2_mitigation_cmd __init spectre_v2_parse_cmdline(void)
+ {
+ 	char arg[20];
+@@ -328,14 +411,19 @@ static bool stibp_needed(void)
+ 	/*
+ 	 * Determine if STIBP should be always on.
+ 	 * Using enhanced IBRS makes using STIBP unnecessary.
++	 * For lite option, STIBP is used only for task with
++	 * TIF_STIBP flag. STIBP is not always on for that case.
+ 	 */
+ 
+-	if (spectre_v2_enabled == SPECTRE_V2_NONE)
++	if (spectre_v2_app2app_enabled == SPECTRE_V2_APP2APP_NONE)
+ 		return false;
+ 
+ 	if (static_cpu_has(X86_FEATURE_USE_IBRS_ENHANCED))
+ 		return false;
+ 
++	if (static_branch_unlikely(&spectre_v2_app_lite))
++		return false;
++
+ 	if (!boot_cpu_has(X86_FEATURE_STIBP))
+ 		return false;
+ 
+@@ -376,6 +464,8 @@ static void __init spectre_v2_select_mitigation(void)
+ {
+ 	enum spectre_v2_mitigation_cmd cmd = spectre_v2_parse_cmdline();
+ 	enum spectre_v2_mitigation mode = SPECTRE_V2_NONE;
++	enum spectre_v2_app2app_mitigation_cmd app2app_cmd;
++	enum spectre_v2_app2app_mitigation app2app_mode;
+ 
+ 	/*
+ 	 * If the CPU is not affected and the command line mode is NONE or AUTO
+@@ -452,12 +542,6 @@ static void __init spectre_v2_select_mitigation(void)
+ 	setup_force_cpu_cap(X86_FEATURE_RSB_CTXSW);
+ 	pr_info("Spectre v2 / SpectreRSB mitigation: Filling RSB on context switch\n");
+ 
+-	/* Initialize Indirect Branch Prediction Barrier if supported */
+-	if (boot_cpu_has(X86_FEATURE_IBPB)) {
+-		setup_force_cpu_cap(X86_FEATURE_USE_IBPB);
+-		pr_info("Spectre v2 mitigation: Enabling Indirect Branch Prediction Barrier\n");
+-	}
+-
+ 	/*
+ 	 * Retpoline means the kernel is safe because it has no indirect
+ 	 * branches. Enhanced IBRS protects firmware too, so, enable restricted
+@@ -474,6 +558,43 @@ static void __init spectre_v2_select_mitigation(void)
+ 		pr_info("Enabling Restricted Speculation for firmware calls\n");
+ 	}
+ 
++	app2app_mode = SPECTRE_V2_APP2APP_NONE;
++	if (!boot_cpu_has(X86_FEATURE_IBPB) ||
++	    !boot_cpu_has(X86_FEATURE_STIBP))
++		goto set_app2app_mode;
++
++	app2app_cmd = spectre_v2_parse_app2app_cmdline(cmd);
++
++	switch (app2app_cmd) {
++	case SPECTRE_V2_APP2APP_CMD_NONE:
++		break;
++
++	case SPECTRE_V2_APP2APP_CMD_LITE:
++	case SPECTRE_V2_APP2APP_CMD_AUTO:
++		app2app_mode = SPECTRE_V2_APP2APP_LITE;
++		break;
++
++	case SPECTRE_V2_APP2APP_CMD_STRICT:
++	case SPECTRE_V2_APP2APP_CMD_FORCE:
++		app2app_mode = SPECTRE_V2_APP2APP_STRICT;
++		break;
++	}
++
++	/*
++	 * Initialize Indirect Branch Prediction Barrier if supported
++	 * and not disabled explicitly
++	 */
++	if (app2app_mode != SPECTRE_V2_APP2APP_NONE) {
++		setup_force_cpu_cap(X86_FEATURE_USE_IBPB);
++		pr_info("Spectre v2 mitigation: Enabling Indirect Branch Prediction Barrier\n");
++	}
++
++set_app2app_mode:
++	spectre_v2_app2app_enabled = app2app_mode;
++	pr_info("%s\n", spectre_v2_app2app_strings[app2app_mode]);
++	if (app2app_mode == SPECTRE_V2_APP2APP_LITE)
++		static_branch_enable(&spectre_v2_app_lite);
++
+ 	/* Enable STIBP if appropriate */
+ 	arch_smt_update();
+ }
+@@ -873,21 +994,23 @@ static ssize_t l1tf_show_state(char *buf)
+ 
+ static char *stibp_state(void)
+ {
+-	if (spectre_v2_enabled == SPECTRE_V2_IBRS_ENHANCED)
++	if (spectre_v2_enabled == SPECTRE_V2_IBRS_ENHANCED ||
++	    spectre_v2_app2app_enabled == SPECTRE_V2_APP2APP_NONE)
+ 		return "";
+-
+-	if (x86_spec_ctrl_base & SPEC_CTRL_STIBP)
+-		return ", STIBP";
++	else if (spectre_v2_app2app_enabled == SPECTRE_V2_APP2APP_LITE)
++		return ", STIBP-lite";
+ 	else
+-		return "";
++		return ", STIBP-strict";
+ }
+ 
+ static char *ibpb_state(void)
+ {
+-	if (boot_cpu_has(X86_FEATURE_USE_IBPB))
+-		return ", IBPB";
+-	else
++	if (spectre_v2_app2app_enabled == SPECTRE_V2_APP2APP_NONE)
+ 		return "";
++	else if (spectre_v2_app2app_enabled == SPECTRE_V2_APP2APP_LITE)
++		return ", IBPB-lite";
++	else
++		return ", IBPB-strict";
+ }
+ 
+ static ssize_t cpu_show_common(struct device *dev, struct device_attribute *attr,
+diff --git a/arch/x86/mm/tlb.c b/arch/x86/mm/tlb.c
+index bddd6b3..9201470 100644
+--- a/arch/x86/mm/tlb.c
++++ b/arch/x86/mm/tlb.c
+@@ -184,14 +184,27 @@ static void sync_current_stack_to_mm(struct mm_struct *mm)
+ static bool ibpb_needed(struct task_struct *tsk, u64 last_ctx_id)
+ {
+ 	/*
+-	 * Check if the current (previous) task has access to the memory
+-	 * of the @tsk (next) task. If access is denied, make sure to
+-	 * issue a IBPB to stop user->user Spectre-v2 attacks.
++	 * Don't issue IBPB when switching to kernel threads or staying in the
++	 * same mm context.
++	 */
++	if (!tsk || !tsk->mm || tsk->mm->context.ctx_id == last_ctx_id)
++		return false;
++
++	/*
++	 * If lite protection mode is enabled, check the STIBP thread flag.
++	 *
++	 * Otherwise check if the current (previous) task has access to the
++	 * the memory of the @tsk (next) task for strict app to app protection.
++	 * If access is denied, make sure to issue a IBPB to stop user->user
++	 * Spectre-v2 attacks.
+ 	 *
+ 	 * Note: __ptrace_may_access() returns 0 or -ERRNO.
+ 	 */
+-	return (tsk && tsk->mm && tsk->mm->context.ctx_id != last_ctx_id &&
+-		ptrace_may_access_sched(tsk, PTRACE_MODE_SPEC_IBPB));
++
++	if (static_branch_unlikely(&spectre_v2_app_lite))
++		return test_tsk_thread_flag(tsk, TIF_STIBP);
++	else
++		return ptrace_may_access_sched(tsk, PTRACE_MODE_SPEC_IBPB);
+ }
+ 
+ void switch_mm_irqs_off(struct mm_struct *prev, struct mm_struct *next,
+-- 
+2.9.4

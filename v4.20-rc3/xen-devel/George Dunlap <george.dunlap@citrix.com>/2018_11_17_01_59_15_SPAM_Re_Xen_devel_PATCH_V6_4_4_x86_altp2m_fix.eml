@@ -1,0 +1,560 @@
+Return-Path: <xen-devel-bounces@lists.xenproject.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (61.164.42.155:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 17 Nov 2018 03:13:30 -0000
+Received: from icoremail.net (unknown [209.85.214.174])
+	by mail-app2 (Coremail) with SMTP id by_KCgCHv+QjBu9bJ2akAQ--.48794S3;
+	Sat, 17 Nov 2018 02:02:12 +0800 (CST)
+Received: from mail-pl1-f174.google.com (unknown [209.85.214.174])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwB3X0seBu9b66NKAA--.1484S3;
+	Sat, 17 Nov 2018 02:02:06 +0800 (CST)
+Received: by mail-pl1-f174.google.com with SMTP id f12-v6so11519001plo.1
+        for <xuliker@zju.edu.cn>; Fri, 16 Nov 2018 10:02:06 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :to:references:from:openpgp:autocrypt:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:subject:precedence
+         :list-id:list-unsubscribe:list-post:list-help:list-subscribe:cc
+         :errors-to:sender;
+        bh=PmO907Ggvm7qDrZwmFIrreAm0aVwD8cfrUENvzKXhIU=;
+        b=bX+gbo+SxZzmooBJk2NCQhZx5ikQI3kQzlJoGD76ha51jBzs3qJqhGoVC94NcM9nkv
+         gH3Faog65wkFuuNsPuKXVE5To5YdMZPjSpp0A0UJSk6X2uzp7dCdFR0uxpIOEYk6JfpG
+         Ks+3qSQiPOHz1ih7xYCw0JTRK0Bft7/eRbfvBMFeGR1IWqCrKXrzroaSGkOuoqauMBds
+         U9ZEvEvo4BmiwrUSquHqki+ponWlGLu5ht0fflmp7RsT++mUr1xk6E+sHu3+rR5yVEl4
+         oZugJbSwxZ01hQM0mM1SaeArQszg8zJ77mGtgT+fBoxgHxS+TMg0BkC3oHCXV5jtYPaO
+         1g0g==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of xen-devel-bounces@lists.xenproject.org designates 192.237.175.120 as permitted sender) smtp.mailfrom=xen-devel-bounces@lists.xenproject.org
+X-Gm-Message-State: AGRZ1gLfR74dLrClbl6maHRnvRlTLNlq8Nmmtt3plC7ID4E4SFYCsFsy
+	f3hZBHf1Mr6BoAQPz0PAEgyf5HnvJ3j0OgoKmTx3UclAWaXFTec=
+X-Received: by 2002:a17:902:6686:: with SMTP id e6-v6mr11746233plk.173.1542391326540;
+        Fri, 16 Nov 2018 10:02:06 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:d106:0:0:0:0 with SMTP id l6-v6csp735270pju;
+        Fri, 16 Nov 2018 10:02:04 -0800 (PST)
+X-Google-Smtp-Source: AJdET5e7pjReQIQy2hR+AM2Oo6bSDbprYhA28XK4DwMWp9sjawpWpdSPyC4liyTzqlPQEkEMneRN
+X-Received: by 2002:aed:26e1:: with SMTP id q88mr11206031qtd.148.1542391324446;
+        Fri, 16 Nov 2018 10:02:04 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542391324; cv=none;
+        d=google.com; s=arc-20160816;
+        b=v/qdNAY/VrimeXsUeeOuF+YtM41iIz1gORymoaUQb5CIPntQxzGWwJxJP3RgggkW8B
+         fTd10cq2SDoWu0ymwggHG4scxLcRis1Km63vTP+kDCvxI0GfWcX4k0YVcwT7VYMyA1O5
+         6UcCRX9WQDqjf5a0qvathMfQgI3QdIntQRXRsDL/8QLFl9d2rC8c94O90oY/fVLTcCmM
+         f3gIvYKk/a4/M27mO8+irqGy5mJ6APHnAnG36Qfkq0K979Vqo0WOTd4B8tDOnxVMrJlP
+         Ovhk3hy/gEDPuuN37aDe+LWTGrg9BkBeZye9H4exbuggh7EPNNTNqztN61bOFqDhhVRc
+         qMfQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=sender:errors-to:cc:list-subscribe:list-help:list-post
+         :list-unsubscribe:list-id:precedence:subject:content-language
+         :in-reply-to:mime-version:user-agent:date:message-id:autocrypt
+         :openpgp:from:references:to;
+        bh=PmO907Ggvm7qDrZwmFIrreAm0aVwD8cfrUENvzKXhIU=;
+        b=V+UaiwvIYU9T2V8BYKEEkQkYL13Hj/3k0hHRexvW9jvswlkbpBttwc19zv/GIZcq35
+         +xeTDesTp1QOS/lOTMf3AUVVkufEzR1mNW11SH82pt+AKNU27TvhMiiZs3Qh40Cno1b1
+         t0tujwbBNtBgDqormE3FjYAsqHnf59sEM+U5z4eLUYhYcuCyvx58FJ8H5cKm/gVKM8C7
+         x4PzN9PzXIcNS1mFYJBqmjxqfXWuPxI9GmwbNAVPjbHRH+OBcaf64IpO7afR2A0ioijv
+         kLDrF3gHzeoy8od0sYqLhIENX3tQta+ApHhHbDlLkHo+FNy69AnMVAyB9z+1hJ4TERj3
+         vNiw==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of xen-devel-bounces@lists.xenproject.org designates 192.237.175.120 as permitted sender) smtp.mailfrom=xen-devel-bounces@lists.xenproject.org
+Received: from lists.xenproject.org (lists.xenproject.org. [192.237.175.120])
+        by mx.google.com with ESMTPS id g1si819627qtr.315.2018.11.16.10.02.03
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Fri, 16 Nov 2018 10:02:04 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of xen-devel-bounces@lists.xenproject.org designates 192.237.175.120 as permitted sender) client-ip=192.237.175.120;
+Received: from localhost ([127.0.0.1] helo=lists.xenproject.org)
+	by lists.xenproject.org with esmtp (Exim 4.89)
+	(envelope-from <xen-devel-bounces@lists.xenproject.org>)
+	id 1gNiP9-0006GH-UG; Fri, 16 Nov 2018 17:59:43 +0000
+Received: from all-amaz-eas1.inumbo.com ([34.197.232.57]
+ helo=us1-amaz-eas2.inumbo.com)
+ by lists.xenproject.org with esmtp (Exim 4.89) (envelope-from
+ <SRS0=sqSd=N3=citrix.com=prvs=851e78e2c=george.dunlap@srs-us1.protection.inumbo.net>)
+ id 1gNiP8-0006GC-7y
+ for xen-devel@lists.xenproject.org; Fri, 16 Nov 2018 17:59:42 +0000
+X-Inumbo-ID: 62e53008-e9c9-11e8-a407-12d6303a7972
+Received: from SMTP03.CITRIX.COM (unknown [162.221.156.55])
+ by us1-amaz-eas2.inumbo.com (Halon) with ESMTPS
+ id 62e53008-e9c9-11e8-a407-12d6303a7972;
+ Fri, 16 Nov 2018 17:59:39 +0000 (UTC)
+X-IronPort-AV: E=Sophos;i="5.56,241,1539648000"; d="scan'208,223";a="70799621"
+To: Razvan Cojocaru <rcojocaru@bitdefender.com>, Jan Beulich
+ <JBeulich@suse.com>
+References: <1542228002-21075-1-git-send-email-rcojocaru@bitdefender.com>
+ <1542228002-21075-5-git-send-email-rcojocaru@bitdefender.com>
+ <3603CF64-3679-43F6-A389-E88DAA0BF503@citrix.com>
+ <482be5fb-0406-c203-2664-070a77e329e9@bitdefender.com>
+ <5BEE972D02000078001FCB0D@prv1-mh.provo.novell.com>
+ <62c1f237-9d1d-06f3-49f8-e48be8d38b3f@citrix.com>
+ <6ef4e095-cbd3-3d37-7759-0d3faa720e84@bitdefender.com>
+From: George Dunlap <george.dunlap@citrix.com>
+Openpgp: preference=signencrypt
+Autocrypt: addr=george.dunlap@citrix.com; prefer-encrypt=mutual; keydata=
+ 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
+ q+/kRPrWXpoaQn7FXWGfMqU+NkY9enyrlw==
+Message-ID: <c6e1ee08-0b71-f8f8-5862-94a8d01ac1e1@citrix.com>
+Date: Fri, 16 Nov 2018 17:59:15 +0000
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.3.0
+MIME-Version: 1.0
+In-Reply-To: <6ef4e095-cbd3-3d37-7759-0d3faa720e84@bitdefender.com>
+Content-Type: multipart/mixed; boundary="------------8AC5DA987FE242954DEB42EE"
+Content-Language: en-US
+Subject: [SPAM] Re: [Xen-devel] [PATCH V6 4/4] x86/altp2m: fix
+ display frozen when switching to a new view early
+X-BeenThere: xen-devel@lists.xenproject.org
+X-Mailman-Version: 2.1.23
+Precedence: list
+List-Id: Xen developer discussion <xen-devel.lists.xenproject.org>
+List-Unsubscribe: <https://lists.xenproject.org/mailman/options/xen-devel>,
+ <mailto:xen-devel-request@lists.xenproject.org?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xenproject.org>
+List-Help: <mailto:xen-devel-request@lists.xenproject.org?subject=help>
+List-Subscribe: <https://lists.xenproject.org/mailman/listinfo/xen-devel>,
+ <mailto:xen-devel-request@lists.xenproject.org?subject=subscribe>
+Cc: Andrew Cooper <andrew.cooper3@citrix.com>,
+ Kevin Tian <kevin.tian@intel.com>, Wei Liu <wei.liu2@citrix.com>,
+ Jun Nakajima <jun.nakajima@intel.com>,
+ xen-devel <xen-devel@lists.xenproject.org>
+Errors-To: xen-devel-bounces@lists.xenproject.org
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+X-CM-TRANSID: AQAAfwB3X0seBu9b66NKAA--.1484S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoWxXF4rCFWkCrWfurW8CrW5trb_yoW5uF15pa
+	95Jw4vgr4DXrWqgr1xG3y7Zr1jyr48AFWrGwsYy34kZFy3Wry3Kr42k3WSkFyUGFn7ZrsI
+	yF1Sga4kuFy2va7anT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUGYb7Iv0xC_Kw4lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2
+	z280aVAFwI0_Cr1j6rxdM28EF7xvwVC2z280aVCY1x0267AKxVWxJr0_GcWlnx0Ee4C267
+	I2x7xF54xIwI0E7I0Y6sxI4wAa7VCE64xvF2IEb7IF0Fy264xvF2IEb7IF0Fy264kE64k0
+	F2IE7I0Y6sxI4wAS0I0E0xvYzxvE52x082IY62kv0487M2AExVA0xI801c8C04v7Mc02F4
+	0EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AKxVWUJVWUGwAv7VC2z280aVAFwI0_
+	Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcVAKI48JM4xvF2IEb7IF0Fy264kE64
+	k0F24l7I0Y6sxI4wCYjI0SjxkI62AI1cAE67vIY487MxkF7I0Ew4C26cxK6c8Ij28IcwCY
+	1Ik26cxK6xAEc7vF6xCjj44lc2xSY4AK6IIF6rylc2IjII80xcxEwVAKI48JMxvI42IY6x
+	IIjxv20xvE14v26r4j6ryUMxvI42IY6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1lcIIF0xvE
+	x4A2jsIE14v26r4UJVWxJr1lcIIF0xvEx4A2jsIEc7CjxVAFwI0_Gr1j6F4UJwCF04k20x
+	vY0x0EwIxGrwCF04k20xvEw4C26cxK6c8Ij28IcwCF72vE77IF4wCFx2IqxVCFs4IE7xkE
+	bVWUJVW8JwC20s026c02F40E14v26r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67
+	AF67kF1VAFwI0_Jw0_GFylIxkGc2Ij64vIr41lIxAIcVCF04k26cxKx2IYs7xG6Fyj6rWU
+	JwCE64xvF2IEb7IF0Fy7YxBIdaVFxhVjvjDU0xZFpf9x07b7lk3UUUUU=
+
+--------------8AC5DA987FE242954DEB42EE
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+
+On 11/16/18 2:10 PM, Razvan Cojocaru wrote:
+> On 11/16/18 2:03 PM, George Dunlap wrote:
+>> The code is definitely complicated enough, though, that I may have
+>> missed something, which is why I asked Razvan if there was a reason he
+>> changed it.
+>>
+>> For the purposes of this patch, I propose having p2m_altp2m_init_ept()
+>> set max_mapped_pfn to 0 (if that works), and leaving "get rid of
+>> max_remapped_pfn" for a future clean-up series.
+> 
+> I've retraced my previous analysis and re-ran some tests, and I now
+> remember (sorry it took a while) why the p2m->max_mapped_pfn =
+> hostp2m->max_mapped_pfn was both necessary and not accidental.
+> 
+> Let's say we set it to 0 in p2m_altp2m_init_ept(). Then,
+> hap_track_dirty_vram() calls p2m_change_type_range(), which calls the
+> newly added change_type_range().
+> 
+> Change_type_range() looks like this:
+> 
+> static void change_type_range(struct p2m_domain *p2m,
+>                               unsigned long start, unsigned long end,
+>                               p2m_type_t ot, p2m_type_t nt)
+> {
+>     unsigned long gfn = start;
+>     struct domain *d = p2m->domain;
+>     int rc = 0;
+> 
+>     p2m->defer_nested_flush = 1;
+> 
+>     if ( unlikely(end > p2m->max_mapped_pfn) )
+>     {
+>         if ( !gfn )
+>         {
+>             p2m->change_entry_type_global(p2m, ot, nt);
+>             gfn = end;
+>         }
+>         end = p2m->max_mapped_pfn + 1;
+>     }
+>     if ( gfn < end )
+>         rc = p2m->change_entry_type_range(p2m, ot, nt, gfn, end - 1);
+>     if ( rc )
+>     {
+>         printk(XENLOG_G_ERR "Error %d changing Dom%d GFNs [%lx,%lx] from
+> %d to %d\n",
+>                rc, d->domain_id, start, end - 1, ot, nt);
+>         domain_crash(d);
+>     }
+> 
+>     switch ( nt )
+>     {
+>     case p2m_ram_rw:
+>         if ( ot == p2m_ram_logdirty )
+>             rc = rangeset_remove_range(p2m->logdirty_ranges, start, end
+> - 1);
+>         break;
+>     case p2m_ram_logdirty:
+>         if ( ot == p2m_ram_rw )
+>             rc = rangeset_add_range(p2m->logdirty_ranges, start, end - 1);
+>         break;
+>     default:
+>         break;
+>     }
+>     if ( rc )
+>     {
+>         printk(XENLOG_G_ERR "Error %d manipulating Dom%d's log-dirty
+> ranges\n",
+>                rc, d->domain_id);
+>         domain_crash(d);
+>     }
+> 
+>     p2m->defer_nested_flush = 0;
+>     if ( nestedhvm_enabled(d) )
+>         p2m_flush_nestedp2m(d);
+> }
+> 
+> If we set p2m->max_mapped_pfn to 0, we're guaranteed to run into the if
+> ( unlikely(end > p2m->max_mapped_pfn) ) body, where end =
+> p2m->max_mapped_pfn + 1; will make end 1.
+> 
+> Then, we will crash the hypervisor in rangeset_add_range(), where
+> there's an ASSERT() stating that start <= end.
+
+Ah, right, this was the original crash that you ran into several months
+ago, which flagged up the whole logdirty range synchronization issue.
+
+But that's partly a logic hole in change_entry_type_range(), which
+assumes that start < p2m->max_mapped_pfn.  It would be better to fix
+that than to work around it by changing the meaning of max_mapped_pfn.
+
+On the other hand, we want the logdirty rangesets to actually match the
+host's rangesets; using altp2m->max_mapped_pfn for this is clearly
+wrong. The easiest fix would be just to explicitly use the host's
+max_mapped_pfn when calculating the clipping.  A more complete fix would
+involve calculating two different ranges -- a "rangeset" range and a
+"invalidate" range, the second of which would be clipped on altp2ms by
+{min,max}_remapped_gfn.
+
+Something like the attached (compile-tested only).  I'm partial to
+having both patches applied, but I'd be open to arguments that we should
+only use the first.
+
+ -George
+
+--------------8AC5DA987FE242954DEB42EE
+Content-Type: text/x-patch;
+	name="0001-p2m-Always-use-hostp2m-when-clipping-rangesets.patch"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment;
+	filename="0001-p2m-Always-use-hostp2m-when-clipping-rangesets.patch"
+
+=46rom d92bd123f92d66aef394735a6d836fd104f01867 Mon Sep 17 00:00:00 2001
+From: George Dunlap <george.dunlap@citrix.com>
+Date: Fri, 16 Nov 2018 17:17:48 +0000
+Subject: [PATCH 1/2] p2m: Always use hostp2m when clipping rangesets
+
+The logdirty rangesets of the altp2ms need to be kept in sync with the
+hostp2m.  This means when iterating through the altp2ms, we need to
+use the host p2m to clip the rangeset, not the indiviual altp2m's
+value.
+
+This change also:
+
+- Documents that the end is non-inclusive
+
+- Calculates an "inclusive" value for the end once, rather than
+  open-coding the modification, and (worse) back-modifying updates so
+  that the calculation ends up correct
+
+- Clarifies the logic deciding whether to call
+  change_entry_type_global() or change_entry_type_range()
+
+- Handles the case where start >=3D hostp2m->max_mapped_pfn
+
+Signed-off-by: George Dunlap <george.dunlap@citrix.com>
+---
+RFC: Wasn't sure what the best thing was to do if start >=3D
+host_max_pfn.  We silently clip the logdirty rangeset to
+max_mapped_pfn, and the chosen behavior seems consistent with that.
+But it seems like such a request would almost certainly be a bug
+somewhere that people might like to find out about.
+---
+ xen/arch/x86/mm/p2m.c | 46 +++++++++++++++++++++++++++----------------
+ 1 file changed, 29 insertions(+), 17 deletions(-)
+
+diff --git a/xen/arch/x86/mm/p2m.c b/xen/arch/x86/mm/p2m.c
+index c401806562..6d764d1e22 100644
+--- a/xen/arch/x86/mm/p2m.c
++++ b/xen/arch/x86/mm/p2m.c
+@@ -1037,32 +1037,44 @@ int p2m_change_type_one(struct domain *d, unsigne=
+d long gfn_l,
+     return rc;
+ }
+=20
+-/* Modify the p2m type of a range of gfns from ot to nt. */
++/* Modify the p2m type of [start, end) from ot to nt. */
+ static void change_type_range(struct p2m_domain *p2m,
+                               unsigned long start, unsigned long end,
+                               p2m_type_t ot, p2m_type_t nt)
+ {
+-    unsigned long gfn =3D start;
++    unsigned long rangeset_start, rangeset_end;
+     struct domain *d =3D p2m->domain;
++    unsigned long host_max_pfn =3D p2m_get_hostp2m(d)->max_mapped_pfn;
+     int rc =3D 0;
+-
++   =20
++    rangeset_start =3D start;
++    rangeset_end   =3D end - 1;
++   =20
++    /* Always clip the rangeset down to the host p2m */
++    if ( unlikely(rangeset_end > host_max_pfn) )
++        rangeset_end =3D host_max_pfn;
++       =20
++    /* If the requested range is out of scope, return doing nothing */
++    if ( rangeset_start > rangeset_end )
++        return;
++           =20
+     p2m->defer_nested_flush =3D 1;
+=20
+-    if ( unlikely(end > p2m->max_mapped_pfn) )
+-    {
+-        if ( !gfn )
+-        {
+-            p2m->change_entry_type_global(p2m, ot, nt);
+-            gfn =3D end;
+-        }
+-        end =3D p2m->max_mapped_pfn + 1;
+-    }
+-    if ( gfn < end )
+-        rc =3D p2m->change_entry_type_range(p2m, ot, nt, gfn, end - 1);
++    /*=20
++     * If all valid gfns are in the invalidation range, just do a
++     * global type change.  Otherwise, invalidate only the range we
++     * need.
++     */
++    if ( !rangeset_start && rangeset_end >=3D p2m->max_mapped_pfn)
++        p2m->change_entry_type_global(p2m, ot, nt);
++    else
++        rc =3D p2m->change_entry_type_range(p2m, ot, nt,
++                                          rangeset_start, rangeset_end);=
+
++   =20
+     if ( rc )
+     {
+         printk(XENLOG_G_ERR "Error %d changing Dom%d GFNs [%lx,%lx] from=
+ %d to %d\n",
+-               rc, d->domain_id, start, end - 1, ot, nt);
++               rc, d->domain_id, rangeset_start, rangeset_end, ot, nt);
+         domain_crash(d);
+     }
+=20
+@@ -1070,11 +1082,11 @@ static void change_type_range(struct p2m_domain *=
+p2m,
+     {
+     case p2m_ram_rw:
+         if ( ot =3D=3D p2m_ram_logdirty )
+-            rc =3D rangeset_remove_range(p2m->logdirty_ranges, start, en=
+d - 1);
++            rc =3D rangeset_remove_range(p2m->logdirty_ranges, rangeset_=
+start, rangeset_end);
+         break;
+     case p2m_ram_logdirty:
+         if ( ot =3D=3D p2m_ram_rw )
+-            rc =3D rangeset_add_range(p2m->logdirty_ranges, start, end -=
+ 1);
++            rc =3D rangeset_add_range(p2m->logdirty_ranges, rangeset_sta=
+rt, rangeset_end);
+         break;
+     default:
+         break;
+--=20
+2.19.1
+
+
+--------------8AC5DA987FE242954DEB42EE
+Content-Type: text/x-patch;
+	name="0002-p2m-change_range_type-Only-invalidate-remapped-gfns.patch"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment;
+	filename*0="0002-p2m-change_range_type-Only-invalidate-remapped-gfns.pat";
+	filename*1="ch"
+
+=46rom c2c6e0b9c27650607a5d15aca0d598ae7251678e Mon Sep 17 00:00:00 2001
+From: George Dunlap <george.dunlap@citrix.com>
+Date: Fri, 16 Nov 2018 16:28:25 +0000
+Subject: [PATCH 2/2] p2m: change_range_type: Only invalidate remapped gfn=
+s
+
+change_range_type() invalidates gfn ranges to lazily change the type
+of a range of gfns, and also modifies the logdirty rangesets of that
+p2m. At the moment, it clips both down by the hostp2m.
+
+While this will result in correct behavior, it's not entirely efficient,
+since invalidated entries outside that range will, on fault, simply be
+modified back to "empty" before faulting normally again.
+
+Separate out the calculation of the two ranges.  Keep using the
+hostp2m's max_mapped_pfn to clip the logdirty ranges, but use
+{max,min}_remapped_gfn to further clip the invalidation range for
+alternate p2ms.
+
+Signed-off-by: George Dunlap <george.dunlap@citrix.com>
+---
+ xen/arch/x86/mm/p2m.c | 59 ++++++++++++++++++++++++++++++-------------
+ 1 file changed, 41 insertions(+), 18 deletions(-)
+
+diff --git a/xen/arch/x86/mm/p2m.c b/xen/arch/x86/mm/p2m.c
+index 6d764d1e22..5a68e7fd78 100644
+--- a/xen/arch/x86/mm/p2m.c
++++ b/xen/arch/x86/mm/p2m.c
+@@ -1043,41 +1043,64 @@ static void change_type_range(struct p2m_domain *=
+p2m,
+                               p2m_type_t ot, p2m_type_t nt)
+ {
+     unsigned long rangeset_start, rangeset_end;
++    unsigned long invalidate_start, invalidate_end;
+     struct domain *d =3D p2m->domain;
+     unsigned long host_max_pfn =3D p2m_get_hostp2m(d)->max_mapped_pfn;
++    unsigned long min_pfn =3D 0, max_pfn =3D p2m->max_mapped_pfn;
+     int rc =3D 0;
+    =20
+-    rangeset_start =3D start;
+-    rangeset_end   =3D end - 1;
++    /*=20
++     * If we have an altp2m, the logdirty rangeset range needs to
++     * match that of the hostp2m, but for efficiency, we want to clip
++     * down the the invalidation range according to the mapped values
++     * in the altp2m.  Keep track of and clip the ranges separately.
++     */
++    rangeset_start =3D invalidate_start =3D start;
++    rangeset_end   =3D invalidate_end   =3D end - 1;
+    =20
+-    /* Always clip the rangeset down to the host p2m */
++    /* Clip down to the host p2m */
+     if ( unlikely(rangeset_end > host_max_pfn) )
+-        rangeset_end =3D host_max_pfn;
++        rangeset_end =3D invalidate_end =3D host_max_pfn;
+        =20
+     /* If the requested range is out of scope, return doing nothing */
+     if ( rangeset_start > rangeset_end )
+         return;
+            =20
++    if ( p2m_is_altp2m(p2m) )
++    {
++        max_pfn =3D p2m->max_remapped_gfn;
++        min_pfn =3D p2m->min_remapped_gfn;
++        invalidate_end =3D min(invalidate_end, max_pfn);
++        invalidate_start =3D max(invalidate_start, min_pfn);
++    }
++       =20
+     p2m->defer_nested_flush =3D 1;
+=20
+     /*=20
+-     * If all valid gfns are in the invalidation range, just do a
+-     * global type change.  Otherwise, invalidate only the range we
+-     * need.
++     * If the p2m is empty, or the range is outside the currently
++     * mapped range, no need to do the invalidation; just update the
++     * rangeset.
+      */
+-    if ( !rangeset_start && rangeset_end >=3D p2m->max_mapped_pfn)
+-        p2m->change_entry_type_global(p2m, ot, nt);
+-    else
+-        rc =3D p2m->change_entry_type_range(p2m, ot, nt,
+-                                          rangeset_start, rangeset_end);=
+
+-   =20
+-    if ( rc )
++    if ( invalidate_start < invalidate_end )
+     {
+-        printk(XENLOG_G_ERR "Error %d changing Dom%d GFNs [%lx,%lx] from=
+ %d to %d\n",
+-               rc, d->domain_id, rangeset_start, rangeset_end, ot, nt);
+-        domain_crash(d);
++        /*=20
++         * If all valid gfns are in the invalidation range, just do a
++         * global type change.  Otherwise, invalidate only the range
++         * we need.
++         */
++        if ( invalidate_start <=3D min_pfn && invalidate_end >=3D max_pf=
+n)
++            p2m->change_entry_type_global(p2m, ot, nt);
++        else
++            rc =3D p2m->change_entry_type_range(p2m, ot, nt,
++                                              invalidate_start, invalida=
+te_end);
++        if ( rc )
++        {
++            printk(XENLOG_G_ERR "Error %d changing Dom%d GFNs [%lx,%lx] =
+from %d to %d\n",
++                   rc, d->domain_id, invalidate_start, invalidate_end, o=
+t, nt);
++            domain_crash(d);
++        }
+     }
+-
++   =20
+     switch ( nt )
+     {
+     case p2m_ram_rw:
+--=20
+2.19.1
+
+
+--------------8AC5DA987FE242954DEB42EE
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: base64
+Content-Disposition: inline
+
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KWGVuLWRldmVs
+IG1haWxpbmcgbGlzdApYZW4tZGV2ZWxAbGlzdHMueGVucHJvamVjdC5vcmcKaHR0cHM6Ly9saXN0
+cy54ZW5wcm9qZWN0Lm9yZy9tYWlsbWFuL2xpc3RpbmZvL3hlbi1kZXZlbA==
+
+--------------8AC5DA987FE242954DEB42EE--

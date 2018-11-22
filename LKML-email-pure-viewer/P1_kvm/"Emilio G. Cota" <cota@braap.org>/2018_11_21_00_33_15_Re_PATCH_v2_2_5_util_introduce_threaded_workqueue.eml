@@ -1,0 +1,217 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 21 Nov 2018 00:40:55 -0000
+Received: from icoremail.net (unknown [209.85.214.178])
+	by mail-app4 (Coremail) with SMTP id cS_KCgDXv07XN_Rbb9zgAQ--.37632S3;
+	Wed, 21 Nov 2018 00:35:35 +0800 (CST)
+Received: from mail-pl1-f178.google.com (unknown [209.85.214.178])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwCHAE3VN_Rb4wtfAA--.1709S3;
+	Wed, 21 Nov 2018 00:35:33 +0800 (CST)
+Received: by mail-pl1-f178.google.com with SMTP id e5so1248931plb.5
+        for <xuliker@zju.edu.cn>; Tue, 20 Nov 2018 08:35:33 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:delivered-to:dkim-signature:dkim-signature:date
+         :from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent:sender:precedence
+         :list-id;
+        bh=nBpWOFL9rwN/cQldBViQleKh7UvdMpZcAqiaK/BSC2I=;
+        b=azxjdOPErkIc4RpqaIgdVSmPwXxSvsc6tvVavIneoh45hpvcYpUPl/ePAPxPn7s6Lm
+         +mpXWphEHIdrH0J8nGPaO0QVafAwvb/c6zHRCVoQUGaIsLljD9EAIDy51YE7Ayeitni9
+         p3Xu0BNvSobQ2EZz1YIJejUJPISfvVpURCY+KnEdcZ/x0RsQNkwJAASWei+t9pRZa2el
+         /g9uzNN8YB6oEIWSjRDne0GJbU3NV9HuQOs7mYPYMJ59YgNQMw3g9DmkfWn2TXYzvYDn
+         KUVaJHXwSeXsUYUj0c5oVXHW2xCkljCznWlEOc+QULy1V6tUTfeFgF9y2u5jXjorPQs4
+         oMng==
+X-Gm-Message-State: AA+aEWbhn51i5Qji9U22bnzEdEXFC6YGeLXxeKQLpjndigJDtwC2KLJE
+	W2QAmJHCu2vCChytufAv2BZMh5lZTCTvJm7YAhBi8zfptE5466w=
+X-Received: by 2002:a17:902:784d:: with SMTP id e13mr2986534pln.188.1542731733511;
+        Tue, 20 Nov 2018 08:35:33 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:d106:0:0:0:0 with SMTP id l6-v6csp826199pju;
+        Tue, 20 Nov 2018 08:35:32 -0800 (PST)
+X-Google-Smtp-Source: AFSGD/UN7rbgpHeILq6vUeLXvVdBnUSgGde0Xqfzux2OFz9043ms/tuf/IiM9DkJjEeCUICOhPbQ
+X-Received: by 2002:a63:40c6:: with SMTP id n189mr2460831pga.355.1542731732313;
+        Tue, 20 Nov 2018 08:35:32 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542731732; cv=none;
+        d=google.com; s=arc-20160816;
+        b=pzmuk8K2FMADSbE+1fss6meDqay2EpSEHQGBF9bbmZkmjhmmCVUTn/xgR/nEgKf8YQ
+         VEclnK+jkr4wFp+hd0PirqxPChCdhYVA/u/++FBMrmIHR4DPJkFEls5LnGbcIWdGDHqy
+         YKMepACIBAVmY6MK3lxjodMW6vnS65prc12JNCVMN78VN5EMUe3ilgqkAEPVogz1wmX4
+         yXmTZ1WHXX9qVOrskv3CbDaIX8z1KosOZsn/pw5VIobo8Roxl2RLDJc3lKg78eVYr9mG
+         /Guwv/VkI4RlyOAt7nQZsP0fTB/EKWiqQFzhHxPLFDThqATClXOyQ8dmR/J/yQ3dDylw
+         mQ3w==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:user-agent:in-reply-to
+         :content-disposition:mime-version:references:message-id:subject:cc
+         :to:from:date:dkim-signature:dkim-signature;
+        bh=nBpWOFL9rwN/cQldBViQleKh7UvdMpZcAqiaK/BSC2I=;
+        b=Ej//rSbRPKPq2h1+HONGk/yM3MDjdg68cMUf1O/JXa0uL4nbBrXz50750O2vUvFNh8
+         Iq+bAPjgGqj4aPyaMnlwxHXUkzuPMpTE/rvWVJPieoKoWNnq9xEre97od66XY4BpJZ8V
+         rmmR6xkq7ScPdOQFhKw68ucT/ZNeEcfWFkELm9KfUmTyEy1weLddZy6oAe/t8/cP28zv
+         5yVkMq0DbxYzYKEkke/No+qu4PU2cHF6SIWRrV7WLyraXxnyWmmERqLo+19wHCTpKRfk
+         XCh13zdC6maYuI4JQ4C82MpW0fdDqKsRGdxVJYzW3iLb1kcPe+stK0SeschgsZvWz/57
+         KmLw==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@braap.org header.s=mesmtp header.b=IGWvvXOy;
+       dkim=pass header.i=@messagingengine.com header.s=fm1 header.b=sPoKSbZl;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id a17-v6si781827pfa.227.2018.11.20.08.35.14;
+        Tue, 20 Nov 2018 08:35:32 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1727555AbeKUDDV (ORCPT <rfc822;alpcanarslan95@gmail.com>
+        + 99 others); Tue, 20 Nov 2018 22:03:21 -0500
+Received: from out4-smtp.messagingengine.com ([66.111.4.28]:56741 "EHLO
+        out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725904AbeKUDDV (ORCPT
+        <rfc822;kvm@vger.kernel.org>); Tue, 20 Nov 2018 22:03:21 -0500
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailout.nyi.internal (Postfix) with ESMTP id B0A36244A2;
+        Tue, 20 Nov 2018 11:33:18 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Tue, 20 Nov 2018 11:33:18 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=braap.org; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=mesmtp; bh=nBpWOFL9rwN/cQldBViQleKh
+        7UvdMpZcAqiaK/BSC2I=; b=IGWvvXOybdCg2Ltz7Yt1wwJHVnnTIWCQBDEYy7Be
+        lUAPUeh2N6FdPYpbi0VEezTk/JrTY0YkMfpiGnQMyd9N1HUYLQENK2w8pE+fgAoR
+        rldueDgVYVCbDHq8SlRhkXQzZju1TcyNLyp2okoR/kyBAtvP7ABVbDYG6DGOArr3
+        Vb0=
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=nBpWOF
+        L9rwN/cQldBViQleKh7UvdMpZcAqiaK/BSC2I=; b=sPoKSbZl9ubwRBip/r+1qG
+        APtv7eUaogHK+w73/rPqIHtYOj6GdTij/bgz2Fu5lPk6hExi+3/Ugpc4lsbDdIEM
+        i9RWZgEue61DTXxPIGmCPp1O1Z4uMnbpNZTLoBaEUHFXUx66rdws3kqGSkYQmNVT
+        WXzAXHHEidEs7WkKEP+GOSEQ8zFrMVhB7Nhv21+TbjCd1fLgGHv0FxmfJdAS2tnV
+        x7lCFXoCU0ACSeah8Sl/yZ0a5BZkuW95OcohmdLEely4JdTKIzNrCqkhrYJ7Weyx
+        nE5R365pDFw2Q1b2gxgGJZC7Z7dEkswcbmd7K1lSNIh0XmzxQx9TEW4PmT0vwHqw
+        ==
+X-ME-Sender: <xms:TDf0W7YxCFkCAN0r74_9B1RyUUhXVri6s1pJtE8Cv5GBYNHJhpSQPA>
+X-ME-Proxy: <xmx:TDf0W826TkQcHyFYkAgf6wpM_ss254TQ7yb4LQQ24hb0QajROitxpA>
+    <xmx:TDf0W1IS7XMGK17nu5C1_LrXDvbKchxOUuGEa5G3MuQ2wQPyQvR7tw>
+    <xmx:TDf0W7cJh8hdphxEnoFmc-LaokWuk-C-V-FsXe54Y14_d7-k9KR_cQ>
+    <xmx:TDf0W8VzBPsXvOxRwbkVkxYXcLyWtZTYJm-gjbeRqYEDcGIRIRrL3w>
+    <xmx:TDf0W7Ys-rCqyhTxOioKTrGb_ik_uq_gMFHVcydGPAIdC0xRTPIO7Q>
+    <xmx:Tjf0W4QJ9LHeK42BGVRje-A5I9wwg_gdOQaQ3rgpaaXcgmd9cgI7uA>
+Received: from localhost (flamenco.cs.columbia.edu [128.59.20.216])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 5E9B0E4619;
+        Tue, 20 Nov 2018 11:33:16 -0500 (EST)
+Date: Tue, 20 Nov 2018 11:33:15 -0500
+From: "Emilio G. Cota" <cota@braap.org>
+To: Xiao Guangrong <guangrong.xiao@gmail.com>
+Cc: pbonzini@redhat.com, mst@redhat.com, mtosatti@redhat.com,
+        qemu-devel@nongnu.org, kvm@vger.kernel.org, dgilbert@redhat.com,
+        peterx@redhat.com, wei.w.wang@intel.com, jiang.biao2@zte.com.cn,
+        eblake@redhat.com, quintela@redhat.com,
+        Xiao Guangrong <xiaoguangrong@tencent.com>
+Subject: Re: [PATCH v2 2/5] util: introduce threaded workqueue
+Message-ID: <20181120163315.GA32388@flamenco>
+References: <20181106122025.3487-1-xiaoguangrong@tencent.com>
+ <20181106122025.3487-3-xiaoguangrong@tencent.com>
+ <20181113183821.GA11606@flamenco>
+ <35f0eb1a-3ec9-344b-7dda-d766c1b79626@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <35f0eb1a-3ec9-344b-7dda-d766c1b79626@gmail.com>
+User-Agent: Mutt/1.9.4 (2018-02-28)
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwCHAE3VN_Rb4wtfAA--.1709S3
+Authentication-Results: mail-app4; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoWxGF48XryxGrWxWFW3Ww18AFb_yoW5AFW5pr
+	WUXF45Kr1kZry8Zrn3JayUAFy0yws3XF43Jr9Yyr1jkan8WaySkryxtFy5uas8Zrs3KF42
+	vrWjq3s3ua1vvrJanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUU0bIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUPIb7Iv0xC_Kw4lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2
+	z280aVAFwI0_Gr1j6F4UJwA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_Gr1j6F4UJwAS0I0E0x
+	vYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AK
+	xVWUJVWUGwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcV
+	AKI48JMx02cVCv0xWlc7CjxVAKzI0EY4vE52x082I5MxkFs20EY4vE44CYbxCE4x80FwCY
+	02Avz4vEIxC_JwCY0x0Ix7I2Y4AK64vIr41lcIIF0xvE2Ix0cI8IcVAFwI0_Ar0_tr1lcI
+	IF0xvE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwCYIxAIcVC2z280aVAFwI0_Cr0_Gr1UMxvI
+	42IY6I8E87Iv6xkF7I0E14v26r4j6r4UJwCF04k20xvY0x0EwIxGrwCF04k20xvEw4C26c
+	xK6c8Ij28IcwCF72vE77IF4wCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v2
+	6r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_Jw0_GFylIxkGc2
+	Ij64vIr41lIxAIcVCF04k26cxKx2IYs7xG6r4j6FyUYxBIdaVFxhVjvjDU0xZFpf9x07bl
+	YFZUUUUU=
+
+On Tue, Nov 20, 2018 at 18:25:25 +0800, Xiao Guangrong wrote:
+> On 11/14/18 2:38 AM, Emilio G. Cota wrote:
+> > On Tue, Nov 06, 2018 at 20:20:22 +0800, guangrong.xiao@gmail.com wrote:
+> > > From: Xiao Guangrong <xiaoguangrong@tencent.com>
+(snip)
+> > Batching achieves higher performance at high core counts (>8),
+> > since worker threads go through fewer sleep+wake cycles while
+> > waiting for jobs. Performance however diminishes as more threads
+> > are used (>=24) due to cache line contention.
+> > 
+> > Contention can be avoided by partitioning the request array, bitmaps
+> > and completion event to be entirely local to worker threads
+> > ("+per-thread-state"). This avoids the performance decrease at >=24
+> > threads that we observe with batching alone. Note that the overall
+> > speedup does not go beyond ~8; this is explained by the fact that we
+> > use a single requester thread. Thus, as we add more worker threads,
+> > they become increasingly less busy, yet throughput remains roughly
+> > constant. I say roughly because there's quite a bit of noise--this
+> > is a 4-socket machine and I'm letting the scheduler move threads
+> > around, although I'm limiting the cores that can be used with
+> > taskset to maximize locality (this means that for 15 threads we're
+> > using 16 host cores that are all in the same socket; note that
+> > the additional thread is the requester one).
+> 
+> Hmm... I have carefully written the stuff step by step:
+> 1. separate @requests from threads to each single thread
+> 2. separate @completion from threads
+> 3. use batch mode
+> 4. separate bitmaps from threads
+> 5. revert batch mode based on step 4
+> 6. compare them with directly using Emilio's patches.
+> 
+> The big different between my modification and Emilio's patches is
+> that i still make per-thread-data be attached in the end of
+> @Threads.
+>
+> I got these performance data:
+> 	https://ibb.co/kcLnLL
+> 
+> Indeed, i can almost reproduce your conclusion. The confused part
+> is batch -  I used 16G memory to do the benchmark, the batch improved
+> nothing, I guess all the threads keep busy under this case anyway.
+
+I wouldn't worry too much about it, then. The machine I ran my tests
+on is rather old, so it's possible that cross-core/socket communication
+is much slower there than on your machine, which makes batching
+more attractive. At the end of the day, the measurements you take on
+the machines you care about are what matter =)
+
+> > I have pushed the above changes, along with some minor fixes (e.g.
+> > removing the Threads.name field) here:
+> > 
+> >    https://github.com/cota/qemu/tree/xiao
+> > 
+> > Note that the 0-len variable goes away, and that Threads become
+> > read-only. I also use padding to make sure the events are in
+> > separate cache lines.
+> > 
+> > Feel free to incorporate whatever you see fit from that branch into
+> > a subsequent iteraiton.
+> 
+> Nice, I will add you to the author list if you do not object. :)
+
+That's not necessary. You deserve the full credit -- I just reviewed
+the code ;-)
+
+Thanks,
+
+		Emilio

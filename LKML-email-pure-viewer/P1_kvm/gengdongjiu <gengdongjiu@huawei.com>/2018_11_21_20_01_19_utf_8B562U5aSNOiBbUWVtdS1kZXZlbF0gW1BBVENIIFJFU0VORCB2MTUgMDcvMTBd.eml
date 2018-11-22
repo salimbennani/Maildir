@@ -1,0 +1,175 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 22 Nov 2018 00:33:03 -0000
+Received: from icoremail.net (unknown [209.85.214.175])
+	by mail-app2 (Coremail) with SMTP id by_KCgDHH0ILSvVb56XHAQ--.58184S3;
+	Wed, 21 Nov 2018 20:05:32 +0800 (CST)
+Received: from mail-pl1-f175.google.com (unknown [209.85.214.175])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwA3GEQGSvVbzE1jAA--.75S3;
+	Wed, 21 Nov 2018 20:05:26 +0800 (CST)
+Received: by mail-pl1-f175.google.com with SMTP id z23so5280847plo.0
+        for <xuliker@zju.edu.cn>; Wed, 21 Nov 2018 04:05:26 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :from:to:cc:subject:thread-topic:thread-index:date:message-id
+         :references:in-reply-to:accept-language:content-language
+         :content-transfer-encoding:mime-version:sender:precedence:list-id;
+        bh=5daQ6vcjAjqIQ91oD56pspNWulWKlyZya72u04tfq98=;
+        b=OLn1Ffz/U7R9PF2yeT25FmkOuGjen+Qq901/cZ2iosEq3VvAhNkmuUzn63B/7dvtpn
+         LhdoyP0Weeqp2Lahfjjt/T4XKj/5o9u7eOi9Yt75xh3eb6jozlwwbx5iFpX6KfeDtRDf
+         WW4hl1cyRR7Jj/Dm4RnQaEv/Oxec4PY5QrU+8gPkfh9ngdw8VQcT0l4e1HeNPsNxBEc+
+         j8POTSEs0BpNLWAGuhpFblUp/nXZSHJ5NznDdwLk2w24ZhpgYQqxVoZNRP0+4jQgzJrY
+         QDhBr+3Yo5l2tTWzBPUX3lw+gv/fyzL0OhsfCpM46/YbCHyWl0GFkpMkGmztd1DUQR96
+         aNOw==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org
+X-Gm-Message-State: AA+aEWY3dYmD0yfGOztc6Fv8pt4IR6fT1AE3h4Yej0xA6QysMpX9Rf9C
+	YhnRXeSYGnmGA/cdIzUrPt2hY7dXqzyCbs0ZNwe8g3Z2LvrEuvo=
+X-Received: by 2002:a63:2315:: with SMTP id j21mr5784110pgj.297.1542801926574;
+        Wed, 21 Nov 2018 04:05:26 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:d106:0:0:0:0 with SMTP id l6-v6csp1854069pju;
+        Wed, 21 Nov 2018 04:05:25 -0800 (PST)
+X-Google-Smtp-Source: AFSGD/UmLJRJ5uKGZA4lzUeO/GmUDQ3aqLSytwMdyWeqTr3yngrpieaclSY4J14Jq6/lDRgi+1XU
+X-Received: by 2002:a17:902:ac1:: with SMTP id 59-v6mr6502731plp.110.1542801925723;
+        Wed, 21 Nov 2018 04:05:25 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542801925; cv=none;
+        d=google.com; s=arc-20160816;
+        b=S9IN1PIISw1ajGDgnt0DnlcPm14FDzbwxVOP9MoM6xcdhaBkOkZUVwLsqa2ADGg3dp
+         b/TlooMHarf1TLda5wE15SYhkH4daZXFnhzlBjg7VuaaNhNA521mL7BLK/+E0sMorlB6
+         uSzjHJvh8LAJ8hFT94jn7RyvD5B+oxpHZVdQveCzZzeldJsqAgCVK4VKehM0L2Pi/EBp
+         Ucy77RIjz8CPK84RejPwR7l969ymzMWDssgqQsrBnUnFvX6kOfx1tKtM2aN87aEcTtBM
+         lUiu+hT/o/y6l50hYkLwhKrebYSx3sP5KlC29QuO1VLDs9nqF5EdjJ2zuP7PHtTHefMY
+         KWMQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:mime-version:content-transfer-encoding
+         :content-language:accept-language:in-reply-to:references:message-id
+         :date:thread-index:thread-topic:subject:cc:to:from;
+        bh=5daQ6vcjAjqIQ91oD56pspNWulWKlyZya72u04tfq98=;
+        b=ioUi9SKLLFm8vu4mkgrnPeKU8yUtUozsXcc1w7NaE6P35alwdF8NjsjGkbY1cJE22N
+         ZbfFCRvmXmEW0lk8z2J7lLPGYHJahfc0W1TIhQEqceFdLHDyBgZ/zDAewpQm8nGhhSa5
+         CwxCwzure+e9JlDbYQ9Osk4xLDfOzt3cUNelzxWSi0khVPQrSb3c7acwnjg3BMI1P/AE
+         CH/w+DMcBGcEqqdmwLeQQzm+0oaac70GTIXk9KuvkMJ3V4arj12j+Hh/4eXFlMMbunxU
+         ZRlRKvP6EVK1KJMNJxZH4twJEhwNizgZILNi051T0DCtvbaIbLytShxtM24QiD72+xeP
+         86AA==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id y2si43531780pgl.148.2018.11.21.04.04.53;
+        Wed, 21 Nov 2018 04:05:25 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1728190AbeKUWfh (ORCPT <rfc822;alpcanarslan95@gmail.com>
+        + 99 others); Wed, 21 Nov 2018 17:35:37 -0500
+Received: from szxga03-in.huawei.com ([45.249.212.189]:6060 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1727069AbeKUWfg (ORCPT <rfc822;kvm@vger.kernel.org>);
+        Wed, 21 Nov 2018 17:35:36 -0500
+Received: from DGGEMA406-HUB.china.huawei.com (unknown [172.30.72.56])
+        by Forcepoint Email with ESMTP id CC546AF82F9E5;
+        Wed, 21 Nov 2018 20:01:25 +0800 (CST)
+Received: from DGGEMA503-MBX.china.huawei.com ([169.254.1.15]) by
+ DGGEMA406-HUB.china.huawei.com ([10.3.20.47]) with mapi id 14.03.0415.000;
+ Wed, 21 Nov 2018 20:01:20 +0800
+From: gengdongjiu <gengdongjiu@huawei.com>
+To: Peter Maydell <peter.maydell@linaro.org>
+CC: Eduardo Habkost <ehabkost@redhat.com>,
+        kvm-devel <kvm@vger.kernel.org>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Marc Zyngier <marc.zyngier@arm.com>,
+        Marcelo Tosatti <mtosatti@redhat.com>,
+        QEMU Developers <qemu-devel@nongnu.org>,
+        Shannon Zhao <shannon.zhaosl@gmail.com>,
+        "zhengxiang (A)" <zhengxiang9@huawei.com>,
+        qemu-arm <qemu-arm@nongnu.org>,
+        James Morse <james.morse@arm.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        "Igor Mammedov" <imammedo@redhat.com>,
+        Laszlo Ersek <lersek@redhat.com>,
+        "Richard Henderson" <rth@twiddle.net>
+Subject: =?utf-8?B?562U5aSNOiBbUWVtdS1kZXZlbF0gW1BBVENIIFJFU0VORCB2MTUgMDcvMTBd?=
+ =?utf-8?B?IEtWTTogTW92ZSByZWxhdGVkIGh3cG9pc29uIHBhZ2UgZnVuY3Rpb25zIHRv?=
+ =?utf-8?Q?_accel/kvm/_folder?=
+Thread-Topic: [Qemu-devel] [PATCH RESEND v15 07/10] KVM: Move related
+ hwpoison page functions to accel/kvm/ folder
+Thread-Index: AQHUgOGNbjBRLbNk2EGdtktdYIQiPaVaIMQg
+Date: Wed, 21 Nov 2018 12:01:19 +0000
+Message-ID: <0184EA26B2509940AA629AE1405DD7F201F7B38A@DGGEMA503-MBX.china.huawei.com>
+References: <1541672989-15967-1-git-send-email-gengdongjiu@huawei.com>
+        <1541672989-15967-8-git-send-email-gengdongjiu@huawei.com>
+ <CAFEAcA9wLv96u_GYCBPFtkQMvntoHDKhQjremmN1noaJxsvhAQ@mail.gmail.com>
+In-Reply-To: <CAFEAcA9wLv96u_GYCBPFtkQMvntoHDKhQjremmN1noaJxsvhAQ@mail.gmail.com>
+Accept-Language: zh-CN, en-US
+Content-Language: zh-CN
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-originating-ip: [10.45.80.233]
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
+X-CFilter-Loop: Reflected
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwA3GEQGSvVbzE1jAA--.75S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW7Kry5AFWfGr1rZrW5WF1DGFg_yoW8ZrW3pF
+	95Ja1UAF1rJryIyr97Xw4xuFyxtws5KFWUXr12qw1vv3sxWrn5tw409r1ag3Z8ur1jkF4x
+	trWjgFsxKF1YvFJanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUdSb7Iv0xC_Cr1lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2
+	z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s0DM2vj6VCEFcxC0V
+	AYjxAxZF0EFcxC0VAYjxAxZF0Ew4CEw7xC0VCjxxvEa2IrM2AIxVAIcxkEcVAq07x20xvE
+	ncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1Y6r17McIj6I
+	8E87Iv67AKxVWxJVW8Jr1lOx8S6xCaFVCjc4AY6r1j6r4UM4xvF2IEb7IF0Fy264kE64k0
+	F24l7I0Y6sxI4wCY1x0264kExVAvwVAq07x20xylc7Ca8VAvwVCFzxkY4VCF77xAMxkIec
+	xEwVCI4VW5JwCY0x0Ix7I2Y4AK64vIr41lcIIF0xvE2Ix0cI8IcVAFwI0_Xr0_Ar1lcIIF
+	0xvE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwCYIxAIcVC2z280aVAFwI0_Cr1j6rxdMxvI42
+	IY6I8E87Iv6xkF7I0E14v26F4UJVW0owCF04k20xvY0x0EwIxGrwCF04k20xvEw4C26cxK
+	6c8Ij28IcwCF72vE77IF4wCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v26r
+	1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_GFv_WrylIxkGc2Ij
+	64vIr41lIxAIcVCF04k26cxKx2IYs7xG6Fyj6rWUJwCE64xvF2IEb7IF0Fy7YxBIdaVFxh
+	VjvjDU0xZFpf9x07jg0eLUUUUU=
+
+SGkgUGV0ZXIsDQogICBUaGFua3MgdmVyeSBtdWNoIGZvciB0aGUgY29tbWFuZHMgYW5kIHJldmll
+dy4NCg0KPiBPbiA4IE5vdmVtYmVyIDIwMTggYXQgMTA6MjksIERvbmdqaXUgR2VuZyA8Z2VuZ2Rv
+bmdqaXVAaHVhd2VpLmNvbT4gd3JvdGU6DQo+ID4ga3ZtX2h3cG9pc29uX3BhZ2VfYWRkKCkgYW5k
+IGt2bV91bnBvaXNvbl9hbGwoKSB3aWxsIGJlIHVzZWQgYm90aCBieQ0KPiA+IFg4NiBhbmQgQVJN
+IHBsYXRmb3Jtcywgc28gbW92ZSB0aGVzZSBmdW5jdGlvbnMgdG8gYSBjb21tb24gYWNjZWwva3Zt
+Lw0KPiA+IGZvbGRlciB0byBhdm9pZCBkdXBsaWNhdGUgY29kZS4NCj4gPg0KPiA+IFNpZ25lZC1v
+ZmYtYnk6IERvbmdqaXUgR2VuZyA8Z2VuZ2RvbmdqaXVAaHVhd2VpLmNvbT4NCj4gPiAtLS0NCj4g
+PiBBZGRyZXNzIFBldGVyJ3MgY29tbWVudHMgdG8gbW92ZSByZWxhdGVkIGh3cG9pc29uIHBhZ2Ug
+ZnVuY3Rpb24gdG8NCj4gPiBhY2NlbC9rdm0gZm9sZGVyIGluIFsxXSBBZGRyZXNzIFBhb2xvJ3Mg
+Y29tbWVudHMgdG8gbW92ZSBIV1BvaXNvblBhZ2UNCj4gPiBkZWZpbml0aW9uIGJhY2sgdG8gYWNj
+ZWwva3ZtL2t2bS1hbGwuYw0KPiA+DQo+ID4gWzFdOg0KPiA+IGh0dHBzOi8vbGlzdHMuZ251Lm9y
+Zy9hcmNoaXZlL2h0bWwvcWVtdS1hcm0vMjAxNy0wOS9tc2cwMDA3Ny5odG1sDQo+ID4gaHR0cHM6
+Ly9saXN0cy5nbnUub3JnL2FyY2hpdmUvaHRtbC9xZW11LWFybS8yMDE3LTA5L21zZzAwMTUyLmh0
+bWwNCj4gPiAtLS0NCj4gDQo+ID4gLS0tIGEvaW5jbHVkZS9leGVjL3JhbV9hZGRyLmgNCj4gPiAr
+KysgYi9pbmNsdWRlL2V4ZWMvcmFtX2FkZHIuaA0KPiA+IEBAIC0xMTUsNiArMTE1LDExIEBAIHZv
+aWQgcWVtdV9yYW1fZnJlZShSQU1CbG9jayAqYmxvY2spOw0KPiA+DQo+ID4gIGludCBxZW11X3Jh
+bV9yZXNpemUoUkFNQmxvY2sgKmJsb2NrLCByYW1fYWRkcl90IG5ld3NpemUsIEVycm9yDQo+ID4g
+KiplcnJwKTsNCj4gPg0KPiA+ICsvKiBBZGQgYSBwb2lzb25lZCBwYWdlIHRvIHRoZSBsaXN0ICov
+IHZvaWQNCj4gPiAra3ZtX2h3cG9pc29uX3BhZ2VfYWRkKHJhbV9hZGRyX3QgcmFtX2FkZHIpOw0K
+PiA+ICsvKiBGcmVlIGFuZCByZW1vdmUgYWxsIHRoZSBwb2lzb25lZCBwYWdlcyBpbiB0aGUgbGlz
+dCAqLyB2b2lkDQo+ID4gK2t2bV91bnBvaXNvbl9hbGwodm9pZCAqcGFyYW0pOw0KPiA+ICsNCj4g
+DQo+IEluIG15IHByZXZpb3VzIHJldmlldyBjb21tZW50cyBJIHNhaWQ6DQo+ID4+PiBBbnkgbmV3
+IGdsb2JhbGx5LXZpc2libGUgZnVuY3Rpb24gcHJvdG90eXBlIGluIGEgaGVhZGVyIHNob3VsZCBo
+YXZlDQo+ID4+PiBhIGRvYy1jb21tZW50IGZvcm1hdHRlZCBkb2N1bWVudGF0aW9uIGNvbW1lbnQs
+IHBsZWFzZS4NCj4gPj4NCj4gPj4NCj4gPj4gT2ssIHRoYW5rcyBmb3IgdGhpcyByZW1pbmRlci4g
+RG8geW91IG1lYW4gSSBuZWVkIHRvIGFkZCBjb21tZW50cyBmb3INCj4gPj4gdGhpcyBnbG9iYWxs
+eS12aXNpYmxlIGZ1bmN0aW9uLCBzdWNoIGFzIGJlbG93Og0KPiA+Pg0KPiA+PiAvKg0KPiA+PiAg
+KiB4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4DQo+ID4+ICAqLw0KPiA+PiB2b2lk
+IGt2bV9od3BvaXNvbl9wYWdlX2FkZChyYW1fYWRkcl90IHJhbV9hZGRyKTsNCj4gPg0KPiA+IEl0
+IHNob3VsZCBiZSBpbiB0aGUgZG9jLWNvbW1lbnQgZm9ybWF0LCB3aGljaCBiZWdpbnMgIi8qKiIg
+YW5kIGhhcw0KPiA+IHNvbWUgc3R5bGl6YXRpb24gb2YgaG93IHlvdSBsaXN0IHBhcmFtZXRlcnMg
+YW5kIHNvIG9uLiBMb3RzIG9mDQo+ID4gZXhhbXBsZXMgaW4gdGhlIGV4aXN0aW5nIGhlYWRlcnMu
+DQo+IA0KPiBDYW4gd2UgaGF2ZSBhIGRvYy1jb21tZW50IGluIHRoZSBwcm9wZXIgZm9ybWF0IGFu
+ZCB3aXRoIGEgbGl0dGxlIG1vcmUgZGV0YWlsIHRoYW4gYSBzaW5nbGUgbGluZSwgcGxlYXNlPw0K
+DQpTdXJlLCBJIHdpbGwgYWRkIGl0IGluIHRoZSBwcm9wZXIgZm9ybWF0LCB0aGFua3MsIE1heSBi
+ZSBJIGZvcmdldCBpdC4gDQoNCj4gDQo+IHRoYW5rcw0KPiAtLSBQTU0NCg0K

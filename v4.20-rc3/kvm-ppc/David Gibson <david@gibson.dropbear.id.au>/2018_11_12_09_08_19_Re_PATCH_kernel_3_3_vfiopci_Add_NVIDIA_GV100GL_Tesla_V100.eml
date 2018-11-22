@@ -1,0 +1,304 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 12 Nov 2018 07:36:29 -0000
+Received: from icoremail.net (unknown [209.85.210.173])
+	by mail-app2 (Coremail) with SMTP id by_KCgDnX+9U0+hbXzl5AQ--.36919S3;
+	Mon, 12 Nov 2018 09:11:49 +0800 (CST)
+Received: from mail-pf1-f173.google.com (unknown [209.85.210.173])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwAXAExJ0+hbn_guAA--.8680S3;
+	Mon, 12 Nov 2018 09:11:37 +0800 (CST)
+Received: by mail-pf1-f173.google.com with SMTP id e22-v6so3449818pfn.8
+        for <xuliker@zju.edu.cn>; Sun, 11 Nov 2018 17:11:37 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:delivered-to:dkim-signature:date:from:to:cc
+         :subject:message-id:references:mime-version:content-disposition
+         :in-reply-to:user-agent:sender:precedence:list-id;
+        bh=3NAwpfTBlOa5NmasDEMJ22v+UgNwq4VknxE+5DHRUJE=;
+        b=T4sDsYKOaRq+vw19tilSyKQkjsOVjCTbvp7+1VOuHCSW2P768e4ad+aBinR4q9ybkf
+         X2a0Yf3X4aNdjyCkUOLUvfF0Qih91Gv2miO5ptj3AiUFBCbJD6Y/Qs3drI0G76DTq+fd
+         aP9rGa94L8NFs8EpehJzd2A9goWF/SV44k0G+a/ettjvQ1x0Pcj+2oyNZsOP+NlVM+6H
+         rRB05upQwy+IUqnLpB2Vu2KgN8Oyl9dgwvokhFJZhxFVF0x1Az136814X0qmKNNA+tZ9
+         +nUqZhKfkM7jmM0/Zc4/pGzxb93zJBlmm/qivxASEsXNHcxf/O0htmtUBezMPpX4k9t4
+         6i6Q==
+X-Gm-Message-State: AGRZ1gJl4fpYGzSkH/1/cmsYiUQ1Y8HI9sQgL6iqB+AiJxJ3ZDa9AHwi
+	W1bZzeKUxrZJUa96btYS/UYpNm/ndpCh4dMrfL93hMmDQk6eQAot6Q==
+X-Received: by 2002:a65:64d5:: with SMTP id t21-v6mr16109472pgv.428.1541985096725;
+        Sun, 11 Nov 2018 17:11:36 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp2632644pjt;
+        Sun, 11 Nov 2018 17:11:35 -0800 (PST)
+X-Google-Smtp-Source: AJdET5edaLwtwA2DYw2T0ZW59mcDi8Qp59ncCpNn46p4SLdyCiY8nM1wg1T+GeeF9594PDpzwWLH
+X-Received: by 2002:a63:f047:: with SMTP id s7mr15594061pgj.441.1541985095352;
+        Sun, 11 Nov 2018 17:11:35 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1541985095; cv=none;
+        d=google.com; s=arc-20160816;
+        b=d86JxvZpCTuwp7EZx604t6b6tR1FYw4SiATdJnu5eWmzFOfM9lUEOWZZj+Yj5KBM2R
+         tsDRemBZOtuvGPja1xFqGYwj85lK0czHUzqFYXP4A/qU1JgEeQgOKrTFW+p9zMnQ+6gA
+         0j3c/zj1Q/PtSze5WzGyyI9Er2u+ywnQlhxJ2WCDPBih55TlEaMGemGXq766+H8zRWws
+         CPIM4Vg6J/RjkBRdXKDn2rNW4Ar2cI2L8AfcjcZKwPFZV1ZWj1iyZv1Nacivz25sAB/M
+         PlH/+zE/ZHCBCxwzeui9jOnzrBj3gYIuFf3xqggOD3rIrFwqf3VGIO5BrE/4Ccu146mG
+         sYlA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:user-agent:in-reply-to
+         :content-disposition:mime-version:references:message-id:subject:cc
+         :to:from:date:dkim-signature;
+        bh=3NAwpfTBlOa5NmasDEMJ22v+UgNwq4VknxE+5DHRUJE=;
+        b=Z+mej3zGrj/Gt6NvU0u4/wOsKjrJ0UGsIR6i8X7OTX/aq8vhKCpS/dLssfI5DeMj5m
+         xXa924Go0m9LDxtx+TzxpepFlLL9OhEIGVFXPzcjbL2pgYRz9dSPXSb8EGB8+8KPeu0Z
+         wifTspZPHLZU+NMVpLy/kSySIn0tO401ss6NE8rStCcakchbGoALdIr6dHVCkK/no2X/
+         x/aeowk2frsELh0gTkaNZf55GhiUhI0zcZ7GVz7JhLWpqisQt2JpHA8B2Ezz2Ztl9YFE
+         WA+80UQT5u2edfT4tRof7A0HnqdnfDu29ROQyuybEo77zOSKAS6W4kNAu2LyhW9fR4x/
+         BmCA==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@gibson.dropbear.id.au header.s=201602 header.b=bWg7Cp9l;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id w22-v6si15651208plp.110.2018.11.11.17.11.06;
+        Sun, 11 Nov 2018 17:11:35 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1729796AbeKLK7M (ORCPT <rfc822;fanshuming2011@gmail.com>
+        + 99 others); Mon, 12 Nov 2018 05:59:12 -0500
+Received: from ozlabs.org ([203.11.71.1]:43157 "EHLO ozlabs.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727556AbeKLK7M (ORCPT <rfc822;kvm@vger.kernel.org>);
+        Mon, 12 Nov 2018 05:59:12 -0500
+Received: by ozlabs.org (Postfix, from userid 1007)
+        id 42tXgv4st2z9s9h; Mon, 12 Nov 2018 12:08:27 +1100 (AEDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+        d=gibson.dropbear.id.au; s=201602; t=1541984907;
+        bh=nTyzEJI2XRK1oDzQ9cAJj7voHKDKjORKwcvd+7qwTEs=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=bWg7Cp9l5IFX13s7Wn0rTf+FgXjtH/3bnwXTQne/mJ2k7OGrj7g5aJGDrJQ7J5mbb
+         Xup2vGwmpyLTf1WJND+db4URiZ0KLLDEzLpfse/KT986BJ9bNceimUABLivDXCcMdm
+         RONoZZdga8LKNjTQsyTwovmR7+SwEfr45y3TVfPI=
+Date: Mon, 12 Nov 2018 12:08:19 +1100
+From: David Gibson <david@gibson.dropbear.id.au>
+To: Alexey Kardashevskiy <aik@ozlabs.ru>
+Cc: Alex Williamson <alex.williamson@redhat.com>,
+        Piotr Jaroszynski <pjaroszynski@nvidia.com>,
+        linuxppc-dev@lists.ozlabs.org, kvm-ppc@vger.kernel.org,
+        kvm@vger.kernel.org, Alistair Popple <alistair@popple.id.au>,
+        Reza Arbab <arbab@linux.ibm.com>
+Subject: Re: [PATCH kernel 3/3] vfio_pci: Add NVIDIA GV100GL [Tesla V100
+ SXM2] [10de:1db1] subdriver
+Message-ID: <20181112010819.GA21020@umbus.fritz.box>
+References: <20181015094233.1324-1-aik@ozlabs.ru>
+ <20181015094233.1324-4-aik@ozlabs.ru>
+ <20181016130824.20be215b@w520.home>
+ <71c11c53-c83d-b0b6-5036-574df45009e4@ozlabs.ru>
+ <20181017155252.2f15d0f0@w520.home>
+ <2175dbbd-21d9-df26-67f5-4b41f90ab1bc@ozlabs.ru>
+ <20181018105503.088a343f@w520.home>
+ <0e0db29d-a1e8-af85-b715-c1ba1a2f3875@nvidia.com>
+ <20181018120502.057feb7a@w520.home>
+ <918290dc-59c3-f269-38d4-a07d323173f9@ozlabs.ru>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="vtzGhvizbBRQ85DL"
+Content-Disposition: inline
+In-Reply-To: <918290dc-59c3-f269-38d4-a07d323173f9@ozlabs.ru>
+User-Agent: Mutt/1.10.1 (2018-07-13)
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwAXAExJ0+hbn_guAA--.8680S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW3Ar1xtF4rtF17ZFWfKF17Wrg_yoW7KFy3pF
+	WrtF48tF4DXryrKryIvr18Gw1I9r1kAr43Xr18Gw40gwn0qF93tw1Utr1Yka4kCr1kCF18
+	JrykJ3s7Xr1kJFJanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUU0bIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUmKb7Iv0xC_Kw4lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Xr0_Ar1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1l84ACjcxK6I8E
+	87Iv67AKxVW0oVCq3wA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_GcCE3s1lnx0Ee4C267I2x7
+	xF54xIwI0E7I0Y6sxI4wAS0I0E0xvYzxvE52x082IY62kv0487M2AExVA0xI801c8C04v7
+	Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AKxVWUJVWUGwAv7VC2z280aV
+	AFwI0_Gr0_Cr1lOx8S6xCaFVCjc4AY6r1j6r4UMx02cVCv0xWlc7CjxVAKzI0EY4vE52x0
+	82I5MxkFs20EY4vE44CYbxCE4x80FwCY02Avz4vEIxC_KwCY0x0Ix7I2Y4AK64vIr41lcI
+	IF0xvE2Ix0cI8IcVAFwI0_Jr0_JF4lcIIF0xvE2Ix0cI8IcVCY1x0267AKxVWUJVW8JwCY
+	IxAIcVC2z280aVAFwI0_GcCE3s1lcIIF0xvEx4A2jsIEc7CjxVAFwI0_GcCE3s1l42xK82
+	IYc2Ij64vIr41l42xK82IY64kExVAvwVAq07x20xyl4x8a6x804xWl4I8I3I0E4IkC6x0Y
+	z7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zV
+	AF1VAY17CE14v26r1q6r43MIIYrxkI7VAKI48JMIIF0xvE42xK8VAvwI8IcIk0rVWrJr0_
+	WFyUJbIYCTnIWIevJa73UjIFyTuYvjxUPLIDDUUUU
+
+
+--vtzGhvizbBRQ85DL
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Fri, Oct 19, 2018 at 11:53:53AM +1100, Alexey Kardashevskiy wrote:
+>=20
+>=20
+> On 19/10/2018 05:05, Alex Williamson wrote:
+> > On Thu, 18 Oct 2018 10:37:46 -0700
+> > Piotr Jaroszynski <pjaroszynski@nvidia.com> wrote:
+> >=20
+> >> On 10/18/18 9:55 AM, Alex Williamson wrote:
+> >>> On Thu, 18 Oct 2018 11:31:33 +1100
+> >>> Alexey Kardashevskiy <aik@ozlabs.ru> wrote:
+> >>>  =20
+> >>>> On 18/10/2018 08:52, Alex Williamson wrote: =20
+> >>>>> On Wed, 17 Oct 2018 12:19:20 +1100
+> >>>>> Alexey Kardashevskiy <aik@ozlabs.ru> wrote:
+> >>>>>     =20
+> >>>>>> On 17/10/2018 06:08, Alex Williamson wrote: =20
+> >>>>>>> On Mon, 15 Oct 2018 20:42:33 +1100
+> >>>>>>> Alexey Kardashevskiy <aik@ozlabs.ru> wrote:   =20
+> >>>>>>>> +
+> >>>>>>>> +	if (pdev->vendor =3D=3D PCI_VENDOR_ID_IBM &&
+> >>>>>>>> +			pdev->device =3D=3D 0x04ea) {
+> >>>>>>>> +		ret =3D vfio_pci_ibm_npu2_init(vdev);
+> >>>>>>>> +		if (ret) {
+> >>>>>>>> +			dev_warn(&vdev->pdev->dev,
+> >>>>>>>> +					"Failed to setup NVIDIA NV2 ATSD region\n");
+> >>>>>>>> +			goto disable_exit;
+> >>>>>>>>   		} =20
+> >>>>>>>
+> >>>>>>> So the NPU is also actually owned by vfio-pci and assigned to the=
+ VM? =20
+> >>>>>>
+> >>>>>> Yes. On a running system it looks like:
+> >>>>>>
+> >>>>>> 0007:00:00.0 Bridge: IBM Device 04ea (rev 01)
+> >>>>>> 0007:00:00.1 Bridge: IBM Device 04ea (rev 01)
+> >>>>>> 0007:00:01.0 Bridge: IBM Device 04ea (rev 01)
+> >>>>>> 0007:00:01.1 Bridge: IBM Device 04ea (rev 01)
+> >>>>>> 0007:00:02.0 Bridge: IBM Device 04ea (rev 01)
+> >>>>>> 0007:00:02.1 Bridge: IBM Device 04ea (rev 01)
+> >>>>>> 0035:00:00.0 PCI bridge: IBM Device 04c1
+> >>>>>> 0035:01:00.0 PCI bridge: PLX Technology, Inc. Device 8725 (rev ca)
+> >>>>>> 0035:02:04.0 PCI bridge: PLX Technology, Inc. Device 8725 (rev ca)
+> >>>>>> 0035:02:05.0 PCI bridge: PLX Technology, Inc. Device 8725 (rev ca)
+> >>>>>> 0035:02:0d.0 PCI bridge: PLX Technology, Inc. Device 8725 (rev ca)
+> >>>>>> 0035:03:00.0 3D controller: NVIDIA Corporation GV100GL [Tesla V100=
+ SXM2]
+> >>>>>> (rev a1
+> >>>>>> 0035:04:00.0 3D controller: NVIDIA Corporation GV100GL [Tesla V100=
+ SXM2]
+> >>>>>> (rev a1)
+> >>>>>> 0035:05:00.0 3D controller: NVIDIA Corporation GV100GL [Tesla V100=
+ SXM2]
+> >>>>>> (rev a1)
+> >>>>>>
+> >>>>>> One "IBM Device" bridge represents one NVLink2, i.e. a piece of NP=
+U.
+> >>>>>> They all and 3 GPUs go to the same IOMMU group and get passed thro=
+ugh to
+> >>>>>> a guest.
+> >>>>>>
+> >>>>>> The entire NPU does not have representation via sysfs as a whole t=
+hough. =20
+> >>>>>
+> >>>>> So the NPU is a bridge, but it uses a normal header type so vfio-pci
+> >>>>> will bind to it? =20
+> >>>>
+> >>>> An NPU is a NVLink bridge, it is not PCI in any sense. We (the host
+> >>>> powerpc firmware known as "skiboot" or "opal") have chosen to emulat=
+e a
+> >>>> virtual bridge per 1 NVLink on the firmware level. So for each physi=
+cal
+> >>>> NPU there are 6 virtual bridges. So the NVIDIA driver does not need =
+to
+> >>>> know much about NPUs.
+> >>>> =20
+> >>>>> And the ATSD register that we need on it is not
+> >>>>> accessible through these PCI representations of the sub-pieces of t=
+he
+> >>>>> NPU?  Thanks, =20
+> >>>>
+> >>>> No, only via the device tree. The skiboot puts the ATSD register add=
+ress
+> >>>> to the PHB's DT property called 'ibm,mmio-atsd' of these virtual bri=
+dges. =20
+> >>>
+> >>> Ok, so the NPU is essential a virtual device already, mostly just a
+> >>> stub.  But it seems that each NPU is associated to a specific GPU, how
+> >>> is that association done?  In the use case here it seems like it's ju=
+st
+> >>> a vehicle to provide this ibm,mmio-atsd property to guest DT and the =
+tgt
+> >>> routing information to the GPU.  So if both of those were attached to
+> >>> the GPU, there'd be no purpose in assigning the NPU other than it's in
+> >>> the same IOMMU group with a type 0 header, so something needs to be
+> >>> done with it.  If it's a virtual device, perhaps it could have a type=
+ 1
+> >>> header so vfio wouldn't care about it, then we would only assign the
+> >>> GPU with these extra properties, which seems easier for management
+> >>> tools and users.  If the guest driver needs a visible NPU device, QEMU
+> >>> could possibly emulate one to make the GPU association work
+> >>> automatically.  Maybe this isn't really a problem, but I wonder if
+> >>> you've looked up the management stack to see what tools need to know =
+to
+> >>> assign these NPU devices and whether specific configurations are
+> >>> required to make the NPU to GPU association work.  Thanks, =20
+> >>
+> >> I'm not that familiar with how this was originally set up, but note th=
+at=20
+> >> Alexey is just making it work exactly like baremetal does. The baremet=
+al=20
+> >> GPU driver works as-is in the VM and expects the same properties in th=
+e=20
+> >> device-tree. Obviously it doesn't have to be that way, but there is=20
+> >> value in keeping it identical.
+> >>
+> >> Another probably bigger point is that the NPU device also implements t=
+he=20
+> >> nvlink HW interface and is required for actually training and=20
+> >> maintaining the link up. The driver in the guest trains the links by=
+=20
+> >> programming both the GPU end and the NPU end of each link so the NPU=
+=20
+> >> device needs to be exposed to the guest.
+> >=20
+> > Ok, so there is functionality in assigning the NPU device itself, it's
+> > not just an attachment point for meta data.  But it still seems there
+> > must be some association of NPU to GPU, the tgt address seems to pair
+> > the NPU with a specific GPU, they're not simply a fungible set of NPUs
+> > and GPUs.  Is that association explicit anywhere or is it related to
+> > the topology or device numbering that needs to match between the host
+> > and guest?  Thanks,
+>=20
+> It is in the device tree (phandle is a node ID).
+
+Hrm.  But the device tree just publishes information about the
+hardware.  What's the device tree value actually exposing here?
+
+Is there an inherent hardware connection between one NPU and one GPU?
+Or is there just an arbitrary assignment performed by the firmware
+which it then exposed to the device tree?
+
+--=20
+David Gibson			| I'll have my music baroque, and my code
+david AT gibson.dropbear.id.au	| minimalist, thank you.  NOT _the_ _other_
+				| _way_ _around_!
+http://www.ozlabs.org/~dgibson
+
+--vtzGhvizbBRQ85DL
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEEdfRlhq5hpmzETofcbDjKyiDZs5IFAlvo0oEACgkQbDjKyiDZ
+s5KCRxAAvIQK2JDwl4w7ZRE71d0u6nblVQVE+Dko0jBD8vi2v0UuQ+SmOrzCUxys
+rKiRvuDq0FAKF/OqJnShRc1aZXcxGjFW3rrxWi2rrvfEihAMlOzKd38nz3w52ovg
+MWSWMh8b/Tp9VPGCKSybGRt3zwDdaiuF6emM+XOpx8jYkiABxy9JMAr8gLdPu6Xr
+RcZW7DOZcM9P+KPMN3xEBsjUB1m9RBBlrULYTNkmnr4LPzRlMkmcIIcCtEjP5BX+
+6tBAKLKx6nHUyPhaRgw2nyYLvh6YHPG+ub6WTZBZpWBsAQy2hgVVB0oQxqULTOLK
+NoaI5UJV6EjI8mNwZupqElORafUyzdwmRgnAv+8lBSSYLdsMdPAqrI05rGFHQt2n
+H6Sk+zCy03Ej4ifNZmS2VeOyNmPWYuyekP2gck6zpBfF8DnH6NskwciSP1poPVF8
+MV3wvxXHj4CaZzSwm5IT/BUf6fCA/JnczslVLK/OLLLMYCYNF8/IGNdgZNjrMd5m
+NPT4/lJBDdpB/+52W3QzyBjna9MKhIqMM0B5csZt5/PDLOe1bae43ZCMTS6y4diG
+t0ZU/k0p9CLSTBYOGot2P1G2xLj6NNOsZ+VeoFzgq3QMLX1T+T5T/ZSynpfJiHr6
+i0IYJ0fU7Y19IQj5vU9m7g8K0eySkGPJtsCI3Gy9hmrwkpBQc7w=
+=meZa
+-----END PGP SIGNATURE-----
+
+--vtzGhvizbBRQ85DL--

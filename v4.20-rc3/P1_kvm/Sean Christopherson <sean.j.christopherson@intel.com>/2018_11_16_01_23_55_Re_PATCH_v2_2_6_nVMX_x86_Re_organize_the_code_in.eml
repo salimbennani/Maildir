@@ -1,0 +1,247 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 16 Nov 2018 00:29:18 -0000
+Received: from icoremail.net (unknown [209.85.215.181])
+	by mail-app2 (Coremail) with SMTP id by_KCgC3f9HUq+1bOKqbAQ--.46171S3;
+	Fri, 16 Nov 2018 01:24:37 +0800 (CST)
+Received: from mail-pg1-f181.google.com (unknown [209.85.215.181])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwC3n0vPq+1bvPVEAA--.12240S3;
+	Fri, 16 Nov 2018 01:24:31 +0800 (CST)
+Received: by mail-pg1-f181.google.com with SMTP id z10so9305195pgp.7
+        for <xuliker@zju.edu.cn>; Thu, 15 Nov 2018 09:24:31 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent:sender:precedence
+         :list-id;
+        bh=4vFKHDOqHU4q+w5bMyDdQeUI3o2UaLncIx4UqUxtGj4=;
+        b=tD5V09pmtP/eJkrBMQ1K5cfHzW3vHGhU6JxeXIfAb2svJ1XI5oXdkFyTmj3FaySva9
+         gN/l2RgwdXMVBye/INKjnbFnJ+h517D/uZTpzxCSgKaUHoslKYGop9vzt6ZPLM5BR4wA
+         JpC6272oXs6trnRpvs7P6yT9pwvqAqcJ/2nFIwwSWcl05jWmfRK/RODwhDIByfJ1ibOY
+         puzuIteGf4U1KzKY/sJEaldbSwWGfbc70futP14gaR5aXvIh8r+ZHRKNIXBZqTa0KuqN
+         PDek4Ak/mat4EsDoVxIFASXx7gUn/nR4TYQxjoMzXscSBViUEGN8ckykwjGq44KtQt8Z
+         4mcg==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=intel.com
+X-Gm-Message-State: AGRZ1gKuYPlQNZcyOVTWMp+QGBNOhQ5Lgq9C4zV4RTB273ad1vla7Maz
+	4VWVeJbcXDKOHusmYUMSzPT0OvkiuNBclBBKi/Iq8139JMv33BeZzQ==
+X-Received: by 2002:a62:1f9d:: with SMTP id l29mr7388410pfj.14.1542302670948;
+        Thu, 15 Nov 2018 09:24:30 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:d106:0:0:0:0 with SMTP id l6-v6csp840371pju;
+        Thu, 15 Nov 2018 09:24:30 -0800 (PST)
+X-Google-Smtp-Source: AJdET5fXRY+EXkPQbbl4SmWMx6syIwCxUaaMzLfxwpc/YzWuYhIS9/Y9ePyK2orlEqe5nkKPJaQo
+X-Received: by 2002:a17:902:8306:: with SMTP id bd6-v6mr7152065plb.321.1542302670085;
+        Thu, 15 Nov 2018 09:24:30 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542302670; cv=none;
+        d=google.com; s=arc-20160816;
+        b=UbaHEVea5C0ZdqUwDl/LzvhXINO9CZxfCEMawBD8wrv4y5+mAd8/GmV/9CJ5/nupJe
+         fGZ1xrSBd87VM/nmixRBUYwCwvuCTAki2hNkpttystuSc90d0MSwB/W8vZeC+I5dcWnN
+         qQWkFJ/5W44eYVoyQLY40iazGL4OvaRab2fhUnzfoB068Iym3CHjuaWgDgWx6r0sOLNB
+         pbevva+NtiKHpSGx7+ZFq55IF180NVETm+MrQ81o+geLeNn4J1AcVBDvqCgELWzrfeKh
+         c3R7KMi/KkoyZOYQxmFHNuinZI7ugv4i5KUdroKGikJv/uJi26wA00VGT3QVfrQVyTQr
+         5HvA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:user-agent:in-reply-to
+         :content-disposition:mime-version:references:message-id:subject:cc
+         :to:from:date;
+        bh=4vFKHDOqHU4q+w5bMyDdQeUI3o2UaLncIx4UqUxtGj4=;
+        b=QIk8KZxkalO+e9nUhnRPzQGdAi2jGKnH6mpaxGVOhlkZvIShvw65YPkI8dyhh0iN2a
+         oy9fakI061/Kazn3nywaB8mcH6ex3q5/fnlieOtRW/rkhqSi//k0fL9g9Apv+1aWVFYk
+         ylZwVZ8hmQqK0zrVlm4r9DOO1jo2nSXhG+BCmPcuhXer0lW5vKVoS4nHcPNvI6R0MIIo
+         fjXi4itU0Gf3J5lXI7bEBQeLWpPEez9oDL7Yfpr6aZbXiQSYRGmHTMe/hFnNFfQeCO1+
+         7ZUegJaUz19kQys3vAsYW8s0d1cn6UYn/RkaN7yk59yySJHXnrmuEB7mXlaAD+fe5bco
+         1xwg==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=intel.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id z33-v6si24178760plb.91.2018.11.15.09.24.14;
+        Thu, 15 Nov 2018 09:24:30 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S2388395AbeKPDci (ORCPT <rfc822;nodee764@gmail.com> + 99 others);
+        Thu, 15 Nov 2018 22:32:38 -0500
+Received: from mga09.intel.com ([134.134.136.24]:13889 "EHLO mga09.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2388293AbeKPDci (ORCPT <rfc822;kvm@vger.kernel.org>);
+        Thu, 15 Nov 2018 22:32:38 -0500
+X-Amp-Result: UNSCANNABLE
+X-Amp-File-Uploaded: False
+Received: from fmsmga004.fm.intel.com ([10.253.24.48])
+  by orsmga102.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 15 Nov 2018 09:23:56 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.56,236,1539673200"; 
+   d="scan'208";a="106569990"
+Received: from sjchrist-coffee.jf.intel.com (HELO linux.intel.com) ([10.54.74.154])
+  by fmsmga004.fm.intel.com with ESMTP; 15 Nov 2018 09:23:55 -0800
+Date: Thu, 15 Nov 2018 09:23:55 -0800
+From: Sean Christopherson <sean.j.christopherson@intel.com>
+To: Krish Sadhukhan <krish.sadhukhan@oracle.com>
+Cc: kvm@vger.kernel.org, pbonzini@redhat.com, jmattson@google.com,
+        rkrcmar@redhat.com
+Subject: Re: [PATCH v2 2/6] nVMX x86: Re-organize the code in
+ nested_check_vmentry_prereqs(), that are related to VM-Execution Control
+ Fields
+Message-ID: <20181115172355.GC7226@linux.intel.com>
+References: <20181115054554.4831-1-krish.sadhukhan@oracle.com>
+ <20181115054554.4831-3-krish.sadhukhan@oracle.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20181115054554.4831-3-krish.sadhukhan@oracle.com>
+User-Agent: Mutt/1.5.24 (2015-08-30)
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwC3n0vPq+1bvPVEAA--.12240S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW3XFyDGr47Gw1DZrWxWr4UJwb_yoW7WFy7p3
+	40qr9rXFWUtrW3AF97Krn5GFWS9r9avF9rJ3yjk3W5ZF97WFyUGrW3Ar1rtryUJFW8Ww4x
+	AF42yr4xua43AFUanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUPIb7Iv0xC_Cr1lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1l84ACjcxK6I8E
+	87Iv67AKxVW8Jr0_Cr1UM28EF7xvwVC2z280aVCY1x0267AKxVW8Jr0_Cr1UM2AIxVAIcx
+	kEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v2
+	6r1j6r18McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IY64
+	vIr41l7I0Y6sxI4wCY1x0264kExVAvwVAq07x20xylc7Ca8VAvwVCFzxkY4VCF77xAMxkI
+	ecxEwVCI4VW8MxkI7II2jI8vz4vEwIxGrwCYIxAIcVC0I7IYx2IY67AKxVW8JVW5JwCYIx
+	AIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMxvI42IY6I8E87Iv67AKxVWxJVW8Jr1lcIIF
+	0xvEx4A2jsIEc7CjxVAFwI0_Gr0_Gr1UMxAIw28IcxkI7VAKI48JMxAIw28IcVAKzI0EY4
+	vE52x082I5MxCjnVCjjxCrMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_
+	Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWUAVWUtwCIc40Y0x
+	0EwIxGrwCI42IY6xAIw20EY4v20xvaj40_Zr0_Wr1UYxBIdaVFxhVjvjDU0xZFpf9x07bb
+	_-PUUUUU=
+
+On Thu, Nov 15, 2018 at 12:45:50AM -0500, Krish Sadhukhan wrote:
+> Separate out the checks in nested_check_vmentry_prereqs(), that are related
+> to the VM-Execution Control Fields. The re-organized code is easier for
+> readability, enhancement and maintenance.
+> 
+> Signed-off-by: Krish Sadhukhan <krish.sadhukhan@oracle.com>
+> Reviewed-by: Mihai Carabas <mihai.carabas@oracle.com>
+> Reviewed-by: Mark Kanda <mark.kanda@oracle.com>
+> ---
+>  arch/x86/kvm/vmx.c | 71 ++++++++++++++++++++++++------------------------------
+>  1 file changed, 32 insertions(+), 39 deletions(-)
+> 
+> diff --git a/arch/x86/kvm/vmx.c b/arch/x86/kvm/vmx.c
+> index 411fcd2..25eb74e 100644
+> --- a/arch/x86/kvm/vmx.c
+> +++ b/arch/x86/kvm/vmx.c
+> @@ -12380,42 +12380,22 @@ static int nested_vmx_check_nmi_controls(struct vmcs12 *vmcs12)
+>  	return 0;
+>  }
+>  
+> -static int nested_check_vmentry_prereqs(struct kvm_vcpu *vcpu, struct vmcs12 *vmcs12)
+> +/*
+> + * Checks related to VM-Execution Control Fields
+> + */
+> +static int nested_check_vm_execution_ctls(struct kvm_vcpu *vcpu, struct vmcs12 *vmcs12)
+
+"ctls" should be spelled in full to be consistent with all other code, i.e.
+nested_check_vm_execution_controls().  You're already well over 80 chars,
+just commit to the full name and wrap:
+
+static int nested_check_vm_execution_controls(struct kvm_vcpu *vcpu,
+					      struct vmcs12 *vmcs12)
+
+>  {
+>  	struct vcpu_vmx *vmx = to_vmx(vcpu);
+>  
+> -	if (vmcs12->guest_activity_state != GUEST_ACTIVITY_ACTIVE &&
+> -	    vmcs12->guest_activity_state != GUEST_ACTIVITY_HLT)
+> -		return VMXERR_ENTRY_INVALID_CONTROL_FIELD;
+> -
+> -	if (nested_cpu_has_vpid(vmcs12) && !vmcs12->virtual_processor_id)
+> -		return VMXERR_ENTRY_INVALID_CONTROL_FIELD;
+> -
+> -	if (nested_vmx_check_io_bitmap_controls(vcpu, vmcs12))
+> -		return VMXERR_ENTRY_INVALID_CONTROL_FIELD;
+> -
+> -	if (nested_vmx_check_msr_bitmap_controls(vcpu, vmcs12))
+> -		return VMXERR_ENTRY_INVALID_CONTROL_FIELD;
+> -
+> -	if (nested_vmx_check_apic_access_controls(vcpu, vmcs12))
+> -		return VMXERR_ENTRY_INVALID_CONTROL_FIELD;
+> -
+> -	if (nested_vmx_check_tpr_shadow_controls(vcpu, vmcs12))
+> -		return VMXERR_ENTRY_INVALID_CONTROL_FIELD;
+> -
+> -	if (nested_vmx_check_apicv_controls(vcpu, vmcs12))
+> -		return VMXERR_ENTRY_INVALID_CONTROL_FIELD;
+> -
+> -	if (nested_vmx_check_msr_switch_controls(vcpu, vmcs12))
+> -		return VMXERR_ENTRY_INVALID_CONTROL_FIELD;
+> -
+> -	if (nested_vmx_check_pml_controls(vcpu, vmcs12))
+> -		return VMXERR_ENTRY_INVALID_CONTROL_FIELD;
+> -
+> -	if (nested_vmx_check_shadow_vmcs_controls(vcpu, vmcs12))
+> -		return VMXERR_ENTRY_INVALID_CONTROL_FIELD;
+> -
+> -	if (!vmx_control_verify(vmcs12->cpu_based_vm_exec_control,
+> +	if ((nested_cpu_has_vpid(vmcs12) && !vmcs12->virtual_processor_id) ||
+> +	    nested_vmx_check_io_bitmap_controls(vcpu, vmcs12) ||
+> +	    nested_vmx_check_msr_bitmap_controls(vcpu, vmcs12) ||
+> +	    nested_vmx_check_apic_access_controls(vcpu, vmcs12) ||
+> +	    nested_vmx_check_tpr_shadow_controls(vcpu, vmcs12) ||
+> +	    nested_vmx_check_apicv_controls(vcpu, vmcs12) ||
+> +	    nested_vmx_check_pml_controls(vcpu, vmcs12) ||
+> +	    nested_vmx_check_shadow_vmcs_controls(vcpu, vmcs12) ||
+> +	    !vmx_control_verify(vmcs12->cpu_based_vm_exec_control,
+>  				vmx->nested.msrs.procbased_ctls_low,
+>  				vmx->nested.msrs.procbased_ctls_high) ||
+>  	    (nested_cpu_has(vmcs12, CPU_BASED_ACTIVATE_SECONDARY_CONTROLS) &&
+> @@ -12430,11 +12410,9 @@ static int nested_check_vmentry_prereqs(struct kvm_vcpu *vcpu, struct vmcs12 *vm
+>  				vmx->nested.msrs.exit_ctls_high) ||
+>  	    !vmx_control_verify(vmcs12->vm_entry_controls,
+>  				vmx->nested.msrs.entry_ctls_low,
+> -				vmx->nested.msrs.entry_ctls_high))
+> -		return VMXERR_ENTRY_INVALID_CONTROL_FIELD;
+> -
+> -	if (nested_vmx_check_nmi_controls(vmcs12))
+> -		return VMXERR_ENTRY_INVALID_CONTROL_FIELD;
+> +				vmx->nested.msrs.entry_ctls_high) ||
+> +	    nested_vmx_check_nmi_controls(vmcs12))
+> +		return -EINVAL;
+>  
+>  	if (nested_cpu_has_vmfunc(vmcs12)) {
+>  		if (vmcs12->vm_function_control &
+> @@ -12444,11 +12422,26 @@ static int nested_check_vmentry_prereqs(struct kvm_vcpu *vcpu, struct vmcs12 *vm
+>  		if (nested_cpu_has_eptp_switching(vmcs12)) {
+>  			if (!nested_cpu_has_ept(vmcs12) ||
+>  			    !page_address_valid(vcpu, vmcs12->eptp_list_address))
+> -				return VMXERR_ENTRY_INVALID_CONTROL_FIELD;
+> +				return -EINVAL;
+>  		}
+>  	}
+>  
+>  	if (vmcs12->cr3_target_count > nested_cpu_vmx_misc_cr3_count(vcpu))
+> +		return -EINVAL;
+> +
+> +	return 0;
+> +}
+> +
+> +static int nested_check_vmentry_prereqs(struct kvm_vcpu *vcpu, struct vmcs12 *vmcs12)
+> +{
+> +	if (vmcs12->guest_activity_state != GUEST_ACTIVITY_ACTIVE &&
+> +	    vmcs12->guest_activity_state != GUEST_ACTIVITY_HLT)
+> +		return VMXERR_ENTRY_INVALID_CONTROL_FIELD;
+> +
+> +	if (nested_check_vm_execution_ctls(vcpu, vmcs12))
+> +		return VMXERR_ENTRY_INVALID_CONTROL_FIELD;
+> +
+> +	if (nested_vmx_check_msr_switch_controls(vcpu, vmcs12))
+>  		return VMXERR_ENTRY_INVALID_CONTROL_FIELD;
+>  
+>  	if (!nested_host_cr0_valid(vcpu, vmcs12->host_cr0) ||
+> -- 
+> 2.9.5
+> 

@@ -1,0 +1,513 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 20 Nov 2018 00:33:41 -0000
+Received: from icoremail.net (unknown [209.85.215.178])
+	by mail-app2 (Coremail) with SMTP id by_KCgD3__uP7_JbWaG6AQ--.55657S3;
+	Tue, 20 Nov 2018 01:14:58 +0800 (CST)
+Received: from mail-pg1-f178.google.com (unknown [209.85.215.178])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwC3m0eL7_JbknpZAA--.2608S3;
+	Tue, 20 Nov 2018 01:14:51 +0800 (CST)
+Received: by mail-pg1-f178.google.com with SMTP id z10so14111691pgp.7
+        for <xuliker@zju.edu.cn>; Mon, 19 Nov 2018 09:14:51 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:delivered-to:dkim-signature:from:to:cc:subject
+         :date:message-id:mime-version:user-agent:content-transfer-encoding
+         :sender:precedence:list-id;
+        bh=AIWc8ZAxnvVvSGBRsEYdNEomRsGBCvepa4JHgttVx3g=;
+        b=chjQBEFoGEPY4dWC7x4A33RxerfEVCR1aZepK/WtgYS8Jo/WG2ohKkA96XX0yh877s
+         la+ecP+YXFntI4/x4gRYLo5DNkvim+9uSkIjbtHpat41FdpNsGFDxjSx6ztEofG7EZKC
+         eeres5T/WHoJlwsDO+7XXUrBVbOG5zWLjyBUGqHtAYqm6IFc+JFA1gFBSDtE9ZYajXul
+         jClFaoZI4gLT8YDUpdNa3pk3iC9cdbUvad5y6IqzRhQAQIA04jde2AO0ccoIkP6BzIhb
+         BXF5oPF+qLJ50gv3dyQDle2p0NeiNlbdOm7zXOC2x1Q5RoPArNh2j+0ZQdCN0Y1xnh6s
+         xWUg==
+X-Gm-Message-State: AGRZ1gLaj5FFT2dSMN9Ohae+tdL7KBIPSeHlttC9EhnOi0HBVwu20iMl
+	CmdYlb+N5DgQ0VjyUpPzcRQ5jENXuk628gtU3S5NDIFPtmQdRjM=
+X-Received: by 2002:a62:6a88:: with SMTP id f130mr2848242pfc.201.1542647691102;
+        Mon, 19 Nov 2018 09:14:51 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:d106:0:0:0:0 with SMTP id l6-v6csp2931583pju;
+        Mon, 19 Nov 2018 09:14:49 -0800 (PST)
+X-Google-Smtp-Source: AJdET5dr2+D32E7ZlDr4JCF2zFL/TwKQjNh4LGWZYEe9B78VQouoBp/62radMEpA6gPkbA4sdsyS
+X-Received: by 2002:a62:3888:: with SMTP id f130mr11511412pfa.132.1542647689508;
+        Mon, 19 Nov 2018 09:14:49 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542647689; cv=none;
+        d=google.com; s=arc-20160816;
+        b=KCz9DUq9Tois5OwjRKRGbOxtiNnJ6oceaTJAjSX/+2D9yNhf3dE8V8YFYuLL8J6zc0
+         0eyUSVojQYa/3TxH5kscBmolJ7AhkO+4q/sVrb7xPfM4G5oEow8qMa8yfgHst8HIrsL1
+         M+lFz1SlM3mNsPM/Hu9P/Hxg52CTcMQxyLgxXuTcQLIXOwX2MTFppqWw4EqByyGTjDzl
+         ucGgQZtftD3Ehm9VVc5HUZUXtuLAXg7sSBzMew1DQBbdQcZHJJAjQOsQTPmC8C78VO+T
+         RwWNcOYNr8fZAdAWgEWgMGibgpUwok9G5ye2svGHA9z+hFbzE69mEcxEPHT4UaD+h9ez
+         i2XQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:content-transfer-encoding:user-agent
+         :mime-version:message-id:date:subject:cc:to:from:dkim-signature;
+        bh=AIWc8ZAxnvVvSGBRsEYdNEomRsGBCvepa4JHgttVx3g=;
+        b=HCyNptRzy8GOyF5ToGyrQaNHl82ajefHYKUneNYPr4GeXY/Y3ThpLi+JdRqepa57FM
+         Mt5KCpCUTI9tIUHUWI7AYc4RFLJazmTPBOLbkVzQzIvMTPS/N6wAsjvDFIGEC7Orc4ts
+         pkqoytsByVU4qwFzZUpnEQAJ8h4SZZCC4pWMuWfeK0E0hYKA/I5eZPyHjmU3GeqJk9sD
+         LGZxcel375H03LXR1k/w/6XqAJpzIcCMvxn2GNlKfN0y8XVRVYo4i8Ie5D70cgUaA5Eo
+         O9rvjN66rwhjxROuUyHLZbGca8ALereupOoNbUprUBcWWtJVNYwEjK5N6QfT77MdG8K2
+         CSMw==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@kernel.org header.s=default header.b=m53kYosb;
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id v123-v6si43659150pfb.65.2018.11.19.09.14.34;
+        Mon, 19 Nov 2018 09:14:49 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S2406479AbeKTD2b (ORCPT <rfc822;nullbytes00@gmail.com>
+        + 99 others); Mon, 19 Nov 2018 22:28:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42846 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2405461AbeKTD2b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+        Mon, 19 Nov 2018 22:28:31 -0500
+Received: from localhost (5356596B.cm-6-7b.dynamic.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5D8A72148E;
+        Mon, 19 Nov 2018 17:04:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1542647052;
+        bh=iH92D6/JllEQIOn8MURIcCagBh3wVZ4eww1+hpa7Yio=;
+        h=From:To:Cc:Subject:Date:From;
+        b=m53kYosbl6hetk+fENPb7I88KOxkhFqMqrXapvgvadG16YFK8k7h+zsTkdvqNJUZM
+         NtUFAdWhuh9+zWawdngyVl9En46C+NlnfwRjc0+I6QbrmQyCX45k/NtUTqDtZnhI+W
+         TMarC6DglTBZTaOvpH+yMNzrsSq6dzX+29GuVe/4=
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To: linux-kernel@vger.kernel.org
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+Subject: [PATCH 3.18 00/90] 3.18.126-stable review
+Date: Mon, 19 Nov 2018 17:28:42 +0100
+Message-Id: <20181119162620.585061184@linuxfoundation.org>
+X-Mailer: git-send-email 2.19.1
+MIME-Version: 1.0
+User-Agent: quilt/0.65
+X-stable: review
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-3.18.126-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-3.18.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 3.18.126-rc1
+X-KernelTest-Deadline: 2018-11-21T16:26+00:00
+Content-Transfer-Encoding: 8bit
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwC3m0eL7_JbknpZAA--.2608S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvAXoWfGr4ruF47tr1DZw1UtFWxCrg_yoW8JFyfXo
+	Z7Xa90vF18Gr1ruFy2kFnrG3ZxWFWqkFsxZ3yYyrs8XFW3XF9xAryjyws3XFWftw1fGrZ8
+	Z34UJ3yUAa9xXFn5n29KB7ZKAUJUUUUU529EdanIXcx71UUUUU7v73VFW2AGmfu7jjvjm3
+	AaLaJ3UjIYCTnIWjp_UUUYZ7k0a2IF6F4UM7kC6x804xWl14x267AKxVWUJVW8JwAFIxvE
+	14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK021l84ACjcxK6xIIjx
+	v20xvE14v26w1j6s0DM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26r4UJVWxJr1l84ACjcxK
+	6I8E87Iv67AKxVWxJr0_GcWl84ACjcxK6I8E87Iv6xkF7I0E14v26F4UJVW0owAS0I0E0x
+	vYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AK
+	xVWUAVWUtwAv7VC2z280aVAFwI0_Gr0_Cr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48Icx
+	kI7VAKI48JMx02cVCv0xWlc7CjxVAKzI0EY4vE52x082I5MxkIecxEwVCI4VW8MxkI7II2
+	jI8vz4vEwIxGrwCYIxAIcVC0I7IYx2IY67AKxVWDJVCq3wCYIxAIcVC0I7IYx2IY6xkF7I
+	0E14v26r4UJVWxJr1lcIIF0xvEx4A2jsIE14v26F4UJVW0owCYIxAIcVC2z280aVCY1x02
+	67AKxVWxJr0_GcWl42xK82IYc2Ij64vIr41l42xK82IY64kExVAvwVAq07x20xyl4x8a6x
+	804xWl4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x8G
+	jcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r1q6r43MIIYrxkI7VAKI48JMIIF0xvE42
+	xK8VAvwI8IcIk0rVW8JVW3JbIYCTnIWIevJa73UjIFyTuYvjxUD1EEUUUUU
+
+This is the start of the stable review cycle for the 3.18.126 release.
+There are 90 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
+
+Responses should be made by Wed Nov 21 16:25:28 UTC 2018.
+Anything received after that time might be too late.
+
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v3.x/stable-review/patch-3.18.126-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-3.18.y
+and the diffstat can be found below.
+
+thanks,
+
+greg k-h
+
+-------------
+Pseudo-Shortlog of commits:
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 3.18.126-rc1
+
+Mike Kravetz <mike.kravetz@oracle.com>
+    hugetlbfs: fix kernel BUG at fs/hugetlbfs/inode.c:444!
+
+Guenter Roeck <linux@roeck-us.net>
+    configfs: replace strncpy with memcpy
+
+Miklos Szeredi <mszeredi@redhat.com>
+    fuse: fix leaked notify reply
+
+Frank Sorenson <sorenson@redhat.com>
+    sunrpc: correct the computation for page_ptr when truncating
+
+Eric W. Biederman <ebiederm@xmission.com>
+    mount: Prevent MNT_DETACH from disconnecting locked mounts
+
+Eric W. Biederman <ebiederm@xmission.com>
+    mount: Don't allow copying MNT_UNBINDABLE|MNT_LOCKED mounts
+
+Eric W. Biederman <ebiederm@xmission.com>
+    mount: Retest MNT_LOCKED in do_umount
+
+Vasily Averin <vvs@virtuozzo.com>
+    ext4: fix buffer leak in __ext4_read_dirblock() on error path
+
+Vasily Averin <vvs@virtuozzo.com>
+    ext4: fix buffer leak in ext4_xattr_move_to_block() on error path
+
+Vasily Averin <vvs@virtuozzo.com>
+    ext4: release bs.bh before re-using in ext4_xattr_block_find()
+
+Theodore Ts'o <tytso@mit.edu>
+    ext4: fix possible leak of sbi->s_group_desc_leak in error path
+
+Theodore Ts'o <tytso@mit.edu>
+    ext4: avoid possible double brelse() in add_new_gdb() on error path
+
+Vasily Averin <vvs@virtuozzo.com>
+    ext4: fix missing cleanup if ext4_alloc_flex_bg_array() fails while resizing
+
+Vasily Averin <vvs@virtuozzo.com>
+    ext4: avoid buffer leak in ext4_orphan_add() after prior errors
+
+Vasily Averin <vvs@virtuozzo.com>
+    ext4: fix possible inode leak in the retry loop of ext4_resize_fs()
+
+Vasily Averin <vvs@virtuozzo.com>
+    ext4: avoid potential extra brelse in setup_new_flex_group_blocks()
+
+Vasily Averin <vvs@virtuozzo.com>
+    ext4: add missing brelse() add_new_gdb_meta_bg()'s error path
+
+Vasily Averin <vvs@virtuozzo.com>
+    ext4: add missing brelse() in set_flexbg_block_bitmap()'s error path
+
+Vasily Averin <vvs@virtuozzo.com>
+    ext4: add missing brelse() update_backups()'s error path
+
+H. Peter Anvin (Intel) <hpa@zytor.com>
+    arch/alpha, termios: implement BOTHER, IBSHIFT and termios2
+
+H. Peter Anvin <hpa@zytor.com>
+    termios, tty/tty_baudrate.c: fix buffer overrun
+
+Arnd Bergmann <arnd@arndb.de>
+    mtd: docg3: don't set conflicting BCH_CONST_PARAMS option
+
+Changwei Ge <ge.changwei@h3c.com>
+    ocfs2: fix a misuse a of brelse after failing ocfs2_check_dir_entry
+
+Mikulas Patocka <mpatocka@redhat.com>
+    mach64: fix image corruption due to reading accelerator registers
+
+Mikulas Patocka <mpatocka@redhat.com>
+    mach64: fix display corruption on big endian machines
+
+Ilya Dryomov <idryomov@gmail.com>
+    libceph: bump CEPH_MSG_MAX_DATA_LEN
+
+Krzysztof Kozlowski <krzk@kernel.org>
+    clk: s2mps11: Fix matching when built as module and DT node contains compatible
+
+Max Filippov <jcmvbkbc@gmail.com>
+    xtensa: fix boot parameters address translation
+
+Young_X <YangX92@hotmail.com>
+    cdrom: fix improper type cast, which can leat to information leak.
+
+Dominique Martinet <dominique.martinet@cea.fr>
+    9p: clear dangling pointers in p9stat_free
+
+Marco Felsch <m.felsch@pengutronix.de>
+    media: tvp5150: fix width alignment during set_selection()
+
+Joel Stanley <joel@jms.id.au>
+    powerpc/boot: Ensure _zimage_start is a weak symbol
+
+Dengcheng Zhu <dzhu@wavecomp.com>
+    MIPS: kexec: Mark CPU offline before disabling local IRQ
+
+Nicholas Mc Guire <hofrat@osadl.org>
+    media: pci: cx23885: handle adding to list failure
+
+Tomi Valkeinen <tomi.valkeinen@ti.com>
+    drm/omap: fix memory barrier bug in DMM driver
+
+Daniel Axtens <dja@axtens.net>
+    powerpc/nohash: fix undefined behaviour when testing page size support
+
+Miles Chen <miles.chen@mediatek.com>
+    tty: check name length in tty_find_polling_driver()
+
+Corey Wright <undefined@pobox.com>
+    dm: remove duplicate dm_get_live_table() in __dm_destroy()
+
+Nicolas Pitre <nicolas.pitre@linaro.org>
+    Cramfs: fix abad comparison when wrap-arounds occur
+
+Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+    media: em28xx: make v4l2-compliance happier by starting sequence on zero
+
+Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+    media: em28xx: fix input name for Terratec AV 350
+
+Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+    media: em28xx: use a default format if TRY_FMT fails
+
+He Zhe <zhe.he@windriver.com>
+    kgdboc: Passing ekgdboc to command line causes panic
+
+Maciej W. Rozycki <macro@linux-mips.org>
+    TC: Set DMA masks for devices
+
+Wenwen Wang <wang6495@umn.edu>
+    dm ioctl: harden copy_params()'s copy_from_user() from malicious users
+
+Amir Goldstein <amir73il@gmail.com>
+    lockd: fix access beyond unterminated strings in prints
+
+Trond Myklebust <trondmy@gmail.com>
+    nfsd: Fix an Oops in free_session()
+
+Trond Myklebust <trond.myklebust@hammerspace.com>
+    NFSv4.1: Fix the r/wsize checking
+
+He Zhe <zhe.he@windriver.com>
+    printk: Fix panic caused by passing log_buf_len to command line
+
+Steve French <stfrench@microsoft.com>
+    smb3: on kerberos mount if server doesn't specify auth type use krb5
+
+Steve French <stfrench@microsoft.com>
+    smb3: do not attempt cifs operation in smb3 query info error path
+
+Steve French <stfrench@microsoft.com>
+    smb3: allow stats which track session and share reconnects to be reset
+
+Andreas Kemnade <andreas@kemnade.info>
+    w1: omap-hdq: fix missing bus unregister at removal
+
+Eugen Hristev <eugen.hristev@microchip.com>
+    iio: adc: at91: fix wrong channel number in triggered buffer mode
+
+Eugen Hristev <eugen.hristev@microchip.com>
+    iio: adc: at91: fix acking DRDY irq on simple conversions
+
+Arnd Bergmann <arnd@arndb.de>
+    kbuild: fix kernel/bounds.c 'W=1' warning
+
+Eric Biggers <ebiggers@google.com>
+    ima: fix showing large 'violations' or 'runtime_measurements_count'
+
+Ondrej Mosnacek <omosnace@redhat.com>
+    crypto: lrw - Fix out-of bounds access on counter overflow
+
+Eric W. Biederman <ebiederm@xmission.com>
+    signal/GenWQE: Fix sending of SIGKILL
+
+Lukas Czerner <lczerner@redhat.com>
+    ext4: initialize retries variable in ext4_da_write_inline_data_begin()
+
+Al Viro <viro@zeniv.linux.org.uk>
+    gfs2_meta: ->mount() can get NULL dev_name
+
+Jan Kara <jack@suse.cz>
+    jbd2: fix use after free in jbd2_log_do_checkpoint()
+
+Stefan Nuernberger <snu@amazon.com>
+    net/ipv4: defensive cipso option parsing
+
+Eric W. Biederman <ebiederm@xmission.com>
+    signal: Always deliver the kernel's SIGKILL and SIGSTOP to a pid namespace init
+
+James Smart <jsmart2021@gmail.com>
+    scsi: lpfc: Correct soft lockup when running mds diagnostics
+
+Alexandre Belloni <alexandre.belloni@bootlin.com>
+    uio: ensure class is registered before devices
+
+Loic Poulain <loic.poulain@linaro.org>
+    usb: chipidea: Prevent unbalanced IRQ disable
+
+Theodore Ts'o <tytso@mit.edu>
+    ext4: fix argument checking in EXT4_IOC_MOVE_EXT
+
+Finn Thain <fthain@telegraphics.com.au>
+    scsi: esp_scsi: Track residual for PIO transfers
+
+Martin Willi <martin@strongswan.org>
+    ath10k: schedule hardware restart if WMI command times out
+
+Masami Hiramatsu <mhiramat@kernel.org>
+    kprobes: Return error if we fail to reuse kprobe instead of BUG_ON()
+
+Ben Hutchings <ben@decadent.org.uk>
+    x86: boot: Fix EFI stub alignment
+
+Lubomir Rintel <lkundrak@v3.sk>
+    x86/olpc: Indicate that legacy PC XO-1 platform should not register RTC
+
+Yu Zhao <yuzhao@google.com>
+    mmc: sdhci-pci-o2micro: Add quirk for O2 Micro dev 0x8620 rev 0x01
+
+Prarit Bhargava <prarit@redhat.com>
+    cpupower: Fix coredump on VMWare
+
+Sanskriti Sharma <sansharm@redhat.com>
+    perf tools: Cleanup trace-event-info 'tdata' leak
+
+Sanskriti Sharma <sansharm@redhat.com>
+    perf tools: Free temporary 'sys' string in read_event_files()
+
+Serhey Popovych <serhe.popovych@gmail.com>
+    tun: Consistently configure generic netdev params via rtnetlink
+
+Omar Sandoval <osandov@fb.com>
+    swim: fix cleanup on setup error
+
+Omar Sandoval <osandov@fb.com>
+    ataflop: fix error handling during setup
+
+Waiman Long <longman@redhat.com>
+    locking/lockdep: Fix debug_locks off performance problem
+
+Masami Hiramatsu <mhiramat@kernel.org>
+    selftests: ftrace: Add synthetic event syntax testcase
+
+Nathan Chancellor <natechancellor@gmail.com>
+    net: qla3xxx: Remove overflowing shift statement
+
+David S. Miller <davem@davemloft.net>
+    sparc: Throttle perf events properly.
+
+David S. Miller <davem@davemloft.net>
+    sparc: Fix single-pcr perf event counter management.
+
+He Zhe <zhe.he@windriver.com>
+    x86/corruption-check: Fix panic in memory_corruption_check() when boot option without value is provided
+
+Alex Stanoev <alex@astanoev.com>
+    ALSA: ca0106: Disable IZD on SB0570 DAC to fix audio pops
+
+Maciej S. Szmigiero <mail@maciej.szmigiero.name>
+    pcmcia: Implement CLKRUN protocol disabling for Ricoh bridges
+
+Hou Tao <houtao1@huawei.com>
+    jffs2: free jffs2_sb_info through jffs2_kill_sb()
+
+Tang Junhui <tang.junhui.linux@gmail.com>
+    bcache: fix miss key refill->end in writeback
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                           |  4 +-
+ arch/alpha/include/asm/termios.h                   |  8 ++-
+ arch/alpha/include/uapi/asm/ioctls.h               |  5 ++
+ arch/alpha/include/uapi/asm/termbits.h             | 17 +++++
+ arch/mips/kernel/crash.c                           |  3 +
+ arch/mips/kernel/machine_kexec.c                   |  3 +
+ arch/powerpc/boot/crt0.S                           |  4 +-
+ arch/powerpc/mm/tlb_nohash.c                       |  3 +
+ arch/sparc/kernel/perf_event.c                     | 26 +++++--
+ arch/x86/boot/tools/build.c                        |  7 ++
+ arch/x86/kernel/check.c                            | 15 ++++
+ arch/x86/platform/olpc/olpc-xo1-rtc.c              |  3 +
+ arch/xtensa/kernel/head.S                          |  7 +-
+ crypto/lrw.c                                       |  7 +-
+ drivers/block/ataflop.c                            | 25 ++++---
+ drivers/block/swim.c                               | 13 +++-
+ drivers/cdrom/cdrom.c                              |  2 +-
+ drivers/clk/clk-s2mps11.c                          | 30 ++++++++
+ drivers/gpu/drm/omapdrm/omap_dmm_tiler.c           | 11 +++
+ drivers/iio/adc/at91_adc.c                         |  6 +-
+ drivers/md/bcache/btree.c                          |  2 +-
+ drivers/md/dm-ioctl.c                              | 18 ++---
+ drivers/md/dm.c                                    |  1 -
+ drivers/media/i2c/tvp5150.c                        | 14 ++--
+ drivers/media/pci/cx23885/altera-ci.c              | 10 +++
+ drivers/media/usb/em28xx/em28xx-cards.c            |  4 +-
+ drivers/media/usb/em28xx/em28xx-video.c            |  8 ++-
+ drivers/misc/genwqe/card_base.h                    |  2 +-
+ drivers/misc/genwqe/card_dev.c                     |  9 +--
+ drivers/mmc/host/sdhci-pci-o2micro.c               |  3 +
+ drivers/mtd/devices/Kconfig                        |  2 +-
+ drivers/net/ethernet/qlogic/qla3xxx.c              |  2 -
+ drivers/net/tun.c                                  |  2 +
+ drivers/net/wireless/ath/ath10k/wmi.c              |  6 ++
+ drivers/pcmcia/ricoh.h                             | 35 ++++++++++
+ drivers/pcmcia/yenta_socket.c                      |  3 +-
+ drivers/scsi/esp_scsi.c                            |  1 +
+ drivers/scsi/esp_scsi.h                            |  2 +
+ drivers/scsi/lpfc/lpfc_sli.c                       |  7 ++
+ drivers/scsi/mac_esp.c                             |  2 +
+ drivers/tc/tc.c                                    |  8 ++-
+ drivers/tty/serial/kgdboc.c                        |  5 ++
+ drivers/tty/tty_io.c                               |  2 +-
+ drivers/tty/tty_ioctl.c                            |  4 +-
+ drivers/uio/uio.c                                  |  9 +++
+ drivers/usb/chipidea/otg.h                         |  3 +-
+ drivers/video/fbdev/aty/mach64_accel.c             | 28 ++++----
+ drivers/w1/masters/omap_hdq.c                      |  2 +
+ fs/cifs/cifs_debug.c                               |  3 +
+ fs/cifs/cifs_spnego.c                              |  6 +-
+ fs/cifs/inode.c                                    | 10 ++-
+ fs/configfs/symlink.c                              |  2 +-
+ fs/cramfs/inode.c                                  |  3 +-
+ fs/ext4/inline.c                                   |  2 +-
+ fs/ext4/move_extent.c                              |  8 ++-
+ fs/ext4/namei.c                                    |  5 +-
+ fs/ext4/resize.c                                   | 28 ++++----
+ fs/ext4/super.c                                    | 16 ++---
+ fs/ext4/xattr.c                                    |  4 ++
+ fs/fuse/dev.c                                      |  4 +-
+ fs/gfs2/ops_fstype.c                               |  3 +
+ fs/jbd2/checkpoint.c                               |  4 +-
+ fs/jffs2/super.c                                   |  4 +-
+ fs/lockd/host.c                                    |  2 +-
+ fs/namespace.c                                     | 22 ++++--
+ fs/nfs/nfs4client.c                                | 16 +++--
+ fs/ocfs2/dir.c                                     |  3 +-
+ include/linux/ceph/libceph.h                       |  8 ++-
+ include/linux/tc.h                                 |  1 +
+ kernel/bounds.c                                    |  4 +-
+ kernel/kprobes.c                                   | 27 ++++++--
+ kernel/locking/lockdep.c                           |  4 +-
+ kernel/printk/printk.c                             |  7 +-
+ kernel/signal.c                                    |  2 +-
+ lib/debug_locks.c                                  |  2 +-
+ mm/hugetlb.c                                       | 23 +++++--
+ net/9p/protocol.c                                  |  5 ++
+ net/ipv4/cipso_ipv4.c                              | 11 +--
+ net/sunrpc/svc_xprt.c                              |  2 +-
+ net/sunrpc/xdr.c                                   |  5 +-
+ security/integrity/ima/ima_fs.c                    |  6 +-
+ sound/pci/ca0106/ca0106.h                          |  2 +-
+ tools/perf/util/trace-event-info.c                 |  2 +
+ tools/perf/util/trace-event-read.c                 |  5 +-
+ tools/power/cpupower/utils/cpufreq-info.c          |  2 +
+ tools/power/cpupower/utils/helpers/amd.c           |  5 ++
+ .../inter-event/trigger-synthetic-event-syntax.tc  | 80 ++++++++++++++++++++++
+ 87 files changed, 581 insertions(+), 160 deletions(-)
+

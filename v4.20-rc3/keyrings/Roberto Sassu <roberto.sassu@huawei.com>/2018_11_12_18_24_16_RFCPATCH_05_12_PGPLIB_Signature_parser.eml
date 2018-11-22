@@ -1,0 +1,479 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (61.164.42.155:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 12 Nov 2018 15:14:40 -0000
+Received: from icoremail.net (unknown [209.85.215.180])
+	by mail-app2 (Coremail) with SMTP id by_KCgCn36RjVulbyb58AQ--.37382S3;
+	Mon, 12 Nov 2018 18:31:00 +0800 (CST)
+Received: from mail-pg1-f180.google.com (unknown [209.85.215.180])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwDnz0thVulbmD8xAA--.795S3;
+	Mon, 12 Nov 2018 18:30:58 +0800 (CST)
+Received: by mail-pg1-f180.google.com with SMTP id 70so3880095pgh.8
+        for <xuliker@zju.edu.cn>; Mon, 12 Nov 2018 02:30:58 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:sender:precedence:list-id;
+        bh=HUnbLeb5IzPw87QLD7HfPp4f3A2Q+VJFT/PyzR6bOuE=;
+        b=OSKoQz7JyjJz7yN0zGKAUuuLwVMTaYlKOM244kV+DBSnenLmBT4ONfXtcqFmCBG634
+         CGVZx9T3mRmLZ1vj7yisV+AhqQ5U8Irx6qIsM9S0WB79SzKfW3Tpd9hOeAAkLI44acru
+         VpA8XKfwSPX2r12xCmSM9C+jtdZM4c+mcoSGeN4zQu/yy6aDj7uDKjjJCqkN/UId5cIT
+         Vzh17e5WQ0MNa76DJqXc008XQMk6DRHdMnGRkW0jmv3xz8THQT9HPbQvpGuEi+oUtlss
+         L1e1hNkcCwZ3EEnGRUAldGhz4mbYongGujcRuwgKsM1VkvYnKa6QHQ1Gsnq6rRWW1xs6
+         XwSA==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org
+X-Gm-Message-State: AGRZ1gIwLUr9w7V9jbd2flz03+wYXFE2ejDFEvTiVGZUhzy8JB95b16Z
+	CYL/Gvrh3MV2ul57bKjE00e+rtIAhh9eGyyW6e0pgwXXznwzSXzVYg==
+X-Received: by 2002:a63:a91a:: with SMTP id u26mr313972pge.349.1542018657583;
+        Mon, 12 Nov 2018 02:30:57 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp3019380pjt;
+        Mon, 12 Nov 2018 02:30:55 -0800 (PST)
+X-Google-Smtp-Source: AJdET5fUFi/sxUdVfIP2y0rMQAGZVOj+g0E07l0OP8XoWyo7+2LelHJTw2dYyicnOz273G8IRkGY
+X-Received: by 2002:a17:902:28e7:: with SMTP id f94-v6mr372338plb.297.1542018655338;
+        Mon, 12 Nov 2018 02:30:55 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542018655; cv=none;
+        d=google.com; s=arc-20160816;
+        b=RtvX0JJwsYUqNgTcapUiu3VpA0YvLnnpf+IqBg6DZnDW40byN/GpHd0xImgTlhiLFr
+         y+RxWE0i06oCDZvgRqeCOeCyCTyhXg7dYWuHwAhflBcAmWBIZ/eX2+46gQ6K1nVxfWCC
+         UxAK1C8ibTxGddLrOG4DzabBKUEN2Td2M0XtVVuMuzwhk2Wl1tedHF6gy9uAEqyCPxhy
+         kiYV9CQVDpMpUYvvMJiYcDI1sHMaJJtiYFb3hoQXgexVwMNSDG/woN9EETmY6TC1wPE2
+         w1dbdR1UcUnBQ5kC8jDbbfSuahEQu1whQX74q0zPQqXg5mQrsIySpO41CFvqYyigQB8/
+         0Y+w==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from;
+        bh=HUnbLeb5IzPw87QLD7HfPp4f3A2Q+VJFT/PyzR6bOuE=;
+        b=avqkJ8Ve/EqiRRH0e4pTfo4rVKY5hh5hWKyJoYSm5JAwHW9w7cNZ5yiZldRyTNELc1
+         6ktQYdhxLKVPG/9amPO8GCgMg1C+KeGtONUr9J70xRl69xbjOTcYF+StHdpLHc2E/JeI
+         iBEmYG1kh8f36mCT1ugJlGl12JLOs71PuaYnPjFccPDHUYCTps/LrGuKR9EyjLnnJJba
+         qBefWfQBCU3mBj9NhoMIdPPbG8NssnserGScviQSUd9mjOWh/ZkPqKjKMwq0VG/qLNnH
+         /27DjoAe0Zqo/tq//Niccu9Zu5IgwSPNSFFM+BAS3uF9cvmxjB6/SHeVuVF9FsBlLkto
+         IgPA==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id b12-v6si16995643plr.175.2018.11.12.02.30.40;
+        Mon, 12 Nov 2018 02:30:55 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1729133AbeKLUXD (ORCPT <rfc822;tomnomnom1@gmail.com>
+        + 99 others); Mon, 12 Nov 2018 15:23:03 -0500
+Received: from lhrrgout.huawei.com ([185.176.76.210]:32739 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1725873AbeKLUXC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+        Mon, 12 Nov 2018 15:23:02 -0500
+Received: from lhreml701-cah.china.huawei.com (unknown [172.18.7.108])
+        by Forcepoint Email with ESMTP id BFC0D26C7A000;
+        Mon, 12 Nov 2018 10:30:22 +0000 (GMT)
+Received: from roberto-HP-EliteDesk-800-G2-DM-65W.huawei.com (10.204.65.153)
+ by smtpsuk.huawei.com (10.201.108.42) with Microsoft SMTP Server (TLS) id
+ 14.3.408.0; Mon, 12 Nov 2018 10:30:14 +0000
+From: Roberto Sassu <roberto.sassu@huawei.com>
+To: <dhowells@redhat.com>, <dwmw2@infradead.org>,
+        <herbert@gondor.apana.org.au>, <davem@davemloft.net>
+CC: <keyrings@vger.kernel.org>, <linux-crypto@vger.kernel.org>,
+        <linux-integrity@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <silviu.vlasceanu@huawei.com>
+Subject: [RFC][PATCH 05/12] PGPLIB: Signature parser
+Date: Mon, 12 Nov 2018 11:24:16 +0100
+Message-ID: <20181112102423.30415-6-roberto.sassu@huawei.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20181112102423.30415-1-roberto.sassu@huawei.com>
+References: <20181112102423.30415-1-roberto.sassu@huawei.com>
+MIME-Version: 1.0
+Content-Type: text/plain
+X-Originating-IP: [10.204.65.153]
+X-CFilter-Loop: Reflected
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwDnz0thVulbmD8xAA--.795S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW3Aw1Duw4DCrWrAF4UJr4ktFb_yoWDXw1xpa
+	40y34fKrWUG3ZavrW8Ar47X3y5Cr48A347ta90q3WFy39agrn8Zr4vkFyFkFZ5t3WkX3yx
+	CrZ8ta98ur4kZw7anT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUPFb7Iv0xC_Zr1lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2
+	z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s0DM2AIxVAIcxkEcV
+	Aq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r10
+	6r15McIj6I8E87Iv67AKxVW8JVWxJwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IYc2Ij64
+	vIr41l7I0Y6sxI4wCY1x0264kExVAvwVAq07x20xylc7Ca8VAvwVCFzxkY4VCF77xAMxkI
+	ecxEwVCI4VW8twCY0x0Ix7I2Y4AK64vIr41lcIIF0xvE2Ix0cI8IcVAFwI0_Gr0_Xr1lcI
+	IF0xvE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwCYIxAIcVC2z280aVAFwI0_GcCE3s1lcIIF
+	0xvEx4A2jsIEc7CjxVAFwI0_GcCE3s1l42xK82IYc2Ij64vIr41l42xK82IY64kExVAvwV
+	Aq07x20xyl4x8a6x804xWl4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWU
+	JVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r1q6r43MIIYrxkI7V
+	AKI48JMIIF0xvE42xK8VAvwI8IcIk0rVWUCVW8JbIYCTnIWIevJa73UjIFyTuYvjxUqc18
+	DUUUU
+
+From: David Howells <dhowells@redhat.com>
+
+Provide some PGP signature parsing helpers:
+
+ (1) A function to parse V4 signature subpackets and pass the desired ones
+     to a processor function:
+
+	int pgp_parse_sig_subpkts(const u8 *data, size_t datalen,
+				  struct pgp_parse_sig_context *ctx);
+
+ (2) A function to parse out basic signature parameters from any PGP
+     signature such that the algorithms and public key can be selected:
+
+	int pgp_parse_sig_params(const u8 **_data, size_t *_datalen,
+				 struct pgp_sig_parameters *p);
+
+Changelog
+
+v0:
+- fix style issues (Roberto Sassu)
+
+Signed-off-by: David Howells <dhowells@redhat.com>
+Co-developed-by: Roberto Sassu <roberto.sassu@huawei.com>
+---
+ crypto/asymmetric_keys/pgp_library.c | 283 ++++++++++++++++++++++++++-
+ include/linux/pgplib.h               |  25 +++
+ 2 files changed, 307 insertions(+), 1 deletion(-)
+
+diff --git a/crypto/asymmetric_keys/pgp_library.c b/crypto/asymmetric_keys/pgp_library.c
+index 0ab702ffe173..13bfc9db1ae4 100644
+--- a/crypto/asymmetric_keys/pgp_library.c
++++ b/crypto/asymmetric_keys/pgp_library.c
+@@ -154,7 +154,7 @@ static ssize_t pgp_parse_packet_header(const u8 **_data, size_t *_datalen,
+ 		}
+ 	}
+ 
+-	pr_devel("datalen=%zu size=%zu", datalen, size);
++	pr_devel("datalen=%zu size=%zu\n", datalen, size);
+ 	if (datalen < size)
+ 		goto short_packet;
+ 	if ((int)size < 0)
+@@ -278,3 +278,284 @@ int pgp_parse_public_key(const u8 **_data, size_t *_datalen,
+ 	return 0;
+ }
+ EXPORT_SYMBOL_GPL(pgp_parse_public_key);
++
++/**
++ * pgp_parse_sig_subpkt_header - Parse a PGP V4 signature subpacket header
++ * @_data: Start of the subpacket (updated to subpacket data)
++ * @_datalen: Amount of data remaining in buffer (decreased)
++ * @_type: Where the subpacket type will be returned
++ *
++ * Parse a PGP V4 signature subpacket header [RFC 4880: 5.2.3.1].
++ *
++ * Returns packet data size on success; non-zero on error.  If successful,
++ * *_data and *_datalen will have been updated and *_headerlen will be set to
++ * hold the length of the packet header.
++ */
++static ssize_t pgp_parse_sig_subpkt_header(const u8 **_data, size_t *_datalen,
++					   enum pgp_sig_subpkt_type *_type)
++{
++	enum pgp_sig_subpkt_type type;
++	const u8 *data = *_data;
++	size_t size, datalen = *_datalen;
++
++	pr_devel("-->%s(,%zu,,)\n", __func__, datalen);
++
++	if (datalen < 2)
++		goto short_subpacket;
++
++	pr_devel("subpkt hdr %02x, %02x\n", data[0], data[1]);
++
++	switch (data[0]) {
++	case 0x00 ... 0xbf:
++		/* One-byte length */
++		size = data[0];
++		data++;
++		datalen--;
++		break;
++	case 0xc0 ... 0xfe:
++		/* Two-byte length */
++		if (datalen < 3)
++			goto short_subpacket;
++		size = (data[0] - 192) * 256;
++		size += data[1] + 192;
++		data += 2;
++		datalen -= 2;
++		break;
++	case 0xff:
++		if (datalen < 6)
++			goto short_subpacket;
++		size  = data[1] << 24;
++		size |= data[2] << 16;
++		size |= data[3] << 8;
++		size |= data[4];
++		data += 5;
++		datalen -= 5;
++		break;
++	}
++
++	/* The type octet is included in the size */
++	pr_devel("datalen=%zu size=%zu\n", datalen, size);
++	if (datalen < size)
++		goto short_subpacket;
++	if (size == 0)
++		goto very_short_subpacket;
++	if ((int)size < 0)
++		goto too_big;
++
++	type = *data++ & ~PGP_SIG_SUBPKT_TYPE_CRITICAL_MASK;
++	datalen--;
++	size--;
++
++	*_data = data;
++	*_datalen = datalen;
++	*_type = type;
++	pr_devel("Found subpkt type=%u size=%zd\n", type, size);
++	return size;
++
++very_short_subpacket:
++	pr_debug("Signature subpacket size can't be zero\n");
++	return -EBADMSG;
++short_subpacket:
++	pr_debug("Attempt to parse short signature subpacket\n");
++	return -EBADMSG;
++too_big:
++	pr_debug("Signature subpacket size >2G\n");
++	return -EMSGSIZE;
++}
++
++/**
++ * pgp_parse_sig_subpkts - Parse a set of PGP V4 signatute subpackets
++ * @_data: Data to be parsed (updated)
++ * @_datalen: Amount of data (updated)
++ * @ctx: Parsing context
++ *
++ * Parse a set of PGP signature subpackets [RFC 4880: 5.2.3].
++ */
++static int pgp_parse_sig_subpkts(const u8 *data, size_t datalen,
++				 struct pgp_parse_sig_context *ctx)
++{
++	enum pgp_sig_subpkt_type type;
++	ssize_t pktlen;
++	int ret;
++
++	pr_devel("-->%s(,%zu,,)\n", __func__, datalen);
++
++	while (datalen > 2) {
++		pktlen = pgp_parse_sig_subpkt_header(&data, &datalen, &type);
++		if (pktlen < 0)
++			return pktlen;
++		if (test_bit(type, ctx->types_of_interest)) {
++			ret = ctx->process_packet(ctx, type, data, pktlen);
++			if (ret < 0)
++				return ret;
++		}
++		data += pktlen;
++		datalen -= pktlen;
++	}
++
++	if (datalen != 0) {
++		pr_debug("Excess octets in signature subpacket stream\n");
++		return -EBADMSG;
++	}
++
++	return 0;
++}
++
++struct pgp_parse_sig_params_ctx {
++	struct pgp_parse_sig_context base;
++	struct pgp_sig_parameters *params;
++	bool got_the_issuer;
++};
++
++/*
++ * Process a V4 signature subpacket.
++ */
++static int pgp_process_sig_params_subpkt(struct pgp_parse_sig_context *context,
++					 enum pgp_sig_subpkt_type type,
++					 const u8 *data,
++					 size_t datalen)
++{
++	struct pgp_parse_sig_params_ctx *ctx =
++		container_of(context, struct pgp_parse_sig_params_ctx, base);
++
++	if (ctx->got_the_issuer) {
++		pr_debug("V4 signature packet has multiple issuers\n");
++		return -EBADMSG;
++	}
++
++	if (datalen != 8) {
++		pr_debug("V4 signature issuer subpkt not 8 long (%zu)\n",
++			   datalen);
++		return -EBADMSG;
++	}
++
++	memcpy(&ctx->params->issuer, data, 8);
++	ctx->got_the_issuer = true;
++	return 0;
++}
++
++/**
++ * pgp_parse_sig_params - Parse basic parameters from a PGP signature packet
++ * @_data: Content of packet (updated)
++ * @_datalen: Length of packet remaining (updated)
++ * @p: The basic parameters
++ *
++ * Parse the basic parameters from a PGP signature packet [RFC 4880: 5.2] that
++ * are needed to start off a signature verification operation.  The only ones
++ * actually necessary are the signature type (which affects how the data is
++ * transformed) and the hash algorithm.
++ *
++ * We also extract the public key algorithm and the issuer's key ID as we'll
++ * need those to determine if we actually have the public key available.  If
++ * not, then we can't verify the signature anyway.
++ *
++ * Returns 0 if successful or a negative error code.  *_data and *_datalen are
++ * updated to point to the 16-bit subset of the hash value and the set of MPIs.
++ */
++int pgp_parse_sig_params(const u8 **_data, size_t *_datalen,
++			 struct pgp_sig_parameters *p)
++{
++	const u8 *data = *_data;
++	size_t datalen = *_datalen;
++	int ret;
++
++	pr_devel("-->%s(,%zu,,)\n", __func__, datalen);
++
++	if (datalen < 1)
++		return -EBADMSG;
++	p->version = *data;
++
++	if (p->version == PGP_SIG_VERSION_3) {
++		const struct pgp_signature_v3_packet *v3 = (const void *)data;
++
++		if (datalen < sizeof(*v3)) {
++			pr_debug("Short V3 signature packet\n");
++			return -EBADMSG;
++		}
++		datalen -= sizeof(*v3);
++		data += sizeof(*v3);
++
++		/* V3 has everything we need in the header */
++		p->signature_type = v3->hashed.signature_type;
++		memcpy(&p->issuer, &v3->issuer, 8);
++		p->pubkey_algo = v3->pubkey_algo;
++		p->hash_algo = v3->hash_algo;
++
++	} else if (p->version == PGP_SIG_VERSION_4) {
++		const struct pgp_signature_v4_packet *v4 = (const void *)data;
++		struct pgp_parse_sig_params_ctx ctx = {
++			.base.process_packet = pgp_process_sig_params_subpkt,
++			.params = p,
++			.got_the_issuer = false,
++		};
++		size_t subdatalen;
++
++		if (datalen < sizeof(*v4) + 2 + 2 + 2) {
++			pr_debug("Short V4 signature packet\n");
++			return -EBADMSG;
++		}
++		datalen -= sizeof(*v4);
++		data += sizeof(*v4);
++
++		/* V4 has most things in the header... */
++		p->signature_type = v4->signature_type;
++		p->pubkey_algo = v4->pubkey_algo;
++		p->hash_algo = v4->hash_algo;
++
++		/* ... but we have to get the key ID from the subpackets, of
++		 * which there are two sets.
++		 */
++		__set_bit(PGP_SIG_ISSUER, ctx.base.types_of_interest);
++
++		subdatalen  = *data++ << 8;
++		subdatalen |= *data++;
++		datalen -= 2;
++		if (subdatalen) {
++			/* Hashed subpackets */
++			pr_devel("hashed data: %zu (after %zu)\n",
++				 subdatalen, sizeof(*v4));
++			if (subdatalen > datalen + 2 + 2) {
++				pr_debug("Short V4 signature packet [hdata]\n");
++				return -EBADMSG;
++			}
++			ret = pgp_parse_sig_subpkts(data, subdatalen,
++						    &ctx.base);
++			if (ret < 0)
++				return ret;
++			data += subdatalen;
++			datalen -= subdatalen;
++		}
++
++		subdatalen  = *data++ << 8;
++		subdatalen |= *data++;
++		datalen -= 2;
++		if (subdatalen) {
++			/* Unhashed subpackets */
++			pr_devel("unhashed data: %zu\n", subdatalen);
++			if (subdatalen > datalen + 2) {
++				pr_debug("Short V4 signature packet [udata]\n");
++				return -EBADMSG;
++			}
++			ret = pgp_parse_sig_subpkts(data, subdatalen,
++						    &ctx.base);
++			if (ret < 0)
++				return ret;
++			data += subdatalen;
++			datalen -= subdatalen;
++		}
++
++		if (!ctx.got_the_issuer) {
++			pr_debug("V4 signature packet lacks issuer\n");
++			return -EBADMSG;
++		}
++	} else {
++		pr_debug("Signature packet with unhandled version %d\n",
++			 p->version);
++		return -EBADMSG;
++	}
++
++	*_data = data;
++	*_datalen = datalen;
++	return 0;
++}
++EXPORT_SYMBOL_GPL(pgp_parse_sig_params);
+diff --git a/include/linux/pgplib.h b/include/linux/pgplib.h
+index 7db21b69a6fe..44c8a07b32e3 100644
+--- a/include/linux/pgplib.h
++++ b/include/linux/pgplib.h
+@@ -41,6 +41,31 @@ struct pgp_parse_pubkey {
+ extern int pgp_parse_public_key(const u8 **_data, size_t *_datalen,
+ 				struct pgp_parse_pubkey *pk);
+ 
++struct pgp_parse_sig_context {
++	unsigned long types_of_interest[128 / BITS_PER_LONG];
++	int (*process_packet)(struct pgp_parse_sig_context *context,
++			      enum pgp_sig_subpkt_type type,
++			      const u8 *data,
++			      size_t datalen);
++};
++
++extern int pgp_parse_sig_packets(const u8 *data, size_t datalen,
++				 struct pgp_parse_sig_context *ctx);
++
++struct pgp_sig_parameters {
++	enum pgp_signature_version version : 8;
++	enum pgp_signature_type signature_type : 8;
++	enum pgp_pubkey_algo pubkey_algo : 8;
++	enum pgp_hash_algo hash_algo : 8;
++	union {
++		struct pgp_key_ID issuer;
++		__be32 issuer32[2];
++	};
++};
++
++extern int pgp_parse_sig_params(const u8 **_data, size_t *_datalen,
++				struct pgp_sig_parameters *p);
++
+ 
+ #endif /* CONFIG_PGP_LIBRARY */
+ 
+-- 
+2.17.1

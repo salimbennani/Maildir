@@ -1,0 +1,143 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (61.164.42.155:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 10 Nov 2018 00:55:25 -0000
+Received: from icoremail.net (unknown [209.85.210.173])
+	by mail-app2 (Coremail) with SMTP id by_KCgCn3wgSxuVbsF5pAQ--.32634S3;
+	Sat, 10 Nov 2018 01:38:27 +0800 (CST)
+Received: from mail-pf1-f173.google.com (unknown [209.85.210.173])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwA3ET0NxuVb5IgjAA--.4673S3;
+	Sat, 10 Nov 2018 01:38:21 +0800 (CST)
+Received: by mail-pf1-f173.google.com with SMTP id p17-v6so1218566pfj.12
+        for <xuliker@zju.edu.cn>; Fri, 09 Nov 2018 09:38:21 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:delivered-to:dkim-signature:date:message-id
+         :mime-version:subject:from:to:cc:sender:precedence:list-id;
+        bh=6m9tnPDBB3cqxFBT3MM+iozIETganK+iJMxbwYI8kMo=;
+        b=mPL4QfvMsy+2LcOG5b5yFAN1PdPNrfIxNJ2XwvfpUSdJme5vlJXEAr5qMgE+DRgcmZ
+         HW4vTX2iOthgcOv7qtnmyxNFnR147/6rE9aAZjCFZqR8m5aAeTSr1u3d1GWnvKOETdzi
+         cE+XKGcsD2RQcx4kjxNF5ZYbmjX+PktXv0aWrAT+YyHdh+HlNzg4sVg2xHaf/n9TElw2
+         Di3gVcjMcGP7vPo3zcsLPIsQoCbXtEH3iuOnsKgHwItDzRYyu7dGC9kKPFnWqTQZU7TA
+         YkIp7SId34QgpiR5yKTGsKa2wlNMnxiR4U7xEs6b2CZMHxVHt8Ktqci1MoLHfsBwZm5j
+         bIuA==
+X-Gm-Message-State: AGRZ1gLuJSzeptNtlfV8X5jzecPxMbXUlqqJ22XKNnEWoC8c6g8203pR
+	rkj2LDJG8rcx6INJmRg9XxQwO0FH/Sw5FWofTDTdZ66jVSue0JmknA==
+X-Received: by 2002:a63:9402:: with SMTP id m2mr7926856pge.93.1541785101318;
+        Fri, 09 Nov 2018 09:38:21 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp176144pjt;
+        Fri, 9 Nov 2018 09:38:20 -0800 (PST)
+X-Google-Smtp-Source: AJdET5f+Md1EV+m44/0PKuV1wiqot2EontYu2B7gGtOesKqn5kl5O1aFss94pKdPAni8VaYqXsdg
+X-Received: by 2002:a63:d655:: with SMTP id d21mr8316532pgj.280.1541785100712;
+        Fri, 09 Nov 2018 09:38:20 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1541785100; cv=none;
+        d=google.com; s=arc-20160816;
+        b=fxD42B0VBrBIsYaWjAxgpIiEdy0VjWgAglDMdxkgvos4/kauWbO6PEW3QVypZo3tup
+         OcLmB7Thav/NyNmi98CI5Jal5zsYLDeXvaKHmFeomZosUYPnqNW2Lqyeo6KW18M6/7MB
+         DqYceXmyYcD9/dZNVR8xTambySWpRwuoh8u84pz/lYW7XpzzQP9EGn2O23pP+xgyUImI
+         90q3mWjgRa7bH3qij5/wFbusWxIsAsIGg8EKNZY9w5J2FSyRugR1pECyCYA/E1U1ZjVf
+         cEelGtfe+pPElRao57PR0U4RbjqDZ0cX6pJlVeuFQlUWPeGtQ96ftZw92gb26Lqw8Rdy
+         xOQQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:cc:to:from:subject:mime-version
+         :message-id:date:dkim-signature;
+        bh=6m9tnPDBB3cqxFBT3MM+iozIETganK+iJMxbwYI8kMo=;
+        b=QsinZY+Igr/eWA/qO186fdkgU1emrhBk5IhvLapWeQfQEGqCeexHdW5ZfLxYxH3jgh
+         RoN/8XBbHK30VhfzPrYqcuuGuR2DpEBfvUHbsFPjFnk1D+ekXqCY3sWZhNeXrCgRiPOp
+         rZtJnSEzv40RC39toBETBD4/cq2Xe46BkERFBNnLM1ZRHC6riMdO0HupN62dKwIjeGC0
+         P5CR61vFQNX8OSU85MudtaHBz9xmD30vGtO7L2fVFHdgzuZIk1hMoTU+8A1kRkZEKPtj
+         /SJp69lbS9YUlxMvzia8FgGKbzp18iCVobPjX20IJZHa0WVRuzcmcgU4hKzM6BNkhP8n
+         njug==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@google.com header.s=20161025 header.b=C1QsSS7a;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;
+       dmarc=pass (p=REJECT sp=REJECT dis=NONE) header.from=google.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id 5-v6si8374794plt.408.2018.11.09.09.38.06;
+        Fri, 09 Nov 2018 09:38:20 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1728315AbeKJDQw (ORCPT <rfc822;fanshuming2011@gmail.com>
+        + 99 others); Fri, 9 Nov 2018 22:16:52 -0500
+Received: from mail-io1-f73.google.com ([209.85.166.73]:35722 "EHLO
+        mail-io1-f73.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728162AbeKJDQw (ORCPT <rfc822;kvm@vger.kernel.org>);
+        Fri, 9 Nov 2018 22:16:52 -0500
+Received: by mail-io1-f73.google.com with SMTP id n12-v6so2946944ioh.2
+        for <kvm@vger.kernel.org>; Fri, 09 Nov 2018 09:35:17 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=date:message-id:mime-version:subject:from:to:cc;
+        bh=6m9tnPDBB3cqxFBT3MM+iozIETganK+iJMxbwYI8kMo=;
+        b=C1QsSS7aTFhSZjgQhgsUbNXDIu48zc9waM1+ZK9/uule7x5DOVNoUrllI1uz5k5Q7+
+         mhbfUE0G1AQ5cLqZY6yaHiotKH1S4Xl6R2KyBKQ137fzMECR6ctvr7Y38ObJyPg/y+4a
+         XZWJ/lKcFKhZKpXiQymiqm3iMqkf2IZI54/H44ADMrIX/fe4Dv7c0U0pBbI+L2GsTrA3
+         e400wK5pn+vrRtrkGL6xlWRbn2WHUpzgMXdvyuFVOIvRwbtwfjPokBcSVmL1KsJdEknj
+         jybcCCePmiTkF01n0NoP2kKDgVTqG5TTQjHCzKjsbWuuKNfvoJ2ajRQdujd7xbJJzAp9
+         ixZQ==
+X-Received: by 2002:a24:1741:: with SMTP id 62-v6mr2704307ith.1.1541784917368;
+ Fri, 09 Nov 2018 09:35:17 -0800 (PST)
+Date: Fri,  9 Nov 2018 09:35:11 -0800
+Message-Id: <20181109173511.178056-1-jmattson@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.19.1.930.g4563a0d9d0-goog
+Subject: [PATCH] kvm: vmx: Allow guest read access to IA32_TSC
+From: Jim Mattson <jmattson@google.com>
+To: kvm@vger.kernel.org
+Cc: Marc Orr <marcorr@google.com>, Peter Shier <pshier@google.com>,
+        Jim Mattson <jmattson@google.com>
+Content-Type: text/plain; charset="UTF-8"
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwA3ET0NxuVb5IgjAA--.4673S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvdXoWrurWrArWkuFW8AFyrGF4xXrb_yoWkurbEk3
+	WIgw1UGrWYvFn3X3W2yrW8WFy3u3W8Jay3WFnYv34IyF9Yqa98CFWkZr4jyryYqrZxAFW7
+	Z34ktF4rAryqgjkaLaAFLSUrUUUUUb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAU7a7-sFnT
+	9fnUUIcSsGvfJTRUUUbgxYjsxI4VWDJwAYFVCjjxCrM7AC8VAFwI0_Jr0_Gr1l1IIY67AE
+	w4v_Jr0_Jr4l8cAvFVAK0II2c7xJM28CjxkF64kEwVA0rcxSw2x7M28EF7xvwVC0I7IYx2
+	IY67AKxVW7JVWDJwA2z4x0Y4vE2Ix0cI8IcVCY1x0267AKxVWxJVW8Jr1l84ACjcxK6I8E
+	87Iv67AKxVWxJr0_GcWl84ACjcxK6I8E87Iv6xkF7I0E14v26F4UJVW0owAS0I0E0xvYzx
+	vE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AKxVWU
+	JVWUGwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcxkI7V
+	AKI48JMx02cVCv0xWlc7CjxVAKzI0EY4vE52x082I5MxkFs20EY4vE44CYbxCE4x80FwCY
+	02Avz4vEIxC_GwCY0x0Ix7I2Y4AK64vIr41lcIIF0xvE2Ix0cI8IcVAFwI0_Xr0_Ar1lcI
+	IF0xvE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwCYIxAIcVC2z280aVAFwI0_Gr1j6F4UJwCY
+	IxAIcVC2z280aVCY1x0267AKxVW8Jr0_Cr1UMxAIw28IcxkI7VAKI48JMxAIw28IcVAKzI
+	0EY4vE52x082I5MxCjnVCjjxCrMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAF
+	wI0_Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWUAVWUtwCIc4
+	0Y0x0EwIxGrwCI42IY6xAIw20EY4v20xvaj40_Zr0_Wr1UYxBIdaVFxhVjvjDU0xZFpf9x
+	07b1XdbUUUUU=
+
+Let the guest read the IA32_TSC MSR with the generic RDMSR instruction
+as well as the specific RDTSC(P) instructions. Note that the hardware
+applies the TSC multiplier and offset (when applicable) to the result of
+RDMSR(IA32_TSC), just as it does to the result of RDTSC(P).
+
+Signed-off-by: Jim Mattson <jmattson@google.com>
+Reviewed-by: Peter Shier <pshier@google.com>
+Reviewed-by: Marc Orr <marcorr@google.com>
+---
+ arch/x86/kvm/vmx.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/arch/x86/kvm/vmx.c b/arch/x86/kvm/vmx.c
+index ccc6a01eb4f4..b9602d000fbf 100644
+--- a/arch/x86/kvm/vmx.c
++++ b/arch/x86/kvm/vmx.c
+@@ -11521,6 +11521,7 @@ static struct kvm_vcpu *vmx_create_vcpu(struct kvm *kvm, unsigned int id)
+ 		goto free_msrs;
+ 
+ 	msr_bitmap = vmx->vmcs01.msr_bitmap;
++	vmx_disable_intercept_for_msr(msr_bitmap, MSR_IA32_TSC, MSR_TYPE_R);
+ 	vmx_disable_intercept_for_msr(msr_bitmap, MSR_FS_BASE, MSR_TYPE_RW);
+ 	vmx_disable_intercept_for_msr(msr_bitmap, MSR_GS_BASE, MSR_TYPE_RW);
+ 	vmx_disable_intercept_for_msr(msr_bitmap, MSR_KERNEL_GS_BASE, MSR_TYPE_RW);
+-- 
+2.19.1.930.g4563a0d9d0-goog

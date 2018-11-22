@@ -1,0 +1,491 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 20 Nov 2018 00:35:51 -0000
+Received: from icoremail.net (unknown [209.85.214.177])
+	by mail-app4 (Coremail) with SMTP id cS_KCgDnXyfKMfNb7LjaAQ--.38559S3;
+	Tue, 20 Nov 2018 05:57:31 +0800 (CST)
+Received: from mail-pl1-f177.google.com (unknown [209.85.214.177])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwB3XUnIMfNbeldaAA--.4387S3;
+	Tue, 20 Nov 2018 05:57:28 +0800 (CST)
+Received: by mail-pl1-f177.google.com with SMTP id b5-v6so15218549pla.6
+        for <xuliker@zju.edu.cn>; Mon, 19 Nov 2018 13:57:28 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :from:to:cc:subject:date:message-id:in-reply-to:references:sender
+         :precedence:list-id;
+        bh=P15/ug9tOQuhGhfvIsfPs843GkLiVRcf1x9tfFK4zjY=;
+        b=B3jjVQ5L+kNFG47kxmsoLJHAAkQ190a4ynl0KQt4trX/VVxrS+e566X8+ZCqZT+ait
+         T5e83901Vgfl3kGBPoHLIX2Tc3mFO79eC+zyLBnnO2aVn+lSLG8+6E4Xwy9gkvLrV2hd
+         7gZN/q9qGcLlbq6ZmECdaUwTIXSIxGTD/pVqLXbqbargabIgZme1XZ7xd8qm6f6zvfc4
+         BqjzGN27NFFfSEoTB8OF87EPZyEBqWFQiN7ozGZPPRgK0aK+GSm8MOJXK7xxwT2QjZfT
+         t2Oi7P99oq81EY4aFHMQrChJfHXAPAHrdceI3akbUAMo7POwjNfaLlGuozPnvObs4x0f
+         Fi8g==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=intel.com
+X-Gm-Message-State: AGRZ1gIo+00GVO/u8Ka60EqsSxCVc8FFguqTzhqzYrf7/7pdIbjy7+Lw
+	4hbt3UxOyV2cpszUBKpwDgAq8n3Q/lqFlgl2Cie5CJ73kRujjYc=
+X-Received: by 2002:a17:902:560f:: with SMTP id h15-v6mr24797324pli.160.1542664648384;
+        Mon, 19 Nov 2018 13:57:28 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:d106:0:0:0:0 with SMTP id l6-v6csp3238008pju;
+        Mon, 19 Nov 2018 13:57:26 -0800 (PST)
+X-Google-Smtp-Source: AJdET5eLtrQYiSTB1hvtrSpsP/8ZpwVW6f+tDWmOp34G8VFlb+CbqYCJtPPAvC8IBN1Wj9H3hv2B
+X-Received: by 2002:a63:26c1:: with SMTP id m184mr20472729pgm.367.1542664646818;
+        Mon, 19 Nov 2018 13:57:26 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542664646; cv=none;
+        d=google.com; s=arc-20160816;
+        b=l2awhVfDzfZppFss4A2ZPrc9NdL+6dAOaq1wggaqRhIXwDiXC6WNGCUaOfruoe7zy9
+         nqNAK0tL9pGWyMWGHXX32NWTdqKDL/6devDNRQPjmCc7s6W/KaQt4JzBS8PsEKHLJ2Rn
+         +YiBPkM7oPaNJTmb1TqfBgH5TGv1iBlzph5l/7mS9LmQ4tEDtNJ/p9JidyRY6aBoXCR4
+         S18XhX3asOlouTmX54FveHDEZj/clMvhebXU3Sax07ogT2SZq9hOmoGxjU/KaJKqjdVA
+         DoCdD9LOl0lrv3xx20rbX5TSpLeTTRUpQeqVmG82G4b54qaKMziprLFsv+/IMHuOGIMy
+         SQrg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:references:in-reply-to:message-id:date
+         :subject:cc:to:from;
+        bh=P15/ug9tOQuhGhfvIsfPs843GkLiVRcf1x9tfFK4zjY=;
+        b=dd/Y/LEVpK6SS7hhtWw16Rz1jr7wxumkZ/IBQCsZfQW5uCThj7cK4DeZjdHf0xLdUD
+         +eoYkeTYY0rxzgI3u5LvX/eXSPR6pDtvPJLPYH1bpT29Jzz1QwG/H5+VAKHjUvBUyGfz
+         a02WS9M3iuUbCKHmzSbhmumInZqNL4OQm+sLLrnCoKOUjL5Q82XiQ/KXhZUoz1/Dm+3q
+         kyWFWG7/oxcQI6ZEKTvzC87fJNFJUm1ZpJcpc5T7qONCRXMEgSr04ALCiqNomEzp9+6e
+         lqQqkCbHydUiIs8MublxV88GeymPhMLEeBDnzGl+AN/Cf6Y9n4cQQ1uP7ZFGaQgHVNqO
+         6qKQ==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=intel.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id e13si40834515pgh.251.2018.11.19.13.57.12;
+        Mon, 19 Nov 2018 13:57:26 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1731589AbeKTIUL (ORCPT <rfc822;nullbytes00@gmail.com>
+        + 99 others); Tue, 20 Nov 2018 03:20:11 -0500
+Received: from mga09.intel.com ([134.134.136.24]:32094 "EHLO mga09.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1731529AbeKTIUJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+        Tue, 20 Nov 2018 03:20:09 -0500
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga008.jf.intel.com ([10.7.209.65])
+  by orsmga102.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 19 Nov 2018 13:54:29 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.56,254,1539673200"; 
+   d="scan'208";a="93319899"
+Received: from yyu32-desk1.sc.intel.com ([143.183.136.147])
+  by orsmga008.jf.intel.com with ESMTP; 19 Nov 2018 13:54:28 -0800
+From: Yu-cheng Yu <yu-cheng.yu@intel.com>
+To: x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, linux-kernel@vger.kernel.org,
+        linux-doc@vger.kernel.org, linux-mm@kvack.org,
+        linux-arch@vger.kernel.org, linux-api@vger.kernel.org,
+        Arnd Bergmann <arnd@arndb.de>,
+        Andy Lutomirski <luto@amacapital.net>,
+        Balbir Singh <bsingharora@gmail.com>,
+        Cyrill Gorcunov <gorcunov@gmail.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Eugene Syromiatnikov <esyr@redhat.com>,
+        Florian Weimer <fweimer@redhat.com>,
+        "H.J. Lu" <hjl.tools@gmail.com>, Jann Horn <jannh@google.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Kees Cook <keescook@chromium.org>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Nadav Amit <nadav.amit@gmail.com>,
+        Oleg Nesterov <oleg@redhat.com>, Pavel Machek <pavel@ucw.cz>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        "Ravi V. Shankar" <ravi.v.shankar@intel.com>,
+        Vedvyas Shanbhogue <vedvyas.shanbhogue@intel.com>
+Cc: Yu-cheng Yu <yu-cheng.yu@intel.com>
+Subject: [RFC PATCH v6 19/26] x86/cet/shstk: User-mode shadow stack support
+Date: Mon, 19 Nov 2018 13:48:02 -0800
+Message-Id: <20181119214809.6086-20-yu-cheng.yu@intel.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20181119214809.6086-1-yu-cheng.yu@intel.com>
+References: <20181119214809.6086-1-yu-cheng.yu@intel.com>
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwB3XUnIMfNbeldaAA--.4387S3
+Authentication-Results: mail-app4; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW3tr47tryrArW3KFWkXw18Krg_yoWkJw15pF
+	Z7CrWkGrW5ua4Skr1xAr1kAr15Jw1vk3WfKrWUW348Aa1jya18XrsakF9rWryDZan5Wa4a
+	gF9Iqrs5KryYyw7anT9S1TB71UUUUUUqnTZGkaVYY2UrUUUU0bIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUP0b7Iv0xC_Kw4lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1l84ACjcxK6I8E
+	87Iv67AKxVW0oVCq3wA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_GcCE3s1le2I262IYc4CY6c
+	8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_Jrv_
+	JF1lYx0Ex4A2jsIE14v26r4j6F4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvY0x0EwI
+	xGrwCjxxvEa2IrMxkF7I0Ew4C26cxK6c8Ij28IcwCY1Ik26cxK6xAEc7vF6xCjj44lc2xS
+	Y4AK6IIF6F4lc2IjII80xcxEwVAKI48JMxvI42IY6xIIjxv20xvE14v26ryj6F1UMxvI42
+	IY6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1lcIIF0xvEx4A2jsIE14v26rxl6s0DMxvI42IY
+	6I8E87Iv6xkF7I0E14v26rxl6s0DMxAIw28IcxkI7VAKI48JMxAIw28IcVAKzI0EY4vE52
+	x082I5MxCjnVCjjxCrMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr0_
+	Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVW8ZVWrXwCIc40Y0x0EwI
+	xGrwCI42IY6xAIw20EY4v20xvaj40_JFI_GrUvcSsGvfC2KfnxnUUI43ZEXa7IUOE9aPUU
+	UUU==
+
+This patch adds basic shadow stack enabling/disabling routines.
+A task's shadow stack is allocated from memory with VM_SHSTK flag set
+and read-only protection.  It has a fixed size of RLIMIT_STACK.
+
+Signed-off-by: Yu-cheng Yu <yu-cheng.yu@intel.com>
+---
+ arch/x86/include/asm/cet.h                    |  34 ++++++
+ arch/x86/include/asm/disabled-features.h      |   8 +-
+ arch/x86/include/asm/msr-index.h              |  15 +++
+ arch/x86/include/asm/processor.h              |   5 +
+ arch/x86/kernel/Makefile                      |   2 +
+ arch/x86/kernel/cet.c                         | 109 ++++++++++++++++++
+ arch/x86/kernel/cpu/common.c                  |  25 ++++
+ arch/x86/kernel/process.c                     |   2 +
+ .../arch/x86/include/asm/disabled-features.h  |   8 +-
+ 9 files changed, 206 insertions(+), 2 deletions(-)
+ create mode 100644 arch/x86/include/asm/cet.h
+ create mode 100644 arch/x86/kernel/cet.c
+
+diff --git a/arch/x86/include/asm/cet.h b/arch/x86/include/asm/cet.h
+new file mode 100644
+index 000000000000..c952a2ec65fe
+--- /dev/null
++++ b/arch/x86/include/asm/cet.h
+@@ -0,0 +1,34 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef _ASM_X86_CET_H
++#define _ASM_X86_CET_H
++
++#ifndef __ASSEMBLY__
++#include <linux/types.h>
++
++struct task_struct;
++/*
++ * Per-thread CET status
++ */
++struct cet_status {
++	unsigned long	shstk_base;
++	unsigned long	shstk_size;
++	unsigned int	shstk_enabled:1;
++};
++
++#ifdef CONFIG_X86_INTEL_CET
++int cet_setup_shstk(void);
++void cet_disable_shstk(void);
++void cet_disable_free_shstk(struct task_struct *p);
++#else
++static inline int cet_setup_shstk(void) { return -EINVAL; }
++static inline void cet_disable_shstk(void) {}
++static inline void cet_disable_free_shstk(struct task_struct *p) {}
++#endif
++
++#define cpu_x86_cet_enabled() \
++	(cpu_feature_enabled(X86_FEATURE_SHSTK) || \
++	 cpu_feature_enabled(X86_FEATURE_IBT))
++
++#endif /* __ASSEMBLY__ */
++
++#endif /* _ASM_X86_CET_H */
+diff --git a/arch/x86/include/asm/disabled-features.h b/arch/x86/include/asm/disabled-features.h
+index 33833d1909af..3624a11e5ba6 100644
+--- a/arch/x86/include/asm/disabled-features.h
++++ b/arch/x86/include/asm/disabled-features.h
+@@ -56,6 +56,12 @@
+ # define DISABLE_PTI		(1 << (X86_FEATURE_PTI & 31))
+ #endif
+ 
++#ifdef CONFIG_X86_INTEL_SHADOW_STACK_USER
++#define DISABLE_SHSTK	0
++#else
++#define DISABLE_SHSTK	(1<<(X86_FEATURE_SHSTK & 31))
++#endif
++
+ /*
+  * Make sure to add features to the correct mask
+  */
+@@ -75,7 +81,7 @@
+ #define DISABLED_MASK13	0
+ #define DISABLED_MASK14	0
+ #define DISABLED_MASK15	0
+-#define DISABLED_MASK16	(DISABLE_PKU|DISABLE_OSPKE|DISABLE_LA57|DISABLE_UMIP)
++#define DISABLED_MASK16	(DISABLE_PKU|DISABLE_OSPKE|DISABLE_LA57|DISABLE_UMIP|DISABLE_SHSTK)
+ #define DISABLED_MASK17	0
+ #define DISABLED_MASK18	0
+ #define DISABLED_MASK_CHECK BUILD_BUG_ON_ZERO(NCAPINTS != 19)
+diff --git a/arch/x86/include/asm/msr-index.h b/arch/x86/include/asm/msr-index.h
+index 80f4a4f38c79..298721ff00f4 100644
+--- a/arch/x86/include/asm/msr-index.h
++++ b/arch/x86/include/asm/msr-index.h
+@@ -778,4 +778,19 @@
+ #define MSR_VM_IGNNE                    0xc0010115
+ #define MSR_VM_HSAVE_PA                 0xc0010117
+ 
++/* Control-flow Enforcement Technology MSRs */
++#define MSR_IA32_U_CET		0x6a0 /* user mode cet setting */
++#define MSR_IA32_S_CET		0x6a2 /* kernel mode cet setting */
++#define MSR_IA32_PL0_SSP	0x6a4 /* kernel shstk pointer */
++#define MSR_IA32_PL3_SSP	0x6a7 /* user shstk pointer */
++#define MSR_IA32_INT_SSP_TAB	0x6a8 /* exception shstk table */
++
++/* MSR_IA32_U_CET and MSR_IA32_S_CET bits */
++#define MSR_IA32_CET_SHSTK_EN		0x0000000000000001ULL
++#define MSR_IA32_CET_WRSS_EN		0x0000000000000002ULL
++#define MSR_IA32_CET_ENDBR_EN		0x0000000000000004ULL
++#define MSR_IA32_CET_LEG_IW_EN		0x0000000000000008ULL
++#define MSR_IA32_CET_NO_TRACK_EN	0x0000000000000010ULL
++#define MSR_IA32_CET_BITMAP_MASK	0xfffffffffffff000ULL
++
+ #endif /* _ASM_X86_MSR_INDEX_H */
+diff --git a/arch/x86/include/asm/processor.h b/arch/x86/include/asm/processor.h
+index 071b2a6fff85..1222dc204c40 100644
+--- a/arch/x86/include/asm/processor.h
++++ b/arch/x86/include/asm/processor.h
+@@ -24,6 +24,7 @@ struct vm86;
+ #include <asm/special_insns.h>
+ #include <asm/fpu/types.h>
+ #include <asm/unwind_hints.h>
++#include <asm/cet.h>
+ 
+ #include <linux/personality.h>
+ #include <linux/cache.h>
+@@ -500,6 +501,10 @@ struct thread_struct {
+ 	unsigned int		sig_on_uaccess_err:1;
+ 	unsigned int		uaccess_err:1;	/* uaccess failed */
+ 
++#ifdef CONFIG_X86_INTEL_CET
++	struct cet_status	cet;
++#endif
++
+ 	/* Floating point and extended processor state */
+ 	struct fpu		fpu;
+ 	/*
+diff --git a/arch/x86/kernel/Makefile b/arch/x86/kernel/Makefile
+index 8824d01c0c35..fbb2d91fb756 100644
+--- a/arch/x86/kernel/Makefile
++++ b/arch/x86/kernel/Makefile
+@@ -139,6 +139,8 @@ obj-$(CONFIG_UNWINDER_ORC)		+= unwind_orc.o
+ obj-$(CONFIG_UNWINDER_FRAME_POINTER)	+= unwind_frame.o
+ obj-$(CONFIG_UNWINDER_GUESS)		+= unwind_guess.o
+ 
++obj-$(CONFIG_X86_INTEL_CET)		+= cet.o
++
+ ###
+ # 64 bit specific files
+ ifeq ($(CONFIG_X86_64),y)
+diff --git a/arch/x86/kernel/cet.c b/arch/x86/kernel/cet.c
+new file mode 100644
+index 000000000000..e6726e78e6cd
+--- /dev/null
++++ b/arch/x86/kernel/cet.c
+@@ -0,0 +1,109 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++/*
++ * cet.c - Control-flow Enforcement (CET)
++ *
++ * Copyright (c) 2018, Intel Corporation.
++ * Yu-cheng Yu <yu-cheng.yu@intel.com>
++ */
++
++#include <linux/types.h>
++#include <linux/mm.h>
++#include <linux/mman.h>
++#include <linux/slab.h>
++#include <linux/uaccess.h>
++#include <linux/sched/signal.h>
++#include <linux/compat.h>
++#include <asm/msr.h>
++#include <asm/user.h>
++#include <asm/fpu/xstate.h>
++#include <asm/fpu/types.h>
++#include <asm/cet.h>
++
++static int set_shstk_ptr(unsigned long addr)
++{
++	u64 r;
++
++	if (!cpu_feature_enabled(X86_FEATURE_SHSTK))
++		return -1;
++
++	if ((addr >= TASK_SIZE_MAX) || (!IS_ALIGNED(addr, 4)))
++		return -1;
++
++	rdmsrl(MSR_IA32_U_CET, r);
++	wrmsrl(MSR_IA32_PL3_SSP, addr);
++	wrmsrl(MSR_IA32_U_CET, r | MSR_IA32_CET_SHSTK_EN);
++	return 0;
++}
++
++static unsigned long get_shstk_addr(void)
++{
++	unsigned long ptr;
++
++	if (!current->thread.cet.shstk_enabled)
++		return 0;
++
++	rdmsrl(MSR_IA32_PL3_SSP, ptr);
++	return ptr;
++}
++
++int cet_setup_shstk(void)
++{
++	unsigned long addr, size;
++
++	if (!cpu_feature_enabled(X86_FEATURE_SHSTK))
++		return -EOPNOTSUPP;
++
++	size = rlimit(RLIMIT_STACK);
++	addr = do_mmap_locked(0, size, PROT_READ,
++			      MAP_ANONYMOUS | MAP_PRIVATE, VM_SHSTK);
++
++	/*
++	 * Return actual error from do_mmap().
++	 */
++	if (addr >= TASK_SIZE_MAX)
++		return addr;
++
++	set_shstk_ptr(addr + size - sizeof(u64));
++	current->thread.cet.shstk_base = addr;
++	current->thread.cet.shstk_size = size;
++	current->thread.cet.shstk_enabled = 1;
++	return 0;
++}
++
++void cet_disable_shstk(void)
++{
++	u64 r;
++
++	if (!cpu_feature_enabled(X86_FEATURE_SHSTK))
++		return;
++
++	rdmsrl(MSR_IA32_U_CET, r);
++	r &= ~(MSR_IA32_CET_SHSTK_EN);
++	wrmsrl(MSR_IA32_U_CET, r);
++	wrmsrl(MSR_IA32_PL3_SSP, 0);
++	current->thread.cet.shstk_enabled = 0;
++}
++
++void cet_disable_free_shstk(struct task_struct *tsk)
++{
++	if (!cpu_feature_enabled(X86_FEATURE_SHSTK) ||
++	    !tsk->thread.cet.shstk_enabled)
++		return;
++
++	if (tsk == current)
++		cet_disable_shstk();
++
++	/*
++	 * Free only when tsk is current or shares mm
++	 * with current but has its own shstk.
++	 */
++	if (tsk->mm && (tsk->mm == current->mm) &&
++	    (tsk->thread.cet.shstk_base)) {
++		vm_munmap(tsk->thread.cet.shstk_base,
++			  tsk->thread.cet.shstk_size);
++		tsk->thread.cet.shstk_base = 0;
++		tsk->thread.cet.shstk_size = 0;
++	}
++
++	tsk->thread.cet.shstk_enabled = 0;
++}
+diff --git a/arch/x86/kernel/cpu/common.c b/arch/x86/kernel/cpu/common.c
+index ffb181f959d2..795e195bf2fe 100644
+--- a/arch/x86/kernel/cpu/common.c
++++ b/arch/x86/kernel/cpu/common.c
+@@ -52,6 +52,7 @@
+ #include <asm/microcode_intel.h>
+ #include <asm/intel-family.h>
+ #include <asm/cpu_device_id.h>
++#include <asm/cet.h>
+ 
+ #ifdef CONFIG_X86_LOCAL_APIC
+ #include <asm/uv/uv.h>
+@@ -411,6 +412,29 @@ static __init int setup_disable_pku(char *arg)
+ __setup("nopku", setup_disable_pku);
+ #endif /* CONFIG_X86_64 */
+ 
++static __always_inline void setup_cet(struct cpuinfo_x86 *c)
++{
++	if (cpu_x86_cet_enabled())
++		cr4_set_bits(X86_CR4_CET);
++}
++
++#ifdef CONFIG_X86_INTEL_SHADOW_STACK_USER
++static __init int setup_disable_shstk(char *s)
++{
++	/* require an exact match without trailing characters */
++	if (s[0] != '\0')
++		return 0;
++
++	if (!boot_cpu_has(X86_FEATURE_SHSTK))
++		return 1;
++
++	setup_clear_cpu_cap(X86_FEATURE_SHSTK);
++	pr_info("x86: 'no_cet_shstk' specified, disabling Shadow Stack\n");
++	return 1;
++}
++__setup("no_cet_shstk", setup_disable_shstk);
++#endif
++
+ /*
+  * Some CPU features depend on higher CPUID levels, which may not always
+  * be available due to CPUID level capping or broken virtualization
+@@ -1379,6 +1403,7 @@ static void identify_cpu(struct cpuinfo_x86 *c)
+ 	x86_init_rdrand(c);
+ 	x86_init_cache_qos(c);
+ 	setup_pku(c);
++	setup_cet(c);
+ 
+ 	/*
+ 	 * Clear/Set all flags overridden by options, need do it
+diff --git a/arch/x86/kernel/process.c b/arch/x86/kernel/process.c
+index c93fcfdf1673..4a776da4c28c 100644
+--- a/arch/x86/kernel/process.c
++++ b/arch/x86/kernel/process.c
+@@ -39,6 +39,7 @@
+ #include <asm/desc.h>
+ #include <asm/prctl.h>
+ #include <asm/spec-ctrl.h>
++#include <asm/cet.h>
+ 
+ /*
+  * per-CPU TSS segments. Threads are completely 'soft' on Linux,
+@@ -134,6 +135,7 @@ void flush_thread(void)
+ 	flush_ptrace_hw_breakpoint(tsk);
+ 	memset(tsk->thread.tls_array, 0, sizeof(tsk->thread.tls_array));
+ 
++	cet_disable_shstk();
+ 	fpu__clear(&tsk->thread.fpu);
+ }
+ 
+diff --git a/tools/arch/x86/include/asm/disabled-features.h b/tools/arch/x86/include/asm/disabled-features.h
+index 33833d1909af..3624a11e5ba6 100644
+--- a/tools/arch/x86/include/asm/disabled-features.h
++++ b/tools/arch/x86/include/asm/disabled-features.h
+@@ -56,6 +56,12 @@
+ # define DISABLE_PTI		(1 << (X86_FEATURE_PTI & 31))
+ #endif
+ 
++#ifdef CONFIG_X86_INTEL_SHADOW_STACK_USER
++#define DISABLE_SHSTK	0
++#else
++#define DISABLE_SHSTK	(1<<(X86_FEATURE_SHSTK & 31))
++#endif
++
+ /*
+  * Make sure to add features to the correct mask
+  */
+@@ -75,7 +81,7 @@
+ #define DISABLED_MASK13	0
+ #define DISABLED_MASK14	0
+ #define DISABLED_MASK15	0
+-#define DISABLED_MASK16	(DISABLE_PKU|DISABLE_OSPKE|DISABLE_LA57|DISABLE_UMIP)
++#define DISABLED_MASK16	(DISABLE_PKU|DISABLE_OSPKE|DISABLE_LA57|DISABLE_UMIP|DISABLE_SHSTK)
+ #define DISABLED_MASK17	0
+ #define DISABLED_MASK18	0
+ #define DISABLED_MASK_CHECK BUILD_BUG_ON_ZERO(NCAPINTS != 19)
+-- 
+2.17.1

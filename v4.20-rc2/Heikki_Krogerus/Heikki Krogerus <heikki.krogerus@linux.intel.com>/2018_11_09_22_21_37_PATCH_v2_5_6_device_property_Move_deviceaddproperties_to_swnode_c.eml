@@ -1,0 +1,528 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (61.164.42.155:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 10 Nov 2018 00:53:34 -0000
+Received: from icoremail.net (unknown [209.85.210.177])
+	by mail-app2 (Coremail) with SMTP id by_KCgD3__s+mOVbBGZoAQ--.32039S3;
+	Fri, 09 Nov 2018 22:22:55 +0800 (CST)
+Received: from mail-pf1-f177.google.com (unknown [209.85.210.177])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwBHwEw8mOVblO0iAA--.14272S3;
+	Fri, 09 Nov 2018 22:22:52 +0800 (CST)
+Received: by mail-pf1-f177.google.com with SMTP id u13-v6so999763pfm.4
+        for <xuliker@zju.edu.cn>; Fri, 09 Nov 2018 06:22:52 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding:sender:precedence:list-id;
+        bh=TMr8DcJe0nS6PPpYN9DjeqvmAqryscrYd27tV+XhkUw=;
+        b=Mg7nMYuh/y2aC1Z2SOyRPLvgnGo0atQG7nCrAacVxgydSIJD1OtrpMYBIb0cs+ItZx
+         4gD6bM8xtLKJ84UMxWbfirkl5vdogE43b9ye9q3XIBEMJ5J+1E/fCrQX4kICgtIJ9kqA
+         5rAnsBKNqKqTSdAMq8/zQLx5WZKs4qOla2gMAhUfV/EV9e7rRm3ipibuVZRa6SzQQZyZ
+         VNVyp4MufA/LZpgwmSiQUVOcVbj2aFcOnlSXe6AhYtzbnwSEGjhtyD3OGEuUM7NgL7w/
+         2XEKJgAJE5EI66qISn25P882PJTjSQPHyS8lDTzhApcu6/ai+ot6IS2PTUWGopy5U2UK
+         7eng==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=intel.com
+X-Gm-Message-State: AGRZ1gJeTpV03FtZBT/RZVtAf/HDThxHbvDQELFp/8fbJU0EbB+Qrh9A
+	hyb3A4/JJSQ6K0h25w6KZXkuJMzF3YUHEhnzKQSWOMgoI+FVYapCjA==
+X-Received: by 2002:a62:35c2:: with SMTP id c185-v6mr9097527pfa.69.1541773372451;
+        Fri, 09 Nov 2018 06:22:52 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp260995pjt;
+        Fri, 9 Nov 2018 06:22:51 -0800 (PST)
+X-Google-Smtp-Source: AJdET5fq964m36jYBhXp2JhRhZVRDhM5Bn5J6bmluLhMunrAt3eXrTHYgvt3g53+w1ScpkUtw7Ot
+X-Received: by 2002:a62:4e01:: with SMTP id c1-v6mr9082703pfb.141.1541773371615;
+        Fri, 09 Nov 2018 06:22:51 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1541773371; cv=none;
+        d=google.com; s=arc-20160816;
+        b=zXDSrXsCmd8k9ACWZUb7FpJSipOc/BPzo9YU95T3KT3XQn4ZP2fRIgO9Wzrmq+ruCR
+         jxFZVORj7xK2rMqpH4Dy+JGB9l/RzF/ZpeIEPQXWm2rA8QGENkdqsZcf0O9EUlNFclOP
+         TdfiZeoJibZ4PtzCU9sbEaGKrAS0MAwJQ4XgIDiQySWMayyHDTtAj89IUoCXLonSFAH8
+         T90+XDckaQnBOtlGhtEY6cYcefcY1lmOg33R+vkAFGX+j7WFmRlhAiMuEXbORhbUsbM1
+         TZMW5Oc51nSpJ1foj0sWCFeF8QDQBCxEGqpc8uv3APwbJLAhmxFoRp6h3RxGDwQ/neKr
+         AdKw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:content-transfer-encoding:mime-version
+         :references:in-reply-to:message-id:date:subject:cc:to:from;
+        bh=TMr8DcJe0nS6PPpYN9DjeqvmAqryscrYd27tV+XhkUw=;
+        b=yhzW9xym0qj3GVWXBbbC876QXTm2QZpDfToA6rkhCSAL0MN5g5p1d+IRdngw/9ReyO
+         xgXYk43zPpOYLvEObtQMJEwWqxA26S7e5zEMFOw3H323vYAogUTBaCc0NszRS+rruhp1
+         ABiECm41xegxkUwyKlCv4f1hZ2oyZ2VA/Pa68MxpGtsBYmlowdS4AoU3PkGZTlZncJNE
+         QyGZrxURN/7CyfPLqjkzYZlrJwkboHSy1HcbxGE6QVLIQIa1bDg+VFC/tNOz62zesE51
+         vL2NuVUc2OLM4Mll3aHXiu6PgExWy5qvnv2sPQstO1LxhZmujAciJi6iOYDrx5RMkk7A
+         SHbA==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=intel.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id u15-v6si8002465plq.353.2018.11.09.06.22.15;
+        Fri, 09 Nov 2018 06:22:51 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1728239AbeKJACr (ORCPT <rfc822;tu.k.phung@gmail.com>
+        + 99 others); Fri, 9 Nov 2018 19:02:47 -0500
+Received: from mga07.intel.com ([134.134.136.100]:21407 "EHLO mga07.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727735AbeKJACr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+        Fri, 9 Nov 2018 19:02:47 -0500
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga001.fm.intel.com ([10.253.24.23])
+  by orsmga105.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 09 Nov 2018 06:21:59 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.54,483,1534834800"; 
+   d="scan'208";a="106729710"
+Received: from black.fi.intel.com (HELO black.fi.intel.com.) ([10.237.72.28])
+  by fmsmga001.fm.intel.com with ESMTP; 09 Nov 2018 06:21:56 -0800
+From: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
+Subject: [PATCH v2 5/6] device property: Move device_add_properties() to swnode.c
+Date: Fri,  9 Nov 2018 17:21:37 +0300
+Message-Id: <20181109142138.54770-6-heikki.krogerus@linux.intel.com>
+X-Mailer: git-send-email 2.19.1
+In-Reply-To: <20181109142138.54770-1-heikki.krogerus@linux.intel.com>
+References: <20181109142138.54770-1-heikki.krogerus@linux.intel.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwBHwEw8mOVblO0iAA--.14272S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW3WrWrJryfJFyrGr13WF4xXrb_yoWDJF1xpF
+	43Kr47tr4Dtry8X348ta1kCa1Yvw17XrWjkry7Cw1fZa1xCr15XF12kry0gF95Cryku343
+	Ka1YgFy7XrWUGr7anT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUP2b7Iv0xC_Cr1lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_tr0E3s1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr1j6F4UJwA2z4x0Y4vE
+	x4A2jsIE14v26rxl6s0DM28EF7xvwVC2z280aVCY1x0267AKxVW0oVCq3wAS0I0E0xvYzx
+	vE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AKxVWU
+	XVWUAwAv7VC2z280aVAFwI0_Gr0_Cr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcxkI7V
+	AKI48JMx02cVCv0xWlc7CjxVAKzI0EY4vE52x082I5MxkFs20EY4vE44CYbxCE4x80FwCY
+	02Avz4vEIxC_Xrylc2IjII80xcxEwVAKI48JMxvI42IY6xIIjxv20xvE14v26ryj6F1UMx
+	vI42IY6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1lcIIF0xvEx4A2jsIE14v26rxl6s0DMxvI
+	42IY6I8E87Iv6xkF7I0E14v26rxl6s0DMxAIw28IcxkI7VAKI48JMxAIw28IcVAKzI0EY4
+	vE52x082I5MxCjnVCjjxCrMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_
+	Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWUtVW8ZwCIc40Y0x
+	0EwIxGrwCI42IY6xAIw20EY4v20xvaj40_Jr0_JF7vcSsGvfC2KfnxnUUI43ZEXa7IU57M
+	aUUUUUU==
+
+Concentrating struct property_entry processing to
+drivers/base/swnode.c
+
+Signed-off-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+---
+ drivers/base/property.c | 179 --------------------------------------
+ drivers/base/swnode.c   | 184 ++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 184 insertions(+), 179 deletions(-)
+
+diff --git a/drivers/base/property.c b/drivers/base/property.c
+index 240ab5230ff6..e20642759c67 100644
+--- a/drivers/base/property.c
++++ b/drivers/base/property.c
+@@ -84,44 +84,6 @@ static const void *property_get_pointer(const struct property_entry *prop)
+ 	}
+ }
+ 
+-static void property_set_pointer(struct property_entry *prop, const void *pointer)
+-{
+-	switch (prop->type) {
+-	case DEV_PROP_U8:
+-		if (prop->is_array)
+-			prop->pointer.u8_data = pointer;
+-		else
+-			prop->value.u8_data = *((u8 *)pointer);
+-		break;
+-	case DEV_PROP_U16:
+-		if (prop->is_array)
+-			prop->pointer.u16_data = pointer;
+-		else
+-			prop->value.u16_data = *((u16 *)pointer);
+-		break;
+-	case DEV_PROP_U32:
+-		if (prop->is_array)
+-			prop->pointer.u32_data = pointer;
+-		else
+-			prop->value.u32_data = *((u32 *)pointer);
+-		break;
+-	case DEV_PROP_U64:
+-		if (prop->is_array)
+-			prop->pointer.u64_data = pointer;
+-		else
+-			prop->value.u64_data = *((u64 *)pointer);
+-		break;
+-	case DEV_PROP_STRING:
+-		if (prop->is_array)
+-			prop->pointer.str = pointer;
+-		else
+-			prop->value.str = pointer;
+-		break;
+-	default:
+-		break;
+-	}
+-}
+-
+ static const void *pset_prop_find(const struct property_set *pset,
+ 				  const char *propname, size_t length)
+ {
+@@ -759,147 +721,6 @@ int fwnode_property_get_reference_args(const struct fwnode_handle *fwnode,
+ }
+ EXPORT_SYMBOL_GPL(fwnode_property_get_reference_args);
+ 
+-static void property_entry_free_data(const struct property_entry *p)
+-{
+-	const void *pointer = property_get_pointer(p);
+-	size_t i, nval;
+-
+-	if (p->is_array) {
+-		if (p->type == DEV_PROP_STRING && p->pointer.str) {
+-			nval = p->length / sizeof(const char *);
+-			for (i = 0; i < nval; i++)
+-				kfree(p->pointer.str[i]);
+-		}
+-		kfree(pointer);
+-	} else if (p->type == DEV_PROP_STRING) {
+-		kfree(p->value.str);
+-	}
+-	kfree(p->name);
+-}
+-
+-static int property_copy_string_array(struct property_entry *dst,
+-				      const struct property_entry *src)
+-{
+-	const char **d;
+-	size_t nval = src->length / sizeof(*d);
+-	int i;
+-
+-	d = kcalloc(nval, sizeof(*d), GFP_KERNEL);
+-	if (!d)
+-		return -ENOMEM;
+-
+-	for (i = 0; i < nval; i++) {
+-		d[i] = kstrdup(src->pointer.str[i], GFP_KERNEL);
+-		if (!d[i] && src->pointer.str[i]) {
+-			while (--i >= 0)
+-				kfree(d[i]);
+-			kfree(d);
+-			return -ENOMEM;
+-		}
+-	}
+-
+-	dst->pointer.str = d;
+-	return 0;
+-}
+-
+-static int property_entry_copy_data(struct property_entry *dst,
+-				    const struct property_entry *src)
+-{
+-	const void *pointer = property_get_pointer(src);
+-	const void *new;
+-	int error;
+-
+-	if (src->is_array) {
+-		if (!src->length)
+-			return -ENODATA;
+-
+-		if (src->type == DEV_PROP_STRING) {
+-			error = property_copy_string_array(dst, src);
+-			if (error)
+-				return error;
+-			new = dst->pointer.str;
+-		} else {
+-			new = kmemdup(pointer, src->length, GFP_KERNEL);
+-			if (!new)
+-				return -ENOMEM;
+-		}
+-	} else if (src->type == DEV_PROP_STRING) {
+-		new = kstrdup(src->value.str, GFP_KERNEL);
+-		if (!new && src->value.str)
+-			return -ENOMEM;
+-	} else {
+-		new = pointer;
+-	}
+-
+-	dst->length = src->length;
+-	dst->is_array = src->is_array;
+-	dst->type = src->type;
+-
+-	property_set_pointer(dst, new);
+-
+-	dst->name = kstrdup(src->name, GFP_KERNEL);
+-	if (!dst->name)
+-		goto out_free_data;
+-
+-	return 0;
+-
+-out_free_data:
+-	property_entry_free_data(dst);
+-	return -ENOMEM;
+-}
+-
+-/**
+- * property_entries_dup - duplicate array of properties
+- * @properties: array of properties to copy
+- *
+- * This function creates a deep copy of the given NULL-terminated array
+- * of property entries.
+- */
+-struct property_entry *
+-property_entries_dup(const struct property_entry *properties)
+-{
+-	struct property_entry *p;
+-	int i, n = 0;
+-
+-	while (properties[n].name)
+-		n++;
+-
+-	p = kcalloc(n + 1, sizeof(*p), GFP_KERNEL);
+-	if (!p)
+-		return ERR_PTR(-ENOMEM);
+-
+-	for (i = 0; i < n; i++) {
+-		int ret = property_entry_copy_data(&p[i], &properties[i]);
+-		if (ret) {
+-			while (--i >= 0)
+-				property_entry_free_data(&p[i]);
+-			kfree(p);
+-			return ERR_PTR(ret);
+-		}
+-	}
+-
+-	return p;
+-}
+-EXPORT_SYMBOL_GPL(property_entries_dup);
+-
+-/**
+- * property_entries_free - free previously allocated array of properties
+- * @properties: array of properties to destroy
+- *
+- * This function frees given NULL-terminated array of property entries,
+- * along with their data.
+- */
+-void property_entries_free(const struct property_entry *properties)
+-{
+-	const struct property_entry *p;
+-
+-	for (p = properties; p->name; p++)
+-		property_entry_free_data(p);
+-
+-	kfree(properties);
+-}
+-EXPORT_SYMBOL_GPL(property_entries_free);
+-
+ /**
+  * pset_free_set - releases memory allocated for copied property set
+  * @pset: Property set to release
+diff --git a/drivers/base/swnode.c b/drivers/base/swnode.c
+index 95423b72a3f4..9c63ec8d8ab4 100644
+--- a/drivers/base/swnode.c
++++ b/drivers/base/swnode.c
+@@ -64,6 +64,45 @@ property_entry_get(const struct property_entry *prop, const char *name)
+ 	return NULL;
+ }
+ 
++static void
++property_set_pointer(struct property_entry *prop, const void *pointer)
++{
++	switch (prop->type) {
++	case DEV_PROP_U8:
++		if (prop->is_array)
++			prop->pointer.u8_data = pointer;
++		else
++			prop->value.u8_data = *((u8 *)pointer);
++		break;
++	case DEV_PROP_U16:
++		if (prop->is_array)
++			prop->pointer.u16_data = pointer;
++		else
++			prop->value.u16_data = *((u16 *)pointer);
++		break;
++	case DEV_PROP_U32:
++		if (prop->is_array)
++			prop->pointer.u32_data = pointer;
++		else
++			prop->value.u32_data = *((u32 *)pointer);
++		break;
++	case DEV_PROP_U64:
++		if (prop->is_array)
++			prop->pointer.u64_data = pointer;
++		else
++			prop->value.u64_data = *((u64 *)pointer);
++		break;
++	case DEV_PROP_STRING:
++		if (prop->is_array)
++			prop->pointer.str = pointer;
++		else
++			prop->value.str = pointer;
++		break;
++	default:
++		break;
++	}
++}
++
+ static const void *property_get_pointer(const struct property_entry *prop)
+ {
+ 	switch (prop->type) {
+@@ -241,6 +280,151 @@ static int property_entry_read_string_array(const struct property_entry *props,
+ 	return array_len;
+ }
+ 
++static void property_entry_free_data(const struct property_entry *p)
++{
++	const void *pointer = property_get_pointer(p);
++	size_t i, nval;
++
++	if (p->is_array) {
++		if (p->type == DEV_PROP_STRING && p->pointer.str) {
++			nval = p->length / sizeof(const char *);
++			for (i = 0; i < nval; i++)
++				kfree(p->pointer.str[i]);
++		}
++		kfree(pointer);
++	} else if (p->type == DEV_PROP_STRING) {
++		kfree(p->value.str);
++	}
++	kfree(p->name);
++}
++
++static int property_copy_string_array(struct property_entry *dst,
++				      const struct property_entry *src)
++{
++	const char **d;
++	size_t nval = src->length / sizeof(*d);
++	int i;
++
++	d = kcalloc(nval, sizeof(*d), GFP_KERNEL);
++	if (!d)
++		return -ENOMEM;
++
++	for (i = 0; i < nval; i++) {
++		d[i] = kstrdup(src->pointer.str[i], GFP_KERNEL);
++		if (!d[i] && src->pointer.str[i]) {
++			while (--i >= 0)
++				kfree(d[i]);
++			kfree(d);
++			return -ENOMEM;
++		}
++	}
++
++	dst->pointer.str = d;
++	return 0;
++}
++
++static int property_entry_copy_data(struct property_entry *dst,
++				    const struct property_entry *src)
++{
++	const void *pointer = property_get_pointer(src);
++	const void *new;
++	int error;
++
++	if (src->is_array) {
++		if (!src->length)
++			return -ENODATA;
++
++		if (src->type == DEV_PROP_STRING) {
++			error = property_copy_string_array(dst, src);
++			if (error)
++				return error;
++			new = dst->pointer.str;
++		} else {
++			new = kmemdup(pointer, src->length, GFP_KERNEL);
++			if (!new)
++				return -ENOMEM;
++		}
++	} else if (src->type == DEV_PROP_STRING) {
++		new = kstrdup(src->value.str, GFP_KERNEL);
++		if (!new && src->value.str)
++			return -ENOMEM;
++	} else {
++		new = pointer;
++	}
++
++	dst->length = src->length;
++	dst->is_array = src->is_array;
++	dst->type = src->type;
++
++	property_set_pointer(dst, new);
++
++	dst->name = kstrdup(src->name, GFP_KERNEL);
++	if (!dst->name)
++		goto out_free_data;
++
++	return 0;
++
++out_free_data:
++	property_entry_free_data(dst);
++	return -ENOMEM;
++}
++
++/**
++ * property_entries_dup - duplicate array of properties
++ * @properties: array of properties to copy
++ *
++ * This function creates a deep copy of the given NULL-terminated array
++ * of property entries.
++ */
++struct property_entry *
++property_entries_dup(const struct property_entry *properties)
++{
++	struct property_entry *p;
++	int i, n = 0;
++	int ret;
++
++	while (properties[n].name)
++		n++;
++
++	p = kcalloc(n + 1, sizeof(*p), GFP_KERNEL);
++	if (!p)
++		return ERR_PTR(-ENOMEM);
++
++	for (i = 0; i < n; i++) {
++		ret = property_entry_copy_data(&p[i], &properties[i]);
++		if (ret) {
++			while (--i >= 0)
++				property_entry_free_data(&p[i]);
++			kfree(p);
++			return ERR_PTR(ret);
++		}
++	}
++
++	return p;
++}
++EXPORT_SYMBOL_GPL(property_entries_dup);
++
++/**
++ * property_entries_free - free previously allocated array of properties
++ * @properties: array of properties to destroy
++ *
++ * This function frees given NULL-terminated array of property entries,
++ * along with their data.
++ */
++void property_entries_free(const struct property_entry *properties)
++{
++	const struct property_entry *p;
++
++	if (!properties)
++		return;
++
++	for (p = properties; p->name; p++)
++		property_entry_free_data(p);
++
++	kfree(properties);
++}
++EXPORT_SYMBOL_GPL(property_entries_free);
++
+ /* -------------------------------------------------------------------------- */
+ /* fwnode operations */
+ 
+-- 
+2.19.1

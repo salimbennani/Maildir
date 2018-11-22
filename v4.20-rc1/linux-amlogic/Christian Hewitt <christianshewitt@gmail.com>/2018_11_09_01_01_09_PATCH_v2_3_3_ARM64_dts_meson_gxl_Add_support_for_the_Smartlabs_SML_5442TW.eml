@@ -1,0 +1,486 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 09 Nov 2018 00:36:26 -0000
+Received: from icoremail.net (unknown [209.85.214.181])
+	by mail-app2 (Coremail) with SMTP id by_KCgDXv2KNbORblnJhAQ--.29888S3;
+	Fri, 09 Nov 2018 01:04:16 +0800 (CST)
+Received: from mail-pl1-f181.google.com (unknown [209.85.214.181])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwDnvzuIbORbW8AdAA--.4252S3;
+	Fri, 09 Nov 2018 01:04:09 +0800 (CST)
+Received: by mail-pl1-f181.google.com with SMTP id n4-v6so9822559plp.2
+        for <xuliker@zju.edu.cn>; Thu, 08 Nov 2018 09:04:09 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:delivered-to:dkim-signature:from:cc:subject:date
+         :message-id:in-reply-to:references:to:sender:precedence:list-id;
+        bh=rjKn1moQFaaH9S1LDYn4F59NX7sI/amr+ztw14/cB3k=;
+        b=r2JTFynCzWpZ0nDwaeuwgPFcC8u8Ae2JOwSoDx3VzFLTsakvzdCKuF7AJzJqoTQPiM
+         +L+PlC914tG0293UNlAzkos8c+eTO8/XesbOVSmtOnzqb9fdADuxmDQgQSg6DWzQ7hNR
+         yfmCCxZWJ6oYhkq9fMfDeT0Y/pd7x9wmXCzursK4DOj1L9amy+ZFSYKEUcuu3whTAasq
+         JBbKkPHKHOrTHoRTmOnHzYuGB9yDhjNYPIo7vfDMAcXC3+YyHWLEecm5mTQGTlsws7/R
+         zOQRa93lGAenCzqu9/vSbjTh+NtIvCofNMyfl32wdl9Tv+ERMv0fnYm0lVgSjKc2t7b9
+         Q5NQ==
+X-Gm-Message-State: AGRZ1gKa9ml1um4LKFToc1s7oxnQ1TDhD39LLAikjII5MHyhXskrxFKv
+	q6JFuJMjUovUHJS5PQi1Rm5cIjdq94VJRIAk6lgIKR+qOF9Lk/vr1A==
+X-Received: by 2002:a17:902:bd4a:: with SMTP id b10-v6mr5160074plx.171.1541696648700;
+        Thu, 08 Nov 2018 09:04:08 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp446634pjt;
+        Thu, 8 Nov 2018 09:04:07 -0800 (PST)
+X-Google-Smtp-Source: AJdET5fHtUGz5G7cXV4KaWhw98eqcCeUyt45qpaCfVNfYtc+8fmWIGmozC/AIqdnrx/e7QE/64Kp
+X-Received: by 2002:a17:902:780f:: with SMTP id p15-v6mr5152644pll.197.1541696647078;
+        Thu, 08 Nov 2018 09:04:07 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1541696647; cv=none;
+        d=google.com; s=arc-20160816;
+        b=h8g2s9XmlyH/6FMANDjRSplQB3rwVyK6zMA2ItfOZMWg89bX9vgws9/jCXn2xelJtT
+         B3A8FcknSSNgZo99uX911JKGSDK+eV3dPtLu9YRIVzSrg4xI3w3zLL9QfK9Khc0o2/FB
+         X5BdlKkzbB7s5ICg3btkjh0she2RofqRtA+HCnVMRt9rAj6pH0cPhHhOplITm4eISFxa
+         JU3xpi1eVRNlLDyGliYZsrSq6UxJT70XV0uHqf9GYHC3MZ0Q/r012/6OJ0LSRL1oLVOW
+         DR8TssJIVk0OWyOuTHYG1ik/thsD/TMbT9rS6qhRhzGBmWRZrjhW3wDE5lGkrsyxpmBh
+         X3kg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:to:references:in-reply-to:message-id:date
+         :subject:cc:from:dkim-signature;
+        bh=rjKn1moQFaaH9S1LDYn4F59NX7sI/amr+ztw14/cB3k=;
+        b=Me6JWpixpB7TtWQnCFn33nt5iw54PHYaFwnNLjKbe9mcMyR/YFskN8G9HURo5SP9TP
+         s7ayhaVBrYTM4cLuLro143og2Eyg4gDQOR5NQ0mLmKkmyvgQ5eRGJnov1lXN0vHWpaOv
+         6ZXRuJnlVROlQQ/LUYLT4/Xpyr9Eae4NjM+gWesFHi/pSeG0Az+LkMSWzuYyRXMO+aul
+         Rg1vL1mazk7VsprP0+zBJ6ZIyASyrlMzQmldC59ehFLNIOGwUHSIu9xTgsOgAgSujx9l
+         4w6rnKP382uJYhjp5DswyVhCWEFGgGXiVK6wqO/QHiuLADQgabK4c7C5WI6yvwTvakim
+         yKUA==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=fail header.i=@gmail.com header.s=20161025 header.b="g/wrElMW";
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;
+       dmarc=fail (p=NONE sp=QUARANTINE dis=NONE) header.from=gmail.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id 1-v6si4707911pla.38.2018.11.08.09.03.42;
+        Thu, 08 Nov 2018 09:04:07 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1727180AbeKICiw (ORCPT <rfc822;ankurbansal210989@gmail.com>
+        + 99 others); Thu, 8 Nov 2018 21:38:52 -0500
+Received: from mail-qk1-f195.google.com ([209.85.222.195]:40985 "EHLO
+        mail-qk1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726585AbeKICiw (ORCPT
+        <rfc822;linux-kernel@vger.kernel.org>);
+        Thu, 8 Nov 2018 21:38:52 -0500
+Received: by mail-qk1-f195.google.com with SMTP id 189so27675063qkj.8;
+        Thu, 08 Nov 2018 09:02:28 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references;
+        bh=rjKn1moQFaaH9S1LDYn4F59NX7sI/amr+ztw14/cB3k=;
+        b=g/wrElMW8wkY/xPJjrrLbD9GAozEgF/yG/MMULf2ih25XnP390Xja2aW1RW+JMn1BW
+         8h1jf3KB+ekD99izSg0v/4Njf/axCZzdaHoCRT94jq6cqhU6gK5x59obb63XP/xvH8Yf
+         k8r28lA+QMIpvuk6PmRKwkOzrn+HehoDOybAph15/c0yjgeF9GtuPcdgZAnakYOIK1MA
+         PbRyccYDmieVOtWfhr08Glo/JZBmWyaRu8uJr8U0WwygcCzNm5FhGFCSFxvdGf1F4PG1
+         gkv+LzV33lf8sGnP43ur8A5yAOVLouJ7s3P/JQJsgX6nQN56ofSqtllzvzdRvltY7Ohu
+         bZAg==
+X-Received: by 2002:ac8:1889:: with SMTP id s9mr5005205qtj.268.1541696547470;
+        Thu, 08 Nov 2018 09:02:27 -0800 (PST)
+Received: from localhost.localdomain ([50.224.228.202])
+        by smtp.gmail.com with ESMTPSA id 53-v6sm3172243qtw.52.2018.11.08.09.02.26
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
+        Thu, 08 Nov 2018 09:02:27 -0800 (PST)
+From: Christian Hewitt <christianshewitt@gmail.com>
+Cc: christianshewitt@gmail.com, Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Carlo Caione <carlo@caione.org>,
+        Kevin Hilman <khilman@baylibre.com>,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Neil Armstrong <narmstrong@baylibre.com>,
+        Jerome Brunet <jbrunet@baylibre.com>,
+        Jianxin Pan <jianxin.pan@amlogic.com>,
+        Thierry Reding <treding@nvidia.com>,
+        David Lechner <david@lechnology.com>,
+        =?UTF-8?q?Andreas=20F=C3=A4rber?= <afaerber@suse.de>,
+        =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>,
+        Johan Hovold <johan@kernel.org>, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-amlogic@lists.infradead.org
+Subject: [PATCH v2 3/3] ARM64: dts: meson-gxl: Add support for the Smartlabs SML-5442TW
+Date: Thu,  8 Nov 2018 21:01:09 +0400
+Message-Id: <1541696475-27454-4-git-send-email-christianshewitt@gmail.com>
+X-Mailer: git-send-email 2.7.4
+In-Reply-To: <1541696475-27454-1-git-send-email-christianshewitt@gmail.com>
+References: <1541691207-24768-1-git-send-email-christianshewitt@gmail.com>
+ <1541696475-27454-1-git-send-email-christianshewitt@gmail.com>
+To: unlisted-recipients:; (no To-header on input)
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwDnvzuIbORbW8AdAA--.4252S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW3Jr4DWw43Zr15Jry8ZFWxCrg_yoW3Zw1xpF
+	n3Grs5GFyfZryYyay5Zry2yFs5Gw1kCFZ7Cr1DWFW8CrZF9a4qy3s7trySvF98JFWkX3yf
+	ArZ5Cry2vFn2q3DanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUU9lb7Iv0xC_KF4lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2
+	z280aVAFwI0_Gr1j6F4UJwA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_Gr1j6F4UJwAS0I0E0x
+	vYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AK
+	xVWUJVWUGwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48Icx
+	kI7VAKI48JMx02cVCv0xWlc7CjxVAKzI0EY4vE52x082I5MxkI7II2jI8vz4vEwIxGrwCY
+	IxAIcVC0I7IYx2IY67AKxVW5JVW7JwCYIxAIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMx
+	vI42IY6I8E87Iv67AKxVW8Jr0_Cr1UMxvI42IY6I8E87Iv6xkF7I0E14v26r4UJVWxJr1l
+	42xK82IYc2Ij64vIr41l42xK82IY64kExVAvwVAq07x20xyl4x8a6x804xWl4I8I3I0E4I
+	kC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x8GjcxK67AKxVWUGVWU
+	WwC2zVAF1VAY17CE14v26r4a6rW5MIIYrxkI7VAKI48JMIIF0xvE42xK8VAvwI8IcIk0rV
+	W8JVW3JbIYCTnIWIevJa73UjIFyTuYvjxU-M5lUUUUU
+
+The Smartlabs SML-5442TW is broadly similar to the P231 reference design
+but with the following differences:
+
+- Yellow and Blue front-panel LEDs are available but disabled
+- Red/Green LED is used to signal off/on status
+- GPIOX_17 is set high to enable the QCA9377 wireless module
+- uart_AO can be accessed after opening the case; soldered pins exist
+
+Signed-off-by: Christian Hewitt <christianshewitt@gmail.com>
+---
+ arch/arm64/boot/dts/amlogic/Makefile               |   1 +
+ .../boot/dts/amlogic/meson-gxl-s905d-sml5442tw.dts | 316 +++++++++++++++++++++
+ 2 files changed, 317 insertions(+)
+ create mode 100644 arch/arm64/boot/dts/amlogic/meson-gxl-s905d-sml5442tw.dts
+
+diff --git a/arch/arm64/boot/dts/amlogic/Makefile b/arch/arm64/boot/dts/amlogic/Makefile
+index c31f29d6..37d7dbd 100644
+--- a/arch/arm64/boot/dts/amlogic/Makefile
++++ b/arch/arm64/boot/dts/amlogic/Makefile
+@@ -18,6 +18,7 @@ dtb-$(CONFIG_ARCH_MESON) += meson-gxl-s905x-nexbox-a95x.dtb
+ dtb-$(CONFIG_ARCH_MESON) += meson-gxl-s905x-p212.dtb
+ dtb-$(CONFIG_ARCH_MESON) += meson-gxl-s905d-p230.dtb
+ dtb-$(CONFIG_ARCH_MESON) += meson-gxl-s905d-p231.dtb
++dtb-$(CONFIG_ARCH_MESON) += meson-gxl-s905d-sml5442tw.dtb
+ dtb-$(CONFIG_ARCH_MESON) += meson-gxl-s805x-p241.dtb
+ dtb-$(CONFIG_ARCH_MESON) += meson-gxl-s905w-p281.dtb
+ dtb-$(CONFIG_ARCH_MESON) += meson-gxl-s905w-tx3-mini.dtb
+diff --git a/arch/arm64/boot/dts/amlogic/meson-gxl-s905d-sml5442tw.dts b/arch/arm64/boot/dts/amlogic/meson-gxl-s905d-sml5442tw.dts
+new file mode 100644
+index 0000000..a081984
+--- /dev/null
++++ b/arch/arm64/boot/dts/amlogic/meson-gxl-s905d-sml5442tw.dts
+@@ -0,0 +1,316 @@
++// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
++/*
++ * Copyright (c) 2016 Endless Computers, Inc.
++ * Author: Carlo Caione <carlo@endlessm.com>
++ * Copyright (c) 2018 BayLibre, SAS
++ * Author: Neil Armstrong <narmstrong@baylibre.com>
++ */
++
++/dts-v1/;
++
++#include "meson-gxl-s905d.dtsi"
++
++/ {
++	compatible = "smartlabs,sml5442tw", "amlogic,s905d", "amlogic,meson-gxl";
++	model = "Smartlabs SML-5442TW";
++
++	aliases {
++		serial0 = &uart_AO;
++		serial1 = &uart_A;
++		ethernet0 = &ethmac;
++	};
++
++	chosen {
++		stdout-path = "serial0:115200n8";
++	};
++
++	memory@0 {
++		device_type = "memory";
++		reg = <0x0 0x0 0x0 0x80000000>;
++	};
++
++	leds {
++		compatible = "gpio-leds";
++
++		yellow {
++			label = "sml5442tw:yellow";
++			gpios = <&gpio_ao GPIOAO_6 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++
++		blue {
++			label = "sml5442tw:blue";
++			gpios = <&gpio GPIODV_28 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++
++		green {
++			label = "sml5442tw:green";
++			gpios = <&gpio_ao GPIOAO_9 GPIO_ACTIVE_HIGH>;
++			default-state = "on";
++		};
++
++		red {
++			label = "sml5442tw:red";
++			gpios = <&gpio GPIODV_27 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++	};
++
++	hdmi_5v: regulator-hdmi-5v {
++		compatible = "regulator-fixed";
++
++		regulator-name = "HDMI_5V";
++		regulator-min-microvolt = <5000000>;
++		regulator-max-microvolt = <5000000>;
++
++		gpio = <&gpio GPIOH_3 GPIO_ACTIVE_HIGH>;
++		enable-active-high;
++		regulator-always-on;
++	};
++
++	vddio_ao18: regulator-vddio_ao18 {
++		compatible = "regulator-fixed";
++		regulator-name = "VDDIO_AO18";
++		regulator-min-microvolt = <1800000>;
++		regulator-max-microvolt = <1800000>;
++	};
++
++	vddio_boot: regulator-vddio_boot {
++		compatible = "regulator-fixed";
++		regulator-name = "VDDIO_BOOT";
++		regulator-min-microvolt = <1800000>;
++		regulator-max-microvolt = <1800000>;
++	};
++
++	vddao_3v3: regulator-vddao_3v3 {
++		compatible = "regulator-fixed";
++		regulator-name = "VDDAO_3V3";
++		regulator-min-microvolt = <3300000>;
++		regulator-max-microvolt = <3300000>;
++	};
++
++	vcc_3v3: regulator-vcc_3v3 {
++		compatible = "regulator-fixed";
++		regulator-name = "VCC_3V3";
++		regulator-min-microvolt = <3300000>;
++		regulator-max-microvolt = <3300000>;
++	};
++
++	emmc_pwrseq: emmc-pwrseq {
++		compatible = "mmc-pwrseq-emmc";
++		reset-gpios = <&gpio BOOT_9 GPIO_ACTIVE_LOW>;
++	};
++
++	wifi32k: wifi32k {
++		compatible = "pwm-clock";
++		#clock-cells = <0>;
++		clock-frequency = <32768>;
++		pwms = <&pwm_ef 0 30518 0>; /* PWM_E at 32.768KHz */
++	};
++
++	sdio_pwrseq: sdio-pwrseq {
++		compatible = "mmc-pwrseq-simple";
++		reset-gpios = <&gpio GPIOX_6 GPIO_ACTIVE_LOW>;
++		clocks = <&wifi32k>;
++		clock-names = "ext_clock";
++	};
++
++	cvbs-connector {
++		compatible = "composite-video-connector";
++
++		port {
++			cvbs_connector_in: endpoint {
++				remote-endpoint = <&cvbs_vdac_out>;
++			};
++		};
++	};
++
++	hdmi-connector {
++		compatible = "hdmi-connector";
++		type = "a";
++
++		port {
++			hdmi_connector_in: endpoint {
++				remote-endpoint = <&hdmi_tx_tmds_out>;
++			};
++		};
++	};
++
++	sound {
++		compatible = "simple-audio-card";
++		simple-audio-card,name = "meson-gx-audio";
++
++		simple-audio-card,dai-link@0 {
++			/* HDMI Output */
++			format = "i2s";
++			mclk-fs = <256>;
++			bitclock-master =  <&i2s_dai>;
++			frame-master = <&i2s_dai>;
++			plat {
++				sound-dai = <&aiu_i2s_dma>;
++			};
++
++			cpu {
++				sound-dai = <&i2s_dai>;
++			};
++
++			codec {
++				sound-dai = <&hdmi_tx>;
++			};
++		};
++	};
++};
++
++&cec_AO {
++	status = "okay";
++	pinctrl-0 = <&ao_cec_pins>;
++	pinctrl-names = "default";
++	hdmi-phandle = <&hdmi_tx>;
++};
++
++&cvbs_vdac_port {
++	cvbs_vdac_out: endpoint {
++		remote-endpoint = <&cvbs_connector_in>;
++	};
++};
++
++&ethmac {
++	status = "okay";
++	phy-mode = "rmii";
++	phy-handle = <&internal_phy>;
++};
++
++/* This will enable the bluetooth module */
++&gpio {
++	bt-en {
++		gpio-hog;
++		gpios = <GPIOX_17 GPIO_ACTIVE_HIGH>;
++		output-high;
++		line-name = "bt-en";
++	};
++};
++
++&hdmi_tx {
++	status = "okay";
++	pinctrl-0 = <&hdmi_hpd_pins>, <&hdmi_i2c_pins>;
++	pinctrl-names = "default";
++	hdmi-supply = <&hdmi_5v>;
++};
++
++&hdmi_tx_tmds_port {
++	hdmi_tx_tmds_out: endpoint {
++		remote-endpoint = <&hdmi_connector_in>;
++	};
++};
++
++&i2c_A {
++	status = "okay";
++	pinctrl-0 = <&i2c_a_pins>;
++	pinctrl-names = "default";
++};
++
++&internal_phy {
++	pinctrl-0 = <&eth_link_led_pins>, <&eth_act_led_pins>;
++	pinctrl-names = "default";
++};
++
++&ir {
++	status = "okay";
++	pinctrl-0 = <&remote_input_ao_pins>;
++	pinctrl-names = "default";
++	linux,rc-map-name = "rc-o2cz-khamsin";
++};
++
++&pwm_ef {
++	status = "okay";
++	pinctrl-0 = <&pwm_e_pins>;
++	pinctrl-names = "default";
++	clocks = <&clkc CLKID_FCLK_DIV4>;
++	clock-names = "clkin0";
++};
++
++&saradc {
++	status = "okay";
++	vref-supply = <&vddio_ao18>;
++};
++
++/* Wireless SDIO Module */
++&sd_emmc_a {
++	status = "okay";
++	pinctrl-0 = <&sdio_pins>;
++	pinctrl-1 = <&sdio_clk_gate_pins>;
++	pinctrl-names = "default", "clk-gate";
++	#address-cells = <1>;
++	#size-cells = <0>;
++
++	bus-width = <4>;
++	cap-sd-highspeed;
++	max-frequency = <100000000>;
++
++	non-removable;
++	disable-wp;
++
++	mmc-pwrseq = <&sdio_pwrseq>;
++
++	vmmc-supply = <&vddao_3v3>;
++	vqmmc-supply = <&vddio_boot>;
++};
++
++/* SD card */
++&sd_emmc_b {
++	status = "okay";
++	pinctrl-0 = <&sdcard_pins>;
++	pinctrl-1 = <&sdcard_clk_gate_pins>;
++	pinctrl-names = "default", "clk-gate";
++
++	bus-width = <4>;
++	cap-sd-highspeed;
++	max-frequency = <100000000>;
++	disable-wp;
++
++	cd-gpios = <&gpio CARD_6 GPIO_ACTIVE_HIGH>;
++	cd-inverted;
++
++	vmmc-supply = <&vddao_3v3>;
++	vqmmc-supply = <&vddio_boot>;
++};
++
++/* eMMC */
++&sd_emmc_c {
++	status = "okay";
++	pinctrl-0 = <&emmc_pins>, <&emmc_ds_pins>;
++	pinctrl-1 = <&emmc_clk_gate_pins>;
++	pinctrl-names = "default", "clk-gate";
++
++	bus-width = <8>;
++	cap-mmc-highspeed;
++	max-frequency = <100000000>;
++	non-removable;
++	disable-wp;
++	mmc-ddr-1_8v;
++	mmc-hs200-1_8v;
++
++	mmc-pwrseq = <&emmc_pwrseq>;
++	vmmc-supply = <&vcc_3v3>;
++	vqmmc-supply = <&vddio_boot>;
++};
++
++/* This is connected to the Bluetooth module: */
++&uart_A {
++	status = "okay";
++	pinctrl-0 = <&uart_a_pins>, <&uart_a_cts_rts_pins>;
++	pinctrl-names = "default";
++	uart-has-rtscts;
++};
++
++/* This UART is brought out to the debug header */
++&uart_AO {
++	status = "okay";
++	pinctrl-0 = <&uart_ao_a_pins>;
++	pinctrl-names = "default";
++};
++
++&usb0 {
++	status = "okay";
++};
+-- 
+2.7.4

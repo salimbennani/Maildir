@@ -1,0 +1,831 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (61.164.42.155:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 14 Nov 2018 14:46:40 -0000
+Received: from icoremail.net (unknown [209.85.215.170])
+	by mail-app2 (Coremail) with SMTP id by_KCgDXv5pNIexb12yQAQ--.43129S3;
+	Wed, 14 Nov 2018 21:21:18 +0800 (CST)
+Received: from mail-pg1-f170.google.com (unknown [209.85.215.170])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwDHqERKIexb69M+AA--.5299S3;
+	Wed, 14 Nov 2018 21:21:14 +0800 (CST)
+Received: by mail-pg1-f170.google.com with SMTP id n10-v6so7361667pgv.10
+        for <xuliker@zju.edu.cn>; Wed, 14 Nov 2018 05:21:14 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:delivered-to:dkim-signature:from:to:cc:subject
+         :date:message-id:organization:in-reply-to:references:mime-version
+         :sender:precedence:list-id;
+        bh=gm2IEqKRHkSl4d5JK3wI/Uee4TiP7OpWg1zaGgiKZrA=;
+        b=i/qC9U5Sm0nEwZKH/MY2tMhaUXvVpDhyL3ZuNLbxNmNKf4YjVe3F7FHL1tu27tfVml
+         OS2oyObjHiynvOqgKHjXrlRCMusLjQi+KOP32QqovmG1BDXKyy3txhci4hJrGVFWyWr/
+         JhxRfdHulXBAuqDDpi6nt34QydjzSeZ17C9bx5e9cJ6ua5PcCl30tQn5ZW6zrAXSWLq1
+         nUX3gz2HM1cf9nP5ElkhytrURN7Aagq1PrtVFsMNfstzNIRT691U2V0uVDvGWddsn2O7
+         z4VT4vA3feOGkQksGHCjPpdSslplTjhebXsX1eQ/pFWrJ+RMRRj/xt88JNrrR4FWqEh+
+         SX9g==
+X-Gm-Message-State: AGRZ1gIObL0Twr8d2I7PMaMVbC6dQ3Yiqkt3OrV2CjeiSWndxBtXmPe1
+	woehoUlrD0EQbjkNtwouN7000aOVwPF+aU5sSB3pBF7IAnwSTX2ULg==
+X-Received: by 2002:a63:460a:: with SMTP id t10-v6mr1743828pga.197.1542201674146;
+        Wed, 14 Nov 2018 05:21:14 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp5793536pjt;
+        Wed, 14 Nov 2018 05:21:12 -0800 (PST)
+X-Google-Smtp-Source: AJdET5dK9NR+taNxujHkqMSWM18YNfXu/cjf71b09TiYPmyuPxN21swcCmtq0Ws7CTZiaqev9w9z
+X-Received: by 2002:a63:504d:: with SMTP id q13mr1731349pgl.319.1542201672406;
+        Wed, 14 Nov 2018 05:21:12 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542201672; cv=none;
+        d=google.com; s=arc-20160816;
+        b=debeifnIG6R24dN11SSTc5zrPrgDHymfB1/U/ObZ1//n6eUobC+IMzgtIDu2Hlzs7l
+         JkH6sV9EuJSKpVL8zFXZpNuJXm0H0PD8jnuB/YGlUWXMsFij4GQLebrbKPS9fH9r0Cn1
+         Q/sv2lNYvXBO+H5VAngJOYlWkkAYBGtMhg+8jXUdSsnh4s0cuk1POyfJVOTmXq2PTAeM
+         FFlwOZIhVpS1TYQ00M6mlR6sZlTiTsly9B7Q0Ep4CcWyvm5bsJLeEjlPbECaIHwv2lrK
+         NQhbmqm6rJdZYLgy8O+7uFRZHHvFLm8ucNUfjNdDhPea6nkVYo4U9eY5S2NjCeqZxzch
+         voCg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:mime-version:references:in-reply-to
+         :organization:message-id:date:subject:cc:to:from:dkim-signature;
+        bh=gm2IEqKRHkSl4d5JK3wI/Uee4TiP7OpWg1zaGgiKZrA=;
+        b=CCH8wngAzu0fFLgUPGfXbI0cYeFHisyvtAlDqWTjd8dUYWt06yGQI5Ruqbp4A7gx6h
+         iSu5XirdcC1afy0aMF6eIcN6vMt4OJKikeLdQ3S8dWd4qzOrO6FU+Rns/IZ8h2nbYgKJ
+         wGfthX5MBb3pnConjEM9urpjjwvxBO5j1I/lfUDE09EbhUhd0U2DaKVyh2EO5pAw1cUX
+         bUUnrpCtZQyZKcdszqo4Yk/f9jrpfVqd4mK+/KbdpFCTdnJEAzJty6ogVDpkjLPj54ph
+         fN+uz68819CE6YCf2RIPZrgAvRCAzAkOwQWwF0u9z83bbGA1QVOx1evEhamtFzy/4OAA
+         kWyQ==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@kdab.com header.s=dkim header.b=d0PwgHa1;
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org;
+       dmarc=pass (p=QUARANTINE sp=QUARANTINE dis=NONE) header.from=kdab.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id l36-v6si17438231plg.436.2018.11.14.05.20.56;
+        Wed, 14 Nov 2018 05:21:11 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1732862AbeKNXYC (ORCPT <rfc822;docz2a@gmail.com> + 99 others);
+        Wed, 14 Nov 2018 18:24:02 -0500
+Received: from mail.kdab.com ([176.9.126.58]:30348 "EHLO mail.kdab.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727700AbeKNXYC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+        Wed, 14 Nov 2018 18:24:02 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kdab.com; h=
+ content-type:content-type:mime-version:references:in-reply-to
+ :organization:message-id:date:date:subject:subject:from:from; s=
+ dkim; t=1542201642; x=1543065643; bh=gm2IEqKRHkSl4d5JK3wI/Uee4Ti
+ P7OpWg1zaGgiKZrA=; b=d0PwgHa1Kieb5Hte7CF2C1aPb1QB3Rqa8LGY3Jv4Ga5
+ F8tq83n2NyMMhz+/OlxDzfw/e/P7XMBQqxVNTGJqq2zaW+o9pp6OVoBsVBJaNkXP
+ Ie/CwJEBSzJmDND+TWDLtrQvQbC0gvu4ntsFSa3ndWCyysXCb71tycHXu5rSJCl4
+ =
+X-Virus-Scanned: amavisd-new at kdab.com
+From: Milian Wolff <milian.wolff@kdab.com>
+To: Andi Kleen <ak@linux.intel.com>
+Cc: Travis Downs <travis.downs@gmail.com>, jolsa@redhat.com,
+        linux-kernel@vger.kernel.org, jolsa@kernel.org,
+        namhyung@kernel.org, linux-perf-users@vger.kernel.org,
+        acme@kernel.org
+Subject: Re: PEBS level 2/3 breaks dwarf unwinding! [WAS: Re: Broken dwarf
+ unwinding - wrong stack pointer register value?]
+Date: Wed, 14 Nov 2018 14:20:37 +0100
+Message-ID: <31474933.dcNFsqGoRn@agathebauer>
+Organization: KDAB
+In-Reply-To: <20181112032637.GG6218@tassilo.jf.intel.com>
+References: <2335309.gnWok9HYb4@agathebauer>
+ <CAOBGo4zirLiKX8VcROAE=kAD0+qkF0E-cBv9DtBiQr=_obDv5w@mail.gmail.com>
+ <20181112032637.GG6218@tassilo.jf.intel.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed; boundary="nextPart3837753.WZVqa5W98a";
+ micalg="sha256"; protocol="application/pkcs7-signature"
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwDHqERKIexb69M+AA--.5299S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoW3Jr13JrWxtFW8Wry8Cr1UGFg_yoW7ZrW5pr
+	WUuF9ayr4DtFsav347Zw1IgayfW34vyw4DArn8trnYvan8ZrnIgrW5Kr429r98WwnFqayI
+	yws5tFyDCa98ZaDanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUU0bIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUdIb7Iv0xC_Kw4lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_tr0E3s1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2
+	z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s0DM2vj62AExVA0xI
+	801c8C04v26x02cVCv0xWle2I262IYc4CY6c8Ij28IcVAaY2xG8wASzI0EjI02j7AqF2xK
+	xwAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_JrI_JrylYx0Ex4A2js
+	IE14v26r4j6F4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvEwIxGrwCjrcxKeVC0I2IY
+	awCjxxvEa2IrMxkF7I0Ew4C26cxK6c8Ij28IcwCY1Ik26cxK6xAEc7vF6xCjj44lc2xSY4
+	AK6IIF6ry8MxkI7II2jI8vz4vEwIxGrwCYIxAIcVC0I7IYx2IY67AKxVW8JVW5JwCYIxAI
+	cVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMxvI42IY6I8E87Iv67AKxVWxJr0_GcWlcIIF0x
+	vEx4A2jsIEc7CjxVAFwI0_Cr1j6rxdMxAIw28IcxkI7VAKI48JMxAIw28IcVAKzI0EY4vE
+	52x082I5MxCjnVCjjxCrMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr
+	0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWUtVW8ZwCIc40Y0x0E
+	wIxGrwCI42IY6xAIw20EY4v20xvaj40_JFI_Gr1l6VACY4xI67k04243AbIYCTnIWIevJa
+	73UjIFyTuYvjxUBppPUUUUU
+
+--nextPart3837753.WZVqa5W98a
+Content-Type: multipart/mixed; boundary="nextPart5412664.Fr9jt3Aeyc"
+Content-Transfer-Encoding: 7Bit
+
+This is a multi-part message in MIME format.
+
+--nextPart5412664.Fr9jt3Aeyc
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="iso-8859-1"
+
+On Montag, 12. November 2018 04:26:37 CET Andi Kleen wrote:
+> On Sat, Nov 10, 2018 at 09:50:05PM -0500, Travis Downs wrote:
+> >    On Sat, Nov 10, 2018 at 8:07 PM Andi Kleen <ak@linux.intel.com> wrot=
+e:
+> >      On Sat, Nov 10, 2018 at 04:42:48PM -0500, Travis Downs wrote:
+> >      > I guess this problem doesn't occur for LBR unwinding since the L=
+BR
+> >      > records are captured at the same
+> >      > moment in time as the PEBS record, so reflect the correct branch
+> >      > sequence.
+> >     =20
+> >      Actually it happens with LBRs too, but it always gives the backtra=
+ce
+> >      consistently at the PMI trigger point.
+> >   =20
+> >    That's weird - so the LBR records are from the PMI point, but the re=
+st
+> >    of
+> >    the PEBS record comes from the PEBS trigger point? Or the LBR isn't
+> >    part
+> >    of PEBS at all?
+>=20
+> LBR is not part of PEBS, but is collected separately in the PMI handler.
+>=20
+> >      > overhead calculations will be based on the captured stacks, I gu=
+ess
+> >      > -
+> >      > but when I annotate, will the values I see correspond to the PEBS
+> >      > IPs
+> >      > or the PMI IPs?
+> >     =20
+> >      Based on PEBS IPs.
+> >     =20
+> >      It would be a good idea to add a check to perf report
+> >      that the two IPs are different, and if they differ
+> >      add some indicator to the sample. This could be a new sort key,
+> >      although that would waste some space on the screen, or something
+> >      else.
+> >   =20
+> >    In the case that PEBS events are used, the IP will differ essentially
+> >    100%
+> >    of the time, right? That is, there will always be *some* skid.
+>=20
+> I wouldn't say that.  It depends on what the CPU is doing and the IPC
+> of the code.
+>=20
+> Also the backtrace inconsistency can only happen if the sample races with
+> function return. If you don't then the backtrace will point
+> to the correct function, even though the unwind IP is different.
+>=20
+> For example in the common case where you profile a long loop it
+> is unlikely to happen.
+>=20
+> >    indicating otherwise above), I could imagine a hybrid mode where LBR=
+ is
+> >    used to go back some number of calls and then dwarf or FP or whatever
+> >    unwinding takes over, because the further down the stack you do the
+> >    more
+> >    likely the PEBS trigger point and PMI point are likely to have a
+> >    consistent stack.
+>=20
+> Could collect numbers how often it happens, but it would surprise
+> me if anything complicated is worth it. I would just do the minimum fixes
+> to address the unwinder errors, and perhaps add the "unwind ip differs"
+> indication.
+
+I now have a preliminary WIP patch up and running (see attached), which wor=
+ks=20
+for my usecase and improves perf noticeably. All traces of "unknown" frames=
+=20
+are eradicated, i.e. unwinding now works for 100% of the samples!
+
+There are some remaining open questions on my side:
+
+1) Do we really want to change the API of perf_event_overflow_* and=20
+perf_event_output_* and adapt all its users? To me, it seems as if only PEB=
+S=20
+and IBS would want to pass distinct register sets for iregs and uregs. All=
+=20
+other users of the API would continue to pass the same set. Changing the=20
+central API produces a lot of churn for no good reason. Does anyone see an=
+=20
+alternative to this?
+
+The only alternative idea I have right now is to temporarily change the=20
+sample_type in __intel_pmu_pebs_event before we call perf_event_output /=20
+perf_event_overflow. I.e. unset PERF_SAMPLE_REGS_INTR, then sample the regs=
+=20
+manually from iregs before calling perf_event_{overflow,output}, then set=20
+PERF_SAPMLE_REGS_INTR again. Or we could introduce a custom flag similar to=
+=20
+__PERF_SAMPLE_CALLCHAIN_EARLY here...
+
+2) How do we want to do =BBthe "unwind ip differs" indication=AB as Andi pu=
+ts it?=20
+I.e. on the perf report/script side, how should we display the stacks?=20
+Something like the following annotation maybe?
+
+
+```
+cpp-inlining  2605 [-01]    57.870061:     701199 cycles:pppu:=20
+           7fc1042797b4 __hypot_finite+0x154 (/usr/lib/libm-2.28.so)
+           7fc10425faf8 hypotf32x+0x18 (/usr/lib/libm-2.28.so) (unwind ip=20
+differs)
+           5622c7452128 main+0x88 (/tmp/cpp-inlining)
+           7fc104096222 __libc_start_main+0xf2 (/usr/lib/libc-2.28.so)
+           5622c74521ed _start+0x2d (/tmp/cpp-inlining)
+```
+
+3) I suggest we always keep the first frame and sample IP from the user reg=
+s,=20
+i.e. the accurate PEBS/IBS IP. Then we add the following frames from unwind=
+ing=20
+the ustack with the iregs. But what do we do with the first iregs IP? If we=
+=20
+add it, then we could see the same frame with slightly different IP, like i=
+n=20
+the following, which is undesired I believe:
+
+
+```
+cpp-inlining  2605 [-01]    57.870061:     701199 cycles:pppu:=20
+           7fc1042797b4 __hypot_finite+0x154 (/usr/lib/libm-2.28.so)
+           7fc1042797b5 __hypot_finite+0x155 (/usr/lib/libm-2.28.so)
+           7fc10425faf8 hypotf32x+0x18 (/usr/lib/libm-2.28.so) (unwind ip=20
+differs)
+           5622c7452128 main+0x88 (/tmp/cpp-inlining)
+           7fc104096222 __libc_start_main+0xf2 (/usr/lib/libc-2.28.so)
+           5622c74521ed _start+0x2d (/tmp/cpp-inlining)
+```
+
+But always skipping the IP is also sometimes wrong, like in this case:
+
+```
+cpp-inlining  2605 [-01]    57.862313:     694984 cycles:pppu:=20
+           7fc1042797b9 __hypot_finite+0x159 (/usr/lib/libm-2.28.so)
+           5622c7452128 main+0x88 (/tmp/cpp-inlining)
+           7fc104096222 __libc_start_main+0xf2 (/usr/lib/libc-2.28.so)
+           5622c74521ed _start+0x2d (/tmp/cpp-inlining)
+```
+
+Here, we are missing the hypotf32x call inbetween __hypot_finite and main.
+
+Do we want to introduce some heuristic on how handle these scenarios? I.e. =
+if=20
+uregs->ip and iregs->ip point to the same function symbol, then skip the fr=
+ame=20
+for iregs->ip, otherwise add it?
+
+Thanks
+=2D-=20
+Milian Wolff | milian.wolff@kdab.com | Senior Software Engineer
+KDAB (Deutschland) GmbH, a KDAB Group company
+Tel: +49-30-521325470
+KDAB - The Qt, C++ and OpenGL Experts
+--nextPart5412664.Fr9jt3Aeyc
+Content-Disposition: attachment; filename="0001-WIP-perf-make-it-possible-to-collect-both-iregs-and-.patch"
+Content-Transfer-Encoding: 7Bit
+Content-Type: text/x-patch; charset="UTF-8"; name="0001-WIP-perf-make-it-possible-to-collect-both-iregs-and-.patch"
+
+From 422d2a95eff344407ec425f0de55b264841d1757 Mon Sep 17 00:00:00 2001
+From: Milian Wolff <milian.wolff@kdab.com>
+Date: Wed, 14 Nov 2018 14:10:47 +0100
+Subject: [PATCH 1/2] [WIP] perf: make it possible to collect both, iregs and
+ uregs
+
+Previously, only one set of registers was stored in the perf
+data for both, user and interrupt registers. Now, two distinct
+sets can be sampled.
+
+Signed-off-by: Milian Wolff <milian.wolff@kdab.com>
+Cc: Arnaldo Carvalho de Melo <acme@kernel.org>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+---
+ arch/x86/events/amd/ibs.c        |  2 +-
+ arch/x86/events/core.c           |  2 +-
+ arch/x86/events/intel/core.c     |  2 +-
+ arch/x86/events/intel/ds.c       |  7 +++----
+ arch/x86/events/intel/knc.c      |  2 +-
+ arch/x86/events/intel/p4.c       |  2 +-
+ arch/x86/kernel/ptrace.c         |  2 +-
+ arch/x86/kvm/pmu.c               |  4 ++--
+ drivers/oprofile/nmi_timer_int.c |  2 +-
+ include/linux/perf_event.h       | 18 +++++++++++------
+ kernel/events/core.c             | 34 ++++++++++++++++----------------
+ kernel/trace/bpf_trace.c         |  2 +-
+ kernel/watchdog_hld.c            |  2 +-
+ 13 files changed, 43 insertions(+), 38 deletions(-)
+
+diff --git a/arch/x86/events/amd/ibs.c b/arch/x86/events/amd/ibs.c
+index d50bb4dc0650..567db8878511 100644
+--- a/arch/x86/events/amd/ibs.c
++++ b/arch/x86/events/amd/ibs.c
+@@ -670,7 +670,7 @@ static int perf_ibs_handle_irq(struct perf_ibs *perf_ibs, struct pt_regs *iregs)
+ 		data.raw = &raw;
+ 	}
+ 
+-	throttle = perf_event_overflow(event, &data, &regs);
++	throttle = perf_event_overflow(event, &data, &regs, iregs);
+ out:
+ 	if (throttle)
+ 		perf_ibs_stop(event, 0);
+diff --git a/arch/x86/events/core.c b/arch/x86/events/core.c
+index 106911b603bd..acdcafa57ca0 100644
+--- a/arch/x86/events/core.c
++++ b/arch/x86/events/core.c
+@@ -1493,7 +1493,7 @@ int x86_pmu_handle_irq(struct pt_regs *regs)
+ 		if (!x86_perf_event_set_period(event))
+ 			continue;
+ 
+-		if (perf_event_overflow(event, &data, regs))
++		if (perf_event_overflow(event, &data, regs, regs))
+ 			x86_pmu_stop(event, 0);
+ 	}
+ 
+diff --git a/arch/x86/events/intel/core.c b/arch/x86/events/intel/core.c
+index 273c62e81546..2156620b3d9e 100644
+--- a/arch/x86/events/intel/core.c
++++ b/arch/x86/events/intel/core.c
+@@ -2299,7 +2299,7 @@ static int handle_pmi_common(struct pt_regs *regs, u64 status)
+ 		if (has_branch_stack(event))
+ 			data.br_stack = &cpuc->lbr_stack;
+ 
+-		if (perf_event_overflow(event, &data, regs))
++		if (perf_event_overflow(event, &data, regs, regs))
+ 			x86_pmu_stop(event, 0);
+ 	}
+ 
+diff --git a/arch/x86/events/intel/ds.c b/arch/x86/events/intel/ds.c
+index b7b01d762d32..018fc0649033 100644
+--- a/arch/x86/events/intel/ds.c
++++ b/arch/x86/events/intel/ds.c
+@@ -639,7 +639,7 @@ int intel_pmu_drain_bts_buffer(void)
+ 	 * the sample.
+ 	 */
+ 	rcu_read_lock();
+-	perf_prepare_sample(&header, &data, event, &regs);
++	perf_prepare_sample(&header, &data, event, &regs, &regs);
+ 
+ 	if (perf_output_begin(&handle, event, header.size *
+ 			      (top - base - skip)))
+@@ -1273,7 +1273,6 @@ static void setup_pebs_sample_data(struct perf_event *event,
+ 		set_linear_ip(regs, pebs->ip);
+ 	}
+ 
+-
+ 	if ((sample_type & (PERF_SAMPLE_ADDR | PERF_SAMPLE_PHYS_ADDR)) &&
+ 	    x86_pmu.intel_cap.pebs_format >= 1)
+ 		data->addr = pebs->dla;
+@@ -1430,7 +1429,7 @@ static void __intel_pmu_pebs_event(struct perf_event *event,
+ 
+ 	while (count > 1) {
+ 		setup_pebs_sample_data(event, iregs, at, &data, &regs);
+-		perf_event_output(event, &data, &regs);
++		perf_event_output(event, &data, &regs, iregs);
+ 		at += x86_pmu.pebs_record_size;
+ 		at = get_next_pebs_record_by_bit(at, top, bit);
+ 		count--;
+@@ -1442,7 +1441,7 @@ static void __intel_pmu_pebs_event(struct perf_event *event,
+ 	 * All but the last records are processed.
+ 	 * The last one is left to be able to call the overflow handler.
+ 	 */
+-	if (perf_event_overflow(event, &data, &regs)) {
++	if (perf_event_overflow(event, &data, &regs, iregs)) {
+ 		x86_pmu_stop(event, 0);
+ 		return;
+ 	}
+diff --git a/arch/x86/events/intel/knc.c b/arch/x86/events/intel/knc.c
+index 618001c208e8..9ea5a13af83f 100644
+--- a/arch/x86/events/intel/knc.c
++++ b/arch/x86/events/intel/knc.c
+@@ -252,7 +252,7 @@ static int knc_pmu_handle_irq(struct pt_regs *regs)
+ 
+ 		perf_sample_data_init(&data, 0, event->hw.last_period);
+ 
+-		if (perf_event_overflow(event, &data, regs))
++		if (perf_event_overflow(event, &data, regs, regs))
+ 			x86_pmu_stop(event, 0);
+ 	}
+ 
+diff --git a/arch/x86/events/intel/p4.c b/arch/x86/events/intel/p4.c
+index d32c0eed38ca..704457b5f49a 100644
+--- a/arch/x86/events/intel/p4.c
++++ b/arch/x86/events/intel/p4.c
+@@ -1037,7 +1037,7 @@ static int p4_pmu_handle_irq(struct pt_regs *regs)
+ 			continue;
+ 
+ 
+-		if (perf_event_overflow(event, &data, regs))
++		if (perf_event_overflow(event, &data, regs, regs))
+ 			x86_pmu_stop(event, 0);
+ 	}
+ 
+diff --git a/arch/x86/kernel/ptrace.c b/arch/x86/kernel/ptrace.c
+index ffae9b9740fd..13b2230e5e9b 100644
+--- a/arch/x86/kernel/ptrace.c
++++ b/arch/x86/kernel/ptrace.c
+@@ -499,7 +499,7 @@ static int genregs_set(struct task_struct *target,
+ 
+ static void ptrace_triggered(struct perf_event *bp,
+ 			     struct perf_sample_data *data,
+-			     struct pt_regs *regs)
++			     struct pt_regs *regs, struct pt_regs *iregs)
+ {
+ 	int i;
+ 	struct thread_struct *thread = &(current->thread);
+diff --git a/arch/x86/kvm/pmu.c b/arch/x86/kvm/pmu.c
+index 58ead7db71a3..b556b2d467e1 100644
+--- a/arch/x86/kvm/pmu.c
++++ b/arch/x86/kvm/pmu.c
+@@ -57,7 +57,7 @@ static void kvm_pmi_trigger_fn(struct irq_work *irq_work)
+ 
+ static void kvm_perf_overflow(struct perf_event *perf_event,
+ 			      struct perf_sample_data *data,
+-			      struct pt_regs *regs)
++			      struct pt_regs *regs, struct pt_regs *iregs)
+ {
+ 	struct kvm_pmc *pmc = perf_event->overflow_handler_context;
+ 	struct kvm_pmu *pmu = pmc_to_pmu(pmc);
+@@ -71,7 +71,7 @@ static void kvm_perf_overflow(struct perf_event *perf_event,
+ 
+ static void kvm_perf_overflow_intr(struct perf_event *perf_event,
+ 				   struct perf_sample_data *data,
+-				   struct pt_regs *regs)
++				   struct pt_regs *regs, struct pt_regs *iregs)
+ {
+ 	struct kvm_pmc *pmc = perf_event->overflow_handler_context;
+ 	struct kvm_pmu *pmu = pmc_to_pmu(pmc);
+diff --git a/drivers/oprofile/nmi_timer_int.c b/drivers/oprofile/nmi_timer_int.c
+index f343bd96609a..110dfef21420 100644
+--- a/drivers/oprofile/nmi_timer_int.c
++++ b/drivers/oprofile/nmi_timer_int.c
+@@ -28,7 +28,7 @@ static struct perf_event_attr nmi_timer_attr = {
+ 
+ static void nmi_timer_callback(struct perf_event *event,
+ 			       struct perf_sample_data *data,
+-			       struct pt_regs *regs)
++			       struct pt_regs *regs, struct pt_regs *iregs)
+ {
+ 	event->hw.interrupts = 0;       /* don't throttle interrupts */
+ 	oprofile_add_sample(regs, 0);
+diff --git a/include/linux/perf_event.h b/include/linux/perf_event.h
+index 53c500f0ca79..3a989c64c2c7 100644
+--- a/include/linux/perf_event.h
++++ b/include/linux/perf_event.h
+@@ -506,7 +506,8 @@ struct perf_sample_data;
+ 
+ typedef void (*perf_overflow_handler_t)(struct perf_event *,
+ 					struct perf_sample_data *,
+-					struct pt_regs *regs);
++					struct pt_regs *regs,
++					struct pt_regs *iregs);
+ 
+ /*
+  * Event capabilities. For event_caps and groups caps.
+@@ -966,21 +967,26 @@ extern void perf_output_sample(struct perf_output_handle *handle,
+ extern void perf_prepare_sample(struct perf_event_header *header,
+ 				struct perf_sample_data *data,
+ 				struct perf_event *event,
+-				struct pt_regs *regs);
++				struct pt_regs *regs,
++				struct pt_regs *iregs);
+ 
+ extern int perf_event_overflow(struct perf_event *event,
+ 				 struct perf_sample_data *data,
+-				 struct pt_regs *regs);
++				 struct pt_regs *regs,
++				 struct pt_regs *iregs);
+ 
+ extern void perf_event_output_forward(struct perf_event *event,
+ 				     struct perf_sample_data *data,
+-				     struct pt_regs *regs);
++				     struct pt_regs *regs,
++				     struct pt_regs *iregs);
+ extern void perf_event_output_backward(struct perf_event *event,
+ 				       struct perf_sample_data *data,
+-				       struct pt_regs *regs);
++				       struct pt_regs *regs,
++				       struct pt_regs *iregs);
+ extern void perf_event_output(struct perf_event *event,
+ 			      struct perf_sample_data *data,
+-			      struct pt_regs *regs);
++			      struct pt_regs *regs,
++			      struct pt_regs *iregs);
+ 
+ static inline bool
+ is_default_overflow_handler(struct perf_event *event)
+diff --git a/kernel/events/core.c b/kernel/events/core.c
+index 84530ab358c3..1b57602dc6d8 100644
+--- a/kernel/events/core.c
++++ b/kernel/events/core.c
+@@ -6369,7 +6369,7 @@ perf_callchain(struct perf_event *event, struct pt_regs *regs)
+ void perf_prepare_sample(struct perf_event_header *header,
+ 			 struct perf_sample_data *data,
+ 			 struct perf_event *event,
+-			 struct pt_regs *regs)
++			 struct pt_regs *regs, struct pt_regs *iregs)
+ {
+ 	u64 sample_type = event->attr.sample_type;
+ 
+@@ -6474,7 +6474,7 @@ void perf_prepare_sample(struct perf_event_header *header,
+ 		/* regs dump ABI info */
+ 		int size = sizeof(u64);
+ 
+-		perf_sample_regs_intr(&data->regs_intr, regs);
++		perf_sample_regs_intr(&data->regs_intr, iregs);
+ 
+ 		if (data->regs_intr.regs) {
+ 			u64 mask = event->attr.sample_regs_intr;
+@@ -6492,7 +6492,7 @@ void perf_prepare_sample(struct perf_event_header *header,
+ static __always_inline void
+ __perf_event_output(struct perf_event *event,
+ 		    struct perf_sample_data *data,
+-		    struct pt_regs *regs,
++		    struct pt_regs *regs, struct pt_regs *iregs,
+ 		    int (*output_begin)(struct perf_output_handle *,
+ 					struct perf_event *,
+ 					unsigned int))
+@@ -6503,7 +6503,7 @@ __perf_event_output(struct perf_event *event,
+ 	/* protect the callchain buffers */
+ 	rcu_read_lock();
+ 
+-	perf_prepare_sample(&header, data, event, regs);
++	perf_prepare_sample(&header, data, event, regs, iregs);
+ 
+ 	if (output_begin(&handle, event, header.size))
+ 		goto exit;
+@@ -6519,25 +6519,25 @@ __perf_event_output(struct perf_event *event,
+ void
+ perf_event_output_forward(struct perf_event *event,
+ 			 struct perf_sample_data *data,
+-			 struct pt_regs *regs)
++			 struct pt_regs *regs, struct pt_regs *iregs)
+ {
+-	__perf_event_output(event, data, regs, perf_output_begin_forward);
++	__perf_event_output(event, data, regs, iregs, perf_output_begin_forward);
+ }
+ 
+ void
+ perf_event_output_backward(struct perf_event *event,
+ 			   struct perf_sample_data *data,
+-			   struct pt_regs *regs)
++			   struct pt_regs *regs, struct pt_regs *iregs)
+ {
+-	__perf_event_output(event, data, regs, perf_output_begin_backward);
++	__perf_event_output(event, data, regs, iregs, perf_output_begin_backward);
+ }
+ 
+ void
+ perf_event_output(struct perf_event *event,
+ 		  struct perf_sample_data *data,
+-		  struct pt_regs *regs)
++		  struct pt_regs *regs, struct pt_regs *iregs)
+ {
+-	__perf_event_output(event, data, regs, perf_output_begin);
++	__perf_event_output(event, data, regs, iregs, perf_output_begin);
+ }
+ 
+ /*
+@@ -7738,7 +7738,7 @@ int perf_event_account_interrupt(struct perf_event *event)
+ 
+ static int __perf_event_overflow(struct perf_event *event,
+ 				   int throttle, struct perf_sample_data *data,
+-				   struct pt_regs *regs)
++				   struct pt_regs *regs, struct pt_regs *iregs)
+ {
+ 	int events = atomic_read(&event->event_limit);
+ 	int ret = 0;
+@@ -7765,7 +7765,7 @@ static int __perf_event_overflow(struct perf_event *event,
+ 		perf_event_disable_inatomic(event);
+ 	}
+ 
+-	READ_ONCE(event->overflow_handler)(event, data, regs);
++	READ_ONCE(event->overflow_handler)(event, data, regs, iregs);
+ 
+ 	if (*perf_event_fasync(event) && event->pending_kill) {
+ 		event->pending_wakeup = 1;
+@@ -7777,9 +7777,9 @@ static int __perf_event_overflow(struct perf_event *event,
+ 
+ int perf_event_overflow(struct perf_event *event,
+ 			  struct perf_sample_data *data,
+-			  struct pt_regs *regs)
++			  struct pt_regs *regs, struct pt_regs *iregs)
+ {
+-	return __perf_event_overflow(event, 1, data, regs);
++	return __perf_event_overflow(event, 1, data, regs, iregs);
+ }
+ 
+ /*
+@@ -7842,7 +7842,7 @@ static void perf_swevent_overflow(struct perf_event *event, u64 overflow,
+ 
+ 	for (; overflow; overflow--) {
+ 		if (__perf_event_overflow(event, throttle,
+-					    data, regs)) {
++					    data, regs, regs)) {
+ 			/*
+ 			 * We inhibit the overflow from happening when
+ 			 * hwc->interrupts == MAX_INTERRUPTS.
+@@ -8550,7 +8550,7 @@ static void bpf_overflow_handler(struct perf_event *event,
+ 	if (!ret)
+ 		return;
+ 
+-	event->orig_overflow_handler(event, data, regs);
++	event->orig_overflow_handler(event, data, regs, regs);
+ }
+ 
+ static int perf_event_set_bpf_handler(struct perf_event *event, u32 prog_fd)
+@@ -9152,7 +9152,7 @@ static enum hrtimer_restart perf_swevent_hrtimer(struct hrtimer *hrtimer)
+ 
+ 	if (regs && !perf_exclude_event(event, regs)) {
+ 		if (!(event->attr.exclude_idle && is_idle_task(current)))
+-			if (__perf_event_overflow(event, 1, &data, regs))
++			if (__perf_event_overflow(event, 1, &data, regs, regs))
+ 				ret = HRTIMER_NORESTART;
+ 	}
+ 
+diff --git a/kernel/trace/bpf_trace.c b/kernel/trace/bpf_trace.c
+index 08fcfe440c63..6faf12fd6114 100644
+--- a/kernel/trace/bpf_trace.c
++++ b/kernel/trace/bpf_trace.c
+@@ -392,7 +392,7 @@ __bpf_perf_event_output(struct pt_regs *regs, struct bpf_map *map,
+ 	if (unlikely(event->oncpu != cpu))
+ 		return -EOPNOTSUPP;
+ 
+-	perf_event_output(event, sd, regs);
++	perf_event_output(event, sd, regs, regs);
+ 	return 0;
+ }
+ 
+diff --git a/kernel/watchdog_hld.c b/kernel/watchdog_hld.c
+index 71381168dede..5f4e18d003bb 100644
+--- a/kernel/watchdog_hld.c
++++ b/kernel/watchdog_hld.c
+@@ -109,7 +109,7 @@ static struct perf_event_attr wd_hw_attr = {
+ /* Callback function for perf event subsystem */
+ static void watchdog_overflow_callback(struct perf_event *event,
+ 				       struct perf_sample_data *data,
+-				       struct pt_regs *regs)
++				       struct pt_regs *regs, struct pt_regs *iregs)
+ {
+ 	/* Ensure the watchdog never gets throttled */
+ 	event->hw.interrupts = 0;
+-- 
+2.19.1
+
+
+--nextPart5412664.Fr9jt3Aeyc
+Content-Disposition: attachment; filename="0002-WIP-perf-unwind-use-iregs-for-unwinding.patch"
+Content-Transfer-Encoding: 7Bit
+Content-Type: text/x-patch; charset="UTF-8"; name="0002-WIP-perf-unwind-use-iregs-for-unwinding.patch"
+
+From 721bb20a8a7d1ff2f7b062f8d92f50c743883d35 Mon Sep 17 00:00:00 2001
+From: Milian Wolff <milian.wolff@kdab.com>
+Date: Wed, 14 Nov 2018 14:18:56 +0100
+Subject: [PATCH 2/2] [WIP] perf unwind: use iregs for unwinding
+
+TODO: only use it if available
+TODO: figure out when to skip iregs->ip frame, and when
+to use it (e.g. when function for iregs->ip and uregs->ip
+differs?)
+
+Signed-off-by: Milian Wolff <milian.wolff@kdab.com>
+Cc: Arnaldo Carvalho de Melo <acme@kernel.org>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+---
+ tools/perf/util/unwind-libunwind-local.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/tools/perf/util/unwind-libunwind-local.c b/tools/perf/util/unwind-libunwind-local.c
+index 79f521a552cf..39f19673cc34 100644
+--- a/tools/perf/util/unwind-libunwind-local.c
++++ b/tools/perf/util/unwind-libunwind-local.c
+@@ -492,12 +492,12 @@ static int access_mem(unw_addr_space_t __maybe_unused as,
+ 	int ret;
+ 
+ 	/* Don't support write, probably not needed. */
+-	if (__write || !stack || !ui->sample->user_regs.regs) {
++	if (__write || !stack || !ui->sample->intr_regs.regs) {
+ 		*valp = 0;
+ 		return 0;
+ 	}
+ 
+-	ret = perf_reg_value(&start, &ui->sample->user_regs,
++	ret = perf_reg_value(&start, &ui->sample->intr_regs,
+ 			     LIBUNWIND__ARCH_REG_SP);
+ 	if (ret)
+ 		return ret;
+@@ -541,7 +541,7 @@ static int access_reg(unw_addr_space_t __maybe_unused as,
+ 		return 0;
+ 	}
+ 
+-	if (!ui->sample->user_regs.regs) {
++	if (!ui->sample->intr_regs.regs) {
+ 		*valp = 0;
+ 		return 0;
+ 	}
+@@ -550,7 +550,7 @@ static int access_reg(unw_addr_space_t __maybe_unused as,
+ 	if (id < 0)
+ 		return -EINVAL;
+ 
+-	ret = perf_reg_value(&val, &ui->sample->user_regs, id);
++	ret = perf_reg_value(&val, &ui->sample->intr_regs, id);
+ 	if (ret) {
+ 		pr_err("unwind: can't read reg %d\n", regnum);
+ 		return ret;
+@@ -716,7 +716,7 @@ static int _unwind__get_entries(unwind_entry_cb_t cb, void *arg,
+ 		.machine      = thread->mg->machine,
+ 	};
+ 
+-	if (!data->user_regs.regs)
++	if (!data->intr_regs.regs)
+ 		return -EINVAL;
+ 
+ 	if (max_stack <= 0)
+-- 
+2.19.1
+
+
+--nextPart5412664.Fr9jt3Aeyc--
+
+--nextPart3837753.WZVqa5W98a
+Content-Type: application/pkcs7-signature; name="smime.p7s"
+Content-Disposition: attachment; filename="smime.p7s"
+Content-Transfer-Encoding: base64
+
+MIAGCSqGSIb3DQEHAqCAMIACAQExDzANBglghkgBZQMEAgEFADCABgkqhkiG9w0BBwEAAKCCDEIw
+ggXmMIIDzqADAgECAhBqm+E4O/8ra58B1dm4p1JWMA0GCSqGSIb3DQEBDAUAMIGFMQswCQYDVQQG
+EwJHQjEbMBkGA1UECBMSR3JlYXRlciBNYW5jaGVzdGVyMRAwDgYDVQQHEwdTYWxmb3JkMRowGAYD
+VQQKExFDT01PRE8gQ0EgTGltaXRlZDErMCkGA1UEAxMiQ09NT0RPIFJTQSBDZXJ0aWZpY2F0aW9u
+IEF1dGhvcml0eTAeFw0xMzAxMTAwMDAwMDBaFw0yODAxMDkyMzU5NTlaMIGXMQswCQYDVQQGEwJH
+QjEbMBkGA1UECBMSR3JlYXRlciBNYW5jaGVzdGVyMRAwDgYDVQQHEwdTYWxmb3JkMRowGAYDVQQK
+ExFDT01PRE8gQ0EgTGltaXRlZDE9MDsGA1UEAxM0Q09NT0RPIFJTQSBDbGllbnQgQXV0aGVudGlj
+YXRpb24gYW5kIFNlY3VyZSBFbWFpbCBDQTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEB
+AL6znlesKHZ1QBbHOAOY08YYdiFQ8yV5C0y1oNF9Olg+nKcxLqf2NHbZhGra0D00SOTq9bus3/mx
+gUsg/Wh/eXQ0pnp8tZ8XZWAnlyKMpjL+qUByRjXCA6RQyDMqVaVUkbIr5SU0RDX/kSsKwer3H1pT
+/HUrBN0X8sKtPTdGX8XAWt/VdMLBrZBlgvnkCos+KQWWCo63OTTqRvaq8aWccm+KOMjTcE6s2mj6
+RkalweyDI7X+7U5lNo6jzC8RTXtVV4/Vwdax720YpMPJQaDaElmOupyTf1Qib+cpukNJnQmwygjD
+8m046DQkLnpXNCAGjuJy1F5NATksUsbfJAr7FLUCAwEAAaOCATwwggE4MB8GA1UdIwQYMBaAFLuv
+fgI9+qbxPISOre44mOzZMjLUMB0GA1UdDgQWBBSCr2yM+MX+lmF86B89K3FIXsSLwDAOBgNVHQ8B
+Af8EBAMCAYYwEgYDVR0TAQH/BAgwBgEB/wIBADARBgNVHSAECjAIMAYGBFUdIAAwTAYDVR0fBEUw
+QzBBoD+gPYY7aHR0cDovL2NybC5jb21vZG9jYS5jb20vQ09NT0RPUlNBQ2VydGlmaWNhdGlvbkF1
+dGhvcml0eS5jcmwwcQYIKwYBBQUHAQEEZTBjMDsGCCsGAQUFBzAChi9odHRwOi8vY3J0LmNvbW9k
+b2NhLmNvbS9DT01PRE9SU0FBZGRUcnVzdENBLmNydDAkBggrBgEFBQcwAYYYaHR0cDovL29jc3Au
+Y29tb2RvY2EuY29tMA0GCSqGSIb3DQEBDAUAA4ICAQB4XLKBKDRPPO5fVs6fl1bsj6JrF/bz9kkI
+BtTYLzXN30D+03Hj6OxCDBEaIeNmsBhrJmuubvyE7HtoSmR809AgcYboW+rcTNZ/8u/Hv+GTrNI/
+AhqX2/kiQNxmgUPt/eJPs92Qclj0HnVyy9TnSvGkSDU7I5Px+TbO+88G4zipA2psZaWeEykgzClZ
+lPz1FjTCkk77ZXp5cQYYexE6zeeN4/0OqqoAloFrjAF4o50YJafX8mnahjp3I2Y2mkjhk0xQfhNq
+bzlLWPoT3m7j7U26u7zg6swjOq8hITYc3/np5tM5aVyu6t99p17bTbY7+1RTWBviN9YJzK8HxzOb
+XYWBf/L+VGOYNsQDTxAk0Hbvb1j6KjUhg7fO294F29QIhhmiNOr84JHoy+fNLpfvYc/Q9EtFOI5I
+SYgOxLk3nD/whbUe9rmEQXLp8MB933Ij474gwwCPUpwv9mj2PMnXoc7mbrS22XUSeTwxCTP9bcmU
+dp4jmIoWfhQm7X9w/Zgddg+JZ/YnIHOwsGsaTUgj7fIvxqith7DoJC91WJ8Lce3CVJqb1XWeKIJ8
+4F7YLXZN0oa7TktYgDdmQVxYkZo1c5noaDKH9Oq9cbm/vOYRUM1cWcef20Wkyk5S/GFyyPJwG0fR
+1nRas3DqAf4cXxMiEKcff7PNa4M3RGTqH0pWR8p6EjCCBlQwggU8oAMCAQICEAf6KCF9+1doL2oE
+OTPysLwwDQYJKoZIhvcNAQELBQAwgZcxCzAJBgNVBAYTAkdCMRswGQYDVQQIExJHcmVhdGVyIE1h
+bmNoZXN0ZXIxEDAOBgNVBAcTB1NhbGZvcmQxGjAYBgNVBAoTEUNPTU9ETyBDQSBMaW1pdGVkMT0w
+OwYDVQQDEzRDT01PRE8gUlNBIENsaWVudCBBdXRoZW50aWNhdGlvbiBhbmQgU2VjdXJlIEVtYWls
+IENBMB4XDTE3MDUyMzAwMDAwMFoXDTIwMDUyMjIzNTk1OVowggFZMQswCQYDVQQGEwJTRTEPMA0G
+A1UEERMGNjgzIDMxMRIwEAYDVQQIEwlWYWVybWxhbmQxEDAOBgNVBAcTB0hhZ2ZvcnMxGDAWBgNV
+BAkTD05vcnJpbmdzIHZhZWcgMjEPMA0GA1UEEhMGQm94IDMwMSYwJAYDVQQKDB1LbGFyw6RsdmRh
+bGVucyBEYXRha29uc3VsdCBBQjEdMBsGA1UECxMUQSBLREFCIEdyb3VwIENvbXBhbnkxQzBBBgNV
+BAsMOklzc3VlZCB0aHJvdWdoIEtsYXLDpGx2ZGFsZW5zIERhdGFrb25zdWx0IEFCIEUtUEtJIE1h
+bmFnZXIxHzAdBgNVBAsTFkNvcnBvcmF0ZSBTZWN1cmUgRW1haWwxFTATBgNVBAMTDE1pbGlhbiBX
+b2xmZjEkMCIGCSqGSIb3DQEJARYVbWlsaWFuLndvbGZmQGtkYWIuY29tMIIBIjANBgkqhkiG9w0B
+AQEFAAOCAQ8AMIIBCgKCAQEAxrzfNBVvRbiAknuTBXuQnNm9sLIFLo0vbPB6kswk78A3tA++Zn5c
+lQUHhGlQq1cdYxagnUpqwvG3Sod15mPSOLkAPf/mabLN7p+lFbRaUP+97ZkTZtvb4BCC3osIEFI4
+G393OSFWqc2qmIPE/SwSASbAA20Fcaa2M6P1lhOk/ttUh2jIurTPF0wUycIA7lBddrOgaOA8e2m6
+iLTNHtlrfRbBaUX91D5ebY+UWmIjXSQ9+CtutMzBkwnF0rZKririvOkklg9VzEGNQVHrQfDF2s/U
+pOtmtuVSwElauGT/KALyCFuIrYC1pmaKH8S1xODJqiRaf6jH8E+KQzKjyM/ErwIDAQABo4IB1TCC
+AdEwHwYDVR0jBBgwFoAUgq9sjPjF/pZhfOgfPStxSF7Ei8AwHQYDVR0OBBYEFN+m99RtIuA1bSdw
+6b1brOX7X3AJMA4GA1UdDwEB/wQEAwIFoDAMBgNVHRMBAf8EAjAAMB0GA1UdJQQWMBQGCCsGAQUF
+BwMEBggrBgEFBQcDAjBGBgNVHSAEPzA9MDsGDCsGAQQBsjEBAgEDBTArMCkGCCsGAQUFBwIBFh1o
+dHRwczovL3NlY3VyZS5jb21vZG8ubmV0L0NQUzBaBgNVHR8EUzBRME+gTaBLhklodHRwOi8vY3Js
+LmNvbW9kb2NhLmNvbS9DT01PRE9SU0FDbGllbnRBdXRoZW50aWNhdGlvbmFuZFNlY3VyZUVtYWls
+Q0EuY3JsMIGLBggrBgEFBQcBAQR/MH0wVQYIKwYBBQUHMAKGSWh0dHA6Ly9jcnQuY29tb2RvY2Eu
+Y29tL0NPTU9ET1JTQUNsaWVudEF1dGhlbnRpY2F0aW9uYW5kU2VjdXJlRW1haWxDQS5jcnQwJAYI
+KwYBBQUHMAGGGGh0dHA6Ly9vY3NwLmNvbW9kb2NhLmNvbTAgBgNVHREEGTAXgRVtaWxpYW4ud29s
+ZmZAa2RhYi5jb20wDQYJKoZIhvcNAQELBQADggEBABf47LSJADqH+ow9INv3QM1NC/qq2bjxGvsZ
+68iD11VEUAFlsYfsVTgQqUirwPVTYenXtwVBELHZyywsui1JxL7HKQetLQegDDP/RyfjReVaWxhy
+3OpuItsgLVbru9QVgPifnoBFPtfZcwjeJDmeSbLT8oj4Rd0KYBOIve7WKvsfNPsNwfbLwY2zILkE
+LjxZcVi2AwZHDyab+dzL/3YcLuJj1lSawBGn7ilpcdZydlv4aye51pD/MemLIYLcylt+ImrmjnTV
+y+QlAHRF3s5FE8yAr+W1MBD/1bKZCSgFt8VQoAlz3hiQh8QqZp4Zl8WuVL4+mP/mT6VDEWgq/0Bo
+cukxggJuMIICagIBATCBrDCBlzELMAkGA1UEBhMCR0IxGzAZBgNVBAgTEkdyZWF0ZXIgTWFuY2hl
+c3RlcjEQMA4GA1UEBxMHU2FsZm9yZDEaMBgGA1UEChMRQ09NT0RPIENBIExpbWl0ZWQxPTA7BgNV
+BAMTNENPTU9ETyBSU0EgQ2xpZW50IEF1dGhlbnRpY2F0aW9uIGFuZCBTZWN1cmUgRW1haWwgQ0EC
+EAf6KCF9+1doL2oEOTPysLwwDQYJYIZIAWUDBAIBBQCggZMwGAYJKoZIhvcNAQkDMQsGCSqGSIb3
+DQEHATAcBgkqhkiG9w0BCQUxDxcNMTgxMTE0MTMyMDM4WjAoBgkqhkiG9w0BCQ8xGzAZMAsGCWCG
+SAFlAwQBAjAKBggqhkiG9w0DBzAvBgkqhkiG9w0BCQQxIgQg0gipB0fqcpm9m4hitixcIBEb3KAa
+vhO3SAK8iHHUtHwwDQYJKoZIhvcNAQEBBQAEggEAlAQveNICE4lsUV7S+Nfd6+YkfiMiOnSPzCjP
+g9W/DctBXrXbBRXwdWYbszspWxrAoHQfsQ2YwihduJEe5sUSHyOdbZq4YngwdBVpJZOWWioP0bvA
+L+s3VIFkpoUcX/jwWNq5TQdlE+EqfAGxPw8Pe+UDYaxDWZLVH9t5f+07UrbwTFaDZVKjiDWCRRCq
+KZ+dXbkpv9pooh7U48WYAYEKZIipOgThM0rr3cjXVdUSI+fcnHtIeSdQqCTiQRObM1mGjBZwQh+L
+GrhE2T5KjHqdXoaauaYjQdhbWOuCpw4VdKdoQK1AuEmUwNg/PMJV7KRR8+7UUb8EF31fE80TWYbH
+NgAAAAAAAA==
+
+
+--nextPart3837753.WZVqa5W98a--
+

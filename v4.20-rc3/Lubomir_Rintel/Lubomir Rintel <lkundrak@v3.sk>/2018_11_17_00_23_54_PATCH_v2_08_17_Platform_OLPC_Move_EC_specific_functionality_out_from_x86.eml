@@ -1,0 +1,615 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (61.164.42.155:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 17 Nov 2018 03:12:45 -0000
+Received: from icoremail.net (unknown [209.85.215.180])
+	by mail-app2 (Coremail) with SMTP id by_KCgDnX9+j7+5bSvqjAQ--.49086S3;
+	Sat, 17 Nov 2018 00:26:11 +0800 (CST)
+Received: from mail-pg1-f180.google.com (unknown [209.85.215.180])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwAnDEif7+5bbVxKAA--.375S3;
+	Sat, 17 Nov 2018 00:26:07 +0800 (CST)
+Received: by mail-pg1-f180.google.com with SMTP id z11so8183458pgu.0
+        for <xuliker@zju.edu.cn>; Fri, 16 Nov 2018 08:26:07 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding:sender:precedence:list-id;
+        bh=yWi31nCCVbpPdMAgsDfGbabarEmZ6hCjYK5uBMR4i18=;
+        b=sjAqVHaqHx+VMgJWY2XLV6x8IVkZkNNT4uaYQ3Xp0bsNqPIEgJOr3NiXGE1rtTaZ6H
+         LXa7xemKEsh28DJRdjKSRrbGKD+Vp8L5eyGdRNL8n9nsWQU9Hmnnacym+BLWmW6HVnNn
+         +gwTSK60LDrHfZ1EZRSutwxfAgTQF6kGuAnEz+3xXrXHsllTxHNrbCxACe5OgzytA+v9
+         bYjLUR9TaYuAohbju1u/dQVlOT8udUuq+Ywm1r+rLmiQ98VR1mkHBuMvDBgnZcWw4CkL
+         HwR7zJwF/Oxfzw5HOGu21KK7vgGubkN8vF9xljYJg32dPDItLWFOctzACFpMiNNuyB4n
+         tZnw==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org
+X-Gm-Message-State: AGRZ1gLCozUmcj/PvmnmHrKv7np6V9Sv1msFTtkvm9Ogm+atfb2GLVEd
+	CeS+rQAMKgYytGjLMrngYg93a/xEYkXSfzkFYw26hTHHXsWoqmI=
+X-Received: by 2002:a63:2c0e:: with SMTP id s14mr10790367pgs.132.1542385567255;
+        Fri, 16 Nov 2018 08:26:07 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:d106:0:0:0:0 with SMTP id l6-v6csp627534pju;
+        Fri, 16 Nov 2018 08:26:06 -0800 (PST)
+X-Google-Smtp-Source: AJdET5dcfaW4OwhAGjzkWz44Hh9Tgvn1zZv/IY2ZXf7Kz1Q+rbf46qwCtYY9HFLDCcdYAPibLuJ1
+X-Received: by 2002:a62:ce85:: with SMTP id y127mr6939063pfg.201.1542385566069;
+        Fri, 16 Nov 2018 08:26:06 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542385566; cv=none;
+        d=google.com; s=arc-20160816;
+        b=NN92cpy9C3UphTMtLgEvNbtxt0A7OBsyLRsMX+ukc/2PslV55scTJU2NDiqDQzQnAU
+         5fqd7zQWGrg/pSd4AucmElN3EokjSfAp9NGPDo+E1/6UuyjW9gmMSryS6OHcCwvYWzk2
+         76QUjCZbcJObXI1ELSiS7PAN2VCZ+PAnCwHjdQVVaEYVl8YVf/tI1nk6/NRoDFCPXodY
+         /E7U5/8QxltkG6HcB1BSzx09I7GutZKSKUk4g8rQSaYIPw83HqgYDEJcr1MFxFT0dH27
+         m0wVUz72XWSSPLnqy7gtFRChAE1cobpMQPoGujr2/w7lHF+Sp0QipUr4oIa39E5Oy2iE
+         cXxQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:content-transfer-encoding:mime-version
+         :references:in-reply-to:message-id:date:subject:cc:to:from;
+        bh=yWi31nCCVbpPdMAgsDfGbabarEmZ6hCjYK5uBMR4i18=;
+        b=ZWYfQF18AJVsSGAEqX3ckPXKVP+kPwYKyU9dZGii2J46jeBOMIT8cxfmosyW6/BDwU
+         dX0bnSneTXpNAgVAZNvWFsT+7mXihYo1Bx13y7aSAgvyqfm1MpPfnbngcK1dxqNiMiaW
+         Id1JLA7SFKFTFY726iIYYX7afYvq6AeWKF8wjNsjBF3YC7bXkQZbf837davsWUWRRMgk
+         auWK+v5mnPIBGX3kLamvYaJzdF0dhRw08jlVnFu9yRlqMiJ/eCiqSoYqyXHE827M8OGK
+         l/4fP+1FzLhpeONjn3YcmhACqnBGW6HI5cfGj/i5lLcPBu/VKtuFM4WyTmSOLulTVJrJ
+         BRaA==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id 20si29834208pgg.271.2018.11.16.08.25.51;
+        Fri, 16 Nov 2018 08:26:06 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S2390443AbeKQCi0 (ORCPT <rfc822;jroi.martin@gmail.com>
+        + 99 others); Fri, 16 Nov 2018 21:38:26 -0500
+Received: from shell.v3.sk ([90.176.6.54]:57173 "EHLO shell.v3.sk"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729200AbeKQCiZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+        Fri, 16 Nov 2018 21:38:25 -0500
+Received: from localhost (localhost [127.0.0.1])
+        by zimbra.v3.sk (Postfix) with ESMTP id 6813F52C54;
+        Fri, 16 Nov 2018 17:25:18 +0100 (CET)
+Received: from shell.v3.sk ([127.0.0.1])
+        by localhost (zimbra.v3.sk [127.0.0.1]) (amavisd-new, port 10032)
+        with ESMTP id YB1jV-Khf1rJ; Fri, 16 Nov 2018 17:24:36 +0100 (CET)
+Received: from localhost (localhost [127.0.0.1])
+        by zimbra.v3.sk (Postfix) with ESMTP id 6F42552A8F;
+        Fri, 16 Nov 2018 17:24:23 +0100 (CET)
+X-Virus-Scanned: amavisd-new at zimbra.v3.sk
+Received: from shell.v3.sk ([127.0.0.1])
+        by localhost (zimbra.v3.sk [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id Vw8B7yIMU27C; Fri, 16 Nov 2018 17:24:19 +0100 (CET)
+Received: from belphegor.brq.redhat.com (nat-pool-brq-t.redhat.com [213.175.37.10])
+        by zimbra.v3.sk (Postfix) with ESMTPSA id E06B652A9A;
+        Fri, 16 Nov 2018 17:24:16 +0100 (CET)
+From: Lubomir Rintel <lkundrak@v3.sk>
+To: Mark Brown <broonie@kernel.org>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Darren Hart <dvhart@infradead.org>,
+        Andy Shevchenko <andy@infradead.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        James Cameron <quozl@laptop.org>,
+        Sebastian Reichel <sre@kernel.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Eric Miao <eric.y.miao@gmail.com>,
+        Haojian Zhuang <haojian.zhuang@gmail.com>,
+        Daniel Mack <daniel@zonque.org>,
+        Robert Jarzmik <robert.jarzmik@free.fr>,
+        linux-spi@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        platform-driver-x86@vger.kernel.org, devel@driverdev.osuosl.org,
+        linux-pm@vger.kernel.org, Lubomir Rintel <lkundrak@v3.sk>
+Subject: [PATCH v2 08/17] Platform: OLPC: Move EC-specific functionality out from x86
+Date: Fri, 16 Nov 2018 17:23:54 +0100
+Message-Id: <20181116162403.49854-9-lkundrak@v3.sk>
+X-Mailer: git-send-email 2.19.1
+In-Reply-To: <20181116162403.49854-1-lkundrak@v3.sk>
+References: <20181116162403.49854-1-lkundrak@v3.sk>
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwAnDEif7+5bbVxKAA--.375S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvAXoW3Kr1xCw17ZrWrGFy8ZF43Wrg_yoW8Jr4Dto
+	WkZr13Z348WayfK3y0yF1DtFnxuF45A34DGwsYqryqgasrAF98trW2gr1DWa43Kwn0qw13
+	Ww1Sv3yrXFZrGayxn29KB7ZKAUJUUUUU529EdanIXcx71UUUUj7v73VFW2AGmfu7jjvjm3
+	AaLaJ3UjIYCTnIWjp_UUUO87k0a2IF6w4kM7kC6x804xWl14x267AKxVWUJVW8JwAFIxvE
+	14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK021l84ACjcxK6xIIjx
+	v20xvE14v26F1j6w1UM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26r4j6F4UM28EF7xvwVC2
+	z280aVAFwI0_Cr0_Gr1UM28EF7xvwVC2z280aVCY1x0267AKxVW8JVW8Jr1le2I262IYc4
+	CY6c8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_
+	Jr0_Jr4lYx0Ex4A2jsIE14v26r1j6r4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvY0x
+	0EwIxGrwCjxxvEa2IrMxkF7I0Ew4C26cxK6c8Ij28IcwCY1Ik26cxK6xAEc7vF6xCjj44l
+	c2xSY4AK6IIF6r1lc2IjII80xcxEwVAKI48JMxvI42IY6xIIjxv20xvE14v26r4j6ryUMx
+	vI42IY6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1lcIIF0xvEx4A2jsIE14v26r4j6F4UMxvI
+	42IY6I8E87Iv6xkF7I0E14v26r4j6r4UJwCF04k20xvY0x0EwIxGrwCF04k20xvEw4C26c
+	xK6c8Ij28IcwCF72vE77IF4wCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v2
+	6r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_GFv_WrylIxkGc2
+	Ij64vIr41lIxAIcVCF04k26cxKx2IYs7xG6r1I6r4UYxBIdaVFxhVjvjDU0xZFpf9x07bl
+	YFZUUUUU=
+
+Move the olpc-ec driver away from the X86 OLPC platform so that it could =
+be
+used by the ARM based laptops too. Notably, the driver for the OLPC batte=
+ry,
+which is also used on the ARM models, builds on this driver's interface.
+
+It is actually plaform independent: the OLPC EC commands with their argum=
+ent
+and responses are mostly the same despite the delivery mechanism is
+different.
+
+Signed-off-by: Lubomir Rintel <lkundrak@v3.sk>
+Acked-by: Pavel Machek <pavel@ucw.cz>
+
+---
+Changes since v1:
+- Cosmetic changes in line wrapping.
+- Remove an old extra copy of EC_SCI_* defines
+- Change version to u8
+- Explain which parts are platform independent are in the commit message
+
+ arch/x86/include/asm/olpc.h     |  31 ---------
+ arch/x86/platform/olpc/olpc.c   | 119 +++++---------------------------
+ drivers/platform/olpc/olpc-ec.c |  99 +++++++++++++++++++++++++-
+ include/linux/olpc-ec.h         |  32 ++++++++-
+ 4 files changed, 145 insertions(+), 136 deletions(-)
+
+diff --git a/arch/x86/include/asm/olpc.h b/arch/x86/include/asm/olpc.h
+index c2bf1de5d901..6fe76282aceb 100644
+--- a/arch/x86/include/asm/olpc.h
++++ b/arch/x86/include/asm/olpc.h
+@@ -9,12 +9,10 @@
+ struct olpc_platform_t {
+ 	int flags;
+ 	uint32_t boardrev;
+-	int ecver;
+ };
+=20
+ #define OLPC_F_PRESENT		0x01
+ #define OLPC_F_DCON		0x02
+-#define OLPC_F_EC_WIDE_SCI	0x04
+=20
+ #ifdef CONFIG_OLPC
+=20
+@@ -64,13 +62,6 @@ static inline int olpc_board_at_least(uint32_t rev)
+ 	return olpc_platform_info.boardrev >=3D rev;
+ }
+=20
+-extern void olpc_ec_wakeup_set(u16 value);
+-extern void olpc_ec_wakeup_clear(u16 value);
+-extern bool olpc_ec_wakeup_available(void);
+-
+-extern int olpc_ec_mask_write(u16 bits);
+-extern int olpc_ec_sci_query(u16 *sci_value);
+-
+ #else
+=20
+ static inline int machine_is_olpc(void)
+@@ -83,14 +74,6 @@ static inline int olpc_has_dcon(void)
+ 	return 0;
+ }
+=20
+-static inline void olpc_ec_wakeup_set(u16 value) { }
+-static inline void olpc_ec_wakeup_clear(u16 value) { }
+-
+-static inline bool olpc_ec_wakeup_available(void)
+-{
+-	return false;
+-}
+-
+ #endif
+=20
+ #ifdef CONFIG_OLPC_XO1_PM
+@@ -101,20 +84,6 @@ extern void olpc_xo1_pm_wakeup_clear(u16 value);
+=20
+ extern int pci_olpc_init(void);
+=20
+-/* SCI source values */
+-
+-#define EC_SCI_SRC_EMPTY	0x00
+-#define EC_SCI_SRC_GAME		0x01
+-#define EC_SCI_SRC_BATTERY	0x02
+-#define EC_SCI_SRC_BATSOC	0x04
+-#define EC_SCI_SRC_BATERR	0x08
+-#define EC_SCI_SRC_EBOOK	0x10	/* XO-1 only */
+-#define EC_SCI_SRC_WLAN		0x20	/* XO-1 only */
+-#define EC_SCI_SRC_ACPWR	0x40
+-#define EC_SCI_SRC_BATCRIT	0x80
+-#define EC_SCI_SRC_GPWAKE	0x100	/* XO-1.5 only */
+-#define EC_SCI_SRC_ALL		0x1FF
+-
+ /* GPIO assignments */
+=20
+ #define OLPC_GPIO_MIC_AC	1
+diff --git a/arch/x86/platform/olpc/olpc.c b/arch/x86/platform/olpc/olpc.=
+c
+index f0e920fb98ad..c6c62b4f251f 100644
+--- a/arch/x86/platform/olpc/olpc.c
++++ b/arch/x86/platform/olpc/olpc.c
+@@ -30,9 +30,6 @@
+ struct olpc_platform_t olpc_platform_info;
+ EXPORT_SYMBOL_GPL(olpc_platform_info);
+=20
+-/* EC event mask to be applied during suspend (defining wakeup sources).=
+ */
+-static u16 ec_wakeup_mask;
+-
+ /* what the timeout *should* be (in ms) */
+ #define EC_BASE_TIMEOUT 20
+=20
+@@ -186,83 +183,6 @@ static int olpc_xo1_ec_cmd(u8 cmd, u8 *inbuf, size_t=
+ inlen, u8 *outbuf,
+ 	return ret;
+ }
+=20
+-void olpc_ec_wakeup_set(u16 value)
+-{
+-	ec_wakeup_mask |=3D value;
+-}
+-EXPORT_SYMBOL_GPL(olpc_ec_wakeup_set);
+-
+-void olpc_ec_wakeup_clear(u16 value)
+-{
+-	ec_wakeup_mask &=3D ~value;
+-}
+-EXPORT_SYMBOL_GPL(olpc_ec_wakeup_clear);
+-
+-/*
+- * Returns true if the compile and runtime configurations allow for EC e=
+vents
+- * to wake the system.
+- */
+-bool olpc_ec_wakeup_available(void)
+-{
+-	if (!machine_is_olpc())
+-		return false;
+-
+-	/*
+-	 * XO-1 EC wakeups are available when olpc-xo1-sci driver is
+-	 * compiled in
+-	 */
+-#ifdef CONFIG_OLPC_XO1_SCI
+-	if (olpc_platform_info.boardrev < olpc_board_pre(0xd0)) /* XO-1 */
+-		return true;
+-#endif
+-
+-	/*
+-	 * XO-1.5 EC wakeups are available when olpc-xo15-sci driver is
+-	 * compiled in
+-	 */
+-#ifdef CONFIG_OLPC_XO15_SCI
+-	if (olpc_platform_info.boardrev >=3D olpc_board_pre(0xd0)) /* XO-1.5 */
+-		return true;
+-#endif
+-
+-	return false;
+-}
+-EXPORT_SYMBOL_GPL(olpc_ec_wakeup_available);
+-
+-int olpc_ec_mask_write(u16 bits)
+-{
+-	if (olpc_platform_info.flags & OLPC_F_EC_WIDE_SCI) {
+-		__be16 ec_word =3D cpu_to_be16(bits);
+-		return olpc_ec_cmd(EC_WRITE_EXT_SCI_MASK, (void *) &ec_word, 2,
+-				   NULL, 0);
+-	} else {
+-		unsigned char ec_byte =3D bits & 0xff;
+-		return olpc_ec_cmd(EC_WRITE_SCI_MASK, &ec_byte, 1, NULL, 0);
+-	}
+-}
+-EXPORT_SYMBOL_GPL(olpc_ec_mask_write);
+-
+-int olpc_ec_sci_query(u16 *sci_value)
+-{
+-	int ret;
+-
+-	if (olpc_platform_info.flags & OLPC_F_EC_WIDE_SCI) {
+-		__be16 ec_word;
+-		ret =3D olpc_ec_cmd(EC_EXT_SCI_QUERY,
+-			NULL, 0, (void *) &ec_word, 2);
+-		if (ret =3D=3D 0)
+-			*sci_value =3D be16_to_cpu(ec_word);
+-	} else {
+-		unsigned char ec_byte;
+-		ret =3D olpc_ec_cmd(EC_SCI_QUERY, NULL, 0, &ec_byte, 1);
+-		if (ret =3D=3D 0)
+-			*sci_value =3D ec_byte;
+-	}
+-
+-	return ret;
+-}
+-EXPORT_SYMBOL_GPL(olpc_ec_sci_query);
+-
+ static bool __init check_ofw_architecture(struct device_node *root)
+ {
+ 	const char *olpc_arch;
+@@ -296,6 +216,10 @@ static bool __init platform_detect(void)
+ 	if (success) {
+ 		olpc_platform_info.boardrev =3D get_board_revision(root);
+ 		olpc_platform_info.flags |=3D OLPC_F_PRESENT;
++
++		pr_info("OLPC board revision %s%X\n",
++			((olpc_platform_info.boardrev & 0xf) < 8) ? "pre" : "",
++			olpc_platform_info.boardrev >> 4);
+ 	}
+=20
+ 	of_node_put(root);
+@@ -315,27 +239,8 @@ static int __init add_xo1_platform_devices(void)
+ 	return PTR_ERR_OR_ZERO(pdev);
+ }
+=20
+-static int olpc_xo1_ec_probe(struct platform_device *pdev)
+-{
+-	/* get the EC revision */
+-	olpc_ec_cmd(EC_FIRMWARE_REV, NULL, 0,
+-			(unsigned char *) &olpc_platform_info.ecver, 1);
+-
+-	/* EC version 0x5f adds support for wide SCI mask */
+-	if (olpc_platform_info.ecver >=3D 0x5f)
+-		olpc_platform_info.flags |=3D OLPC_F_EC_WIDE_SCI;
+-
+-	pr_info("OLPC board revision %s%X (EC=3D%x)\n",
+-			((olpc_platform_info.boardrev & 0xf) < 8) ? "pre" : "",
+-			olpc_platform_info.boardrev >> 4,
+-			olpc_platform_info.ecver);
+-
+-	return 0;
+-}
+ static int olpc_xo1_ec_suspend(struct platform_device *pdev)
+ {
+-	olpc_ec_mask_write(ec_wakeup_mask);
+-
+ 	/*
+ 	 * Squelch SCIs while suspended.  This is a fix for
+ 	 * <http://dev.laptop.org/ticket/1835>.
+@@ -359,15 +264,27 @@ static int olpc_xo1_ec_resume(struct platform_devic=
+e *pdev)
+ }
+=20
+ static struct olpc_ec_driver ec_xo1_driver =3D {
+-	.probe =3D olpc_xo1_ec_probe,
+ 	.suspend =3D olpc_xo1_ec_suspend,
+ 	.resume =3D olpc_xo1_ec_resume,
+ 	.ec_cmd =3D olpc_xo1_ec_cmd,
++#ifdef CONFIG_OLPC_XO1_SCI
++	/*
++	 * XO-1 EC wakeups are available when olpc-xo1-sci driver is
++	 * compiled in
++	 */
++	.wakeup_available =3D true,
++#endif
+ };
+=20
+ static struct olpc_ec_driver ec_xo1_5_driver =3D {
+-	.probe =3D olpc_xo1_ec_probe,
+ 	.ec_cmd =3D olpc_xo1_ec_cmd,
++#ifdef CONFIG_OLPC_XO1_5_SCI
++	/*
++	 * XO-1.5 EC wakeups are available when olpc-xo15-sci driver is
++	 * compiled in
++	 */
++	.wakeup_available =3D true,
++#endif
+ };
+=20
+ static int __init olpc_init(void)
+diff --git a/drivers/platform/olpc/olpc-ec.c b/drivers/platform/olpc/olpc=
+-ec.c
+index 9ee993d5d54b..2b80174b8f4b 100644
+--- a/drivers/platform/olpc/olpc-ec.c
++++ b/drivers/platform/olpc/olpc-ec.c
+@@ -30,6 +30,7 @@ struct ec_cmd_desc {
+=20
+ struct olpc_ec_priv {
+ 	struct olpc_ec_driver *drv;
++	u8 version;
+ 	struct work_struct worker;
+ 	struct mutex cmd_lock;
+=20
+@@ -39,6 +40,12 @@ struct olpc_ec_priv {
+=20
+ 	struct dentry *dbgfs_dir;
+=20
++	/*
++	 * EC event mask to be applied during suspend (defining wakeup
++	 * sources).
++	 */
++	u16 ec_wakeup_mask;
++
+ 	/*
+ 	 * Running an EC command while suspending means we don't always finish
+ 	 * the command before the machine suspends.  This means that the EC
+@@ -150,6 +157,88 @@ int olpc_ec_cmd(u8 cmd, u8 *inbuf, size_t inlen, u8 =
+*outbuf, size_t outlen)
+ }
+ EXPORT_SYMBOL_GPL(olpc_ec_cmd);
+=20
++void olpc_ec_wakeup_set(u16 value)
++{
++	struct olpc_ec_priv *ec =3D ec_priv;
++
++	if (WARN_ON(!ec))
++		return;
++
++	ec->ec_wakeup_mask |=3D value;
++}
++EXPORT_SYMBOL_GPL(olpc_ec_wakeup_set);
++
++void olpc_ec_wakeup_clear(u16 value)
++{
++	struct olpc_ec_priv *ec =3D ec_priv;
++
++	if (WARN_ON(!ec))
++		return;
++
++	ec->ec_wakeup_mask &=3D ~value;
++}
++EXPORT_SYMBOL_GPL(olpc_ec_wakeup_clear);
++
++int olpc_ec_mask_write(u16 bits)
++{
++	struct olpc_ec_priv *ec =3D ec_priv;
++
++	if (WARN_ON(!ec))
++		return -ENODEV;
++
++	/* EC version 0x5f adds support for wide SCI mask */
++	if (ec->version >=3D 0x5f) {
++		__be16 ec_word =3D cpu_to_be16(bits);
++
++		return olpc_ec_cmd(EC_WRITE_EXT_SCI_MASK, (void *) &ec_word, 2, NULL, =
+0);
++	} else {
++		unsigned char ec_byte =3D bits & 0xff;
++
++		return olpc_ec_cmd(EC_WRITE_SCI_MASK, &ec_byte, 1, NULL, 0);
++	}
++}
++EXPORT_SYMBOL_GPL(olpc_ec_mask_write);
++
++/*
++ * Returns true if the compile and runtime configurations allow for EC e=
+vents
++ * to wake the system.
++ */
++bool olpc_ec_wakeup_available(void)
++{
++	if (WARN_ON(!ec_driver))
++		return false;
++
++	return ec_driver->wakeup_available;
++}
++EXPORT_SYMBOL_GPL(olpc_ec_wakeup_available);
++
++int olpc_ec_sci_query(u16 *sci_value)
++{
++	struct olpc_ec_priv *ec =3D ec_priv;
++	int ret;
++
++	if (WARN_ON(!ec))
++		return -ENODEV;
++
++	/* EC version 0x5f adds support for wide SCI mask */
++	if (ec->version >=3D 0x5f) {
++		__be16 ec_word;
++
++		ret =3D olpc_ec_cmd(EC_EXT_SCI_QUERY, NULL, 0, (void *)&ec_word, 2);
++		if (ret =3D=3D 0)
++			*sci_value =3D be16_to_cpu(ec_word);
++	} else {
++		unsigned char ec_byte;
++
++		ret =3D olpc_ec_cmd(EC_SCI_QUERY, NULL, 0, &ec_byte, 1);
++		if (ret =3D=3D 0)
++			*sci_value =3D ec_byte;
++	}
++
++	return ret;
++}
++EXPORT_SYMBOL_GPL(olpc_ec_sci_query);
++
+ #ifdef CONFIG_DEBUG_FS
+=20
+ /*
+@@ -277,14 +366,16 @@ static int olpc_ec_probe(struct platform_device *pd=
+ev)
+ 	ec_priv =3D ec;
+ 	platform_set_drvdata(pdev, ec);
+=20
+-	err =3D ec_driver->probe ? ec_driver->probe(pdev) : 0;
++	/* get the EC revision */
++	err =3D olpc_ec_cmd(EC_FIRMWARE_REV, NULL, 0, &ec->version, 1);
+ 	if (err) {
+ 		ec_priv =3D NULL;
+ 		kfree(ec);
+-	} else {
+-		ec->dbgfs_dir =3D olpc_ec_setup_debugfs();
++		return err;
+ 	}
+=20
++	ec->dbgfs_dir =3D olpc_ec_setup_debugfs();
++
+ 	return err;
+ }
+=20
+@@ -294,6 +385,8 @@ static int olpc_ec_suspend(struct device *dev)
+ 	struct olpc_ec_priv *ec =3D platform_get_drvdata(pdev);
+ 	int err =3D 0;
+=20
++	olpc_ec_mask_write(ec->ec_wakeup_mask);
++
+ 	if (ec_driver->suspend)
+ 		err =3D ec_driver->suspend(pdev);
+ 	if (!err)
+diff --git a/include/linux/olpc-ec.h b/include/linux/olpc-ec.h
+index 79bdc6328c52..7fa3d27f7fee 100644
+--- a/include/linux/olpc-ec.h
++++ b/include/linux/olpc-ec.h
+@@ -16,14 +16,28 @@
+ #define EC_SCI_QUERY			0x84
+ #define EC_EXT_SCI_QUERY		0x85
+=20
++/* SCI source values */
++#define EC_SCI_SRC_EMPTY        0x00
++#define EC_SCI_SRC_GAME         0x01
++#define EC_SCI_SRC_BATTERY      0x02
++#define EC_SCI_SRC_BATSOC       0x04
++#define EC_SCI_SRC_BATERR       0x08
++#define EC_SCI_SRC_EBOOK        0x10    /* XO-1 only */
++#define EC_SCI_SRC_WLAN         0x20    /* XO-1 only */
++#define EC_SCI_SRC_ACPWR        0x40
++#define EC_SCI_SRC_BATCRIT      0x80
++#define EC_SCI_SRC_GPWAKE       0x100   /* XO-1.5 only */
++#define EC_SCI_SRC_ALL          0x1FF
++
+ struct platform_device;
+=20
+ struct olpc_ec_driver {
+-	int (*probe)(struct platform_device *);
+ 	int (*suspend)(struct platform_device *);
+ 	int (*resume)(struct platform_device *);
+=20
+ 	int (*ec_cmd)(u8, u8 *, size_t, u8 *, size_t, void *);
++
++	bool wakeup_available;
+ };
+=20
+ #ifdef CONFIG_OLPC
+@@ -33,11 +47,27 @@ extern void olpc_ec_driver_register(struct olpc_ec_dr=
+iver *drv, void *arg);
+ extern int olpc_ec_cmd(u8 cmd, u8 *inbuf, size_t inlen, u8 *outbuf,
+ 		size_t outlen);
+=20
++extern void olpc_ec_wakeup_set(u16 value);
++extern void olpc_ec_wakeup_clear(u16 value);
++
++extern int olpc_ec_mask_write(u16 bits);
++extern int olpc_ec_sci_query(u16 *sci_value);
++
++extern bool olpc_ec_wakeup_available(void);
++
+ #else
+=20
+ static inline int olpc_ec_cmd(u8 cmd, u8 *inbuf, size_t inlen, u8 *outbu=
+f,
+ 		size_t outlen) { return -ENODEV; }
+=20
++static inline void olpc_ec_wakeup_set(u16 value) { }
++static inline void olpc_ec_wakeup_clear(u16 value) { }
++
++static inline bool olpc_ec_wakeup_available(void)
++{
++	return false;
++}
++
+ #endif /* CONFIG_OLPC */
+=20
+ #endif /* _LINUX_OLPC_EC_H */
+--=20
+2.19.1

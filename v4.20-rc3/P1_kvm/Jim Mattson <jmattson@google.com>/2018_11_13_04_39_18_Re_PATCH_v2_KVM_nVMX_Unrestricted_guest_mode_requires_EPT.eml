@@ -1,0 +1,209 @@
+Return-Path: <kvm-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (124.160.105.205:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 13 Nov 2018 00:34:19 -0000
+Received: from icoremail.net (unknown [209.85.210.177])
+	by mail-app2 (Coremail) with SMTP id by_KCgDHHyY_5elb6xGAAQ--.39069S3;
+	Tue, 13 Nov 2018 04:40:31 +0800 (CST)
+Received: from mail-pf1-f177.google.com (unknown [209.85.210.177])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwDXt0M55elbE8czAA--.1535S3;
+	Tue, 13 Nov 2018 04:40:26 +0800 (CST)
+Received: by mail-pf1-f177.google.com with SMTP id g7-v6so4853044pfo.10
+        for <xuliker@zju.edu.cn>; Mon, 12 Nov 2018 12:40:25 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:delivered-to:dkim-signature:mime-version
+         :in-reply-to:references:from:date:message-id:subject:to:cc:sender
+         :precedence:list-id;
+        bh=BpAOyMF9tF3jjXi832BwAV0p2iWpMBXle/Hot6lIx0I=;
+        b=OmjI1nmnAPX6OUBJMF2IiZMpW0dtbuY/l+NaZiYSJZoy0IoYEho/0YGrXb6Jv1+w1H
+         DS9cH+JuUQPaGBrRKg68K8gC4N6oH/FKUDpEdMPkZVbRzghTS4ZCLvSUvs/hqwpJMjy5
+         WxW9cs6EQow5V6jXrxLde4hUGqkGy4Dgr2rus1LB0Nv8syBesTKKKMRR5LDrmQWzV1rP
+         s5qCAIiOe452FrOQhT9fQpwZ1bJtQTx0d+jnJdaeUTXZhlx/8CiSV4O3QoCbcoEkrBfu
+         vGvHm8MC6fcpoVLrtJYK+M32SdOFQRererhJu5uXQeFG1qoXVX2b0wVo8M2sHJna4gEg
+         oIeg==
+X-Gm-Message-State: AGRZ1gK8wd6fUB+hylOjdgFWKJRJvDOnhBObDkSZQ6LdBAqI3pzvcAUa
+	VYhNk0OB5kFcWFomMiC20Lznxz9CUQbAtdUFg+zc9ctrdxkw8S1+VQ==
+X-Received: by 2002:a62:da54:: with SMTP id w20-v6mr2313672pfl.106.1542055225653;
+        Mon, 12 Nov 2018 12:40:25 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:c304:0:0:0:0 with SMTP id g4-v6csp3652433pjt;
+        Mon, 12 Nov 2018 12:40:24 -0800 (PST)
+X-Google-Smtp-Source: AJdET5d9ze/cYS/ticiIwDi574b0+u9kRU1x6bGHR65WQTtzyFdkJboA7kRLj612ZT8dDpyuiR6U
+X-Received: by 2002:a63:1b48:: with SMTP id b8mr2127111pgm.187.1542055224819;
+        Mon, 12 Nov 2018 12:40:24 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542055224; cv=none;
+        d=google.com; s=arc-20160816;
+        b=tOl3PlLv+vQhxOleDzxgD5ndbtVT3/o7CwTqMyclet2tIQ6VGITNDCDAV3WYu+PzF4
+         jLqKUhi4MTnARysf0G+JFKUSZ83c0oy13UzsnHCSO1ILu43aNMpPsqny+EEcxX1+1QTz
+         UKIe3egaCTFiiYOhMLlJn7vAL12eQa+KSkU8Abr6XKy9z7h+PR11eRJuSDgva9SDr3US
+         1Wza+O6NDyoLN/Fn+YCH8G8YgrBfr6f9NQXkJxbheYs00KQUhzPBXOSoUka3037o7dsb
+         whZdDZItCVrjNONcb3TfnCwsobwjnGDmz0JLz1DCeNzFqxVEY66tmSs9S+yOr8ig54KP
+         z0Qg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:cc:to:subject:message-id:date:from
+         :references:in-reply-to:mime-version:dkim-signature;
+        bh=BpAOyMF9tF3jjXi832BwAV0p2iWpMBXle/Hot6lIx0I=;
+        b=frY2rPP0rrfpKNf95N/LJNrfhfGMBp6PXsJSAYm0HEh2/w9NdUcZwcLqdaVVCRIgpp
+         8OTPf1JRmx4M+yasCkKmfkqm8BHEL9CY6UGnwJwlzaHzbwCypJRR31TvAkVogsB2r/Ro
+         jVw4Zw9C6CI+aYds+LkqXXF4NkaahPu9SLAaI24bOgih/GwENqg4FTDLe7oLQUZj4CJo
+         AW4FfO1qEyztqe6lD+X3JyVriSFJLDdfsIO0jUgKVEAgenSOp2N87E6yd+Uv6DgUdubw
+         0MesdsPOuse7Iwg65nl8ntXyDlggUi0uR3vf6AoVEprNI7H2AzQGgEk70iZn2OVctvul
+         S8KQ==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@google.com header.s=20161025 header.b=Bft6cbR+;
+       spf=pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=kvm-owner@vger.kernel.org;
+       dmarc=pass (p=REJECT sp=REJECT dis=NONE) header.from=google.com
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id q16-v6si16562576pgb.266.2018.11.12.12.40.02;
+        Mon, 12 Nov 2018 12:40:24 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of kvm-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1728505AbeKMGeN (ORCPT <rfc822;fanshuming2011@gmail.com>
+        + 99 others); Tue, 13 Nov 2018 01:34:13 -0500
+Received: from mail-oi1-f193.google.com ([209.85.167.193]:40723 "EHLO
+        mail-oi1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725834AbeKMGeN (ORCPT <rfc822;kvm@vger.kernel.org>);
+        Tue, 13 Nov 2018 01:34:13 -0500
+Received: by mail-oi1-f193.google.com with SMTP id u130-v6so8342085oie.7
+        for <kvm@vger.kernel.org>; Mon, 12 Nov 2018 12:39:19 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=mime-version:in-reply-to:references:from:date:message-id:subject:to
+         :cc;
+        bh=BpAOyMF9tF3jjXi832BwAV0p2iWpMBXle/Hot6lIx0I=;
+        b=Bft6cbR+gebKvWb8Prh1ZhkjI/0NmZvJwXpb4X8JbfahjXL9xikhsMXa35ybEGaP+z
+         PVLrCPPolbbguqUUAHJYdDBRuvPJIJnzp7MRoDeDZmkOtAFR6ouzCssjy5iZwM/WyPI1
+         J2NwOGI8jBBWSfmr0ziTF/LSfGhLo91HJ0FDGE2+pl/xZy6C7NskafKLbrpHtw/hmkns
+         88TvbSOPAZZ+39MJHeeeZzWHqXSXgX/8XvoiQX+w8DOSsJjBfyxcOY8sXBrUjrq+sYe0
+         FhvsOn7OKaHO2J2aprpLeX1EyK8eM8stL43UblmedPKFxf4CQ4Y3r+zYbRl2jeh8Xnyo
+         eeCQ==
+X-Received: by 2002:aca:3389:: with SMTP id z131-v6mr1512022oiz.86.1542055159378;
+ Mon, 12 Nov 2018 12:39:19 -0800 (PST)
+MIME-Version: 1.0
+Received: by 2002:ac9:31a7:0:0:0:0:0 with HTTP; Mon, 12 Nov 2018 12:39:18
+ -0800 (PST)
+In-Reply-To: <CALMp9eRY=ZrMp=JZN-AhX9R=2oVuZ2+J4gGw-=a-Gw1Wk27BzQ@mail.gmail.com>
+References: <1537807916.8731.10.camel@intel.com> <20180924180543.227780-1-jmattson@google.com>
+ <CANRm+CygYM9K-gunbx4BCKPy4=nMmSep0OvRrNDCYgp+qbZunw@mail.gmail.com> <CALMp9eRY=ZrMp=JZN-AhX9R=2oVuZ2+J4gGw-=a-Gw1Wk27BzQ@mail.gmail.com>
+From: Jim Mattson <jmattson@google.com>
+Date: Mon, 12 Nov 2018 12:39:18 -0800
+Message-ID: <CALMp9eRvNG2VC4A1Vi1PcunngghNvDPRjcM10XU9qMzG59mU3Q@mail.gmail.com>
+Subject: Re: [PATCH v2] KVM: nVMX: Unrestricted guest mode requires EPT
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: kvm <kvm@vger.kernel.org>,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        Andrew Thornton <andrewth@google.com>,
+        Peter Shier <pshier@google.com>,
+        Wanpeng Li <kernellwp@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <kvm.vger.kernel.org>
+X-Mailing-List: kvm@vger.kernel.org
+X-CM-TRANSID: AQAAfwDXt0M55elbE8czAA--.1535S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoWxWFW5Gr4kGFW8trW3XFyfCrg_yoW5urWxpa
+	4kWFs0gFW0qFy3J34Iqrn8GrWavr92kFnrXrWjgF15Zr9FqFy7Jry3Kr1FkryUXF4Fkr4S
+	yF1jqa1fuw15G3DanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUBqb7Iv0xC_Zr1lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2
+	z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s0DM2AIxVAIcxkEcV
+	Aq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r10
+	6r15McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x0Yz7v_Jr0_Gr1l7I0Y6sxI4wCY1x
+	0264kExVAvwVAq07x20xylc7Ca8VAvwVCFzxkY4VCF77xAMxkIecxEwVCI4VW7MxkI7II2
+	jI8vz4vEwIxGrwCYIxAIcVC0I7IYx2IY67AKxVW8JVW5JwCYIxAIcVC0I7IYx2IY6xkF7I
+	0E14v26r4j6F4UMxvI42IY6I8E87Iv67AKxVW8Jr0_Cr1UMxvI42IY6I8E87Iv6xkF7I0E
+	14v26r4UJVWxJr1l42xK82IYc2Ij64vIr41l42xK82IY64kExVAvwVAq07x20xyl4x8a6x
+	804xWl4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x8G
+	jcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r126r1DMIIYrxkI7VAKI48JMIIF0xvE42
+	xK8VAvwI8IcIk0rVW3JVWrJrUvcSsGvfC2KfnxnUUI43ZEXa7IU5VnmtUUUUU==
+
+On Fri, Oct 12, 2018 at 9:32 AM, Jim Mattson <jmattson@google.com> wrote:
+> On Mon, Sep 24, 2018 at 7:39 PM, Wanpeng Li <kernellwp@gmail.com> wrote:
+>> On Tue, 25 Sep 2018 at 02:08, Jim Mattson <jmattson@google.com> wrote:
+>>>
+>>> As specified in Intel's SDM, do not allow the L1 hypervisor to launch
+>>> an L2 guest with the VM-execution controls for "unrestricted guest" or
+>>> "mode-based execute control for EPT" set and the VM-execution control
+>>> for "enable EPT" clear.
+>>>
+>>> Note that the VM-execution control for "mode-based execute control for
+>>> EPT" is not yet virtualized by kvm.
+>>>
+>>> Reported-by: Andrew Thornton <andrewth@google.com>
+>>> Signed-off-by: Jim Mattson <jmattson@google.com>
+>>> Reviewed-by: Peter Shier <pshier@google.com>
+>>
+>> Reviewed-by: Wanpeng Li <wanpengli@tencent.com>
+>>
+>>> ---
+>>>  arch/x86/include/asm/vmx.h |  1 +
+>>>  arch/x86/kvm/vmx.c         | 24 ++++++++++++++++++++++++
+>>>  2 files changed, 25 insertions(+)
+>>>
+>>> diff --git a/arch/x86/include/asm/vmx.h b/arch/x86/include/asm/vmx.h
+>>> index 9527ba5d62da..665632a4b54b 100644
+>>> --- a/arch/x86/include/asm/vmx.h
+>>> +++ b/arch/x86/include/asm/vmx.h
+>>> @@ -78,6 +78,7 @@
+>>>  #define SECONDARY_EXEC_RDSEED_EXITING          0x00010000
+>>>  #define SECONDARY_EXEC_ENABLE_PML               0x00020000
+>>>  #define SECONDARY_EXEC_XSAVES                  0x00100000
+>>> +#define SECONDARY_EXEC_MODE_BASED_EPT_EXEC     0x00400000
+>>>  #define SECONDARY_EXEC_TSC_SCALING              0x02000000
+>>>
+>>>  #define PIN_BASED_EXT_INTR_MASK                 0x00000001
+>>> diff --git a/arch/x86/kvm/vmx.c b/arch/x86/kvm/vmx.c
+>>> index 06412ba46aa3..b78607dd113c 100644
+>>> --- a/arch/x86/kvm/vmx.c
+>>> +++ b/arch/x86/kvm/vmx.c
+>>> @@ -11775,6 +11775,24 @@ static int nested_vmx_check_pml_controls(struct kvm_vcpu *vcpu,
+>>>         return 0;
+>>>  }
+>>>
+>>> +static int nested_vmx_check_unrestricted_guest_controls(struct kvm_vcpu *vcpu,
+>>> +                                                       struct vmcs12 *vmcs12)
+>>> +{
+>>> +       if (nested_cpu_has2(vmcs12, SECONDARY_EXEC_UNRESTRICTED_GUEST) &&
+>>> +           !nested_cpu_has_ept(vmcs12))
+>>> +               return -EINVAL;
+>>> +       return 0;
+>>> +}
+>>> +
+>>> +static int nested_vmx_check_mode_based_ept_exec_controls(struct kvm_vcpu *vcpu,
+>>> +                                                        struct vmcs12 *vmcs12)
+>>> +{
+>>> +       if (nested_cpu_has2(vmcs12, SECONDARY_EXEC_MODE_BASED_EPT_EXEC) &&
+>>> +           !nested_cpu_has_ept(vmcs12))
+>>> +               return -EINVAL;
+>>> +       return 0;
+>>> +}
+>>> +
+>>>  static int nested_vmx_check_shadow_vmcs_controls(struct kvm_vcpu *vcpu,
+>>>                                                  struct vmcs12 *vmcs12)
+>>>  {
+>>> @@ -12397,6 +12415,12 @@ static int check_vmentry_prereqs(struct kvm_vcpu *vcpu, struct vmcs12 *vmcs12)
+>>>         if (nested_vmx_check_pml_controls(vcpu, vmcs12))
+>>>                 return VMXERR_ENTRY_INVALID_CONTROL_FIELD;
+>>>
+>>> +       if (nested_vmx_check_unrestricted_guest_controls(vcpu, vmcs12))
+>>> +               return VMXERR_ENTRY_INVALID_CONTROL_FIELD;
+>>> +
+>>> +       if (nested_vmx_check_mode_based_ept_exec_controls(vcpu, vmcs12))
+>>> +               return VMXERR_ENTRY_INVALID_CONTROL_FIELD;
+>>> +
+>>>         if (nested_vmx_check_shadow_vmcs_controls(vcpu, vmcs12))
+>>>                 return VMXERR_ENTRY_INVALID_CONTROL_FIELD;
+>>>
+>>> --
+>>> 2.19.0.444.g18242da7ef-goog
+>>>
+>
+> Ping?
+
+Should I construe the continued silence as rejection?

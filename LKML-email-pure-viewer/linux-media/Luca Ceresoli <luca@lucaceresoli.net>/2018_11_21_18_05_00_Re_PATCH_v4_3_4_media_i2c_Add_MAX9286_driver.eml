@@ -1,0 +1,423 @@
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Delivered-To: unknown
+Received: from pop3.zju.edu.cn (61.164.42.155:110) by
+  likexu-MOBL1.ccr.corp.intel.com with POP3; 21 Nov 2018 11:01:09 -0000
+Received: from icoremail.net (unknown [209.85.214.182])
+	by mail-app2 (Coremail) with SMTP id by_KCgCn39ygL_VbGwXHAQ--.57598S3;
+	Wed, 21 Nov 2018 18:12:49 +0800 (CST)
+Received: from mail-pl1-f182.google.com (unknown [209.85.214.182])
+	by mx2.icoremail.net (Coremail) with SMTP id AQAAfwBXPEhrLvVbQcdiAA--.10974S3;
+	Wed, 21 Nov 2018 18:07:39 +0800 (CST)
+Received: by mail-pl1-f182.google.com with SMTP id b22-v6so4829458pls.7
+        for <xuliker@zju.edu.cn>; Wed, 21 Nov 2018 02:07:39 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding
+         :sender:precedence:list-id;
+        bh=NkYDkak1xguPKmaGSjoVaxDheEbL54dEz1Euu8f57hk=;
+        b=m4RYQvapNa0UjrovKkOei8qdB/+mC0VsmwTx6M8my3FBEgW5v9+u9O/KlROapc/PPY
+         bDd/eW1+UWBeiwabRQPImnAobbkdjmmAw+VrqQ3RYp9RePZkEtFaoi0aS0FphQnR/E8G
+         H5TkdvJwMqYSgPYXf2vEpOkNTAsL5VrVb19pMe6VfW+JAI+G4m8fJnKklOb6+9MW1IAk
+         U1W7FoLpYt5egDWsaGY+vcEYi1XlXI27mlDBSTsCrLLMDkU/O/jD4ZOaNLackR7EhrGz
+         hscOisxQSX6L3MiCsHE5ySGWwWi1IP0k1J9I2m8HMXL3PqMeC7IvZKCJ0mOIimo9QWpQ
+         Zfug==
+X-Original-Authentication-Results: mx.google.com;       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org
+X-Gm-Message-State: AA+aEWZQvZbJxoCODEJ4WQ5OIzaeYNh0muJFm19Gk/LcKdp+ufeLYxZb
+	2wuz8duTO19ElIraTCcXgXFLPzWlfC+9tcvg3QpqHllp5/eQ3sU=
+X-Received: by 2002:a17:902:8f97:: with SMTP id z23mr6204391plo.283.1542794859032;
+        Wed, 21 Nov 2018 02:07:39 -0800 (PST)
+X-Forwarded-To: xuliker@zju.edu.cn
+X-Forwarded-For: liker.xu@gmail.com xuliker@zju.edu.cn
+Delivered-To: liker.xu@gmail.com
+Received: by 2002:a17:90a:d106:0:0:0:0 with SMTP id l6-v6csp1743186pju;
+        Wed, 21 Nov 2018 02:07:33 -0800 (PST)
+X-Google-Smtp-Source: AFSGD/XkE/12WxQ47US74dUHPY0+Znu0MC74vr/v/iTFhuDgVLqA+MoLluUSG5RpH92ZVDKGB1Bp
+X-Received: by 2002:a63:e516:: with SMTP id r22mr5461656pgh.256.1542794853891;
+        Wed, 21 Nov 2018 02:07:33 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1542794853; cv=none;
+        d=google.com; s=arc-20160816;
+        b=Bgw1OLJbeYow/cyL9ZygOAtaUxsxZQnasYDAxu7aqJHRdJEJZhCMNsnNJEfh++vZJh
+         LWgImq/GZeZXycYBDzazVZygitWV5Q78/gTa1NTmF7f+9d9uHfO0Qir2EupSUAiCrjmG
+         o0upPK9qkxjH2jCCgfo9zFj6St3HESrZw9nWIb2/pV6L4yyJBcXFh3H/E9ix9XR0J0sq
+         3xaoJD4OThcnFFVdpYXVukRUK9OCcXfMZsIxwd63Fj+ov0FMcsjx5QsA4gKWP+cLXuyO
+         cUMZc4BkuWAFcbryEFHpHYN7gSqfj1xET4C4M3TnsWldvs5Vjcy0plfvgxXDX+6N0f0i
+         l3+Q==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=list-id:precedence:sender:content-transfer-encoding
+         :content-language:in-reply-to:mime-version:user-agent:date
+         :message-id:from:references:cc:to:subject;
+        bh=NkYDkak1xguPKmaGSjoVaxDheEbL54dEz1Euu8f57hk=;
+        b=ucEFb+xYhR87m1Jb/exrrkigDhckmKbac0XWVCBk80BrQWG+rRPSHonc3C7M9gb7vK
+         +Eh1vnq+OfPNmmQ7I0pFrHzeAdJQhuKQmsLpEwm0k/FUvI8fFKWArQWWBKsiMSbZNSyF
+         OHDoIFUQeCrQHBQX2gRdf1TgzFG1ARZ50YY/mGg0Kjji53d87yG/rQtyvfxrCr9xM9JV
+         gtuLGPwOax0YH47BMp4ncaMJ2k26DxkDDETvdB+lMHyMrzeV01/gVlnr58wU9Ux8jWd6
+         caHymWtAv69rz0nZ4xn0B7BFzpScRyq5K2Xj4xr6ixQF06HuRzWp7MEbITpi/A9h17qz
+         lGZw==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) smtp.mailfrom=linux-kernel-owner@vger.kernel.org
+Received: from vger.kernel.org (vger.kernel.org. [209.132.180.67])
+        by mx.google.com with ESMTP id bg7si14082855plb.149.2018.11.21.02.07.19;
+        Wed, 21 Nov 2018 02:07:33 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of linux-kernel-owner@vger.kernel.org designates 209.132.180.67 as permitted sender) client-ip=209.132.180.67;
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1729315AbeKUUjI (ORCPT <rfc822;nullbytes00@gmail.com>
+        + 99 others); Wed, 21 Nov 2018 15:39:08 -0500
+Received: from srv-hp10-72.netsons.net ([94.141.22.72]:49582 "EHLO
+        srv-hp10-72.netsons.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727046AbeKUUjI (ORCPT
+        <rfc822;linux-kernel@vger.kernel.org>);
+        Wed, 21 Nov 2018 15:39:08 -0500
+Received: from [109.168.11.45] (port=57890 helo=[192.168.101.125])
+        by srv-hp10.netsons.net with esmtpsa (TLSv1.2:ECDHE-RSA-AES128-GCM-SHA256:128)
+        (Exim 4.91)
+        (envelope-from <luca@lucaceresoli.net>)
+        id 1gPPNU-00DuM2-AQ; Wed, 21 Nov 2018 11:05:00 +0100
+Subject: Re: [PATCH v4 3/4] media: i2c: Add MAX9286 driver
+To: jacopo mondi <jacopo@jmondi.org>
+Cc: kieran.bingham@ideasonboard.com, linux-renesas-soc@vger.kernel.org,
+        linux-media@vger.kernel.org, devicetree@vger.kernel.org,
+        sakari.ailus@iki.fi,
+        =?UTF-8?Q?Niklas_S=c3=b6derlund?= <niklas.soderlund@ragnatech.se>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
+        linux-kernel@vger.kernel.org,
+        Jacopo Mondi <jacopo+renesas@jmondi.org>,
+        Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>,
+        =?UTF-8?Q?Niklas_S=c3=b6derlund?= 
+        <niklas.soderlund+renesas@ragnatech.se>
+References: <20181102154723.23662-1-kieran.bingham@ideasonboard.com>
+ <20181102154723.23662-4-kieran.bingham@ideasonboard.com>
+ <5238fa80-7678-97a8-47ee-6a26970d862d@lucaceresoli.net>
+ <07ee8a2c-81a8-ca32-96cf-67d6a883e3f5@ideasonboard.com>
+ <e6143de9-f253-1a89-21e0-d1e2c0444e7b@lucaceresoli.net>
+ <417f5bc8-533d-2c2f-2325-3e728d53329b@ideasonboard.com>
+ <6729cf7d-bd5d-d762-3f4a-f53a8791a397@lucaceresoli.net>
+ <20181120174425.GF28299@w540>
+From: Luca Ceresoli <luca@lucaceresoli.net>
+Message-ID: <f1e40fda-1e71-7b8c-adf3-ffc72897db44@lucaceresoli.net>
+Date: Wed, 21 Nov 2018 11:05:00 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.2.1
+MIME-Version: 1.0
+In-Reply-To: <20181120174425.GF28299@w540>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - srv-hp10.netsons.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - lucaceresoli.net
+X-Get-Message-Sender-Via: srv-hp10.netsons.net: authenticated_id: luca@lucaceresoli.net
+X-Authenticated-Sender: srv-hp10.netsons.net: luca@lucaceresoli.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+Sender: liker.xu+caf_=xuliker=zju.edu.cn@gmail.com
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-CM-TRANSID: AQAAfwBXPEhrLvVbQcdiAA--.10974S3
+Authentication-Results: mail-app2; spf=pass smtp.mail=liker.xu+caf_=xu
+	liker=zju.edu.cn@gmail.com;
+X-Coremail-Antispam: 1UD129KBjvJXoWxtrW8JFy7Zr43JrW8uryDZFb_yoWfKrWkpF
+	93tFW7Gr1UXF13Cw42gw1UJr1ayr18J3yUXr1fJryfXrn0y3srtF17G348ury8JrW8ZF17
+	WF4jyFy7Zas0vFDanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUU0bIjqfuFe4nvWSU8nxnvy2
+	9KBjDU0xBIdaVrnRJUUUP2b7Iv0xC_Kw4lb4IE77IF4wAFF20E14v26r1j6r4UM7CIcVAF
+	z4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI
+	8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2
+	z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s0DM2AIxVAIcxkEcV
+	Aq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1j
+	6r18McIj6I8E87Iv67AKxVWxJVW8Jr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcVAKI4
+	8JMx02cVCv0xWlc7I2V7IY0VAS07AlzVAYIcxG8wCY1x0264kExVAvwVAq07x20xylc2xS
+	Y4AK6IIF6r4DMxkI7II2jI8vz4vEwIxGrwCYIxAIcVC0I7IYx2IY67AKxVW5JVW7JwCYIx
+	AIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMxvI42IY6I8E87Iv67AKxVWxJr0_GcWlcIIF
+	0xvEx4A2jsIEc7CjxVAFwI0_Cr1j6rxdMxAIw28IcxkI7VAKI48JMxAIw28IcVAKzI0EY4
+	vE52x082I5MxCjnVCjjxCrMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_
+	Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWUtVW8ZwCIc40Y0x
+	0EwIxGrwCI42IY6xAIw20EY4v20xvaj40_JFI_GrUvcSsGvfC2KfnxnUUI43ZEXa7IUO0z
+	utUUUUU==
+
+Hi Jacopo,
+
+On 20/11/18 18:44, jacopo mondi wrote:
+> Hi Luca,
+> 
+> On Tue, Nov 20, 2018 at 11:51:37AM +0100, Luca Ceresoli wrote:
+>> Hi Kieran,
+>>
+>> On 20/11/18 01:32, Kieran Bingham wrote:
+>>> Hi Luca,
+>>>
+>>> My apologies for my travel induced delay in responding here,
+>>
+>> No problem.
+>>
+>>> On 14/11/2018 02:04, Luca Ceresoli wrote:
+>> [...]
+>>>>>>> +static int max9286_probe(struct i2c_client *client,
+>>>>>>> +			 const struct i2c_device_id *did)
+>>>>>>> +{
+>>>>>>> +	struct max9286_device *dev;
+>>>>>>> +	unsigned int i;
+>>>>>>> +	int ret;
+>>>>>>> +
+>>>>>>> +	dev = kzalloc(sizeof(*dev), GFP_KERNEL);
+>>>>>>> +	if (!dev)
+>>>>>>> +		return -ENOMEM;
+>>>>>>> +
+>>>>>>> +	dev->client = client;
+>>>>>>> +	i2c_set_clientdata(client, dev);
+>>>>>>> +
+>>>>>>> +	for (i = 0; i < MAX9286_N_SINKS; i++)
+>>>>>>> +		max9286_init_format(&dev->fmt[i]);
+>>>>>>> +
+>>>>>>> +	ret = max9286_parse_dt(dev);
+>>>>>>> +	if (ret)
+>>>>>>> +		return ret;
+>>>>>>> +
+>>>>>>> +	dev->regulator = regulator_get(&client->dev, "poc");
+>>>>>>> +	if (IS_ERR(dev->regulator)) {
+>>>>>>> +		if (PTR_ERR(dev->regulator) != -EPROBE_DEFER)
+>>>>>>> +			dev_err(&client->dev,
+>>>>>>> +				"Unable to get PoC regulator (%ld)\n",
+>>>>>>> +				PTR_ERR(dev->regulator));
+>>>>>>> +		ret = PTR_ERR(dev->regulator);
+>>>>>>> +		goto err_free;
+>>>>>>> +	}
+>>>>>>> +
+>>>>>>> +	/*
+>>>>>>> +	 * We can have multiple MAX9286 instances on the same physical I2C
+>>>>>>> +	 * bus, and I2C children behind ports of separate MAX9286 instances
+>>>>>>> +	 * having the same I2C address. As the MAX9286 starts by default with
+>>>>>>> +	 * all ports enabled, we need to disable all ports on all MAX9286
+>>>>>>> +	 * instances before proceeding to further initialize the devices and
+>>>>>>> +	 * instantiate children.
+>>>>>>> +	 *
+>>>>>>> +	 * Start by just disabling all channels on the current device. Then,
+>>>>>>> +	 * if all other MAX9286 on the parent bus have been probed, proceed
+>>>>>>> +	 * to initialize them all, including the current one.
+>>>>>>> +	 */
+>>>>>>> +	max9286_i2c_mux_close(dev);
+>>>>>>> +
+>>>>>>> +	/*
+>>>>>>> +	 * The MAX9286 initialises with auto-acknowledge enabled by default.
+>>>>>>> +	 * This means that if multiple MAX9286 devices are connected to an I2C
+>>>>>>> +	 * bus, another MAX9286 could ack I2C transfers meant for a device on
+>>>>>>> +	 * the other side of the GMSL links for this MAX9286 (such as a
+>>>>>>> +	 * MAX9271). To prevent that disable auto-acknowledge early on; it
+>>>>>>> +	 * will be enabled later as needed.
+>>>>>>> +	 */
+>>>>>>> +	max9286_configure_i2c(dev, false);
+>>>>>>> +
+>>>>>>> +	ret = device_for_each_child(client->dev.parent, &client->dev,
+>>>>>>> +				    max9286_is_bound);
+>>>>>>> +	if (ret)
+>>>>>>> +		return 0;
+>>>>>>> +
+>>>>>>> +	dev_dbg(&client->dev,
+>>>>>>> +		"All max9286 probed: start initialization sequence\n");
+>>>>>>> +	ret = device_for_each_child(client->dev.parent, NULL,
+>>>>>>> +				    max9286_init);
+>>>>>>
+>>>>>> I can't manage to like this initialization sequence, sorry. If at all
+>>>>>> possible, each max9286 should initialize itself independently from each
+>>>>>> other, like any normal driver.
+>>>>>
+>>>>> Yes, I think we're in agreement here, but unfortunately this section is
+>>>>> a workaround for the fact that our devices share a common address space.
+>>>>>
+>>>>> We (currently) *must* disable both devices before we start the
+>>>>> initialisation process for either on our platform currently...
+>>>>
+>>>> The model I proposed in my review to patch 1/4 (split remote physical
+>>>> address from local address pool) allows to avoid this workaround.
+>>>
+>>>
+>>> Having just talked this through with Jacopo I think I see that we have
+>>> two topics getting intertwined here too.
+>>>
+>>>  - Address translation so that we can separate the camera addressing
+>>>
+>>>  - our 'device_is_bound/device_for_each_child()' workaround which lets
+>>>    us make sure the buses are closed before we power on any camera
+>>>    device.
+>>>
+>>>
+>>> For the upstream process of this driver - I will remove the
+>>> 'device_is_bound()/device_for_each_child()' workarounds.
+>>>
+>>>
+>>> It is /ugly/ and needs more consideration, but I believe we do still
+>>> need it (or something similar) for our platform currently.
+>>>
+>>>
+>>>
+>>> The other side of that is the address translation. I think I was wrong
+>>> earlier and may have said we have address translation on both sides.
+>>>
+>>>
+>>> I think I now see that we only have some minimal translation for two
+>>> addresses on the remote (max9271) side, not the local (max9286) side.
+>>
+>> Can the remote (max9271) translate addresses for transactions
+>> originating from the local side? This would make it possible to do a
+>> proper address translation, although 2 addresses is a quite small amount.
+>>
+> 
+> Yes, that's true for systems with a single max9286 [1]
+> 
+> We have a system with 2 de-serializers, and what happens is the
+> following:
+> 
+> The system starts with the following configuration:
+> 
+> 1)
+>                     +------- max9271@40
+>                     +------- max9271@40
+> Soc ----> max9286 --+------- max9271@40
+>                     +------- max9271@40
+> 
+> with a single max9286 it would be easy. We operate on one channel at
+> the time, do the reprogramming (or set up the translation, for the TI
+> chip use case) when adding the adapter for the channel, and then we
+> can talk with all remotes, which now have a different address
+> 
+> 2)
+>                     +-------- max9271@50
+>                     +--- / -- max9271@40
+> Soc ----> max9286 --+--- / -- max9271@40
+>                     +--- / -- max9271@40
+> 
+> 
+>                     +--- / -- max9271@50
+>                     +-------- max9271@51
+> Soc ----> max9286 --+--- / -- max9271@40
+>                     +--- / -- max9271@40
+> 
+>                     +--- / -- max9271@50
+>                     +--- / -- max9271@51
+> Soc ----> max9286 --+-------- max9271@52
+>                     +--- / -- max9271@40
+> 
+>                     +--- / -- max9271@50
+>                     +--- / -- max9271@51
+> Soc ----> max9286 --+--- / -- max9271@52
+>                     +-------- max9271@53
+> 
+> Of course, to do the reprogramming, we need to initially send messages
+> to the default 0x40 address each max9271 boots with. If we don't close
+> all channels but the one we intend to reprogram, all remotes would
+> receive the same message, and thus will be re-programmed to the same
+> address (not nice). [2]
+> 
+> Now, if you have two max9286, installed on the same i2c bus, then you
+> need to make sure all channels of the 'others' are closed, before you
+> can reprogram your remotes, otherwise, you would end up reprogramming
+> all the remotes of the 'others' when trying to reprogram yours, as our
+> local de-serializers, bounces everything they receives, not directed
+> to them, to their remote sides.
+
+This last sentence is the one point that makes things so hard on the
+GMSL chips. In my previous email(s) I partially forgot about this, so I
+was hoping  a better implementation could be possible. Thanks for
+re-focusing me.
+
+It would have been lovely if the hardware designers had at least put an
+i2c mux between the soc and those chatty deserializers... :-\
+
+> 3)
+>                        +-------- max9271@50
+>                        +--- / -- max9271@40
+> Soc --+-> max9286@4c --+--- / -- max9271@40
+>       |                +--- / -- max9271@40
+>       |
+>       |-> max9286@6c --+-------- max9271@50  <-- not nice
+>                        +-------- max9271@50
+>                        +-------- max9271@50
+>                        +-------- max9271@50
+> 
+>                        +--- / -- max9271@50
+>                        +-------- max9271@51
+> Soc --+-> max9286@4c --+--- / -- max9271@40
+>       |                +--- / -- max9271@40
+>       |
+>       |-> max9286@6c --+-------- max9271@51 <-- not nice
+>                        +-------- max9271@51
+>                        +-------- max9271@51
+>                        +-------- max9271@51
+> 
+> ....
+> 
+> With the (not nice) 'max9286_is_bound()' we make sure we close all
+> channels on all max9286 first
+> 
+> 4)
+>                        +--- / -- max9271@40
+>                        +--- / -- max9271@40
+> Soc --+-> max9286@4c --+--- / -- max9271@40
+>       |                +--- / -- max9271@40
+>       |
+>       |-> max9286@6c --+--- / -- max9271@40
+>                        +--- / -- max9271@40
+>                        +--- / -- max9271@40
+>                        +--- / -- max9271@40
+> 
+> And then only the last one to probe calls the re-programming
+> phase for all its fellows de-serializers on the bus.
+> 
+> 5)
+>                        +-------- max9271@50
+>                        +--- / -- max9271@40
+> Soc --+-> max9286@4c --+--- / -- max9271@40
+>       |                +--- / -- max9271@40
+>       |
+>       |-> max9286@6c --+--- / -- max9271@40
+>                        +--- / -- max9271@40
+>                        +--- / -- max9271@40
+>                        +--- / -- max9271@40
+>     ....
+> 
+> 
+>                        +--- / -- max9271@50
+>                        +--- / -- max9271@51
+> Soc --+-> max9286@4c --+--- / -- max9271@52
+>       |                +--- / -- max9271@53
+>       |
+>       |-> max9286@6c --+-------- max9271@54
+>                        +--- / -- max9271@40
+>                        +--- / -- max9271@40
+>                        +--- / -- max9271@40
+> 
+> When addr reprogramming is done, we enter the image streaming phase,
+> with all channels open, as now, all remotes, have a different i2c
+> address assigned.
+> 
+> Suggestions on how to better handle this are very welcome. The point
+> here is that, to me, this is a gmsl-specific implementation thing.
+> 
+> Do you think for your chips, if they do translations, can you easy mask
+> them with the i2c address you want (being that specified in the remote
+> node or selected from an i2c-addr-pool, or something else) without
+> having to care about others remotes to be accidentally programmed to
+> an i2c address they're not intended to be assigned to.
+
+Yes. The TI chips have a "passthrough-all" option to propagate all
+transactions with an unknown address, but it's mostly meant for
+debugging. In normal usage the local chip will propagate (with addresses
+translated) only transactions coming with a known slave address,
+including its own address(es), the remote (de)ser aliases and the remote
+chip aliases. All aliases are disabled until programmed.
+
+> Hope this helps clarify your concerns, and I think the actual issue
+> to discuss, at least on bindings, would be the i2c-address assignment
+> method, as this impacts GMSL, as well as other implementation that
+> would use the same binding style as this patches.
+
+Absolutely.
+
+Bye,
+-- 
+Luca
