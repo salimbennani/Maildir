@@ -8,7 +8,7 @@ fi
 
 echo "" > .procmail/pmlog
 #getmail -a
-getmail -a -d 
+#getmail -a -d 
 
 for i in `ls -1 -d */ 2> /dev/null`
 do
@@ -57,7 +57,7 @@ done
 #for i in `seq 8 1 9`
 #do
 # TODAY=`gdate +%Y_%m_%d`
-TODAY="v4.20-rc4"
+TODAY="v4.20-rc5"
 # TODAY="2018_10_*"
 FILE=../kernel_fanaticism/${TODAY}.txt
 echo "File is ${FILE}"
@@ -84,3 +84,5 @@ echo "git add .;git commit -m \"sync at \`date\`\""
 email_num=`find . | grep ".eml" | wc -l`
 echo "The number of emails is up to ${email_num}. please limit it to 1000"
 # cat ~/.procmailrc| grep -v ":0" | grep -v "From" | grep -v "TO" | grep -v "\/" | sort | uniq
+cd ..
+find . | grep -o "<.*@.*>" | awk -F '@' '{print $2}' | sed 's/>//g'| sort|uniq -c|sort -nr > kernel_fanaticism/hot_organizations.txt
