@@ -57,7 +57,7 @@ done
 #for i in `seq 8 1 9`
 #do
 # TODAY=`gdate +%Y_%m_%d`
-TODAY="v4.20-rc5"
+TODAY="v4.20-rc6"
 # TODAY="2018_10_*"
 FILE=../kernel_fanaticism/${TODAY}.txt
 echo "File is ${FILE}"
