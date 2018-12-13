@@ -30,9 +30,9 @@ fi
 #for var in `ls -1 *.mac4dev.local`
 # likexu-workstation
 # *.likexu-MOBL1
-size=`ls -1 *.likexu-workstation 2> /dev/null | wc -l`
+size=`ls -1 *.i7-8700 2> /dev/null | wc -l`
 if [ ${size} -gt 0 ]; then
-for var in `ls -1 *.likexu-workstation 2> /dev/null`
+for var in `ls -1 *.i7-8700 2> /dev/null`
 do
     SUBJECT=`cat ${var} | grep  "Subject: " | head -n1 | sed 's/Subject: //g' | sed 's/\// /g' | sed 's/:/ /g'| sed 's/\./ /g' | sed 's/-/ /g' | tr -d '[:punct:]' | sed 's/  / /g' | sed 's/ /_/g'`
     NAME=`cat ${var} | grep  "From: " | head -n1 | sed 's/From: //g'`
